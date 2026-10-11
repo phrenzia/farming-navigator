@@ -2,8 +2,11 @@ package com.farmingnavigator;
 
 import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.account.AccountStateService;
+import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.farming.HerbPatchService;
 import com.farmingnavigator.farming.HerbPatchStatus;
+import com.farmingnavigator.transport.HerbPatchTransportService;
+import com.farmingnavigator.transport.TransportOption;
 import com.google.inject.Provides;
 import java.awt.Color;
 import java.awt.Font;
@@ -12,6 +15,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import net.runelite.api.Skill;
@@ -52,6 +56,9 @@ public class FarmingNavigatorPlugin extends Plugin
 
     @Inject
     private HerbPatchService herbPatchService;
+
+    @Inject
+    private HerbPatchTransportService herbPatchTransportService;
 
     private FarmingNavigatorPanel panel;
     private NavigationButton navigationButton;
@@ -134,10 +141,16 @@ public class FarmingNavigatorPlugin extends Plugin
                         accountState
                 );
 
+        Map<HerbPatchDefinition, List<TransportOption>>
+                transportOptions =
+                herbPatchTransportService
+                        .getAllOptions();
+
         SwingUtilities.invokeLater(
                 () -> panel.setAccountState(
                         accountState,
-                        patchStatuses
+                        patchStatuses,
+                        transportOptions
                 )
         );
     }
