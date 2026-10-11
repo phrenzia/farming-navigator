@@ -5,6 +5,8 @@ import com.farmingnavigator.account.AccountStateService;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.farming.HerbPatchService;
 import com.farmingnavigator.farming.HerbPatchStatus;
+import com.farmingnavigator.storage.StorageSnapshot;
+import com.farmingnavigator.storage.StorageStateService;
 import com.farmingnavigator.transport.HerbPatchTransportService;
 import com.farmingnavigator.transport.TransportOption;
 import com.google.inject.Provides;
@@ -18,9 +20,15 @@ import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
+import net.runelite.api.GameState;
 import net.runelite.api.Skill;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.StatChanged;
+import net.runelite.api.events.WidgetClosed;
+import net.runelite.api.events.WidgetLoaded;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.InventoryID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -43,7 +51,8 @@ import net.runelite.client.ui.NavigationButton;
                 "transport"
         }
 )
-public class FarmingNavigatorPlugin extends Plugin
+public class FarmingNavigatorPlugin
+        extends Plugin
 {
     @Inject
     private ClientThread clientThread;
@@ -52,30 +61,47 @@ public class FarmingNavigatorPlugin extends Plugin
     private ClientToolbar clientToolbar;
 
     @Inject
-    private AccountStateService accountStateService;
+    private AccountStateService
+            accountStateService;
 
     @Inject
-    private HerbPatchService herbPatchService;
+    private HerbPatchService
+            herbPatchService;
 
     @Inject
-    private HerbPatchTransportService herbPatchTransportService;
+    private HerbPatchTransportService
+            herbPatchTransportService;
+
+    @Inject
+    private StorageStateService
+            storageStateService;
 
     private FarmingNavigatorPanel panel;
+
     private NavigationButton navigationButton;
 
     @Override
     protected void startUp()
     {
-        panel = new FarmingNavigatorPanel(
-                () -> clientThread.invokeLater(
-                        this::updateAccountState
-                )
-        );
+        storageStateService
+                .invalidateBankSnapshot();
+
+        panel =
+                new FarmingNavigatorPanel(
+                        () ->
+                                clientThread.invokeLater(
+                                        this::updateAccountState
+                                )
+                );
 
         navigationButton =
                 NavigationButton.builder()
-                        .tooltip("Farming Navigator")
-                        .icon(createNavigationIcon())
+                        .tooltip(
+                                "Farming Navigator"
+                        )
+                        .icon(
+                                createNavigationIcon()
+                        )
                         .priority(7)
                         .panel(panel)
                         .build();
@@ -92,7 +118,12 @@ public class FarmingNavigatorPlugin extends Plugin
     @Override
     protected void shutDown()
     {
-        if (navigationButton != null)
+        storageStateService
+                .invalidateBankSnapshot();
+
+        if (
+                navigationButton != null
+        )
         {
             clientToolbar.removeNavigation(
                     navigationButton
@@ -108,6 +139,20 @@ public class FarmingNavigatorPlugin extends Plugin
             GameStateChanged event
     )
     {
+        GameState state =
+                event.getGameState();
+
+        if (
+                state == GameState.LOGIN_SCREEN
+                        || state == GameState.LOGGING_IN
+                        || state == GameState.HOPPING
+                        || state == GameState.CONNECTION_LOST
+        )
+        {
+            storageStateService
+                    .invalidateBankSnapshot();
+        }
+
         clientThread.invokeLater(
                 this::updateAccountState
         );
@@ -118,7 +163,94 @@ public class FarmingNavigatorPlugin extends Plugin
             StatChanged event
     )
     {
-        if (event.getSkill() == Skill.FARMING)
+        if (
+                event.getSkill()
+                        == Skill.FARMING
+        )
+        {
+            clientThread.invokeLater(
+                    this::updateAccountState
+            );
+        }
+    }
+
+    @Subscribe
+    public void onWidgetLoaded(
+            WidgetLoaded event
+    )
+    {
+        if (
+                event.getGroupId()
+                        != InterfaceID.BANKMAIN
+        )
+        {
+            return;
+        }
+
+        storageStateService
+                .setBankOpen(true);
+
+        clientThread.invokeLater(
+                () ->
+                {
+                    storageStateService
+                            .synchronizeBank();
+
+                    updateAccountState();
+                }
+        );
+    }
+
+    @Subscribe
+    public void onWidgetClosed(
+            WidgetClosed event
+    )
+    {
+        if (
+                event.getGroupId()
+                        != InterfaceID.BANKMAIN
+        )
+        {
+            return;
+        }
+
+        storageStateService
+                .setBankOpen(false);
+
+        clientThread.invokeLater(
+                this::updateAccountState
+        );
+    }
+
+    @Subscribe
+    public void onItemContainerChanged(
+            ItemContainerChanged event
+    )
+    {
+        int containerId =
+                event.getContainerId();
+
+        if (
+                containerId == InventoryID.BANK
+                        && storageStateService
+                        .isBankOpen()
+        )
+        {
+            storageStateService
+                    .synchronizeBank();
+
+            clientThread.invokeLater(
+                    this::updateAccountState
+            );
+
+            return;
+        }
+
+        if (
+                containerId == InventoryID.INV
+                        || containerId
+                        == InventoryID.WORN
+        )
         {
             clientThread.invokeLater(
                     this::updateAccountState
@@ -134,24 +266,34 @@ public class FarmingNavigatorPlugin extends Plugin
         }
 
         AccountState accountState =
-                accountStateService.createSnapshot();
+                accountStateService
+                        .createSnapshot();
 
-        List<HerbPatchStatus> patchStatuses =
+        StorageSnapshot storageSnapshot =
+                storageStateService
+                        .createSnapshot();
+
+        List<HerbPatchStatus>
+                patchStatuses =
                 herbPatchService.evaluate(
                         accountState
                 );
 
-        Map<HerbPatchDefinition, List<TransportOption>>
-                transportOptions =
+        Map<
+                HerbPatchDefinition,
+                List<TransportOption>
+                > transportOptions =
                 herbPatchTransportService
                         .getAllOptions();
 
         SwingUtilities.invokeLater(
-                () -> panel.setAccountState(
-                        accountState,
-                        patchStatuses,
-                        transportOptions
-                )
+                () ->
+                        panel.setAccountState(
+                                accountState,
+                                storageSnapshot,
+                                patchStatuses,
+                                transportOptions
+                        )
         );
     }
 
@@ -177,7 +319,11 @@ public class FarmingNavigatorPlugin extends Plugin
             );
 
             graphics.setColor(
-                    new Color(76, 175, 80)
+                    new Color(
+                            76,
+                            175,
+                            80
+                    )
             );
 
             graphics.fillOval(
@@ -187,7 +333,9 @@ public class FarmingNavigatorPlugin extends Plugin
                     size - 2
             );
 
-            graphics.setColor(Color.WHITE);
+            graphics.setColor(
+                    Color.WHITE
+            );
 
             graphics.setFont(
                     new Font(
@@ -203,16 +351,24 @@ public class FarmingNavigatorPlugin extends Plugin
                     graphics.getFontMetrics();
 
             int x =
-                    (size
-                            - fontMetrics
-                            .stringWidth(text))
-                            / 2;
+                    (
+                            size
+                                    - fontMetrics
+                                    .stringWidth(
+                                            text
+                                    )
+                    ) / 2;
 
             int y =
-                    ((size
-                            - fontMetrics.getHeight())
-                            / 2)
-                            + fontMetrics.getAscent();
+                    (
+                            (
+                                    size
+                                            - fontMetrics
+                                            .getHeight()
+                            ) / 2
+                    )
+                            + fontMetrics
+                            .getAscent();
 
             graphics.drawString(
                     text,

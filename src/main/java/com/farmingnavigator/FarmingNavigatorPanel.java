@@ -3,6 +3,7 @@ package com.farmingnavigator;
 import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.farming.HerbPatchStatus;
+import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.transport.TransportOption;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,6 +12,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,35 +47,54 @@ public class FarmingNavigatorPanel extends PluginPanel
     private static final Color MUTED_COLOR =
             new Color(180, 180, 180);
 
+    private static final Color WARNING_COLOR =
+            new Color(255, 190, 80);
+
+    private static final DateTimeFormatter
+            SYNC_TIME_FORMAT =
+            DateTimeFormatter
+                    .ofPattern("HH:mm:ss")
+                    .withZone(
+                            ZoneId.systemDefault()
+                    );
+
     private final JLabel loginStatusLabel =
-            new JLabel("Status: Waiting for login");
+            new JLabel(
+                    "Status: Waiting for login"
+            );
 
     private final JLabel farmingLevelLabel =
-            new JLabel("Farming level: -");
+            new JLabel(
+                    "Farming level: -"
+            );
 
     private final JLabel patchSummaryLabel =
-            new JLabel("Herb patches: -");
+            new JLabel(
+                    "Herb patches: -"
+            );
 
     private final JPanel patchListPanel;
 
     private final JScrollPane patchScrollPane;
 
-    public FarmingNavigatorPanel(Runnable refreshAction)
+    public FarmingNavigatorPanel(
+            Runnable refreshAction
+    )
     {
-        /*
-         * PluginPanel normally creates its own JScrollPane automatically.
-         *
-         * Farming Navigator needs a fixed header with only the patch list
-         * scrolling underneath it, so we disable RuneLite's automatic
-         * wrapper and provide exactly one JScrollPane ourselves.
-         */
         super(false);
 
-        setLayout(new BorderLayout());
-        setBackground(ColorScheme.DARK_GRAY_COLOR);
+        setLayout(
+                new BorderLayout()
+        );
+
+        setBackground(
+                ColorScheme.DARK_GRAY_COLOR
+        );
 
         JPanel headerPanel =
-                createHeaderPanel(refreshAction);
+                createHeaderPanel(
+                        refreshAction
+                );
 
         add(
                 headerPanel,
@@ -106,7 +129,9 @@ public class FarmingNavigatorPanel extends PluginPanel
                         patchListPanel
                 );
 
-        patchScrollPane.setBorder(null);
+        patchScrollPane.setBorder(
+                null
+        );
 
         patchScrollPane.setBackground(
                 ColorScheme.DARK_GRAY_COLOR
@@ -118,25 +143,34 @@ public class FarmingNavigatorPanel extends PluginPanel
                         ColorScheme.DARK_GRAY_COLOR
                 );
 
-        patchScrollPane.setHorizontalScrollBarPolicy(
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
-        );
+        patchScrollPane
+                .setHorizontalScrollBarPolicy(
+                        JScrollPane
+                                .HORIZONTAL_SCROLLBAR_NEVER
+                );
 
-        patchScrollPane.setVerticalScrollBarPolicy(
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
-        );
+        patchScrollPane
+                .setVerticalScrollBarPolicy(
+                        JScrollPane
+                                .VERTICAL_SCROLLBAR_AS_NEEDED
+                );
 
-        patchScrollPane.setWheelScrollingEnabled(
-                true
-        );
+        patchScrollPane
+                .setWheelScrollingEnabled(
+                        true
+                );
 
         patchScrollPane
                 .getVerticalScrollBar()
-                .setUnitIncrement(20);
+                .setUnitIncrement(
+                        20
+                );
 
         patchScrollPane
                 .getVerticalScrollBar()
-                .setBlockIncrement(100);
+                .setBlockIncrement(
+                        100
+                );
 
         add(
                 patchScrollPane,
@@ -328,6 +362,7 @@ public class FarmingNavigatorPanel extends PluginPanel
 
     public void setAccountState(
             AccountState accountState,
+            StorageSnapshot storageSnapshot,
             List<HerbPatchStatus> patchStatuses,
             Map<
                     HerbPatchDefinition,
@@ -346,6 +381,7 @@ public class FarmingNavigatorPanel extends PluginPanel
 
         showLoggedInState(
                 accountState,
+                storageSnapshot,
                 patchStatuses,
                 transportOptionsByPatch
         );
@@ -373,7 +409,7 @@ public class FarmingNavigatorPanel extends PluginPanel
 
         JTextArea message =
                 createWrappedText(
-                        "Log in to load your available farming patches.",
+                        "Log in to load your account state.",
                         ColorScheme.LIGHT_GRAY_COLOR
                 );
 
@@ -387,6 +423,7 @@ public class FarmingNavigatorPanel extends PluginPanel
 
     private void showLoggedInState(
             AccountState accountState,
+            StorageSnapshot storageSnapshot,
             List<HerbPatchStatus> patchStatuses,
             Map<
                     HerbPatchDefinition,
@@ -452,6 +489,14 @@ public class FarmingNavigatorPanel extends PluginPanel
 
         patchListPanel.removeAll();
 
+        addStorageVerificationCard(
+                storageSnapshot
+        );
+
+        patchListPanel.add(
+                Box.createVerticalStrut(10)
+        );
+
         JLabel sectionLabel =
                 new JLabel(
                         "Herb Patch Availability"
@@ -482,8 +527,9 @@ public class FarmingNavigatorPanel extends PluginPanel
 
         JTextArea transportNotice =
                 createWrappedText(
-                        "Travel rankings are baseline only. "
-                                + "Account-aware transport detection comes next.",
+                        "Transport methods are still baseline rankings. "
+                                + "Exact item, charge, spell, and unlock verification "
+                                + "will be connected after the storage engine.",
                         MUTED_COLOR
                 );
 
@@ -524,6 +570,182 @@ public class FarmingNavigatorPanel extends PluginPanel
         }
 
         refreshPatchPanel();
+    }
+
+    private void addStorageVerificationCard(
+            StorageSnapshot storageSnapshot
+    )
+    {
+        JPanel storagePanel =
+                new JPanel();
+
+        storagePanel.setLayout(
+                new BoxLayout(
+                        storagePanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        storagePanel.setBackground(
+                ColorScheme.DARKER_GRAY_COLOR
+        );
+
+        storagePanel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        8,
+                        8,
+                        8,
+                        8
+                )
+        );
+
+        storagePanel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        storagePanel.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        Integer.MAX_VALUE
+                )
+        );
+
+        JLabel heading =
+                new JLabel(
+                        "Verified Storage State"
+                );
+
+        heading.setForeground(
+                Color.WHITE
+        );
+
+        heading.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        storagePanel.add(
+                heading
+        );
+
+        storagePanel.add(
+                Box.createVerticalStrut(5)
+        );
+
+        JTextArea inventoryStatus =
+                createWrappedText(
+                        "\u2713 Inventory: LIVE"
+                                + " ("
+                                + storageSnapshot
+                                .getInventoryDistinctItemCount()
+                                + " item types)",
+                        AVAILABLE_COLOR
+                );
+
+        storagePanel.add(
+                inventoryStatus
+        );
+
+        JTextArea equipmentStatus =
+                createWrappedText(
+                        "\u2713 Equipment: LIVE"
+                                + " ("
+                                + storageSnapshot
+                                .getEquipmentDistinctItemCount()
+                                + " equipped item types)",
+                        AVAILABLE_COLOR
+                );
+
+        storagePanel.add(
+                equipmentStatus
+        );
+
+        if (
+                storageSnapshot
+                        .isBankVerified()
+        )
+        {
+            String syncTime =
+                    formatSyncTime(
+                            storageSnapshot
+                                    .getBankSyncedAt()
+                    );
+
+            JTextArea bankStatus =
+                    createWrappedText(
+                            "\u2713 Main bank: VERIFIED"
+                                    + " ("
+                                    + storageSnapshot
+                                    .getBankDistinctItemCount()
+                                    + " item types)"
+                                    + " - synced "
+                                    + syncTime,
+                            AVAILABLE_COLOR
+                    );
+
+            storagePanel.add(
+                    bankStatus
+            );
+
+            storagePanel.add(
+                    Box.createVerticalStrut(4)
+            );
+
+            JTextArea routeStatus =
+                    createWrappedText(
+                            "Verified storage requirements satisfied for this login session.",
+                            AVAILABLE_COLOR
+                    );
+
+            storagePanel.add(
+                    routeStatus
+            );
+        }
+        else
+        {
+            JTextArea bankStatus =
+                    createWrappedText(
+                            "\u26A0 Main bank: SYNC REQUIRED",
+                            WARNING_COLOR
+                    );
+
+            storagePanel.add(
+                    bankStatus
+            );
+
+            storagePanel.add(
+                    Box.createVerticalStrut(4)
+            );
+
+            JTextArea instruction =
+                    createWrappedText(
+                            "Open any normal bank once. Farming Navigator "
+                                    + "will read the full bank container and mark "
+                                    + "it verified for this login session.",
+                            WARNING_COLOR
+                    );
+
+            storagePanel.add(
+                    instruction
+            );
+
+            storagePanel.add(
+                    Box.createVerticalStrut(4)
+            );
+
+            JTextArea routeStatus =
+                    createWrappedText(
+                            "Verified route planning will remain locked until the bank is synchronized.",
+                            LOCKED_COLOR
+                    );
+
+            storagePanel.add(
+                    routeStatus
+            );
+        }
+
+        patchListPanel.add(
+                storagePanel
+        );
     }
 
     private JPanel createPatchRow(
@@ -631,29 +853,21 @@ public class FarmingNavigatorPanel extends PluginPanel
                 patch.isAlwaysDiseaseFree()
         )
         {
-            JTextArea diseaseFreeLabel =
+            row.add(
                     createWrappedText(
                             "Disease-free patch",
                             DISEASE_FREE_COLOR
-                    );
-
-            row.add(
-                    diseaseFreeLabel
+                    )
             );
         }
 
-        if (
-                status.isUnlocked()
-        )
+        if (status.isUnlocked())
         {
-            JTextArea availableLabel =
+            row.add(
                     createWrappedText(
                             "Available",
                             AVAILABLE_COLOR
-                    );
-
-            row.add(
-                    availableLabel
+                    )
             );
 
             appendTransportOptions(
@@ -678,9 +892,7 @@ public class FarmingNavigatorPanel extends PluginPanel
                     index++
             )
             {
-                if (
-                        index > 0
-                )
+                if (index > 0)
                 {
                     requirements.append(
                             ", "
@@ -694,14 +906,11 @@ public class FarmingNavigatorPanel extends PluginPanel
                 );
             }
 
-            JTextArea lockedLabel =
+            row.add(
                     createWrappedText(
                             requirements.toString(),
                             LOCKED_COLOR
-                    );
-
-            row.add(
-                    lockedLabel
+                    )
             );
         }
 
@@ -713,9 +922,7 @@ public class FarmingNavigatorPanel extends PluginPanel
             List<TransportOption> transportOptions
     )
     {
-        if (
-                transportOptions.isEmpty()
-        )
+        if (transportOptions.isEmpty())
         {
             return;
         }
@@ -724,14 +931,11 @@ public class FarmingNavigatorPanel extends PluginPanel
                 Box.createVerticalStrut(4)
         );
 
-        JTextArea heading =
+        row.add(
                 createWrappedText(
                         "Baseline travel:",
                         MUTED_COLOR
-                );
-
-        row.add(
-                heading
+                )
         );
 
         int numberToShow =
@@ -751,17 +955,14 @@ public class FarmingNavigatorPanel extends PluginPanel
                             index
                     );
 
-            JTextArea optionLabel =
+            row.add(
                     createWrappedText(
                             (index + 1)
                                     + ". "
                                     + option
                                     .getDisplayName(),
                             Color.WHITE
-                    );
-
-            row.add(
-                    optionLabel
+                    )
             );
         }
     }
@@ -829,6 +1030,20 @@ public class FarmingNavigatorPanel extends PluginPanel
         );
 
         return textArea;
+    }
+
+    private String formatSyncTime(
+            Instant instant
+    )
+    {
+        if (instant == null)
+        {
+            return "this session";
+        }
+
+        return SYNC_TIME_FORMAT.format(
+                instant
+        );
     }
 
     private void resetScrollPosition()
