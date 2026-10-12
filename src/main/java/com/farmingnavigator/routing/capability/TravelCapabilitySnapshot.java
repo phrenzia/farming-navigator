@@ -19,12 +19,25 @@ public class TravelCapabilitySnapshot
     private final Map<Integer, Integer>
             equipmentQuantities;
 
+    /*
+     * Rune-pouch runes that are currently usable because
+     * the pouch is being carried.
+     */
     private final Map<Integer, Integer>
             runePouchQuantities;
 
     /*
-     * Compatibility constructor used by the previous milestone
-     * and its tests.
+     * The raw contents recorded in the player's rune-pouch
+     * varbits, regardless of whether the pouch is currently
+     * carried or stored in the verified bank.
+     */
+    private final Map<Integer, Integer>
+            storedRunePouchQuantities;
+
+    private final boolean runePouchCarried;
+
+    /*
+     * Compatibility constructor used by older tests.
      */
     public TravelCapabilitySnapshot(
             boolean loggedIn,
@@ -39,7 +52,36 @@ public class TravelCapabilitySnapshot
                 currentLocation,
                 Collections.emptyMap(),
                 Collections.emptyMap(),
-                runePouchQuantities
+                runePouchQuantities,
+                runePouchQuantities,
+                runePouchQuantities != null
+                        && !runePouchQuantities.isEmpty()
+        );
+    }
+
+    /*
+     * Compatibility constructor from the carried-item
+     * verification milestone.
+     */
+    public TravelCapabilitySnapshot(
+            boolean loggedIn,
+            SpellbookType activeSpellbook,
+            WorldPoint currentLocation,
+            Map<Integer, Integer> inventoryQuantities,
+            Map<Integer, Integer> equipmentQuantities,
+            Map<Integer, Integer> runePouchQuantities
+    )
+    {
+        this(
+                loggedIn,
+                activeSpellbook,
+                currentLocation,
+                inventoryQuantities,
+                equipmentQuantities,
+                runePouchQuantities,
+                runePouchQuantities,
+                runePouchQuantities != null
+                        && !runePouchQuantities.isEmpty()
         );
     }
 
@@ -49,7 +91,9 @@ public class TravelCapabilitySnapshot
             WorldPoint currentLocation,
             Map<Integer, Integer> inventoryQuantities,
             Map<Integer, Integer> equipmentQuantities,
-            Map<Integer, Integer> runePouchQuantities
+            Map<Integer, Integer> runePouchQuantities,
+            Map<Integer, Integer> storedRunePouchQuantities,
+            boolean runePouchCarried
     )
     {
         this.loggedIn =
@@ -77,6 +121,14 @@ public class TravelCapabilitySnapshot
                 createImmutableCopy(
                         runePouchQuantities
                 );
+
+        this.storedRunePouchQuantities =
+                createImmutableCopy(
+                        storedRunePouchQuantities
+                );
+
+        this.runePouchCarried =
+                runePouchCarried;
     }
 
     public static TravelCapabilitySnapshot loggedOut()
@@ -87,7 +139,9 @@ public class TravelCapabilitySnapshot
                 null,
                 Collections.emptyMap(),
                 Collections.emptyMap(),
-                Collections.emptyMap()
+                Collections.emptyMap(),
+                Collections.emptyMap(),
+                false
         );
     }
 
@@ -122,6 +176,17 @@ public class TravelCapabilitySnapshot
     getRunePouchQuantities()
     {
         return runePouchQuantities;
+    }
+
+    public Map<Integer, Integer>
+    getStoredRunePouchQuantities()
+    {
+        return storedRunePouchQuantities;
+    }
+
+    public boolean isRunePouchCarried()
+    {
+        return runePouchCarried;
     }
 
     public int getInventoryQuantity(
@@ -188,6 +253,16 @@ public class TravelCapabilitySnapshot
     )
     {
         return runePouchQuantities.getOrDefault(
+                itemId,
+                0
+        );
+    }
+
+    public int getStoredRunePouchQuantity(
+            int itemId
+    )
+    {
+        return storedRunePouchQuantities.getOrDefault(
                 itemId,
                 0
         );

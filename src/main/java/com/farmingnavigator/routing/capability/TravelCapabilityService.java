@@ -1,5 +1,6 @@
 package com.farmingnavigator.routing.capability;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -17,18 +18,28 @@ import net.runelite.api.gameval.VarbitID;
 
 public class TravelCapabilityService
 {
+    /*
+     * Current RuneLite's Rune Pouch overlay reads all six
+     * available rune-pouch varbit slots.
+     *
+     * Empty/unused slots simply contain zero.
+     */
     private static final int[] RUNE_POUCH_AMOUNT_VARBITS = {
             VarbitID.RUNE_POUCH_QUANTITY_1,
             VarbitID.RUNE_POUCH_QUANTITY_2,
             VarbitID.RUNE_POUCH_QUANTITY_3,
-            VarbitID.RUNE_POUCH_QUANTITY_4
+            VarbitID.RUNE_POUCH_QUANTITY_4,
+            VarbitID.RUNE_POUCH_QUANTITY_5,
+            VarbitID.RUNE_POUCH_QUANTITY_6
     };
 
     private static final int[] RUNE_POUCH_RUNE_VARBITS = {
             VarbitID.RUNE_POUCH_TYPE_1,
             VarbitID.RUNE_POUCH_TYPE_2,
             VarbitID.RUNE_POUCH_TYPE_3,
-            VarbitID.RUNE_POUCH_TYPE_4
+            VarbitID.RUNE_POUCH_TYPE_4,
+            VarbitID.RUNE_POUCH_TYPE_5,
+            VarbitID.RUNE_POUCH_TYPE_6
     };
 
     private final Client client;
@@ -75,11 +86,36 @@ public class TravelCapabilityService
                         InventoryID.WORN
                 );
 
+        /*
+         * Read the underlying pouch varbits even when the pouch
+         * is not being carried.
+         *
+         * We keep these contents separate from "usable right now".
+         * The requirement engine will only use stored contents
+         * when it can also prove that the pouch is accessible.
+         */
         Map<Integer, Integer>
-                runePouchQuantities =
-                readRunePouchQuantities(
+                storedRunePouchQuantities =
+                readStoredRunePouchQuantities();
+
+        boolean runePouchCarried =
+                hasCarriedRunePouch(
                         inventoryQuantities
                 );
+
+        Map<Integer, Integer>
+                usableRunePouchQuantities;
+
+        if (runePouchCarried)
+        {
+            usableRunePouchQuantities =
+                    storedRunePouchQuantities;
+        }
+        else
+        {
+            usableRunePouchQuantities =
+                    Collections.emptyMap();
+        }
 
         return new TravelCapabilitySnapshot(
                 true,
@@ -87,7 +123,9 @@ public class TravelCapabilityService
                 currentLocation,
                 inventoryQuantities,
                 equipmentQuantities,
-                runePouchQuantities
+                usableRunePouchQuantities,
+                storedRunePouchQuantities,
+                runePouchCarried
         );
     }
 
@@ -148,21 +186,10 @@ public class TravelCapabilityService
     }
 
     private Map<Integer, Integer>
-    readRunePouchQuantities(
-            Map<Integer, Integer> inventoryQuantities
-    )
+    readStoredRunePouchQuantities()
     {
         Map<Integer, Integer> quantities =
                 new LinkedHashMap<>();
-
-        if (
-                !hasCarriedRunePouch(
-                        inventoryQuantities
-                )
-        )
-        {
-            return quantities;
-        }
 
         EnumComposition runePouchEnum =
                 client.getEnum(
