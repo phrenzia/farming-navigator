@@ -30,10 +30,12 @@ import net.runelite.api.Skill;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.StatChanged;
+import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -183,15 +185,39 @@ public class FarmingNavigatorPlugin
             StatChanged event
     )
     {
+        Skill skill =
+                event.getSkill();
+
         if (
-                event.getSkill()
-                        == Skill.FARMING
+                skill == Skill.FARMING
+                        || skill == Skill.MAGIC
+                        || skill == Skill.AGILITY
+                        || skill == Skill.HUNTER
         )
         {
             clientThread.invokeLater(
                     this::updateAccountState
             );
         }
+    }
+
+    @Subscribe
+    public void onVarbitChanged(
+            VarbitChanged event
+    )
+    {
+        if (
+                !isTravelCapabilityVarbit(
+                        event.getVarbitId()
+                )
+        )
+        {
+            return;
+        }
+
+        clientThread.invokeLater(
+                this::updateAccountState
+        );
     }
 
     @Subscribe
@@ -295,6 +321,34 @@ public class FarmingNavigatorPlugin
             clientThread.invokeLater(
                     this::updateAccountState
             );
+        }
+    }
+
+    private boolean isTravelCapabilityVarbit(
+            int varbitId
+    )
+    {
+        switch (varbitId)
+        {
+            case VarbitID.SPELLBOOK:
+
+            case VarbitID.RUNE_POUCH_QUANTITY_1:
+            case VarbitID.RUNE_POUCH_QUANTITY_2:
+            case VarbitID.RUNE_POUCH_QUANTITY_3:
+            case VarbitID.RUNE_POUCH_QUANTITY_4:
+            case VarbitID.RUNE_POUCH_QUANTITY_5:
+            case VarbitID.RUNE_POUCH_QUANTITY_6:
+
+            case VarbitID.RUNE_POUCH_TYPE_1:
+            case VarbitID.RUNE_POUCH_TYPE_2:
+            case VarbitID.RUNE_POUCH_TYPE_3:
+            case VarbitID.RUNE_POUCH_TYPE_4:
+            case VarbitID.RUNE_POUCH_TYPE_5:
+            case VarbitID.RUNE_POUCH_TYPE_6:
+                return true;
+
+            default:
+                return false;
         }
     }
 
