@@ -5,6 +5,7 @@ import com.farmingnavigator.account.AccountStateService;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.farming.HerbPatchService;
 import com.farmingnavigator.farming.HerbPatchStatus;
+import com.farmingnavigator.poh.PohProfileService;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.storage.StorageStateService;
 import com.farmingnavigator.transport.HerbPatchTransportService;
@@ -34,6 +35,7 @@ import net.runelite.api.gameval.InventoryID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
@@ -63,19 +65,31 @@ public class FarmingNavigatorPlugin
     private ClientToolbar clientToolbar;
 
     @Inject
-    private AccountStateService accountStateService;
+    private FarmingNavigatorConfig config;
 
     @Inject
-    private HerbPatchService herbPatchService;
+    private AccountStateService
+            accountStateService;
 
     @Inject
-    private HerbPatchTransportService herbPatchTransportService;
+    private HerbPatchService
+            herbPatchService;
 
     @Inject
-    private StorageStateService storageStateService;
+    private HerbPatchTransportService
+            herbPatchTransportService;
 
     @Inject
-    private TransportVerificationService transportVerificationService;
+    private StorageStateService
+            storageStateService;
+
+    @Inject
+    private TransportVerificationService
+            transportVerificationService;
+
+    @Inject
+    private PohProfileService
+            pohProfileService;
 
     private FarmingNavigatorPanel panel;
 
@@ -92,7 +106,8 @@ public class FarmingNavigatorPlugin
                         () ->
                                 clientThread.invokeLater(
                                         this::updateAccountState
-                                )
+                                ),
+                        pohProfileService
                 );
 
         navigationButton =
@@ -171,6 +186,26 @@ public class FarmingNavigatorPlugin
                     this::updateAccountState
             );
         }
+    }
+
+    @Subscribe
+    public void onConfigChanged(
+            ConfigChanged event
+    )
+    {
+        if (
+                !FarmingNavigatorConfig.GROUP
+                        .equals(
+                                event.getGroup()
+                        )
+        )
+        {
+            return;
+        }
+
+        clientThread.invokeLater(
+                this::updateAccountState
+        );
     }
 
     @Subscribe
@@ -301,12 +336,14 @@ public class FarmingNavigatorPlugin
                                 accountState,
                                 storageSnapshot,
                                 patchStatuses,
-                                verifiedTransportResults
+                                verifiedTransportResults,
+                                config
                         )
         );
     }
 
-    private BufferedImage createNavigationIcon()
+    private BufferedImage
+    createNavigationIcon()
     {
         final int size = 16;
 
@@ -354,15 +391,16 @@ public class FarmingNavigatorPlugin
                     )
             );
 
-            String text = "F";
+            String text =
+                    "F";
 
-            FontMetrics fontMetrics =
+            FontMetrics metrics =
                     graphics.getFontMetrics();
 
             int x =
                     (
                             size
-                                    - fontMetrics
+                                    - metrics
                                     .stringWidth(
                                             text
                                     )
@@ -372,11 +410,11 @@ public class FarmingNavigatorPlugin
                     (
                             (
                                     size
-                                            - fontMetrics
+                                            - metrics
                                             .getHeight()
                             ) / 2
                     )
-                            + fontMetrics
+                            + metrics
                             .getAscent();
 
             graphics.drawString(

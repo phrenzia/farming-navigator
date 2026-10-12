@@ -3,6 +3,10 @@ package com.farmingnavigator;
 import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.farming.HerbPatchStatus;
+import com.farmingnavigator.poh.PohHouseLocation;
+import com.farmingnavigator.poh.PohJewelleryBoxTier;
+import com.farmingnavigator.poh.PohPortalDestination;
+import com.farmingnavigator.poh.PohProfileService;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.transport.VerifiedTransportResult;
 import com.farmingnavigator.transport.VerifiedTransportState;
@@ -11,30 +15,43 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
 
-public class FarmingNavigatorPanel extends PluginPanel
+public class FarmingNavigatorPanel
+        extends PluginPanel
 {
     private static final Color AVAILABLE_COLOR =
             new Color(120, 220, 120);
@@ -54,6 +71,17 @@ public class FarmingNavigatorPanel extends PluginPanel
     private static final Color BANK_AVAILABLE_COLOR =
             new Color(110, 190, 255);
 
+    /*
+     * This width applies only to manually wrapped body text.
+     *
+     * The header no longer uses fixed text widths at all.
+     */
+    private static final int TEXT_WRAP_WIDTH =
+            180;
+
+    private static final int EDITOR_CONTROL_WIDTH =
+            188;
+
     private static final DateTimeFormatter SYNC_TIME_FORMAT =
             DateTimeFormatter
                     .ofPattern("HH:mm:ss")
@@ -61,30 +89,48 @@ public class FarmingNavigatorPanel extends PluginPanel
                             ZoneId.systemDefault()
                     );
 
+    private final Runnable refreshAction;
+
+    private final PohProfileService pohProfileService;
+
     private final JLabel loginStatusLabel =
             new JLabel(
-                    "Status: Waiting for login"
+                    "Status: Waiting for login",
+                    SwingConstants.CENTER
             );
 
     private final JLabel farmingLevelLabel =
             new JLabel(
-                    "Farming level: -"
+                    "Farming level: -",
+                    SwingConstants.CENTER
             );
 
     private final JLabel patchSummaryLabel =
             new JLabel(
-                    "Herb patches: -"
+                    "Herb patches: -",
+                    SwingConstants.CENTER
             );
 
     private final JPanel patchListPanel;
 
     private final JScrollPane patchScrollPane;
 
+    private boolean pohEditorOpen;
+
+    private boolean scrollToTopOnNextRefresh;
+
     public FarmingNavigatorPanel(
-            Runnable refreshAction
+            Runnable refreshAction,
+            PohProfileService pohProfileService
     )
     {
         super(false);
+
+        this.refreshAction =
+                refreshAction;
+
+        this.pohProfileService =
+                pohProfileService;
 
         setLayout(
                 new BorderLayout()
@@ -94,13 +140,8 @@ public class FarmingNavigatorPanel extends PluginPanel
                 ColorScheme.DARK_GRAY_COLOR
         );
 
-        JPanel headerPanel =
-                createHeaderPanel(
-                        refreshAction
-                );
-
         add(
-                headerPanel,
+                createHeaderPanel(),
                 BorderLayout.NORTH
         );
 
@@ -179,19 +220,12 @@ public class FarmingNavigatorPanel extends PluginPanel
         );
     }
 
-    private JPanel createHeaderPanel(
-            Runnable refreshAction
-    )
+    private JPanel createHeaderPanel()
     {
         JPanel headerPanel =
-                new JPanel();
-
-        headerPanel.setLayout(
-                new BoxLayout(
-                        headerPanel,
-                        BoxLayout.Y_AXIS
-                )
-        );
+                new JPanel(
+                        new GridBagLayout()
+                );
 
         headerPanel.setBackground(
                 ColorScheme.DARK_GRAY_COLOR
@@ -206,32 +240,54 @@ public class FarmingNavigatorPanel extends PluginPanel
                 )
         );
 
+        GridBagConstraints constraints =
+                new GridBagConstraints();
+
+        constraints.gridx = 0;
+        constraints.weightx = 1.0;
+        constraints.fill =
+                GridBagConstraints.HORIZONTAL;
+
         JLabel titleLabel =
-                new JLabel(
+                createFullWidthCenteredLabel(
                         "Farming Navigator",
-                        SwingConstants.CENTER
+                        Color.WHITE
                 );
 
-        titleLabel.setForeground(
-                Color.WHITE
-        );
+        constraints.gridy = 0;
 
-        titleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
+        constraints.insets =
+                new Insets(
+                        0,
+                        0,
+                        5,
+                        0
+                );
+
+        headerPanel.add(
+                titleLabel,
+                constraints
         );
 
         JLabel descriptionLabel =
-                new JLabel(
-                        "Account-aware farming planning",
-                        SwingConstants.CENTER
+                createFullWidthCenteredLabel(
+                        "Farming route planner",
+                        ColorScheme.LIGHT_GRAY_COLOR
                 );
 
-        descriptionLabel.setForeground(
-                ColorScheme.LIGHT_GRAY_COLOR
-        );
+        constraints.gridy = 1;
 
-        descriptionLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
+        constraints.insets =
+                new Insets(
+                        0,
+                        0,
+                        10,
+                        0
+                );
+
+        headerPanel.add(
+                descriptionLabel,
+                constraints
         );
 
         JPanel statePanel =
@@ -240,7 +296,7 @@ public class FarmingNavigatorPanel extends PluginPanel
                                 0,
                                 1,
                                 0,
-                                4
+                                5
                         )
                 );
 
@@ -250,34 +306,23 @@ public class FarmingNavigatorPanel extends PluginPanel
 
         statePanel.setBorder(
                 new EmptyBorder(
+                        9,
                         8,
-                        8,
-                        8,
+                        9,
                         8
                 )
         );
 
-        statePanel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
+        configureStatusLabel(
+                loginStatusLabel
         );
 
-        statePanel.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        90
-                )
+        configureStatusLabel(
+                farmingLevelLabel
         );
 
-        loginStatusLabel.setForeground(
-                ColorScheme.LIGHT_GRAY_COLOR
-        );
-
-        farmingLevelLabel.setForeground(
-                ColorScheme.LIGHT_GRAY_COLOR
-        );
-
-        patchSummaryLabel.setForeground(
-                ColorScheme.LIGHT_GRAY_COLOR
+        configureStatusLabel(
+                patchSummaryLabel
         );
 
         statePanel.add(
@@ -292,6 +337,21 @@ public class FarmingNavigatorPanel extends PluginPanel
                 patchSummaryLabel
         );
 
+        constraints.gridy = 2;
+
+        constraints.insets =
+                new Insets(
+                        0,
+                        0,
+                        7,
+                        0
+                );
+
+        headerPanel.add(
+                statePanel,
+                constraints
+        );
+
         JPanel buttonPanel =
                 new JPanel(
                         new FlowLayout(
@@ -303,17 +363,6 @@ public class FarmingNavigatorPanel extends PluginPanel
 
         buttonPanel.setBackground(
                 ColorScheme.DARK_GRAY_COLOR
-        );
-
-        buttonPanel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        buttonPanel.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        40
-                )
         );
 
         JButton refreshButton =
@@ -330,21 +379,78 @@ public class FarmingNavigatorPanel extends PluginPanel
                 refreshButton
         );
 
-        headerPanel.add(titleLabel);
+        constraints.gridy = 3;
+
+        constraints.insets =
+                new Insets(
+                        0,
+                        0,
+                        0,
+                        0
+                );
+
         headerPanel.add(
-                Box.createVerticalStrut(4)
+                buttonPanel,
+                constraints
         );
-        headerPanel.add(descriptionLabel);
-        headerPanel.add(
-                Box.createVerticalStrut(8)
-        );
-        headerPanel.add(statePanel);
-        headerPanel.add(
-                Box.createVerticalStrut(6)
-        );
-        headerPanel.add(buttonPanel);
 
         return headerPanel;
+    }
+
+    private JLabel createFullWidthCenteredLabel(
+            String text,
+            Color color
+    )
+    {
+        JLabel label =
+                new JLabel(
+                        text,
+                        SwingConstants.CENTER
+                );
+
+        label.setForeground(
+                color
+        );
+
+        /*
+         * RuneLite's font can paint extremely close to a JLabel's
+         * measured text boundary.
+         *
+         * These side insets ensure the first and final glyph always
+         * have real drawing space instead of sitting on the clip edge.
+         */
+        label.setBorder(
+                new EmptyBorder(
+                        1,
+                        8,
+                        1,
+                        8
+                )
+        );
+
+        return label;
+    }
+
+    private void configureStatusLabel(
+            JLabel label
+    )
+    {
+        label.setHorizontalAlignment(
+                SwingConstants.CENTER
+        );
+
+        label.setForeground(
+                ColorScheme.LIGHT_GRAY_COLOR
+        );
+
+        label.setBorder(
+                new EmptyBorder(
+                        1,
+                        8,
+                        1,
+                        8
+                )
+        );
     }
 
     public void setAccountState(
@@ -354,15 +460,34 @@ public class FarmingNavigatorPanel extends PluginPanel
             Map<
                     HerbPatchDefinition,
                     List<VerifiedTransportResult>
-                    > transportResultsByPatch
+                    > transportResultsByPatch,
+            FarmingNavigatorConfig config
     )
     {
+        int savedScrollPosition;
+
+        if (scrollToTopOnNextRefresh)
+        {
+            savedScrollPosition = 0;
+
+            scrollToTopOnNextRefresh =
+                    false;
+        }
+        else
+        {
+            savedScrollPosition =
+                    getCurrentScrollPosition();
+        }
+
         if (
                 accountState == null
                         || !accountState.isLoggedIn()
         )
         {
-            showLoggedOutState();
+            showLoggedOutState(
+                    savedScrollPosition
+            );
+
             return;
         }
 
@@ -370,11 +495,15 @@ public class FarmingNavigatorPanel extends PluginPanel
                 accountState,
                 storageSnapshot,
                 patchStatuses,
-                transportResultsByPatch
+                transportResultsByPatch,
+                config,
+                savedScrollPosition
         );
     }
 
-    private void showLoggedOutState()
+    private void showLoggedOutState(
+            int savedScrollPosition
+    )
     {
         loginStatusLabel.setText(
                 "Status: Not logged in"
@@ -401,8 +530,9 @@ public class FarmingNavigatorPanel extends PluginPanel
                 )
         );
 
-        resetScrollPosition();
-        refreshPatchPanel();
+        refreshPatchPanel(
+                savedScrollPosition
+        );
     }
 
     private void showLoggedInState(
@@ -412,7 +542,9 @@ public class FarmingNavigatorPanel extends PluginPanel
             Map<
                     HerbPatchDefinition,
                     List<VerifiedTransportResult>
-                    > transportResultsByPatch
+                    > transportResultsByPatch,
+            FarmingNavigatorConfig config,
+            int savedScrollPosition
     )
     {
         loginStatusLabel.setText(
@@ -424,15 +556,20 @@ public class FarmingNavigatorPanel extends PluginPanel
         );
 
         if (
-                accountState.getBoostedFarmingLevel()
-                        != accountState.getRealFarmingLevel()
+                accountState
+                        .getBoostedFarmingLevel()
+                        !=
+                        accountState
+                                .getRealFarmingLevel()
         )
         {
             farmingLevelLabel.setText(
                     "Farming level: "
-                            + accountState.getRealFarmingLevel()
+                            + accountState
+                            .getRealFarmingLevel()
                             + " (boosted "
-                            + accountState.getBoostedFarmingLevel()
+                            + accountState
+                            .getBoostedFarmingLevel()
                             + ")"
             );
         }
@@ -440,7 +577,8 @@ public class FarmingNavigatorPanel extends PluginPanel
         {
             farmingLevelLabel.setText(
                     "Farming level: "
-                            + accountState.getRealFarmingLevel()
+                            + accountState
+                            .getRealFarmingLevel()
             );
         }
 
@@ -451,7 +589,9 @@ public class FarmingNavigatorPanel extends PluginPanel
                 : patchStatuses
         )
         {
-            if (status.isUnlocked())
+            if (
+                    status.isUnlocked()
+            )
             {
                 unlockedCount++;
             }
@@ -472,37 +612,52 @@ public class FarmingNavigatorPanel extends PluginPanel
         );
 
         patchListPanel.add(
-                Box.createVerticalStrut(10)
+                Box.createVerticalStrut(8)
         );
 
-        JLabel sectionLabel =
-                new JLabel(
-                        "Herb Patch Availability"
+        addPohProfileCard(
+                config
+        );
+
+        if (
+                pohEditorOpen
+        )
+        {
+            patchListPanel.add(
+                    Box.createVerticalStrut(8)
+            );
+
+            addPohEditorCard(
+                    config
+            );
+        }
+
+        patchListPanel.add(
+                Box.createVerticalStrut(12)
+        );
+
+        JLabel sectionHeading =
+                createSafeSingleLineLabel(
+                        "Herb Patch Availability",
+                        Color.WHITE
                 );
 
-        sectionLabel.setForeground(
-                Color.WHITE
-        );
-
-        sectionLabel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
+        patchListPanel.add(
+                sectionHeading
         );
 
         patchListPanel.add(
-                sectionLabel
+                Box.createVerticalStrut(7)
         );
 
-        patchListPanel.add(
-                Box.createVerticalStrut(4)
-        );
-
-        if (storageSnapshot.isBankVerified())
+        if (
+                storageSnapshot.isBankVerified()
+        )
         {
             patchListPanel.add(
                     createWrappedText(
-                            "Only fully verified transport checks are shown. "
-                                    + "Unimplemented spell, POH, fairy-ring, diary-use, "
-                                    + "and special charge checks are excluded from ranking.",
+                            "Verified item transport checks are active. "
+                                    + "POH-aware route planning is the next step.",
                             MUTED_COLOR
                     )
             );
@@ -511,7 +666,7 @@ public class FarmingNavigatorPanel extends PluginPanel
         {
             patchListPanel.add(
                     createWrappedText(
-                            "Transport ranking is disabled until the bank is synchronized.",
+                            "Open a bank once before verified route planning.",
                             WARNING_COLOR
                     )
             );
@@ -526,8 +681,7 @@ public class FarmingNavigatorPanel extends PluginPanel
                 : patchStatuses
         )
         {
-            List<VerifiedTransportResult>
-                    results =
+            List<VerifiedTransportResult> results =
                     transportResultsByPatch
                             .getOrDefault(
                                     status.getPatch(),
@@ -538,7 +692,8 @@ public class FarmingNavigatorPanel extends PluginPanel
                     createPatchRow(
                             status,
                             results,
-                            storageSnapshot.isBankVerified()
+                            storageSnapshot
+                                    .isBankVerified()
                     )
             );
 
@@ -547,63 +702,29 @@ public class FarmingNavigatorPanel extends PluginPanel
             );
         }
 
-        refreshPatchPanel();
+        refreshPatchPanel(
+                savedScrollPosition
+        );
     }
 
     private void addStorageVerificationCard(
             StorageSnapshot storageSnapshot
     )
     {
-        JPanel storagePanel =
-                new JPanel();
+        JPanel panel =
+                createCardPanel();
 
-        storagePanel.setLayout(
-                new BoxLayout(
-                        storagePanel,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        storagePanel.setBackground(
-                ColorScheme.DARKER_GRAY_COLOR
-        );
-
-        storagePanel.setBorder(
-                BorderFactory.createEmptyBorder(
-                        8,
-                        8,
-                        8,
-                        8
-                )
-        );
-
-        storagePanel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        storagePanel.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        Integer.MAX_VALUE
-                )
-        );
-
-        JLabel heading =
-                new JLabel(
+        panel.add(
+                createCardHeading(
                         "Verified Storage State"
-                );
-
-        heading.setForeground(
-                Color.WHITE
+                )
         );
 
-        storagePanel.add(heading);
-
-        storagePanel.add(
-                Box.createVerticalStrut(5)
+        panel.add(
+                Box.createVerticalStrut(7)
         );
 
-        storagePanel.add(
+        panel.add(
                 createWrappedText(
                         "\u2713 Inventory: LIVE ("
                                 + storageSnapshot
@@ -613,7 +734,11 @@ public class FarmingNavigatorPanel extends PluginPanel
                 )
         );
 
-        storagePanel.add(
+        panel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        panel.add(
                 createWrappedText(
                         "\u2713 Equipment: LIVE ("
                                 + storageSnapshot
@@ -623,7 +748,14 @@ public class FarmingNavigatorPanel extends PluginPanel
                 )
         );
 
-        if (storageSnapshot.isBankVerified())
+        panel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        if (
+                storageSnapshot
+                        .isBankVerified()
+        )
         {
             String syncTime =
                     formatSyncTime(
@@ -631,31 +763,41 @@ public class FarmingNavigatorPanel extends PluginPanel
                                     .getBankSyncedAt()
                     );
 
-            storagePanel.add(
+            panel.add(
                     createWrappedText(
-                            "\u2713 Main bank: VERIFIED ("
-                                    + storageSnapshot
-                                    .getBankDistinctItemCount()
-                                    + " item types) - synced "
-                                    + syncTime,
+                            "\u2713 Main bank: VERIFIED",
                             AVAILABLE_COLOR
+                    )
+            );
+
+            panel.add(
+                    Box.createVerticalStrut(3)
+            );
+
+            panel.add(
+                    createWrappedText(
+                            storageSnapshot
+                                    .getBankDistinctItemCount()
+                                    + " item types - synced "
+                                    + syncTime,
+                            MUTED_COLOR
                     )
             );
         }
         else
         {
-            storagePanel.add(
+            panel.add(
                     createWrappedText(
                             "\u26A0 Main bank: SYNC REQUIRED",
                             WARNING_COLOR
                     )
             );
 
-            storagePanel.add(
-                    Box.createVerticalStrut(4)
+            panel.add(
+                    Box.createVerticalStrut(5)
             );
 
-            storagePanel.add(
+            panel.add(
                     createWrappedText(
                             "Open any normal bank once before verified route planning.",
                             WARNING_COLOR
@@ -664,70 +806,505 @@ public class FarmingNavigatorPanel extends PluginPanel
         }
 
         patchListPanel.add(
-                storagePanel
+                panel
+        );
+    }
+
+    private void addPohProfileCard(
+            FarmingNavigatorConfig config
+    )
+    {
+        JPanel panel =
+                createCardPanel();
+
+        panel.add(
+                createCardHeading(
+                        "Player-Owned House"
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(7)
+        );
+
+        panel.add(
+                createWrappedText(
+                        "House location: "
+                                + config
+                                .pohHouseLocation()
+                                .getDisplayName(),
+                        config
+                                .pohHouseLocation()
+                                .hasHouse()
+                                ? AVAILABLE_COLOR
+                                : MUTED_COLOR
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        panel.add(
+                createWrappedText(
+                        "Jewellery box: "
+                                + config
+                                .pohJewelleryBox()
+                                .getDisplayName(),
+                        Color.WHITE
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        panel.add(
+                createWrappedText(
+                        "Fairy ring: "
+                                + yesNo(
+                                config.pohFairyRing()
+                        ),
+                        config.pohFairyRing()
+                                ? AVAILABLE_COLOR
+                                : MUTED_COLOR
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        panel.add(
+                createWrappedText(
+                        "Spirit tree: "
+                                + yesNo(
+                                config.pohSpiritTree()
+                        ),
+                        config.pohSpiritTree()
+                                ? AVAILABLE_COLOR
+                                : MUTED_COLOR
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        panel.add(
+                createWrappedText(
+                        "Mounted Xeric's talisman: "
+                                + yesNo(
+                                config
+                                        .pohMountedXericsTalisman()
+                        ),
+                        config
+                                .pohMountedXericsTalisman()
+                                ? AVAILABLE_COLOR
+                                : MUTED_COLOR
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        Set<PohPortalDestination> destinations =
+                config.pohPortalDestinations();
+
+        if (
+                destinations == null
+                        || destinations.isEmpty()
+        )
+        {
+            panel.add(
+                    createWrappedText(
+                            "Portal destinations: None selected",
+                            MUTED_COLOR
+                    )
+            );
+        }
+        else
+        {
+            panel.add(
+                    createWrappedText(
+                            "Portal destinations: "
+                                    + formatPortalDestinations(
+                                    destinations
+                            ),
+                            Color.WHITE
+                    )
+            );
+        }
+
+        panel.add(
+                Box.createVerticalStrut(10)
+        );
+
+        JButton editButton =
+                createWideButton(
+                        pohEditorOpen
+                                ? "Close POH editor"
+                                : "Edit POH profile"
+                );
+
+        editButton.addActionListener(
+                event ->
+                {
+                    pohEditorOpen =
+                            !pohEditorOpen;
+
+                    refreshAction.run();
+                }
+        );
+
+        panel.add(
+                editButton
+        );
+
+        patchListPanel.add(
+                panel
+        );
+    }
+
+    private void addPohEditorCard(
+            FarmingNavigatorConfig config
+    )
+    {
+        JPanel panel =
+                createCardPanel();
+
+        panel.add(
+                createCardHeading(
+                        "Edit POH Profile"
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(10)
+        );
+
+        panel.add(
+                createFieldLabel(
+                        "House location"
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(4)
+        );
+
+        JComboBox<PohHouseLocation>
+                houseLocationBox =
+                createFullWidthComboBox(
+                        PohHouseLocation.values(),
+                        config.pohHouseLocation()
+                );
+
+        houseLocationBox.addActionListener(
+                event ->
+                {
+                    PohHouseLocation value =
+                            (PohHouseLocation)
+                                    houseLocationBox
+                                            .getSelectedItem();
+
+                    pohProfileService
+                            .setHouseLocation(
+                                    value
+                            );
+                }
+        );
+
+        panel.add(
+                houseLocationBox
+        );
+
+        panel.add(
+                Box.createVerticalStrut(12)
+        );
+
+        panel.add(
+                createFieldLabel(
+                        "Jewellery box"
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(4)
+        );
+
+        JComboBox<PohJewelleryBoxTier>
+                jewelleryBox =
+                createFullWidthComboBox(
+                        PohJewelleryBoxTier.values(),
+                        config.pohJewelleryBox()
+                );
+
+        jewelleryBox.addActionListener(
+                event ->
+                {
+                    PohJewelleryBoxTier value =
+                            (PohJewelleryBoxTier)
+                                    jewelleryBox
+                                            .getSelectedItem();
+
+                    pohProfileService
+                            .setJewelleryBox(
+                                    value
+                            );
+                }
+        );
+
+        panel.add(
+                jewelleryBox
+        );
+
+        panel.add(
+                Box.createVerticalStrut(12)
+        );
+
+        JCheckBox fairyRing =
+                createOptionCheckBox(
+                        "Fairy ring",
+                        config.pohFairyRing()
+                );
+
+        fairyRing.addActionListener(
+                event ->
+                        pohProfileService
+                                .setFairyRing(
+                                        fairyRing.isSelected()
+                                )
+        );
+
+        panel.add(
+                fairyRing
+        );
+
+        JCheckBox spiritTree =
+                createOptionCheckBox(
+                        "Spirit tree",
+                        config.pohSpiritTree()
+                );
+
+        spiritTree.addActionListener(
+                event ->
+                        pohProfileService
+                                .setSpiritTree(
+                                        spiritTree.isSelected()
+                                )
+        );
+
+        panel.add(
+                spiritTree
+        );
+
+        JCheckBox xericsTalisman =
+                createOptionCheckBox(
+                        "Mounted Xeric's talisman",
+                        config
+                                .pohMountedXericsTalisman()
+                );
+
+        xericsTalisman.addActionListener(
+                event ->
+                        pohProfileService
+                                .setMountedXericsTalisman(
+                                        xericsTalisman
+                                                .isSelected()
+                                )
+        );
+
+        panel.add(
+                xericsTalisman
+        );
+
+        JCheckBox digsitePendant =
+                createOptionCheckBox(
+                        "Mounted digsite pendant",
+                        config
+                                .pohMountedDigsitePendant()
+                );
+
+        digsitePendant.addActionListener(
+                event ->
+                        pohProfileService
+                                .setMountedDigsitePendant(
+                                        digsitePendant
+                                                .isSelected()
+                                )
+        );
+
+        panel.add(
+                digsitePendant
+        );
+
+        panel.add(
+                Box.createVerticalStrut(14)
+        );
+
+        panel.add(
+                createFieldLabel(
+                        "Installed portal destinations"
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(5)
+        );
+
+        panel.add(
+                createWrappedText(
+                        "Select every relevant destination installed in a Portal Chamber or Portal Nexus.",
+                        MUTED_COLOR
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(8)
+        );
+
+        EnumSet<PohPortalDestination>
+                selectedDestinations =
+                EnumSet.noneOf(
+                        PohPortalDestination.class
+                );
+
+        Set<PohPortalDestination> current =
+                config.pohPortalDestinations();
+
+        if (
+                current != null
+        )
+        {
+            selectedDestinations.addAll(
+                    current
+            );
+        }
+
+        for (
+                PohPortalDestination destination
+                : PohPortalDestination.values()
+        )
+        {
+            JCheckBox portalCheckBox =
+                    createOptionCheckBox(
+                            destination
+                                    .getDisplayName(),
+                            selectedDestinations
+                                    .contains(
+                                            destination
+                                    )
+                    );
+
+            portalCheckBox.addActionListener(
+                    event ->
+                    {
+                        if (
+                                portalCheckBox
+                                        .isSelected()
+                        )
+                        {
+                            selectedDestinations.add(
+                                    destination
+                            );
+                        }
+                        else
+                        {
+                            selectedDestinations.remove(
+                                    destination
+                            );
+                        }
+
+                        pohProfileService
+                                .setPortalDestinations(
+                                        selectedDestinations
+                                );
+                    }
+            );
+
+            panel.add(
+                    portalCheckBox
+            );
+        }
+
+        panel.add(
+                Box.createVerticalStrut(12)
+        );
+
+        panel.add(
+                createWrappedText(
+                        "Changes save automatically.",
+                        AVAILABLE_COLOR
+                )
+        );
+
+        panel.add(
+                Box.createVerticalStrut(8)
+        );
+
+        JButton doneButton =
+                createWideButton(
+                        "Done"
+                );
+
+        doneButton.addActionListener(
+                event ->
+                {
+                    pohEditorOpen =
+                            false;
+
+                    scrollToTopOnNextRefresh =
+                            true;
+
+                    refreshAction.run();
+                }
+        );
+
+        panel.add(
+                doneButton
+        );
+
+        patchListPanel.add(
+                panel
         );
     }
 
     private JPanel createPatchRow(
             HerbPatchStatus status,
-            List<VerifiedTransportResult> transportResults,
+            List<VerifiedTransportResult> results,
             boolean bankVerified
     )
     {
-        HerbPatchDefinition patch =
-                status.getPatch();
-
         JPanel row =
-                new JPanel();
+                createCardPanel();
 
-        row.setLayout(
-                new BoxLayout(
-                        row,
-                        BoxLayout.Y_AXIS
+        row.add(
+                createWrappedText(
+                        (
+                                status.isUnlocked()
+                                        ? "\u2713 "
+                                        : "\u2717 "
+                        )
+                                + status
+                                .getPatch()
+                                .getDisplayName(),
+                        status.isUnlocked()
+                                ? Color.WHITE
+                                : LOCKED_COLOR
                 )
         );
 
-        row.setBackground(
-                ColorScheme.DARKER_GRAY_COLOR
+        row.add(
+                Box.createVerticalStrut(4)
         );
 
-        row.setBorder(
-                BorderFactory.createEmptyBorder(
-                        8,
-                        8,
-                        8,
-                        8
-                )
-        );
-
-        row.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        row.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        Integer.MAX_VALUE
-                )
-        );
-
-        JLabel title =
-                new JLabel(
-                        (status.isUnlocked()
-                                ? "\u2713 "
-                                : "\u2717 ")
-                                + patch.getDisplayName()
-                );
-
-        title.setForeground(
-                status.isUnlocked()
-                        ? Color.WHITE
-                        : LOCKED_COLOR
-        );
-
-        row.add(title);
-
-        if (patch.isAlwaysDiseaseFree())
+        if (
+                status
+                        .getPatch()
+                        .isAlwaysDiseaseFree()
+        )
         {
             row.add(
                     createWrappedText(
@@ -735,41 +1312,36 @@ public class FarmingNavigatorPanel extends PluginPanel
                             DISEASE_FREE_COLOR
                     )
             );
+
+            row.add(
+                    Box.createVerticalStrut(3)
+            );
         }
 
-        if (!status.isUnlocked())
+        if (
+                !status.isUnlocked()
+        )
         {
-            StringBuilder requirements =
-                    new StringBuilder(
-                            "Requires: "
+            StringJoiner requirements =
+                    new StringJoiner(
+                            ", "
                     );
 
             for (
-                    int index = 0;
-                    index
-                            < status
-                            .getMissingRequirements()
-                            .size();
-                    index++
+                    String requirement
+                    : status
+                    .getMissingRequirements()
             )
             {
-                if (index > 0)
-                {
-                    requirements.append(
-                            ", "
-                    );
-                }
-
-                requirements.append(
-                        status
-                                .getMissingRequirements()
-                                .get(index)
+                requirements.add(
+                        requirement
                 );
             }
 
             row.add(
                     createWrappedText(
-                            requirements.toString(),
+                            "Requires: "
+                                    + requirements,
                             LOCKED_COLOR
                     )
             );
@@ -784,8 +1356,14 @@ public class FarmingNavigatorPanel extends PluginPanel
                 )
         );
 
-        if (!bankVerified)
+        if (
+                !bankVerified
+        )
         {
+            row.add(
+                    Box.createVerticalStrut(5)
+            );
+
             row.add(
                     createWrappedText(
                             "Transport verification: bank sync required",
@@ -798,7 +1376,7 @@ public class FarmingNavigatorPanel extends PluginPanel
 
         appendVerifiedTransports(
                 row,
-                transportResults
+                results
         );
 
         return row;
@@ -810,14 +1388,18 @@ public class FarmingNavigatorPanel extends PluginPanel
     )
     {
         row.add(
-                Box.createVerticalStrut(5)
+                Box.createVerticalStrut(7)
         );
 
-        if (results.isEmpty())
+        if (
+                results.isEmpty()
+        )
         {
             row.add(
                     createWrappedText(
-                            "No fully verified transport method has been implemented for this patch yet.",
+                            "Full route catalogue not connected yet. "
+                                    + "This patch will receive a best route "
+                                    + "and backup route in the next step.",
                             MUTED_COLOR
                     )
             );
@@ -827,7 +1409,7 @@ public class FarmingNavigatorPanel extends PluginPanel
 
         row.add(
                 createWrappedText(
-                        "Verified transport checks:",
+                        "Verified item transport checks:",
                         MUTED_COLOR
                 )
         );
@@ -848,7 +1430,7 @@ public class FarmingNavigatorPanel extends PluginPanel
                     results.get(index);
 
             row.add(
-                    Box.createVerticalStrut(4)
+                    Box.createVerticalStrut(7)
             );
 
             row.add(
@@ -863,12 +1445,27 @@ public class FarmingNavigatorPanel extends PluginPanel
             );
 
             row.add(
+                    Box.createVerticalStrut(3)
+            );
+
+            row.add(
                     createWrappedText(
                             result
                                     .getState()
-                                    .getDisplayName()
-                                    + " - "
-                                    + result.getDetail(),
+                                    .getDisplayName(),
+                            getTransportStateColor(
+                                    result.getState()
+                            )
+                    )
+            );
+
+            row.add(
+                    Box.createVerticalStrut(3)
+            );
+
+            row.add(
+                    createWrappedText(
+                            result.getDetail(),
                             getTransportStateColor(
                                     result.getState()
                             )
@@ -877,11 +1474,498 @@ public class FarmingNavigatorPanel extends PluginPanel
         }
     }
 
+    private JPanel createCardPanel()
+    {
+        JPanel panel =
+                new JPanel();
+
+        panel.setLayout(
+                new BoxLayout(
+                        panel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        panel.setBackground(
+                ColorScheme.DARKER_GRAY_COLOR
+        );
+
+        panel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        9,
+                        8,
+                        12,
+                        8
+                )
+        );
+
+        panel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        panel.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        Integer.MAX_VALUE
+                )
+        );
+
+        return panel;
+    }
+
+    private JLabel createSafeSingleLineLabel(
+            String text,
+            Color color
+    )
+    {
+        JLabel label =
+                new JLabel(
+                        text
+                );
+
+        label.setForeground(
+                color
+        );
+
+        label.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        label.setBorder(
+                new EmptyBorder(
+                        0,
+                        2,
+                        0,
+                        2
+                )
+        );
+
+        return label;
+    }
+
+    private JLabel createCardHeading(
+            String text
+    )
+    {
+        return createSafeSingleLineLabel(
+                text,
+                Color.WHITE
+        );
+    }
+
+    private JLabel createFieldLabel(
+            String text
+    )
+    {
+        return createSafeSingleLineLabel(
+                text,
+                ColorScheme.LIGHT_GRAY_COLOR
+        );
+    }
+
+    private JPanel createWrappedText(
+            String text,
+            Color color
+    )
+    {
+        JPanel textPanel =
+                new JPanel();
+
+        textPanel.setLayout(
+                new BoxLayout(
+                        textPanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        textPanel.setOpaque(
+                false
+        );
+
+        textPanel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        Font font =
+                UIManager.getFont(
+                        "Label.font"
+                );
+
+        if (
+                font == null
+        )
+        {
+            font =
+                    new JLabel()
+                            .getFont();
+        }
+
+        FontMetrics metrics =
+                textPanel.getFontMetrics(
+                        font
+                );
+
+        List<String> wrappedLines =
+                wrapText(
+                        text,
+                        metrics,
+                        TEXT_WRAP_WIDTH
+                );
+
+        for (
+                int index = 0;
+                index < wrappedLines.size();
+                index++
+        )
+        {
+            JLabel lineLabel =
+                    new JLabel(
+                            wrappedLines.get(index)
+                    );
+
+            lineLabel.setFont(
+                    font
+            );
+
+            lineLabel.setForeground(
+                    color
+            );
+
+            lineLabel.setAlignmentX(
+                    Component.LEFT_ALIGNMENT
+            );
+
+            /*
+             * Tiny horizontal side padding protects the RuneLite font's
+             * glyph overhang from the JLabel clip boundary.
+             */
+            lineLabel.setBorder(
+                    new EmptyBorder(
+                            0,
+                            2,
+                            0,
+                            2
+                    )
+            );
+
+            textPanel.add(
+                    lineLabel
+            );
+
+            if (
+                    index
+                            < wrappedLines.size() - 1
+            )
+            {
+                textPanel.add(
+                        Box.createVerticalStrut(1)
+                );
+            }
+        }
+
+        Dimension preferred =
+                textPanel.getPreferredSize();
+
+        textPanel.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        preferred.height
+                )
+        );
+
+        return textPanel;
+    }
+
+    private List<String> wrapText(
+            String text,
+            FontMetrics metrics,
+            int maximumWidth
+    )
+    {
+        List<String> lines =
+                new ArrayList<>();
+
+        if (
+                text == null
+                        || text.isEmpty()
+        )
+        {
+            lines.add("");
+            return lines;
+        }
+
+        String[] paragraphs =
+                text.split(
+                        "\\n",
+                        -1
+                );
+
+        for (
+                String paragraph
+                : paragraphs
+        )
+        {
+            if (
+                    paragraph.isEmpty()
+            )
+            {
+                lines.add("");
+                continue;
+            }
+
+            String[] words =
+                    paragraph
+                            .trim()
+                            .split(
+                                    "\\s+"
+                            );
+
+            StringBuilder currentLine =
+                    new StringBuilder();
+
+            for (
+                    String word
+                    : words
+            )
+            {
+                if (
+                        currentLine.length() == 0
+                )
+                {
+                    currentLine.append(
+                            word
+                    );
+
+                    continue;
+                }
+
+                String candidate =
+                        currentLine
+                                + " "
+                                + word;
+
+                if (
+                        metrics.stringWidth(
+                                candidate
+                        )
+                                <= maximumWidth
+                )
+                {
+                    currentLine
+                            .append(" ")
+                            .append(word);
+                }
+                else
+                {
+                    lines.add(
+                            currentLine.toString()
+                    );
+
+                    currentLine =
+                            new StringBuilder(
+                                    word
+                            );
+                }
+            }
+
+            if (
+                    currentLine.length() > 0
+            )
+            {
+                lines.add(
+                        currentLine.toString()
+                );
+            }
+        }
+
+        return lines;
+    }
+
+    private <T> JComboBox<T>
+    createFullWidthComboBox(
+            T[] options,
+            T selected
+    )
+    {
+        JComboBox<T> comboBox =
+                new JComboBox<>(
+                        options
+                );
+
+        comboBox.setSelectedItem(
+                selected
+        );
+
+        comboBox.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        Dimension size =
+                new Dimension(
+                        EDITOR_CONTROL_WIDTH,
+                        27
+                );
+
+        comboBox.setMinimumSize(
+                size
+        );
+
+        comboBox.setPreferredSize(
+                size
+        );
+
+        comboBox.setMaximumSize(
+                size
+        );
+
+        return comboBox;
+    }
+
+    private JCheckBox createOptionCheckBox(
+            String text,
+            boolean selected
+    )
+    {
+        JCheckBox checkBox =
+                new JCheckBox(
+                        text,
+                        selected
+                );
+
+        checkBox.setOpaque(
+                false
+        );
+
+        checkBox.setForeground(
+                Color.WHITE
+        );
+
+        checkBox.setFocusable(
+                false
+        );
+
+        checkBox.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        checkBox.setMaximumSize(
+                new Dimension(
+                        EDITOR_CONTROL_WIDTH,
+                        27
+                )
+        );
+
+        return checkBox;
+    }
+
+    private JButton createWideButton(
+            String text
+    )
+    {
+        JButton button =
+                new JButton(
+                        text
+                );
+
+        button.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        Dimension size =
+                new Dimension(
+                        EDITOR_CONTROL_WIDTH,
+                        30
+                );
+
+        button.setMinimumSize(
+                size
+        );
+
+        button.setPreferredSize(
+                size
+        );
+
+        button.setMaximumSize(
+                size
+        );
+
+        return button;
+    }
+
+    private int getCurrentScrollPosition()
+    {
+        return patchScrollPane
+                .getVerticalScrollBar()
+                .getValue();
+    }
+
+    private void refreshPatchPanel(
+            int requestedScrollPosition
+    )
+    {
+        patchListPanel.revalidate();
+        patchListPanel.repaint();
+
+        patchScrollPane.revalidate();
+        patchScrollPane.repaint();
+
+        SwingUtilities.invokeLater(
+                () ->
+                {
+                    patchListPanel.revalidate();
+                    patchListPanel.repaint();
+
+                    restoreScrollPosition(
+                            requestedScrollPosition
+                    );
+                }
+        );
+    }
+
+    private void restoreScrollPosition(
+            int requestedPosition
+    )
+    {
+        JScrollBar scrollBar =
+                patchScrollPane
+                        .getVerticalScrollBar();
+
+        int minimum =
+                scrollBar.getMinimum();
+
+        int maximum =
+                scrollBar.getMaximum()
+                        - scrollBar.getVisibleAmount();
+
+        if (
+                maximum < minimum
+        )
+        {
+            maximum =
+                    minimum;
+        }
+
+        int restoredPosition =
+                Math.max(
+                        minimum,
+                        Math.min(
+                                requestedPosition,
+                                maximum
+                        )
+                );
+
+        scrollBar.setValue(
+                restoredPosition
+        );
+    }
+
     private Color getTransportStateColor(
             VerifiedTransportState state
     )
     {
-        switch (state)
+        switch (
+                state
+        )
         {
             case READY_NOW:
                 return AVAILABLE_COLOR;
@@ -896,55 +1980,52 @@ public class FarmingNavigatorPanel extends PluginPanel
         }
     }
 
-    private JTextArea createWrappedText(
-            String text,
-            Color color
+    private String formatPortalDestinations(
+            Set<PohPortalDestination> destinations
     )
     {
-        JTextArea textArea =
-                new JTextArea(text);
+        StringJoiner joiner =
+                new StringJoiner(
+                        ", "
+                );
 
-        textArea.setEditable(false);
-        textArea.setFocusable(false);
-        textArea.setOpaque(false);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        textArea.setForeground(color);
+        for (
+                PohPortalDestination destination
+                : PohPortalDestination.values()
+        )
+        {
+            if (
+                    destinations.contains(
+                            destination
+                    )
+            )
+            {
+                joiner.add(
+                        destination
+                                .getDisplayName()
+                );
+            }
+        }
 
-        textArea.setFont(
-                UIManager.getFont(
-                        "Label.font"
-                )
-        );
+        return joiner.toString();
+    }
 
-        textArea.setBorder(null);
-
-        textArea.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        textArea.setMinimumSize(
-                new Dimension(
-                        0,
-                        0
-                )
-        );
-
-        textArea.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        Integer.MAX_VALUE
-                )
-        );
-
-        return textArea;
+    private String yesNo(
+            boolean value
+    )
+    {
+        return value
+                ? "Yes"
+                : "No";
     }
 
     private String formatSyncTime(
             Instant instant
     )
     {
-        if (instant == null)
+        if (
+                instant == null
+        )
         {
             return "this session";
         }
@@ -952,22 +2033,6 @@ public class FarmingNavigatorPanel extends PluginPanel
         return SYNC_TIME_FORMAT.format(
                 instant
         );
-    }
-
-    private void resetScrollPosition()
-    {
-        patchScrollPane
-                .getVerticalScrollBar()
-                .setValue(0);
-    }
-
-    private void refreshPatchPanel()
-    {
-        patchListPanel.revalidate();
-        patchListPanel.repaint();
-
-        patchScrollPane.revalidate();
-        patchScrollPane.repaint();
     }
 
     private static class WidthTrackingPanel
