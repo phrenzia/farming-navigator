@@ -58,8 +58,14 @@ public class AllOfRequirement
                         " "
                 );
 
-        RequirementState strongestFailure =
-                RequirementState.BLOCKED;
+        boolean hasBlockedRequirement =
+                false;
+
+        boolean hasDataRequired =
+                false;
+
+        boolean hasConfigurationRequired =
+                false;
 
         for (
                 RouteRequirement requirement
@@ -90,23 +96,28 @@ public class AllOfRequirement
                     result.getDetail()
             );
 
-            if (
+            switch (
                     result.getState()
-                            == RequirementState.DATA_REQUIRED
             )
             {
-                strongestFailure =
-                        RequirementState.DATA_REQUIRED;
-            }
-            else if (
-                    result.getState()
-                            == RequirementState.CONFIGURATION_REQUIRED
-                            && strongestFailure
-                            != RequirementState.DATA_REQUIRED
-            )
-            {
-                strongestFailure =
-                        RequirementState.CONFIGURATION_REQUIRED;
+                case BLOCKED:
+                    hasBlockedRequirement =
+                            true;
+                    break;
+
+                case DATA_REQUIRED:
+                    hasDataRequired =
+                            true;
+                    break;
+
+                case CONFIGURATION_REQUIRED:
+                    hasConfigurationRequired =
+                            true;
+                    break;
+
+                case SATISFIED:
+                default:
+                    break;
             }
         }
 
@@ -118,10 +129,12 @@ public class AllOfRequirement
                     preparationSteps.length() > 0
             )
             {
-                return RequirementResult.availableFromBank(
-                        displayName,
-                        preparationSteps.toString()
-                );
+                return RequirementResult
+                        .availableFromBank(
+                                displayName,
+                                preparationSteps
+                                        .toString()
+                        );
             }
 
             return RequirementResult.satisfied(
@@ -129,27 +142,43 @@ public class AllOfRequirement
             );
         }
 
-        switch (strongestFailure)
+        /*
+         * ALL OF means every requirement must pass.
+         *
+         * If even one requirement is definitively blocked,
+         * the complete route is definitively blocked too.
+         *
+         * Missing data only wins when there is no known
+         * blocker.
+         */
+        if (hasBlockedRequirement)
         {
-            case DATA_REQUIRED:
-                return RequirementResult.dataRequired(
-                        displayName,
-                        blockers.toString()
-                );
-
-            case CONFIGURATION_REQUIRED:
-                return RequirementResult.configurationRequired(
-                        displayName,
-                        blockers.toString()
-                );
-
-            case BLOCKED:
-            case SATISFIED:
-            default:
-                return RequirementResult.blocked(
-                        displayName,
-                        blockers.toString()
-                );
+            return RequirementResult.blocked(
+                    displayName,
+                    blockers.toString()
+            );
         }
+
+        if (hasDataRequired)
+        {
+            return RequirementResult.dataRequired(
+                    displayName,
+                    blockers.toString()
+            );
+        }
+
+        if (hasConfigurationRequired)
+        {
+            return RequirementResult
+                    .configurationRequired(
+                            displayName,
+                            blockers.toString()
+                    );
+        }
+
+        return RequirementResult.blocked(
+                displayName,
+                blockers.toString()
+        );
     }
 }
