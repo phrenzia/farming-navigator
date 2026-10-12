@@ -1,10 +1,13 @@
 package com.farmingnavigator.transport;
 
+import com.farmingnavigator.FarmingNavigatorConfig;
 import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
+import com.farmingnavigator.routing.requirement.PohFeature;
+import com.farmingnavigator.routing.requirement.PohFeatureRequirement;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.routing.requirement.RequirementState;
@@ -19,6 +22,7 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import javax.inject.Inject;
 import net.runelite.api.Quest;
 import net.runelite.api.gameval.ItemID;
@@ -41,11 +45,44 @@ public class TransportVerificationService
     {
     }
 
+    /*
+     * Compatibility overload retained for all existing
+     * tests and callers that do not need POH configuration.
+     */
     public Map<
             HerbPatchDefinition,
             List<VerifiedTransportResult>
             > evaluateAll(
             AccountState accountState,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            Map<
+                    HerbPatchDefinition,
+                    List<TransportOption>
+                    > optionsByPatch
+    )
+    {
+        return evaluateAll(
+                accountState,
+                null,
+                travelCapabilitySnapshot,
+                storageSnapshot,
+                optionsByPatch
+        );
+    }
+
+    /*
+     * Config-aware transport verification.
+     *
+     * Production uses this overload so typed POH requirements
+     * can participate in exact route verification.
+     */
+    public Map<
+            HerbPatchDefinition,
+            List<VerifiedTransportResult>
+            > evaluateAll(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
             TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
             Map<
@@ -94,6 +131,7 @@ public class TransportVerificationService
                 VerifiedTransportResult result =
                         evaluateOption(
                                 accountState,
+                                config,
                                 travelCapabilitySnapshot,
                                 storageSnapshot,
                                 option
@@ -133,6 +171,7 @@ public class TransportVerificationService
 
     private VerifiedTransportResult evaluateOption(
             AccountState accountState,
+            FarmingNavigatorConfig config,
             TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
             TransportOption option
@@ -151,6 +190,7 @@ public class TransportVerificationService
             case SKILLS_NECKLACE:
                 return evaluateSkillsNecklace(
                         accountState,
+                        config,
                         travelCapabilitySnapshot,
                         storageSnapshot,
                         option
@@ -190,6 +230,16 @@ public class TransportVerificationService
             case FAIRY_RING_ACCESS:
                 return evaluateFairyRingAccess(
                         accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
+            case POH_FAIRY_RING:
+                return evaluatePohFairyRing(
+                        accountState,
+                        config,
                         travelCapabilitySnapshot,
                         storageSnapshot,
                         option
@@ -198,6 +248,7 @@ public class TransportVerificationService
             case TELEPORT_SPELL:
                 return evaluateTeleportSpell(
                         accountState,
+                        config,
                         travelCapabilitySnapshot,
                         storageSnapshot,
                         option
@@ -271,6 +322,7 @@ public class TransportVerificationService
     private VerifiedTransportResult
     evaluateSkillsNecklace(
             AccountState accountState,
+            FarmingNavigatorConfig config,
             TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
             TransportOption option
@@ -279,7 +331,7 @@ public class TransportVerificationService
         RequirementContext context =
                 new RequirementContext(
                         accountState,
-                        null,
+                        config,
                         travelCapabilitySnapshot,
                         storageSnapshot
                 );
@@ -329,6 +381,7 @@ public class TransportVerificationService
     private VerifiedTransportResult
     evaluateFairyRingAccess(
             AccountState accountState,
+            FarmingNavigatorConfig config,
             TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
             TransportOption option
@@ -337,7 +390,7 @@ public class TransportVerificationService
         RequirementContext context =
                 new RequirementContext(
                         accountState,
-                        null,
+                        config,
                         travelCapabilitySnapshot,
                         storageSnapshot
                 );
@@ -400,18 +453,6 @@ public class TransportVerificationService
             );
         }
 
-        /*
-         * FairyRingAccessRequirement has two definitive
-         * BLOCKED outcomes:
-         *
-         * 1. The Fairy Godfather unlock has not happened.
-         *    That is a real account lock.
-         *
-         * 2. The network is unlocked, but the account lacks
-         *    a usable Dramen/Lunar staff and does not have the
-         *    claimed Lumbridge & Draynor Elite exemption.
-         *    That is a missing preparation resource.
-         */
         VerifiedTransportState blockedState =
                 accountState
                         .isFairyRingAccessUnlocked()
@@ -427,8 +468,315 @@ public class TransportVerificationService
     }
 
     private VerifiedTransportResult
+    evaluatePohFairyRing(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        TeleportSpellRequirement houseTeleportRequirement =
+                TeleportSpellDefinition
+                        .TELEPORT_TO_HOUSE
+                        .createRequirement();
+
+        PohFeatureRequirement pohFairyRingRequirement =
+                new PohFeatureRequirement(
+                        PohFeature.FAIRY_RING
+                );
+
+        FairyRingAccessRequirement
+                fairyRingAccessRequirement =
+                new FairyRingAccessRequirement();
+
+        RequirementResult houseTeleportResult =
+                houseTeleportRequirement
+                        .evaluate(
+                                context
+                        );
+
+        RequirementResult pohFairyRingResult =
+                pohFairyRingRequirement
+                        .evaluate(
+                                context
+                        );
+
+        RequirementResult fairyRingAccessResult =
+                fairyRingAccessRequirement
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                houseTeleportResult.isSatisfied()
+                        && pohFairyRingResult.isSatisfied()
+                        && fairyRingAccessResult.isSatisfied()
+        )
+        {
+            StringJoiner preparationSteps =
+                    new StringJoiner(
+                            " "
+                    );
+
+            if (
+                    houseTeleportResult
+                            .requiresBankWithdrawal()
+            )
+            {
+                preparationSteps.add(
+                        houseTeleportResult
+                                .getDetail()
+                );
+            }
+
+            if (
+                    fairyRingAccessResult
+                            .requiresBankWithdrawal()
+            )
+            {
+                preparationSteps.add(
+                        fairyRingAccessResult
+                                .getDetail()
+                );
+            }
+
+            if (
+                    preparationSteps.length()
+                            > 0
+            )
+            {
+                return new VerifiedTransportResult(
+                        option,
+                        VerifiedTransportState.AVAILABLE_FROM_BANK,
+                        preparationSteps.toString()
+                );
+            }
+
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - Teleport to House, the configured POH fairy ring, and fairy-ring access are ready."
+            );
+        }
+
+        StringJoiner blockers =
+                new StringJoiner(
+                        " "
+                );
+
+        boolean hasLockedRequirement =
+                false;
+
+        boolean hasMissingRequirement =
+                false;
+
+        boolean hasDataRequired =
+                false;
+
+        boolean hasConfigurationRequired =
+                false;
+
+        if (
+                !houseTeleportResult
+                        .isSatisfied()
+        )
+        {
+            blockers.add(
+                    houseTeleportResult
+                            .getDetail()
+            );
+
+            switch (
+                    houseTeleportResult
+                            .getState()
+            )
+            {
+                case BLOCKED:
+                    VerifiedTransportState
+                            houseTeleportState =
+                            classifyBlockedSpellRequirement(
+                                    houseTeleportRequirement,
+                                    context
+                            );
+
+                    switch (houseTeleportState)
+                    {
+                        case LOCKED:
+                            hasLockedRequirement =
+                                    true;
+                            break;
+
+                        case MISSING:
+                            hasMissingRequirement =
+                                    true;
+                            break;
+
+                        case DATA_REQUIRED:
+                            hasDataRequired =
+                                    true;
+                            break;
+
+                        case CONFIGURATION_REQUIRED:
+                            hasConfigurationRequired =
+                                    true;
+                            break;
+
+                        case READY_NOW:
+                        case AVAILABLE_FROM_BANK:
+                        default:
+                            hasLockedRequirement =
+                                    true;
+                            break;
+                    }
+                    break;
+
+                case DATA_REQUIRED:
+                    hasDataRequired =
+                            true;
+                    break;
+
+                case CONFIGURATION_REQUIRED:
+                    hasConfigurationRequired =
+                            true;
+                    break;
+
+                case SATISFIED:
+                default:
+                    break;
+            }
+        }
+
+        if (
+                !pohFairyRingResult
+                        .isSatisfied()
+        )
+        {
+            blockers.add(
+                    pohFairyRingResult
+                            .getDetail()
+            );
+
+            switch (
+                    pohFairyRingResult
+                            .getState()
+            )
+            {
+                case BLOCKED:
+                    hasMissingRequirement =
+                            true;
+                    break;
+
+                case DATA_REQUIRED:
+                    hasDataRequired =
+                            true;
+                    break;
+
+                case CONFIGURATION_REQUIRED:
+                    hasConfigurationRequired =
+                            true;
+                    break;
+
+                case SATISFIED:
+                default:
+                    break;
+            }
+        }
+
+        if (
+                !fairyRingAccessResult
+                        .isSatisfied()
+        )
+        {
+            blockers.add(
+                    fairyRingAccessResult
+                            .getDetail()
+            );
+
+            switch (
+                    fairyRingAccessResult
+                            .getState()
+            )
+            {
+                case BLOCKED:
+                    if (
+                            accountState
+                                    .isFairyRingAccessUnlocked()
+                    )
+                    {
+                        hasMissingRequirement =
+                                true;
+                    }
+                    else
+                    {
+                        hasLockedRequirement =
+                                true;
+                    }
+                    break;
+
+                case DATA_REQUIRED:
+                    hasDataRequired =
+                            true;
+                    break;
+
+                case CONFIGURATION_REQUIRED:
+                    hasConfigurationRequired =
+                            true;
+                    break;
+
+                case SATISFIED:
+                default:
+                    break;
+            }
+        }
+
+        VerifiedTransportState state;
+
+        if (hasLockedRequirement)
+        {
+            state =
+                    VerifiedTransportState.LOCKED;
+        }
+        else if (hasMissingRequirement)
+        {
+            state =
+                    VerifiedTransportState.MISSING;
+        }
+        else if (hasDataRequired)
+        {
+            state =
+                    VerifiedTransportState.DATA_REQUIRED;
+        }
+        else if (hasConfigurationRequired)
+        {
+            state =
+                    VerifiedTransportState.CONFIGURATION_REQUIRED;
+        }
+        else
+        {
+            state =
+                    VerifiedTransportState.LOCKED;
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                state,
+                blockers.toString()
+        );
+    }
+
+    private VerifiedTransportResult
     evaluateTeleportSpell(
             AccountState accountState,
+            FarmingNavigatorConfig config,
             TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
             TransportOption option
@@ -449,7 +797,7 @@ public class TransportVerificationService
         RequirementContext context =
                 new RequirementContext(
                         accountState,
-                        null,
+                        config,
                         travelCapabilitySnapshot,
                         storageSnapshot
                 );
@@ -537,7 +885,7 @@ public class TransportVerificationService
         boolean hasLockedRequirement =
                 false;
 
-        boolean hasMissingRunes =
+        boolean hasMissingRequirement =
                 false;
 
         boolean hasDataRequired =
@@ -573,9 +921,11 @@ public class TransportVerificationService
                 if (
                         component
                                 instanceof RuneCostRequirement
+                                || component
+                                instanceof PohFeatureRequirement
                 )
                 {
-                    hasMissingRunes =
+                    hasMissingRequirement =
                             true;
                 }
                 else
@@ -613,7 +963,7 @@ public class TransportVerificationService
             return VerifiedTransportState.LOCKED;
         }
 
-        if (hasMissingRunes)
+        if (hasMissingRequirement)
         {
             return VerifiedTransportState.MISSING;
         }

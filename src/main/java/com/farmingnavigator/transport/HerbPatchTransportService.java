@@ -121,13 +121,20 @@ public class HerbPatchTransportService
                         ),
                         verifiedTransport(
                                 2,
+                                "POH fairy ring to ALQ",
+                                "Cast Teleport to House, enter your POH if needed, use your configured POH fairy ring, enter code ALQ, then travel north to the farming patch.",
+                                TransportCategory.PLAYER_OWNED_HOUSE,
+                                TransportVerificationKind.POH_FAIRY_RING
+                        ),
+                        verifiedTransport(
+                                3,
                                 "Fairy ring ALQ",
                                 "Use fairy ring code ALQ and travel north to the farming patch.",
                                 TransportCategory.FAIRY_RING,
                                 TransportVerificationKind.FAIRY_RING_ACCESS
                         ),
                         futureTransport(
-                                3,
+                                4,
                                 "Fenkenstrain's Castle Teleport",
                                 "Teleport near Fenkenstrain's Castle and travel east toward the patch.",
                                 TransportCategory.SPELL
@@ -158,6 +165,13 @@ public class HerbPatchTransportService
                         ),
                         verifiedTransport(
                                 4,
+                                "POH fairy ring to AKR",
+                                "Cast Teleport to House, enter your POH if needed, use your configured POH fairy ring, enter code AKR, then run west to the farming patch.",
+                                TransportCategory.PLAYER_OWNED_HOUSE,
+                                TransportVerificationKind.POH_FAIRY_RING
+                        ),
+                        verifiedTransport(
+                                5,
                                 "Fairy ring AKR",
                                 "Use fairy ring code AKR to Hosidius Vinery, then run west to the farming patch.",
                                 TransportCategory.FAIRY_RING,
@@ -233,6 +247,13 @@ public class HerbPatchTransportService
                         ),
                         verifiedTransport(
                                 5,
+                                "POH fairy ring to CIR",
+                                "Cast Teleport to House, enter your POH if needed, use your configured POH fairy ring, enter code CIR, then run south-west to the Farming Guild.",
+                                TransportCategory.PLAYER_OWNED_HOUSE,
+                                TransportVerificationKind.POH_FAIRY_RING
+                        ),
+                        verifiedTransport(
+                                6,
                                 "Fairy ring CIR",
                                 "Use fairy ring code CIR at Mount Karuulm, then run south-west to the Farming Guild.",
                                 TransportCategory.FAIRY_RING,

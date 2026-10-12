@@ -396,6 +396,7 @@ public class FarmingNavigatorPlugin
                 transportVerificationService
                         .evaluateAll(
                                 accountState,
+                                config,
                                 travelCapabilitySnapshot,
                                 storageSnapshot,
                                 transportOptions
