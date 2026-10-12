@@ -6,6 +6,11 @@ import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.requirement.RequirementResult;
+import com.farmingnavigator.routing.requirement.RequirementState;
+import com.farmingnavigator.routing.requirement.RouteRequirement;
+import com.farmingnavigator.routing.requirement.RuneCostRequirement;
+import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
+import com.farmingnavigator.routing.spell.TeleportSpellRequirement;
 import com.farmingnavigator.storage.StorageSnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -181,6 +186,14 @@ public class TransportVerificationService
                         option
                 );
 
+            case TELEPORT_SPELL:
+                return evaluateTeleportSpell(
+                        accountState,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
             case NOT_IMPLEMENTED:
             default:
                 /*
@@ -302,6 +315,211 @@ public class TransportVerificationService
                 requirementResult
                         .getDetail()
         );
+    }
+
+    private VerifiedTransportResult
+    evaluateTeleportSpell(
+            AccountState accountState,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        TeleportSpellDefinition spellDefinition =
+                option.getTeleportSpellDefinition();
+
+        if (spellDefinition == null)
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    "DATA REQUIRED - teleport spell definition is missing."
+            );
+        }
+
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        null,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        TeleportSpellRequirement requirement =
+                spellDefinition
+                        .createRequirement();
+
+        RequirementResult requirementResult =
+                requirement.evaluate(
+                        context
+                );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - "
+                            + spellDefinition
+                            .getDisplayName()
+                            + " requirements are satisfied."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                classifyBlockedSpellRequirement(
+                        requirement,
+                        context
+                ),
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportState
+    classifyBlockedSpellRequirement(
+            TeleportSpellRequirement requirement,
+            RequirementContext context
+    )
+    {
+        boolean hasLockedRequirement =
+                false;
+
+        boolean hasMissingRunes =
+                false;
+
+        boolean hasDataRequired =
+                false;
+
+        boolean hasConfigurationRequired =
+                false;
+
+        for (
+                RouteRequirement component
+                : requirement
+                .getComponentRequirements()
+        )
+        {
+            RequirementResult componentResult =
+                    component.evaluate(
+                            context
+                    );
+
+            if (
+                    componentResult
+                            .isSatisfied()
+            )
+            {
+                continue;
+            }
+
+            if (
+                    componentResult.getState()
+                            == RequirementState.BLOCKED
+            )
+            {
+                if (
+                        component
+                                instanceof RuneCostRequirement
+                )
+                {
+                    hasMissingRunes =
+                            true;
+                }
+                else
+                {
+                    hasLockedRequirement =
+                            true;
+                }
+
+                continue;
+            }
+
+            if (
+                    componentResult.getState()
+                            == RequirementState.DATA_REQUIRED
+            )
+            {
+                hasDataRequired =
+                        true;
+
+                continue;
+            }
+
+            if (
+                    componentResult.getState()
+                            == RequirementState.CONFIGURATION_REQUIRED
+            )
+            {
+                hasConfigurationRequired =
+                        true;
+            }
+        }
+
+        if (hasLockedRequirement)
+        {
+            return VerifiedTransportState.LOCKED;
+        }
+
+        if (hasMissingRunes)
+        {
+            return VerifiedTransportState.MISSING;
+        }
+
+        if (hasDataRequired)
+        {
+            return VerifiedTransportState.DATA_REQUIRED;
+        }
+
+        if (hasConfigurationRequired)
+        {
+            return VerifiedTransportState.CONFIGURATION_REQUIRED;
+        }
+
+        return VerifiedTransportState.LOCKED;
     }
 
     private VerifiedTransportResult
@@ -584,12 +802,18 @@ public class TransportVerificationService
             case AVAILABLE_FROM_BANK:
                 return 1;
 
-            case MISSING:
+            case DATA_REQUIRED:
                 return 2;
+
+            case CONFIGURATION_REQUIRED:
+                return 3;
+
+            case MISSING:
+                return 4;
 
             case LOCKED:
             default:
-                return 3;
+                return 5;
         }
     }
 }

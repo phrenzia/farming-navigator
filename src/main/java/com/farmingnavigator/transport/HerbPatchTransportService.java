@@ -1,6 +1,7 @@
 package com.farmingnavigator.transport;
 
 import com.farmingnavigator.farming.HerbPatchDefinition;
+import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -48,11 +49,10 @@ public class HerbPatchTransportService
                                 "Teleport to the Air Altar and travel to the farming patch.",
                                 TransportCategory.ITEM
                         ),
-                        futureTransport(
+                        verifiedSpellTransport(
                                 4,
-                                "Falador Teleport",
-                                "Teleport to Falador and travel south to the farming patch.",
-                                TransportCategory.SPELL
+                                TeleportSpellDefinition.FALADOR_TELEPORT,
+                                "Teleport to Falador and travel south to the farming patch."
                         )
                 )
         );
@@ -60,17 +60,15 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.CATHERBY,
                 transportOptions(
-                        futureTransport(
+                        verifiedSpellTransport(
                                 1,
-                                "Catherby Teleport",
-                                "Teleport directly to Catherby and travel a short distance to the patch.",
-                                TransportCategory.SPELL
+                                TeleportSpellDefinition.CATHERBY_TELEPORT,
+                                "Teleport directly to Catherby and travel a short distance to the patch."
                         ),
-                        futureTransport(
+                        verifiedSpellTransport(
                                 2,
-                                "Camelot Teleport",
-                                "Teleport to Camelot and run east to Catherby.",
-                                TransportCategory.SPELL
+                                TeleportSpellDefinition.CAMELOT_TELEPORT,
+                                "Teleport to Camelot and run east to Catherby."
                         ),
                         futureTransport(
                                 3,
@@ -97,8 +95,13 @@ public class HerbPatchTransportService
                                 TransportCategory.JEWELLERY,
                                 TransportVerificationKind.SKILLS_NECKLACE
                         ),
-                        futureTransport(
+                        verifiedSpellTransport(
                                 3,
+                                TeleportSpellDefinition.FISHING_GUILD_TELEPORT,
+                                "Teleport to the Fishing Guild and travel south-east to the patch."
+                        ),
+                        futureTransport(
+                                4,
                                 "Ardougne Teleport",
                                 "Teleport to Ardougne and travel north to the farming patch.",
                                 TransportCategory.SPELL
@@ -165,11 +168,10 @@ public class HerbPatchTransportService
                                 TransportCategory.ITEM,
                                 TransportVerificationKind.STONY_BASALT
                         ),
-                        futureTransport(
+                        verifiedSpellTransport(
                                 2,
-                                "Trollheim Teleport",
-                                "Teleport to Trollheim and travel to the Troll Stronghold patch.",
-                                TransportCategory.SPELL
+                                TeleportSpellDefinition.TROLLHEIM_TELEPORT,
+                                "Teleport to Trollheim and travel to the Troll Stronghold patch."
                         )
                 )
         );
@@ -215,6 +217,11 @@ public class HerbPatchTransportService
                                 "Spirit tree",
                                 "Use a spirit tree planted in the Farming Guild.",
                                 TransportCategory.TRANSPORT_NETWORK
+                        ),
+                        verifiedSpellTransport(
+                                4,
+                                TeleportSpellDefinition.BATTLEFRONT_TELEPORT,
+                                "Teleport to the Battlefront and travel west to the Farming Guild."
                         )
                 )
         );
@@ -222,11 +229,10 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.HARMONY_ISLAND,
                 transportOptions(
-                        futureTransport(
+                        verifiedSpellTransport(
                                 1,
-                                "Harmony Island Teleport",
-                                "Teleport directly to Harmony Island.",
-                                TransportCategory.SPELL
+                                TeleportSpellDefinition.HARMONY_ISLAND_TELEPORT,
+                                "Teleport directly to Harmony Island."
                         ),
                         futureTransport(
                                 2,
@@ -258,11 +264,10 @@ public class HerbPatchTransportService
                                 "Teleport to the Hunter Guild and run north to Ortus Farm.",
                                 TransportCategory.SKILLCAPE
                         ),
-                        futureTransport(
+                        verifiedSpellTransport(
                                 3,
-                                "Civitas illa Fortis Teleport",
-                                "Teleport to Civitas illa Fortis, use the Quetzal Transport System to the Hunter Guild, then run north.",
-                                TransportCategory.SPELL
+                                TeleportSpellDefinition.CIVITAS_ILLA_FORTIS_TELEPORT,
+                                "Teleport to Civitas illa Fortis, use the Quetzal Transport System to the Hunter Guild, then run north."
                         ),
                         futureTransport(
                                 4,
@@ -325,6 +330,22 @@ public class HerbPatchTransportService
                 instructions,
                 category,
                 verificationKind
+        );
+    }
+
+    private TransportOption verifiedSpellTransport(
+            int baselineRank,
+            TeleportSpellDefinition spellDefinition,
+            String instructions
+    )
+    {
+        return new TransportOption(
+                baselineRank,
+                spellDefinition.getDisplayName(),
+                instructions,
+                TransportCategory.SPELL,
+                TransportVerificationKind.TELEPORT_SPELL,
+                spellDefinition
         );
     }
 

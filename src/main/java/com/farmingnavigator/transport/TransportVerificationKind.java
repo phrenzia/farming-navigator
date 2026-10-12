@@ -8,5 +8,6 @@ public enum TransportVerificationKind
     STONY_BASALT,
     ICY_BASALT,
     FARMING_CAPE,
+    TELEPORT_SPELL,
     NOT_IMPLEMENTED
 }
