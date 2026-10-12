@@ -207,7 +207,7 @@ public class FarmingNavigatorPlugin
     )
     {
         if (
-                !isTravelCapabilityVarbit(
+                !isRelevantStateVarbit(
                         event.getVarbitId()
                 )
         )
@@ -324,7 +324,7 @@ public class FarmingNavigatorPlugin
         }
     }
 
-    private boolean isTravelCapabilityVarbit(
+    private boolean isRelevantStateVarbit(
             int varbitId
     )
     {
@@ -345,6 +345,11 @@ public class FarmingNavigatorPlugin
             case VarbitID.RUNE_POUCH_TYPE_4:
             case VarbitID.RUNE_POUCH_TYPE_5:
             case VarbitID.RUNE_POUCH_TYPE_6:
+
+                /*
+                 * Exact Fairytale II fairy-ring access state.
+                 */
+            case VarbitID.FAIRY2_QUEENCURE_QUEST:
                 return true;
 
             default:

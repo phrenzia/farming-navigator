@@ -34,6 +34,23 @@ public class AccountStateService
             FIRE_OF_NOURISHMENT_BUILT_PROGRESS =
             205;
 
+    /*
+     * Current Quest Helper maps the Fairytale II quest
+     * progress varbit to the following progression:
+     *
+     * 0  = not started
+     * 10 = returned to Martin
+     * 20+ = investigating Fairy Nuff's disappearance
+     * 40 = Fairy Godfather conversation completed and
+     *      fairy-ring access granted
+     *
+     * Later quest values remain fairy-ring capable, so
+     * the persistent unlock test is >= 40.
+     */
+    private static final int
+            FAIRY_RING_ACCESS_PROGRESS =
+            40;
+
     private static final Quest[] RELEVANT_QUESTS = {
             /*
              * Morytania / Harmony / Port Phasmatys routes.
@@ -165,6 +182,9 @@ public class AccountStateService
         boolean fireOfNourishmentBuilt =
                 readFireOfNourishmentBuilt();
 
+        boolean fairyRingAccessUnlocked =
+                readFairyRingAccessUnlocked();
+
         return new AccountState(
                 true,
                 realFarmingLevel,
@@ -178,7 +198,8 @@ public class AccountStateService
                 questStates,
                 completedDiaryTiers,
                 claimedDiaryTiers,
-                fireOfNourishmentBuilt
+                fireOfNourishmentBuilt,
+                fairyRingAccessUnlocked
         );
     }
 
@@ -215,6 +236,26 @@ public class AccountStateService
 
         return progress
                 >= FIRE_OF_NOURISHMENT_BUILT_PROGRESS;
+    }
+
+    private boolean readFairyRingAccessUnlocked()
+    {
+        int progress =
+                client.getVarbitValue(
+                        VarbitID.FAIRY2_QUEENCURE_QUEST
+                );
+
+        return hasFairyRingAccessFromProgress(
+                progress
+        );
+    }
+
+    static boolean hasFairyRingAccessFromProgress(
+            int progress
+    )
+    {
+        return progress
+                >= FAIRY_RING_ACCESS_PROGRESS;
     }
 
     private EnumMap<DiaryArea, DiaryTier>

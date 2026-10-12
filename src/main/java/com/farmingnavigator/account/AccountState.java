@@ -32,6 +32,8 @@ public class AccountState
 
     private final boolean fireOfNourishmentBuilt;
 
+    private final boolean fairyRingAccessUnlocked;
+
     /*
      * Full constructor including verified account unlock state.
      */
@@ -48,7 +50,8 @@ public class AccountState
             Map<Quest, QuestState> questStates,
             Map<DiaryArea, DiaryTier> completedDiaryTiers,
             Map<DiaryArea, DiaryTier> claimedDiaryTiers,
-            boolean fireOfNourishmentBuilt
+            boolean fireOfNourishmentBuilt,
+            boolean fairyRingAccessUnlocked
     )
     {
         this.loggedIn =
@@ -116,11 +119,52 @@ public class AccountState
 
         this.fireOfNourishmentBuilt =
                 fireOfNourishmentBuilt;
+
+        this.fairyRingAccessUnlocked =
+                fairyRingAccessUnlocked;
     }
 
     /*
-     * Compatibility constructor used by existing code and tests
-     * created before exact Weiss fire-state tracking was added.
+     * Compatibility constructor from the exact Weiss
+     * Fire of Nourishment milestone.
+     */
+    public AccountState(
+            boolean loggedIn,
+            int realFarmingLevel,
+            int boostedFarmingLevel,
+            int realMagicLevel,
+            int boostedMagicLevel,
+            int realAgilityLevel,
+            int boostedAgilityLevel,
+            int realHunterLevel,
+            int boostedHunterLevel,
+            Map<Quest, QuestState> questStates,
+            Map<DiaryArea, DiaryTier> completedDiaryTiers,
+            Map<DiaryArea, DiaryTier> claimedDiaryTiers,
+            boolean fireOfNourishmentBuilt
+    )
+    {
+        this(
+                loggedIn,
+                realFarmingLevel,
+                boostedFarmingLevel,
+                realMagicLevel,
+                boostedMagicLevel,
+                realAgilityLevel,
+                boostedAgilityLevel,
+                realHunterLevel,
+                boostedHunterLevel,
+                questStates,
+                completedDiaryTiers,
+                claimedDiaryTiers,
+                fireOfNourishmentBuilt,
+                false
+        );
+    }
+
+    /*
+     * Compatibility constructor used by code and tests
+     * created before exact Weiss fire-state tracking.
      */
     public AccountState(
             boolean loggedIn,
@@ -150,6 +194,7 @@ public class AccountState
                 questStates,
                 completedDiaryTiers,
                 claimedDiaryTiers,
+                false,
                 false
         );
     }
@@ -184,6 +229,7 @@ public class AccountState
                 createLegacyClaimedDiaryTiers(
                         morytaniaEliteRewardClaimed
                 ),
+                false,
                 false
         );
     }
@@ -203,6 +249,7 @@ public class AccountState
                 null,
                 null,
                 null,
+                false,
                 false
         );
     }
@@ -376,6 +423,11 @@ public class AccountState
     public boolean isFireOfNourishmentBuilt()
     {
         return fireOfNourishmentBuilt;
+    }
+
+    public boolean isFairyRingAccessUnlocked()
+    {
+        return fairyRingAccessUnlocked;
     }
 
     private static Map<Quest, QuestState>
