@@ -9,6 +9,8 @@ import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.storage.StorageStateService;
 import com.farmingnavigator.transport.HerbPatchTransportService;
 import com.farmingnavigator.transport.TransportOption;
+import com.farmingnavigator.transport.TransportVerificationService;
+import com.farmingnavigator.transport.VerifiedTransportResult;
 import com.google.inject.Provides;
 import java.awt.Color;
 import java.awt.Font;
@@ -61,20 +63,19 @@ public class FarmingNavigatorPlugin
     private ClientToolbar clientToolbar;
 
     @Inject
-    private AccountStateService
-            accountStateService;
+    private AccountStateService accountStateService;
 
     @Inject
-    private HerbPatchService
-            herbPatchService;
+    private HerbPatchService herbPatchService;
 
     @Inject
-    private HerbPatchTransportService
-            herbPatchTransportService;
+    private HerbPatchTransportService herbPatchTransportService;
 
     @Inject
-    private StorageStateService
-            storageStateService;
+    private StorageStateService storageStateService;
+
+    @Inject
+    private TransportVerificationService transportVerificationService;
 
     private FarmingNavigatorPanel panel;
 
@@ -121,9 +122,7 @@ public class FarmingNavigatorPlugin
         storageStateService
                 .invalidateBankSnapshot();
 
-        if (
-                navigationButton != null
-        )
+        if (navigationButton != null)
         {
             clientToolbar.removeNavigation(
                     navigationButton
@@ -273,8 +272,7 @@ public class FarmingNavigatorPlugin
                 storageStateService
                         .createSnapshot();
 
-        List<HerbPatchStatus>
-                patchStatuses =
+        List<HerbPatchStatus> patchStatuses =
                 herbPatchService.evaluate(
                         accountState
                 );
@@ -286,13 +284,24 @@ public class FarmingNavigatorPlugin
                 herbPatchTransportService
                         .getAllOptions();
 
+        Map<
+                HerbPatchDefinition,
+                List<VerifiedTransportResult>
+                > verifiedTransportResults =
+                transportVerificationService
+                        .evaluateAll(
+                                accountState,
+                                storageSnapshot,
+                                transportOptions
+                        );
+
         SwingUtilities.invokeLater(
                 () ->
                         panel.setAccountState(
                                 accountState,
                                 storageSnapshot,
                                 patchStatuses,
-                                transportOptions
+                                verifiedTransportResults
                         )
         );
     }

@@ -10,32 +10,46 @@ import javax.inject.Inject;
 
 public class HerbPatchTransportService
 {
-    private final Map<HerbPatchDefinition, List<TransportOption>>
-            optionsByPatch;
+    private final Map<
+            HerbPatchDefinition,
+            List<TransportOption>
+            > optionsByPatch;
 
     @Inject
     public HerbPatchTransportService()
     {
-        EnumMap<HerbPatchDefinition, List<TransportOption>> options =
-                new EnumMap<>(HerbPatchDefinition.class);
+        EnumMap<
+                HerbPatchDefinition,
+                List<TransportOption>
+                > options =
+                new EnumMap<>(
+                        HerbPatchDefinition.class
+                );
 
         options.put(
                 HerbPatchDefinition.FALADOR,
                 transportOptions(
-                        transport(
+                        verifiedTransport(
                                 1,
-                                "Explorer's ring 2+",
-                                "Use Cabbage-port near the Falador farming patch.",
+                                "Explorer's ring 3/4",
+                                "Use the unlimited Cabbage-port teleport to the farming patch.",
+                                TransportCategory.DIARY_ITEM,
+                                TransportVerificationKind.EXPLORER_RING_UNLIMITED
+                        ),
+                        futureTransport(
+                                2,
+                                "Explorer's ring 2",
+                                "Use one of the three daily Cabbage-port teleports.",
                                 TransportCategory.DIARY_ITEM
                         ),
-                        transport(
-                                2,
+                        futureTransport(
+                                3,
                                 "Ring of the elements",
                                 "Teleport to the Air Altar and travel to the farming patch.",
                                 TransportCategory.ITEM
                         ),
-                        transport(
-                                3,
+                        futureTransport(
+                                4,
                                 "Falador Teleport",
                                 "Teleport to Falador and travel south to the farming patch.",
                                 TransportCategory.SPELL
@@ -46,19 +60,19 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.CATHERBY,
                 transportOptions(
-                        transport(
+                        futureTransport(
                                 1,
                                 "Catherby Teleport",
                                 "Teleport directly to Catherby and travel a short distance to the patch.",
                                 TransportCategory.SPELL
                         ),
-                        transport(
+                        futureTransport(
                                 2,
                                 "Camelot Teleport",
                                 "Teleport to Camelot and run east to Catherby.",
                                 TransportCategory.SPELL
                         ),
-                        transport(
+                        futureTransport(
                                 3,
                                 "Charter ship to Catherby",
                                 "Use the charter ship network to reach Catherby.",
@@ -70,19 +84,20 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.ARDOUGNE,
                 transportOptions(
-                        transport(
+                        futureTransport(
                                 1,
                                 "Ardougne cloak 2+",
-                                "Use the cloak's farming patch teleport.",
+                                "Use the cloak's Ardougne farming patch teleport.",
                                 TransportCategory.DIARY_ITEM
                         ),
-                        transport(
+                        verifiedTransport(
                                 2,
                                 "Skills necklace to Fishing Guild",
                                 "Teleport to the Fishing Guild and travel south-east to the patch.",
-                                TransportCategory.JEWELLERY
+                                TransportCategory.JEWELLERY,
+                                TransportVerificationKind.SKILLS_NECKLACE
                         ),
-                        transport(
+                        futureTransport(
                                 3,
                                 "Ardougne Teleport",
                                 "Teleport to Ardougne and travel north to the farming patch.",
@@ -94,19 +109,20 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.MORYTANIA,
                 transportOptions(
-                        transport(
+                        verifiedTransport(
                                 1,
                                 "Ectophial",
-                                "Teleport to the Ectofuntus and travel west to the patch.",
-                                TransportCategory.ITEM
+                                "Empty the Ectophial to teleport to the Ectofuntus, then travel west to the patch.",
+                                TransportCategory.ITEM,
+                                TransportVerificationKind.ECTOPHIAL
                         ),
-                        transport(
+                        futureTransport(
                                 2,
                                 "Fairy ring ALQ",
                                 "Use fairy ring code ALQ and travel to the farming patch.",
                                 TransportCategory.FAIRY_RING
                         ),
-                        transport(
+                        futureTransport(
                                 3,
                                 "Fenkenstrain's Castle Teleport",
                                 "Teleport near Fenkenstrain's Castle and travel east toward the patch.",
@@ -118,19 +134,19 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.HOSIDIUS,
                 transportOptions(
-                        transport(
+                        futureTransport(
                                 1,
                                 "Xeric's talisman - Glade",
                                 "Teleport to Xeric's Glade and travel to the Hosidius farming patch.",
                                 TransportCategory.ITEM
                         ),
-                        transport(
+                        futureTransport(
                                 2,
                                 "Hosidius house portal",
                                 "Use a Hosidius player-owned house portal and travel to the patch.",
                                 TransportCategory.PLAYER_OWNED_HOUSE
                         ),
-                        transport(
+                        futureTransport(
                                 3,
                                 "Kharedst's memoirs",
                                 "Teleport to Lunch by the lancalliums and travel to the patch.",
@@ -142,16 +158,17 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.TROLL_STRONGHOLD,
                 transportOptions(
-                        transport(
+                        verifiedTransport(
                                 1,
                                 "Stony basalt",
                                 "Teleport near the Troll Stronghold herb patch.",
-                                TransportCategory.ITEM
+                                TransportCategory.ITEM,
+                                TransportVerificationKind.STONY_BASALT
                         ),
-                        transport(
+                        futureTransport(
                                 2,
                                 "Trollheim Teleport",
-                                "Teleport to Trollheim and travel west to the Troll Stronghold.",
+                                "Teleport to Trollheim and travel to the Troll Stronghold patch.",
                                 TransportCategory.SPELL
                         )
                 )
@@ -160,13 +177,14 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.WEISS,
                 transportOptions(
-                        transport(
+                        verifiedTransport(
                                 1,
                                 "Icy basalt",
                                 "Teleport directly to Weiss near the herb patch.",
-                                TransportCategory.ITEM
+                                TransportCategory.ITEM,
+                                TransportVerificationKind.ICY_BASALT
                         ),
-                        transport(
+                        futureTransport(
                                 2,
                                 "Fairy ring DKS and Larry's boat",
                                 "Use fairy ring DKS, travel to Larry's boat, then sail to Weiss.",
@@ -178,19 +196,21 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.FARMING_GUILD,
                 transportOptions(
-                        transport(
+                        verifiedTransport(
                                 1,
                                 "Farming cape",
                                 "Use the Farming cape teleport to the Farming Guild.",
-                                TransportCategory.SKILLCAPE
+                                TransportCategory.SKILLCAPE,
+                                TransportVerificationKind.FARMING_CAPE
                         ),
-                        transport(
+                        verifiedTransport(
                                 2,
                                 "Skills necklace",
                                 "Teleport directly to the Farming Guild.",
-                                TransportCategory.JEWELLERY
+                                TransportCategory.JEWELLERY,
+                                TransportVerificationKind.SKILLS_NECKLACE
                         ),
-                        transport(
+                        futureTransport(
                                 3,
                                 "Spirit tree",
                                 "Use a spirit tree planted in the Farming Guild.",
@@ -202,19 +222,19 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.HARMONY_ISLAND,
                 transportOptions(
-                        transport(
+                        futureTransport(
                                 1,
                                 "Harmony Island Teleport",
                                 "Teleport directly to Harmony Island.",
                                 TransportCategory.SPELL
                         ),
-                        transport(
+                        futureTransport(
                                 2,
                                 "Mos Le'Harmless teleport scroll",
                                 "Teleport to Mos Le'Harmless and speak to Brother Tranquility.",
                                 TransportCategory.ITEM
                         ),
-                        transport(
+                        futureTransport(
                                 3,
                                 "Ectophial and boat",
                                 "Travel through Port Phasmatys and Mos Le'Harmless, then speak to Brother Tranquility.",
@@ -226,25 +246,25 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.ORTUS_FARM,
                 transportOptions(
-                        transport(
+                        futureTransport(
                                 1,
                                 "Quetzal whistle",
                                 "Teleport to the Hunter Guild and run north to Ortus Farm.",
                                 TransportCategory.ITEM
                         ),
-                        transport(
+                        futureTransport(
                                 2,
                                 "Hunter cape",
                                 "Teleport to the Hunter Guild and run north to Ortus Farm.",
                                 TransportCategory.SKILLCAPE
                         ),
-                        transport(
+                        futureTransport(
                                 3,
                                 "Civitas illa Fortis Teleport",
                                 "Teleport to Civitas illa Fortis, use the Quetzal Transport System to the Hunter Guild, then run north.",
                                 TransportCategory.SPELL
                         ),
-                        transport(
+                        futureTransport(
                                 4,
                                 "Fairy ring AJP",
                                 "Use fairy ring code AJP and travel north-west to Ortus Farm.",
@@ -254,7 +274,9 @@ public class HerbPatchTransportService
         );
 
         optionsByPatch =
-                Collections.unmodifiableMap(options);
+                Collections.unmodifiableMap(
+                        options
+                );
     }
 
     public List<TransportOption> getOptions(
@@ -272,8 +294,10 @@ public class HerbPatchTransportService
         return options;
     }
 
-    public Map<HerbPatchDefinition, List<TransportOption>>
-    getAllOptions()
+    public Map<
+            HerbPatchDefinition,
+            List<TransportOption>
+            > getAllOptions()
     {
         return optionsByPatch;
     }
@@ -287,7 +311,24 @@ public class HerbPatchTransportService
         );
     }
 
-    private TransportOption transport(
+    private TransportOption verifiedTransport(
+            int baselineRank,
+            String displayName,
+            String instructions,
+            TransportCategory category,
+            TransportVerificationKind verificationKind
+    )
+    {
+        return new TransportOption(
+                baselineRank,
+                displayName,
+                instructions,
+                category,
+                verificationKind
+        );
+    }
+
+    private TransportOption futureTransport(
             int baselineRank,
             String displayName,
             String instructions,
@@ -298,7 +339,8 @@ public class HerbPatchTransportService
                 baselineRank,
                 displayName,
                 instructions,
-                category
+                category,
+                TransportVerificationKind.NOT_IMPLEMENTED
         );
     }
 }

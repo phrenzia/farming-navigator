@@ -6,18 +6,21 @@ public class TransportOption
     private final String displayName;
     private final String instructions;
     private final TransportCategory category;
+    private final TransportVerificationKind verificationKind;
 
     public TransportOption(
             int baselineRank,
             String displayName,
             String instructions,
-            TransportCategory category
+            TransportCategory category,
+            TransportVerificationKind verificationKind
     )
     {
         this.baselineRank = baselineRank;
         this.displayName = displayName;
         this.instructions = instructions;
         this.category = category;
+        this.verificationKind = verificationKind;
     }
 
     public int getBaselineRank()
@@ -38,5 +41,10 @@ public class TransportOption
     public TransportCategory getCategory()
     {
         return category;
+    }
+
+    public TransportVerificationKind getVerificationKind()
+    {
+        return verificationKind;
     }
 }
