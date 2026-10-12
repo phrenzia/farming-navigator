@@ -122,7 +122,7 @@ public class HerbPatchTransportService
                         verifiedTransport(
                                 2,
                                 "POH fairy ring to ALQ",
-                                "Cast Teleport to House, enter your POH if needed, use your configured POH fairy ring, enter code ALQ, then travel north to the farming patch.",
+                                "Enter your POH with Teleport to House or a house tablet, use your configured POH fairy ring, enter code ALQ, then travel north to the farming patch.",
                                 TransportCategory.PLAYER_OWNED_HOUSE,
                                 TransportVerificationKind.POH_FAIRY_RING
                         ),
@@ -166,7 +166,7 @@ public class HerbPatchTransportService
                         verifiedTransport(
                                 4,
                                 "POH fairy ring to AKR",
-                                "Cast Teleport to House, enter your POH if needed, use your configured POH fairy ring, enter code AKR, then run west to the farming patch.",
+                                "Enter your POH with Teleport to House or a house tablet, use your configured POH fairy ring, enter code AKR, then run west to the farming patch.",
                                 TransportCategory.PLAYER_OWNED_HOUSE,
                                 TransportVerificationKind.POH_FAIRY_RING
                         ),
@@ -248,7 +248,7 @@ public class HerbPatchTransportService
                         verifiedTransport(
                                 5,
                                 "POH fairy ring to CIR",
-                                "Cast Teleport to House, enter your POH if needed, use your configured POH fairy ring, enter code CIR, then run south-west to the Farming Guild.",
+                                "Enter your POH with Teleport to House or a house tablet, use your configured POH fairy ring, enter code CIR, then run south-west to the Farming Guild.",
                                 TransportCategory.PLAYER_OWNED_HOUSE,
                                 TransportVerificationKind.POH_FAIRY_RING
                         ),

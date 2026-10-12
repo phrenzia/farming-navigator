@@ -127,7 +127,7 @@ public class PohFairyRingTransportVerificationTest
     }
 
     @Test
-    public void configuredPohFairyRingIsReadyNow()
+    public void configuredPohFairyRingSpellIsReadyNow()
     {
         Map<Integer, Integer> inventory =
                 createHouseTeleportRunes();
@@ -166,6 +166,166 @@ public class PohFairyRingTransportVerificationTest
                 result.getDetail()
                         .contains(
                                 "Teleport to House"
+                        )
+        );
+    }
+
+    @Test
+    public void carriedHouseTabletMakesRouteReadyOnLunar()
+    {
+        Map<Integer, Integer> inventory =
+                new LinkedHashMap<>();
+
+        inventory.put(
+                ItemID.POH_TABLET_TELEPORTTOHOUSE,
+                1
+        );
+
+        inventory.put(
+                ItemID.DRAMEN_STAFF,
+                1
+        );
+
+        VerifiedTransportResult result =
+                evaluatePohFairyRing(
+                        createAccountState(
+                                true,
+                                false
+                        ),
+                        createConfig(
+                                true,
+                                true
+                        ),
+                        SpellbookType.LUNAR,
+                        inventory,
+                        Collections.emptyMap(),
+                        Collections.emptyMap()
+                );
+
+        assertEquals(
+                VerifiedTransportState.READY_NOW,
+                result.getState()
+        );
+
+        assertTrue(
+                result.isUsableForPlannedRun()
+        );
+
+        assertTrue(
+                result.getDetail()
+                        .contains(
+                                "Teleport to house tablet"
+                        )
+        );
+    }
+
+    @Test
+    public void bankedHouseTabletMakesRouteAvailableOnArceuus()
+    {
+        Map<Integer, Integer> inventory =
+                new LinkedHashMap<>();
+
+        inventory.put(
+                ItemID.DRAMEN_STAFF,
+                1
+        );
+
+        Map<Integer, Long> bank =
+                new LinkedHashMap<>();
+
+        bank.put(
+                ItemID.POH_TABLET_TELEPORTTOHOUSE,
+                2L
+        );
+
+        VerifiedTransportResult result =
+                evaluatePohFairyRing(
+                        createAccountState(
+                                true,
+                                false
+                        ),
+                        createConfig(
+                                true,
+                                true
+                        ),
+                        SpellbookType.ARCEUUS,
+                        inventory,
+                        Collections.emptyMap(),
+                        bank
+                );
+
+        assertEquals(
+                VerifiedTransportState.AVAILABLE_FROM_BANK,
+                result.getState()
+        );
+
+        assertTrue(
+                result.isUsableForPlannedRun()
+        );
+
+        assertTrue(
+                result.getDetail()
+                        .contains(
+                                "Teleport to house tablet"
+                        )
+        );
+    }
+
+    @Test
+    public void wrongSpellbookWithoutTabletIsMissing()
+    {
+        Map<Integer, Integer> inventory =
+                createHouseTeleportRunes();
+
+        inventory.put(
+                ItemID.DRAMEN_STAFF,
+                1
+        );
+
+        VerifiedTransportResult result =
+                evaluatePohFairyRing(
+                        createAccountState(
+                                true,
+                                false
+                        ),
+                        createConfig(
+                                true,
+                                true
+                        ),
+                        SpellbookType.LUNAR,
+                        inventory,
+                        Collections.emptyMap(),
+                        Collections.emptyMap()
+                );
+
+        /*
+         * The spell itself is locked on Lunar, but the POH
+         * route is not globally locked because a house tablet
+         * is an exact unrestricted alternative.
+         *
+         * No usable tablet was found, so the preparation state
+         * for the complete POH-entry route is MISSING.
+         */
+        assertEquals(
+                VerifiedTransportState.MISSING,
+                result.getState()
+        );
+
+        assertFalse(
+                result.isUsableForPlannedRun()
+        );
+
+        assertTrue(
+                result.getDetail()
+                        .contains(
+                                "Standard spellbook"
+                        )
+        );
+
+        assertTrue(
+                result.getDetail()
+                        .contains(
+                                "MISSING"
                         )
         );
     }
@@ -210,50 +370,6 @@ public class PohFairyRingTransportVerificationTest
                 result.getDetail()
                         .contains(
                                 "POH fairy ring is not enabled"
-                        )
-        );
-    }
-
-    @Test
-    public void wrongSpellbookLocksPohFairyRingRoute()
-    {
-        Map<Integer, Integer> inventory =
-                createHouseTeleportRunes();
-
-        inventory.put(
-                ItemID.DRAMEN_STAFF,
-                1
-        );
-
-        VerifiedTransportResult result =
-                evaluatePohFairyRing(
-                        createAccountState(
-                                true,
-                                false
-                        ),
-                        createConfig(
-                                true,
-                                true
-                        ),
-                        SpellbookType.LUNAR,
-                        inventory,
-                        Collections.emptyMap(),
-                        Collections.emptyMap()
-                );
-
-        assertEquals(
-                VerifiedTransportState.LOCKED,
-                result.getState()
-        );
-
-        assertFalse(
-                result.isUsableForPlannedRun()
-        );
-
-        assertTrue(
-                result.getDetail()
-                        .contains(
-                                "Standard spellbook"
                         )
         );
     }
@@ -346,7 +462,12 @@ public class PohFairyRingTransportVerificationTest
     public void fairyGodfatherUnlockIsStillRequired()
     {
         Map<Integer, Integer> inventory =
-                createHouseTeleportRunes();
+                new LinkedHashMap<>();
+
+        inventory.put(
+                ItemID.POH_TABLET_TELEPORTTOHOUSE,
+                1
+        );
 
         inventory.put(
                 ItemID.DRAMEN_STAFF,
@@ -363,7 +484,7 @@ public class PohFairyRingTransportVerificationTest
                                 true,
                                 true
                         ),
-                        SpellbookType.STANDARD,
+                        SpellbookType.LUNAR,
                         inventory,
                         Collections.emptyMap(),
                         Collections.emptyMap()
@@ -389,6 +510,14 @@ public class PohFairyRingTransportVerificationTest
     @Test
     public void claimedLumbridgeEliteNeedsNoFairyStaff()
     {
+        Map<Integer, Integer> inventory =
+                new LinkedHashMap<>();
+
+        inventory.put(
+                ItemID.POH_TABLET_TELEPORTTOHOUSE,
+                1
+        );
+
         VerifiedTransportResult result =
                 evaluatePohFairyRing(
                         createAccountState(
@@ -399,8 +528,8 @@ public class PohFairyRingTransportVerificationTest
                                 true,
                                 true
                         ),
-                        SpellbookType.STANDARD,
-                        createHouseTeleportRunes(),
+                        SpellbookType.LUNAR,
+                        inventory,
                         Collections.emptyMap(),
                         Collections.emptyMap()
                 );

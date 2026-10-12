@@ -8,6 +8,7 @@ import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
 import com.farmingnavigator.routing.requirement.PohFeature;
 import com.farmingnavigator.routing.requirement.PohFeatureRequirement;
+import com.farmingnavigator.routing.requirement.PohHouseEntryRequirement;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.routing.requirement.RequirementState;
@@ -46,8 +47,8 @@ public class TransportVerificationService
     }
 
     /*
-     * Compatibility overload retained for all existing
-     * tests and callers that do not need POH configuration.
+     * Compatibility overload retained for callers that do
+     * not need POH configuration.
      */
     public Map<
             HerbPatchDefinition,
@@ -71,12 +72,6 @@ public class TransportVerificationService
         );
     }
 
-    /*
-     * Config-aware transport verification.
-     *
-     * Production uses this overload so typed POH requirements
-     * can participate in exact route verification.
-     */
     public Map<
             HerbPatchDefinition,
             List<VerifiedTransportResult>
@@ -256,12 +251,6 @@ public class TransportVerificationService
 
             case NOT_IMPLEMENTED:
             default:
-                /*
-                 * Deliberately excluded.
-                 *
-                 * A transport is not allowed into verified
-                 * ranking until we can prove every requirement.
-                 */
                 return null;
         }
     }
@@ -484,40 +473,28 @@ public class TransportVerificationService
                         storageSnapshot
                 );
 
-        TeleportSpellRequirement houseTeleportRequirement =
-                TeleportSpellDefinition
-                        .TELEPORT_TO_HOUSE
-                        .createRequirement();
-
-        PohFeatureRequirement pohFairyRingRequirement =
-                new PohFeatureRequirement(
-                        PohFeature.FAIRY_RING
-                );
-
-        FairyRingAccessRequirement
-                fairyRingAccessRequirement =
-                new FairyRingAccessRequirement();
-
-        RequirementResult houseTeleportResult =
-                houseTeleportRequirement
+        RequirementResult houseEntryResult =
+                new PohHouseEntryRequirement()
                         .evaluate(
                                 context
                         );
 
         RequirementResult pohFairyRingResult =
-                pohFairyRingRequirement
+                new PohFeatureRequirement(
+                        PohFeature.FAIRY_RING
+                )
                         .evaluate(
                                 context
                         );
 
         RequirementResult fairyRingAccessResult =
-                fairyRingAccessRequirement
+                new FairyRingAccessRequirement()
                         .evaluate(
                                 context
                         );
 
         if (
-                houseTeleportResult.isSatisfied()
+                houseEntryResult.isSatisfied()
                         && pohFairyRingResult.isSatisfied()
                         && fairyRingAccessResult.isSatisfied()
         )
@@ -528,12 +505,12 @@ public class TransportVerificationService
                     );
 
             if (
-                    houseTeleportResult
+                    houseEntryResult
                             .requiresBankWithdrawal()
             )
             {
                 preparationSteps.add(
-                        houseTeleportResult
+                        houseEntryResult
                                 .getDetail()
                 );
             }
@@ -564,7 +541,9 @@ public class TransportVerificationService
             return new VerifiedTransportResult(
                     option,
                     VerifiedTransportState.READY_NOW,
-                    "READY NOW - Teleport to House, the configured POH fairy ring, and fairy-ring access are ready."
+                    "READY NOW - "
+                            + houseEntryResult.getDetail()
+                            + " Configured POH fairy ring and fairy-ring access are ready."
             );
         }
 
@@ -586,57 +565,37 @@ public class TransportVerificationService
                 false;
 
         if (
-                !houseTeleportResult
+                !houseEntryResult
                         .isSatisfied()
         )
         {
             blockers.add(
-                    houseTeleportResult
+                    houseEntryResult
                             .getDetail()
             );
 
             switch (
-                    houseTeleportResult
+                    houseEntryResult
                             .getState()
             )
             {
                 case BLOCKED:
-                    VerifiedTransportState
-                            houseTeleportState =
-                            classifyBlockedSpellRequirement(
-                                    houseTeleportRequirement,
-                                    context
-                            );
-
-                    switch (houseTeleportState)
-                    {
-                        case LOCKED:
-                            hasLockedRequirement =
-                                    true;
-                            break;
-
-                        case MISSING:
-                            hasMissingRequirement =
-                                    true;
-                            break;
-
-                        case DATA_REQUIRED:
-                            hasDataRequired =
-                                    true;
-                            break;
-
-                        case CONFIGURATION_REQUIRED:
-                            hasConfigurationRequired =
-                                    true;
-                            break;
-
-                        case READY_NOW:
-                        case AVAILABLE_FROM_BANK:
-                        default:
-                            hasLockedRequirement =
-                                    true;
-                            break;
-                    }
+                    /*
+                     * House entry has two alternatives:
+                     *
+                     * - cast Teleport to House
+                     * - use a verified house tablet
+                     *
+                     * If neither is usable and both have been
+                     * definitively evaluated, the player is
+                     * missing a usable POH-entry preparation.
+                     *
+                     * A locked spell alone must not make this
+                     * route LOCKED because a house tablet does
+                     * not share the spellbook/Magic restriction.
+                     */
+                    hasMissingRequirement =
+                            true;
                     break;
 
                 case DATA_REQUIRED:
