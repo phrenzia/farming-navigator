@@ -7,8 +7,12 @@ import net.runelite.api.Client;
 import net.runelite.api.EnumComposition;
 import net.runelite.api.EnumID;
 import net.runelite.api.GameState;
+import net.runelite.api.Item;
+import net.runelite.api.ItemContainer;
 import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.api.gameval.VarbitID;
 
 public class TravelCapabilityService
@@ -60,13 +64,29 @@ public class TravelCapabilityService
                 readCurrentLocation();
 
         Map<Integer, Integer>
+                inventoryQuantities =
+                readContainerQuantities(
+                        InventoryID.INV
+                );
+
+        Map<Integer, Integer>
+                equipmentQuantities =
+                readContainerQuantities(
+                        InventoryID.WORN
+                );
+
+        Map<Integer, Integer>
                 runePouchQuantities =
-                readRunePouchQuantities();
+                readRunePouchQuantities(
+                        inventoryQuantities
+                );
 
         return new TravelCapabilitySnapshot(
                 true,
                 activeSpellbook,
                 currentLocation,
+                inventoryQuantities,
+                equipmentQuantities,
                 runePouchQuantities
         );
     }
@@ -86,10 +106,63 @@ public class TravelCapabilityService
     }
 
     private Map<Integer, Integer>
-    readRunePouchQuantities()
+    readContainerQuantities(
+            int containerId
+    )
     {
         Map<Integer, Integer> quantities =
                 new LinkedHashMap<>();
+
+        ItemContainer container =
+                client.getItemContainer(
+                        containerId
+                );
+
+        if (container == null)
+        {
+            return quantities;
+        }
+
+        for (
+                Item item
+                : container.getItems()
+        )
+        {
+            if (
+                    item == null
+                            || item.getId() <= 0
+                            || item.getQuantity() <= 0
+            )
+            {
+                continue;
+            }
+
+            quantities.merge(
+                    item.getId(),
+                    item.getQuantity(),
+                    Integer::sum
+            );
+        }
+
+        return quantities;
+    }
+
+    private Map<Integer, Integer>
+    readRunePouchQuantities(
+            Map<Integer, Integer> inventoryQuantities
+    )
+    {
+        Map<Integer, Integer> quantities =
+                new LinkedHashMap<>();
+
+        if (
+                !hasCarriedRunePouch(
+                        inventoryQuantities
+                )
+        )
+        {
+            return quantities;
+        }
 
         EnumComposition runePouchEnum =
                 client.getEnum(
@@ -150,5 +223,38 @@ public class TravelCapabilityService
         }
 
         return quantities;
+    }
+
+    private boolean hasCarriedRunePouch(
+            Map<Integer, Integer> inventoryQuantities
+    )
+    {
+        return hasItem(
+                inventoryQuantities,
+                ItemID.BH_RUNE_POUCH
+        )
+                || hasItem(
+                inventoryQuantities,
+                ItemID.BH_RUNE_POUCH_TROUVER
+        )
+                || hasItem(
+                inventoryQuantities,
+                ItemID.DIVINE_RUNE_POUCH
+        )
+                || hasItem(
+                inventoryQuantities,
+                ItemID.DIVINE_RUNE_POUCH_TROUVER
+        );
+    }
+
+    private boolean hasItem(
+            Map<Integer, Integer> quantities,
+            int itemId
+    )
+    {
+        return quantities.getOrDefault(
+                itemId,
+                0
+        ) > 0;
     }
 }
