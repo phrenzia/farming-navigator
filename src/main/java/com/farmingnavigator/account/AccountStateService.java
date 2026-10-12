@@ -11,6 +11,29 @@ import net.runelite.api.gameval.VarbitID;
 
 public class AccountStateService
 {
+    /*
+     * Making Friends with My Arm uses quest-progress
+     * varbit 6528.
+     *
+     * Current cache data also uses this exact varbit to
+     * morph the Weiss fire pit between:
+     *
+     * Old fire pit
+     * and
+     * Fire of Nourishment.
+     *
+     * Quest completion occurs at >= 200.
+     * Construction of the Fire of Nourishment advances
+     * the persistent state to 205.
+     */
+    private static final int
+            MAKING_FRIENDS_WITH_MY_ARM_PROGRESS_VARBIT =
+            6528;
+
+    private static final int
+            FIRE_OF_NOURISHMENT_BUILT_PROGRESS =
+            205;
+
     private static final Quest[] RELEVANT_QUESTS = {
             /*
              * Morytania / Harmony / Port Phasmatys routes.
@@ -74,7 +97,8 @@ public class AccountStateService
             Client client
     )
     {
-        this.client = client;
+        this.client =
+                client;
     }
 
     public AccountState createSnapshot()
@@ -138,6 +162,9 @@ public class AccountStateService
                 claimedDiaryTiers =
                 readClaimedDiaryTiers();
 
+        boolean fireOfNourishmentBuilt =
+                readFireOfNourishmentBuilt();
+
         return new AccountState(
                 true,
                 realFarmingLevel,
@@ -150,7 +177,8 @@ public class AccountStateService
                 boostedHunterLevel,
                 questStates,
                 completedDiaryTiers,
-                claimedDiaryTiers
+                claimedDiaryTiers,
+                fireOfNourishmentBuilt
         );
     }
 
@@ -176,6 +204,17 @@ public class AccountStateService
         }
 
         return questStates;
+    }
+
+    private boolean readFireOfNourishmentBuilt()
+    {
+        int progress =
+                client.getVarbitValue(
+                        MAKING_FRIENDS_WITH_MY_ARM_PROGRESS_VARBIT
+                );
+
+        return progress
+                >= FIRE_OF_NOURISHMENT_BUILT_PROGRESS;
     }
 
     private EnumMap<DiaryArea, DiaryTier>

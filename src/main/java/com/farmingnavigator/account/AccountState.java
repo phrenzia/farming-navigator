@@ -30,6 +30,11 @@ public class AccountState
     private final EnumMap<DiaryArea, DiaryTier>
             claimedDiaryTiers;
 
+    private final boolean fireOfNourishmentBuilt;
+
+    /*
+     * Full constructor including verified account unlock state.
+     */
     public AccountState(
             boolean loggedIn,
             int realFarmingLevel,
@@ -42,10 +47,12 @@ public class AccountState
             int boostedHunterLevel,
             Map<Quest, QuestState> questStates,
             Map<DiaryArea, DiaryTier> completedDiaryTiers,
-            Map<DiaryArea, DiaryTier> claimedDiaryTiers
+            Map<DiaryArea, DiaryTier> claimedDiaryTiers,
+            boolean fireOfNourishmentBuilt
     )
     {
-        this.loggedIn = loggedIn;
+        this.loggedIn =
+                loggedIn;
 
         this.realFarmingLevel =
                 realFarmingLevel;
@@ -106,14 +113,49 @@ public class AccountState
                     claimedDiaryTiers
             );
         }
+
+        this.fireOfNourishmentBuilt =
+                fireOfNourishmentBuilt;
     }
 
     /*
-     * Compatibility constructor for code created before the
-     * expanded account capability snapshot.
-     *
-     * Keeping it for now means existing tests/services that use
-     * the original constructor will continue to compile.
+     * Compatibility constructor used by existing code and tests
+     * created before exact Weiss fire-state tracking was added.
+     */
+    public AccountState(
+            boolean loggedIn,
+            int realFarmingLevel,
+            int boostedFarmingLevel,
+            int realMagicLevel,
+            int boostedMagicLevel,
+            int realAgilityLevel,
+            int boostedAgilityLevel,
+            int realHunterLevel,
+            int boostedHunterLevel,
+            Map<Quest, QuestState> questStates,
+            Map<DiaryArea, DiaryTier> completedDiaryTiers,
+            Map<DiaryArea, DiaryTier> claimedDiaryTiers
+    )
+    {
+        this(
+                loggedIn,
+                realFarmingLevel,
+                boostedFarmingLevel,
+                realMagicLevel,
+                boostedMagicLevel,
+                realAgilityLevel,
+                boostedAgilityLevel,
+                realHunterLevel,
+                boostedHunterLevel,
+                questStates,
+                completedDiaryTiers,
+                claimedDiaryTiers,
+                false
+        );
+    }
+
+    /*
+     * Original compatibility constructor.
      */
     public AccountState(
             boolean loggedIn,
@@ -141,7 +183,8 @@ public class AccountState
                 ),
                 createLegacyClaimedDiaryTiers(
                         morytaniaEliteRewardClaimed
-                )
+                ),
+                false
         );
     }
 
@@ -159,7 +202,8 @@ public class AccountState
                 0,
                 null,
                 null,
-                null
+                null,
+                false
         );
     }
 
@@ -227,24 +271,27 @@ public class AccountState
             Quest quest
     )
     {
-        return getQuestState(quest)
-                != QuestState.NOT_STARTED;
+        return getQuestState(
+                quest
+        ) != QuestState.NOT_STARTED;
     }
 
     public boolean isQuestInProgress(
             Quest quest
     )
     {
-        return getQuestState(quest)
-                == QuestState.IN_PROGRESS;
+        return getQuestState(
+                quest
+        ) == QuestState.IN_PROGRESS;
     }
 
     public boolean hasCompletedQuest(
             Quest quest
     )
     {
-        return getQuestState(quest)
-                == QuestState.FINISHED;
+        return getQuestState(
+                quest
+        ) == QuestState.FINISHED;
     }
 
     public DiaryTier getCompletedDiaryTier(
@@ -282,7 +329,9 @@ public class AccountState
             DiaryTier requiredTier
     )
     {
-        return getCompletedDiaryTier(area)
+        return getCompletedDiaryTier(
+                area
+        )
                 .isAtLeast(
                         requiredTier
                 );
@@ -293,7 +342,9 @@ public class AccountState
             DiaryTier requiredTier
     )
     {
-        return getClaimedDiaryTier(area)
+        return getClaimedDiaryTier(
+                area
+        )
                 .isAtLeast(
                         requiredTier
                 );
@@ -314,18 +365,17 @@ public class AccountState
         );
     }
 
-    /*
-     * Compatibility method used by the current HerbPatchService.
-     *
-     * Once our generic requirement graph is installed, the
-     * one-off Morytania method can disappear.
-     */
     public boolean isMorytaniaEliteRewardClaimed()
     {
         return hasClaimedDiaryTier(
                 DiaryArea.MORYTANIA,
                 DiaryTier.ELITE
         );
+    }
+
+    public boolean isFireOfNourishmentBuilt()
+    {
+        return fireOfNourishmentBuilt;
     }
 
     private static Map<Quest, QuestState>

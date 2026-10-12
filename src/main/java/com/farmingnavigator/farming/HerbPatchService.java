@@ -14,18 +14,28 @@ public class HerbPatchService
     {
     }
 
-    public List<HerbPatchStatus> evaluate(AccountState accountState)
+    public List<HerbPatchStatus> evaluate(
+            AccountState accountState
+    )
     {
-        if (accountState == null || !accountState.isLoggedIn())
+        if (
+                accountState == null
+                        || !accountState.isLoggedIn()
+        )
         {
             return Collections.emptyList();
         }
 
-        List<HerbPatchStatus> statuses = new ArrayList<>();
+        List<HerbPatchStatus> statuses =
+                new ArrayList<>();
 
-        for (HerbPatchDefinition patch : HerbPatchDefinition.values())
+        for (
+                HerbPatchDefinition patch
+                : HerbPatchDefinition.values()
+        )
         {
-            List<String> missingRequirements = new ArrayList<>();
+            List<String> missingRequirements =
+                    new ArrayList<>();
 
             checkFarmingRequirement(
                     accountState,
@@ -45,6 +55,12 @@ public class HerbPatchService
                     missingRequirements
             );
 
+            checkSpecialPatchRequirements(
+                    accountState,
+                    patch,
+                    missingRequirements
+            );
+
             statuses.add(
                     new HerbPatchStatus(
                             patch,
@@ -53,7 +69,9 @@ public class HerbPatchService
             );
         }
 
-        return Collections.unmodifiableList(statuses);
+        return Collections.unmodifiableList(
+                statuses
+        );
     }
 
     private void checkFarmingRequirement(
@@ -62,17 +80,23 @@ public class HerbPatchService
             List<String> missingRequirements
     )
     {
-        int requiredLevel = patch.getMinimumFarmingLevel();
+        int requiredLevel =
+                patch.getMinimumFarmingLevel();
 
         if (requiredLevel <= 0)
         {
             return;
         }
 
-        if (accountState.getBoostedFarmingLevel() < requiredLevel)
+        if (
+                accountState
+                        .getBoostedFarmingLevel()
+                        < requiredLevel
+        )
         {
             missingRequirements.add(
-                    requiredLevel + " Farming (boostable)"
+                    requiredLevel
+                            + " Farming (boostable)"
             );
         }
     }
@@ -83,17 +107,23 @@ public class HerbPatchService
             List<String> missingRequirements
     )
     {
-        Quest requiredQuest = patch.getRequiredQuest();
+        Quest requiredQuest =
+                patch.getRequiredQuest();
 
         if (requiredQuest == null)
         {
             return;
         }
 
-        if (!accountState.hasCompletedQuest(requiredQuest))
+        if (
+                !accountState.hasCompletedQuest(
+                        requiredQuest
+                )
+        )
         {
             missingRequirements.add(
-                    "Quest: " + requiredQuest.getName()
+                    "Quest: "
+                            + requiredQuest.getName()
             );
         }
     }
@@ -104,15 +134,46 @@ public class HerbPatchService
             List<String> missingRequirements
     )
     {
-        if (!patch.requiresMorytaniaEliteReward())
+        if (
+                !patch
+                        .requiresMorytaniaEliteReward()
+        )
         {
             return;
         }
 
-        if (!accountState.isMorytaniaEliteRewardClaimed())
+        if (
+                !accountState
+                        .isMorytaniaEliteRewardClaimed()
+        )
         {
             missingRequirements.add(
                     "Morytania Elite Diary reward"
+            );
+        }
+    }
+
+    private void checkSpecialPatchRequirements(
+            AccountState accountState,
+            HerbPatchDefinition patch,
+            List<String> missingRequirements
+    )
+    {
+        if (
+                patch
+                        != HerbPatchDefinition.WEISS
+        )
+        {
+            return;
+        }
+
+        if (
+                !accountState
+                        .isFireOfNourishmentBuilt()
+        )
+        {
+            missingRequirements.add(
+                    "Fire of Nourishment built"
             );
         }
     }
