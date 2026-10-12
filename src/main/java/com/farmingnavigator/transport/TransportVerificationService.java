@@ -2,6 +2,10 @@ package com.farmingnavigator.transport;
 
 import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.farming.HerbPatchDefinition;
+import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
+import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
+import com.farmingnavigator.routing.requirement.RequirementContext;
+import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.storage.StorageSnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,24 +19,6 @@ import net.runelite.api.gameval.ItemID;
 
 public class TransportVerificationService
 {
-    private static final int[] SKILLS_NECKLACE_IDS = {
-            ItemID.JEWL_NECKLACE_OF_SKILLS_6,
-            ItemID.JEWL_NECKLACE_OF_SKILLS_5,
-            ItemID.JEWL_NECKLACE_OF_SKILLS_4,
-            ItemID.JEWL_NECKLACE_OF_SKILLS_3,
-            ItemID.JEWL_NECKLACE_OF_SKILLS_2,
-            ItemID.JEWL_NECKLACE_OF_SKILLS_1
-    };
-
-    private static final int[] SKILLS_NECKLACE_CHARGES = {
-            6,
-            5,
-            4,
-            3,
-            2,
-            1
-    };
-
     private static final int[] UNLIMITED_EXPLORER_RING_IDS = {
             ItemID.LUMBRIDGE_RING_ELITE,
             ItemID.LUMBRIDGE_RING_HARD
@@ -54,6 +40,7 @@ public class TransportVerificationService
             List<VerifiedTransportResult>
             > evaluateAll(
             AccountState accountState,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
             Map<
                     HerbPatchDefinition,
@@ -64,6 +51,8 @@ public class TransportVerificationService
         if (
                 accountState == null
                         || !accountState.isLoggedIn()
+                        || travelCapabilitySnapshot == null
+                        || !travelCapabilitySnapshot.isLoggedIn()
                         || storageSnapshot == null
                         || !storageSnapshot.isBankVerified()
         )
@@ -99,6 +88,7 @@ public class TransportVerificationService
                 VerifiedTransportResult result =
                         evaluateOption(
                                 accountState,
+                                travelCapabilitySnapshot,
                                 storageSnapshot,
                                 option
                         );
@@ -137,6 +127,7 @@ public class TransportVerificationService
 
     private VerifiedTransportResult evaluateOption(
             AccountState accountState,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
             TransportOption option
     )
@@ -153,6 +144,8 @@ public class TransportVerificationService
 
             case SKILLS_NECKLACE:
                 return evaluateSkillsNecklace(
+                        accountState,
+                        travelCapabilitySnapshot,
                         storageSnapshot,
                         option
                 );
@@ -255,91 +248,59 @@ public class TransportVerificationService
 
     private VerifiedTransportResult
     evaluateSkillsNecklace(
+            AccountState accountState,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
             TransportOption option
     )
     {
-        long carriedCharges =
-                calculateSkillsNecklaceCharges(
-                        storageSnapshot,
-                        false
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        null,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
                 );
 
-        long bankCharges =
-                calculateSkillsNecklaceCharges(
-                        storageSnapshot,
-                        true
-                );
+        RequirementResult requirementResult =
+                ChargedTeleportItemDefinition
+                        .SKILLS_NECKLACE
+                        .createRequirement()
+                        .evaluate(
+                                context
+                        );
 
-        String bestCarriedVariant =
-                findBestSkillsNecklaceVariant(
-                        storageSnapshot,
-                        false
-                );
-
-        String bestBankVariant =
-                findBestSkillsNecklaceVariant(
-                        storageSnapshot,
-                        true
-                );
-
-        if (carriedCharges > 0)
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
         {
             return new VerifiedTransportResult(
                     option,
                     VerifiedTransportState.READY_NOW,
-                    bestCarriedVariant
-                            + " ready - "
-                            + carriedCharges
-                            + " total carried teleport charge"
-                            + pluralSuffix(carriedCharges)
+                    requirementResult
+                            .getDetail()
             );
         }
 
-        if (bankCharges > 0)
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
         {
             return new VerifiedTransportResult(
                     option,
                     VerifiedTransportState.AVAILABLE_FROM_BANK,
-                    bestBankVariant
-                            + " available in bank - "
-                            + bankCharges
-                            + " total banked teleport charge"
-                            + pluralSuffix(bankCharges)
-                            + "; withdraw one"
-            );
-        }
-
-        long unchargedCount =
-                storageSnapshot
-                        .getInventoryQuantity(
-                                ItemID.JEWL_NECKLACE_OF_SKILLS
-                        )
-                        + storageSnapshot
-                        .getEquipmentQuantity(
-                                ItemID.JEWL_NECKLACE_OF_SKILLS
-                        )
-                        + storageSnapshot
-                        .getVerifiedBankQuantity(
-                                ItemID.JEWL_NECKLACE_OF_SKILLS
-                        );
-
-        if (unchargedCount > 0)
-        {
-            return new VerifiedTransportResult(
-                    option,
-                    VerifiedTransportState.MISSING,
-                    unchargedCount
-                            + " uncharged Skills necklace"
-                            + pluralSuffix(unchargedCount)
-                            + " found, but no necklace with teleport charges"
+                    requirementResult
+                            .getDetail()
             );
         }
 
         return new VerifiedTransportResult(
                 option,
                 VerifiedTransportState.MISSING,
-                "No charged Skills necklace found in inventory, equipment, or verified bank"
+                requirementResult
+                        .getDetail()
         );
     }
 
@@ -559,95 +520,6 @@ public class TransportVerificationService
         );
     }
 
-    private long calculateSkillsNecklaceCharges(
-            StorageSnapshot storageSnapshot,
-            boolean bankOnly
-    )
-    {
-        long totalCharges = 0;
-
-        for (
-                int index = 0;
-                index < SKILLS_NECKLACE_IDS.length;
-                index++
-        )
-        {
-            int itemId =
-                    SKILLS_NECKLACE_IDS[index];
-
-            int charges =
-                    SKILLS_NECKLACE_CHARGES[index];
-
-            long quantity;
-
-            if (bankOnly)
-            {
-                quantity =
-                        storageSnapshot
-                                .getVerifiedBankQuantity(
-                                        itemId
-                                );
-            }
-            else
-            {
-                quantity =
-                        storageSnapshot
-                                .getCarriedQuantity(
-                                        itemId
-                                );
-            }
-
-            totalCharges +=
-                    quantity * charges;
-        }
-
-        return totalCharges;
-    }
-
-    private String findBestSkillsNecklaceVariant(
-            StorageSnapshot storageSnapshot,
-            boolean bankOnly
-    )
-    {
-        for (
-                int index = 0;
-                index < SKILLS_NECKLACE_IDS.length;
-                index++
-        )
-        {
-            int itemId =
-                    SKILLS_NECKLACE_IDS[index];
-
-            long quantity;
-
-            if (bankOnly)
-            {
-                quantity =
-                        storageSnapshot
-                                .getVerifiedBankQuantity(
-                                        itemId
-                                );
-            }
-            else
-            {
-                quantity =
-                        storageSnapshot
-                                .getCarriedQuantity(
-                                        itemId
-                                );
-            }
-
-            if (quantity > 0)
-            {
-                return "Skills necklace("
-                        + SKILLS_NECKLACE_CHARGES[index]
-                        + ")";
-            }
-        }
-
-        return "Skills necklace";
-    }
-
     private String findFirstCarriedVariant(
             StorageSnapshot storageSnapshot,
             int[] itemIds,
@@ -698,15 +570,6 @@ public class TransportVerificationService
         }
 
         return null;
-    }
-
-    private String pluralSuffix(
-            long quantity
-    )
-    {
-        return quantity == 1
-                ? ""
-                : "s";
     }
 
     private int statePriority(

@@ -6,6 +6,8 @@ import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.farming.HerbPatchService;
 import com.farmingnavigator.farming.HerbPatchStatus;
 import com.farmingnavigator.poh.PohProfileService;
+import com.farmingnavigator.routing.capability.TravelCapabilityService;
+import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.storage.StorageStateService;
 import com.farmingnavigator.transport.HerbPatchTransportService;
@@ -82,6 +84,10 @@ public class FarmingNavigatorPlugin
     @Inject
     private StorageStateService
             storageStateService;
+
+    @Inject
+    private TravelCapabilityService
+            travelCapabilityService;
 
     @Inject
     private TransportVerificationService
@@ -303,6 +309,11 @@ public class FarmingNavigatorPlugin
                 accountStateService
                         .createSnapshot();
 
+        TravelCapabilitySnapshot
+                travelCapabilitySnapshot =
+                travelCapabilityService
+                        .createSnapshot();
+
         StorageSnapshot storageSnapshot =
                 storageStateService
                         .createSnapshot();
@@ -326,6 +337,7 @@ public class FarmingNavigatorPlugin
                 transportVerificationService
                         .evaluateAll(
                                 accountState,
+                                travelCapabilitySnapshot,
                                 storageSnapshot,
                                 transportOptions
                         );
