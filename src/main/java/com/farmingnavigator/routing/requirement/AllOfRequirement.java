@@ -53,6 +53,14 @@ public class AllOfRequirement
                         " "
                 );
 
+        StringJoiner preparationSteps =
+                new StringJoiner(
+                        " "
+                );
+
+        RequirementState strongestFailure =
+                RequirementState.BLOCKED;
+
         for (
                 RouteRequirement requirement
                 : requirements
@@ -63,11 +71,42 @@ public class AllOfRequirement
                             context
                     );
 
-            if (!result.isSatisfied())
+            if (result.isSatisfied())
             {
-                blockers.add(
-                        result.getDetail()
-                );
+                if (
+                        result
+                                .requiresBankWithdrawal()
+                )
+                {
+                    preparationSteps.add(
+                            result.getDetail()
+                    );
+                }
+
+                continue;
+            }
+
+            blockers.add(
+                    result.getDetail()
+            );
+
+            if (
+                    result.getState()
+                            == RequirementState.DATA_REQUIRED
+            )
+            {
+                strongestFailure =
+                        RequirementState.DATA_REQUIRED;
+            }
+            else if (
+                    result.getState()
+                            == RequirementState.CONFIGURATION_REQUIRED
+                            && strongestFailure
+                            != RequirementState.DATA_REQUIRED
+            )
+            {
+                strongestFailure =
+                        RequirementState.CONFIGURATION_REQUIRED;
             }
         }
 
@@ -75,14 +114,42 @@ public class AllOfRequirement
                 blockers.length() == 0
         )
         {
+            if (
+                    preparationSteps.length() > 0
+            )
+            {
+                return RequirementResult.availableFromBank(
+                        displayName,
+                        preparationSteps.toString()
+                );
+            }
+
             return RequirementResult.satisfied(
                     displayName
             );
         }
 
-        return RequirementResult.blocked(
-                displayName,
-                blockers.toString()
-        );
+        switch (strongestFailure)
+        {
+            case DATA_REQUIRED:
+                return RequirementResult.dataRequired(
+                        displayName,
+                        blockers.toString()
+                );
+
+            case CONFIGURATION_REQUIRED:
+                return RequirementResult.configurationRequired(
+                        displayName,
+                        blockers.toString()
+                );
+
+            case BLOCKED:
+            case SATISFIED:
+            default:
+                return RequirementResult.blocked(
+                        displayName,
+                        blockers.toString()
+                );
+        }
     }
 }

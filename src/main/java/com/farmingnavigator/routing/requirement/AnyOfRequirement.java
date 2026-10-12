@@ -56,6 +56,12 @@ public class AnyOfRequirement
         RequirementState strongestFailure =
                 RequirementState.BLOCKED;
 
+        RequirementResult
+                bestBankAlternative = null;
+
+        RouteRequirement
+                bestBankRequirement = null;
+
         for (
                 RouteRequirement alternative
                 : alternatives
@@ -68,13 +74,37 @@ public class AnyOfRequirement
 
             if (result.isSatisfied())
             {
-                return RequirementResult.satisfied(
-                        displayName,
-                        "Satisfied by "
-                                + alternative
-                                .getDisplayName()
-                                + "."
-                );
+                /*
+                 * Always prefer an option that is usable immediately.
+                 *
+                 * This prevents a banked alternative from winning
+                 * merely because it appeared first in the list.
+                 */
+                if (result.isReadyNow())
+                {
+                    return RequirementResult.satisfied(
+                            displayName,
+                            "READY NOW via "
+                                    + alternative
+                                    .getDisplayName()
+                                    + ". "
+                                    + result.getDetail()
+                    );
+                }
+
+                if (
+                        result.requiresBankWithdrawal()
+                                && bestBankAlternative == null
+                )
+                {
+                    bestBankAlternative =
+                            result;
+
+                    bestBankRequirement =
+                            alternative;
+                }
+
+                continue;
             }
 
             if (
@@ -98,6 +128,22 @@ public class AnyOfRequirement
 
             unavailableReasons.add(
                     result.getDetail()
+            );
+        }
+
+        if (
+                bestBankAlternative != null
+                        && bestBankRequirement != null
+        )
+        {
+            return RequirementResult.availableFromBank(
+                    displayName,
+                    "AVAILABLE FROM BANK via "
+                            + bestBankRequirement
+                            .getDisplayName()
+                            + ". "
+                            + bestBankAlternative
+                            .getDetail()
             );
         }
 

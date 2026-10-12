@@ -3,6 +3,7 @@ package com.farmingnavigator.routing.requirement;
 import com.farmingnavigator.FarmingNavigatorConfig;
 import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
+import com.farmingnavigator.storage.StorageSnapshot;
 
 public class RequirementContext
 {
@@ -13,11 +14,12 @@ public class RequirementContext
     private final TravelCapabilitySnapshot
             travelCapabilitySnapshot;
 
+    private final StorageSnapshot
+            storageSnapshot;
+
     /*
-     * Compatibility constructor.
-     *
-     * Existing requirements/tests created before live travel
-     * capabilities were added can continue using the old signature.
+     * Compatibility constructor for the original
+     * account/config-only requirement tests.
      */
     public RequirementContext(
             AccountState accountState,
@@ -28,14 +30,34 @@ public class RequirementContext
                 accountState,
                 config,
                 TravelCapabilitySnapshot
-                        .loggedOut()
+                        .loggedOut(),
+                null
+        );
+    }
+
+    /*
+     * Compatibility constructor for the live-travel
+     * capability milestone.
+     */
+    public RequirementContext(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot
+    )
+    {
+        this(
+                accountState,
+                config,
+                travelCapabilitySnapshot,
+                null
         );
     }
 
     public RequirementContext(
             AccountState accountState,
             FarmingNavigatorConfig config,
-            TravelCapabilitySnapshot travelCapabilitySnapshot
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot
     )
     {
         this.accountState =
@@ -49,6 +71,9 @@ public class RequirementContext
                         ? TravelCapabilitySnapshot
                         .loggedOut()
                         : travelCapabilitySnapshot;
+
+        this.storageSnapshot =
+                storageSnapshot;
     }
 
     public AccountState getAccountState()
@@ -65,5 +90,10 @@ public class RequirementContext
     getTravelCapabilitySnapshot()
     {
         return travelCapabilitySnapshot;
+    }
+
+    public StorageSnapshot getStorageSnapshot()
+    {
+        return storageSnapshot;
     }
 }
