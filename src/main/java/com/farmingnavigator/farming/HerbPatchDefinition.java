@@ -85,10 +85,16 @@ public enum HerbPatchDefinition
     );
 
     private final String displayName;
+
     private final int minimumFarmingLevel;
+
     private final Quest requiredQuest;
-    private final boolean requiresMorytaniaEliteReward;
-    private final boolean alwaysDiseaseFree;
+
+    private final boolean
+            requiresMorytaniaEliteReward;
+
+    private final boolean
+            alwaysDiseaseFree;
 
     HerbPatchDefinition(
             String displayName,
@@ -98,11 +104,20 @@ public enum HerbPatchDefinition
             boolean alwaysDiseaseFree
     )
     {
-        this.displayName = displayName;
-        this.minimumFarmingLevel = minimumFarmingLevel;
-        this.requiredQuest = requiredQuest;
-        this.requiresMorytaniaEliteReward = requiresMorytaniaEliteReward;
-        this.alwaysDiseaseFree = alwaysDiseaseFree;
+        this.displayName =
+                displayName;
+
+        this.minimumFarmingLevel =
+                minimumFarmingLevel;
+
+        this.requiredQuest =
+                requiredQuest;
+
+        this.requiresMorytaniaEliteReward =
+                requiresMorytaniaEliteReward;
+
+        this.alwaysDiseaseFree =
+                alwaysDiseaseFree;
     }
 
     public String getDisplayName()

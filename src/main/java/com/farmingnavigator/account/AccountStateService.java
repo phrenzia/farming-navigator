@@ -1,6 +1,6 @@
 package com.farmingnavigator.account;
 
-import java.util.EnumSet;
+import java.util.EnumMap;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
@@ -12,49 +12,377 @@ import net.runelite.api.gameval.VarbitID;
 public class AccountStateService
 {
     private static final Quest[] RELEVANT_QUESTS = {
+            /*
+             * Morytania / Harmony / Port Phasmatys routes.
+             */
             Quest.PRIEST_IN_PERIL,
+            Quest.GHOSTS_AHOY,
+            Quest.CREATURE_OF_FENKENSTRAIN,
+            Quest.CABIN_FEVER,
+            Quest.THE_GREAT_BRAIN_ROBBERY,
+
+            /*
+             * Ardougne.
+             */
+            Quest.PLAGUE_CITY,
+
+            /*
+             * Kourend and Hosidius transportation.
+             */
+            Quest.CLIENT_OF_KOUREND,
+            Quest.THE_DEPTHS_OF_DESPAIR,
+
+            /*
+             * Troll Stronghold and Weiss.
+             */
+            Quest.EADGARS_RUSE,
             Quest.MY_ARMS_BIG_ADVENTURE,
             Quest.MAKING_FRIENDS_WITH_MY_ARM,
-            Quest.CHILDREN_OF_THE_SUN
+
+            /*
+             * Lunar transportation.
+             */
+            Quest.LUNAR_DIPLOMACY,
+
+            /*
+             * Varlamore transportation.
+             */
+            Quest.CHILDREN_OF_THE_SUN,
+            Quest.TWILIGHTS_PROMISE,
+            Quest.AT_FIRST_LIGHT,
+
+            /*
+             * Fairy rings and Morytania access chains.
+             */
+            Quest.THE_RESTLESS_GHOST,
+            Quest.NATURE_SPIRIT,
+            Quest.LOST_CITY,
+            Quest.FAIRYTALE_I__GROWING_PAINS,
+            Quest.FAIRYTALE_II__CURE_A_QUEEN,
+
+            /*
+             * Spirit tree network.
+             */
+            Quest.TREE_GNOME_VILLAGE,
+            Quest.THE_GRAND_TREE
     };
 
     private final Client client;
 
     @Inject
-    public AccountStateService(Client client)
+    public AccountStateService(
+            Client client
+    )
     {
         this.client = client;
     }
 
     public AccountState createSnapshot()
     {
-        if (client.getGameState() != GameState.LOGGED_IN)
+        if (
+                client.getGameState()
+                        != GameState.LOGGED_IN
+        )
         {
             return AccountState.loggedOut();
         }
 
-        int realFarmingLevel = client.getRealSkillLevel(Skill.FARMING);
-        int boostedFarmingLevel = client.getBoostedSkillLevel(Skill.FARMING);
+        int realFarmingLevel =
+                client.getRealSkillLevel(
+                        Skill.FARMING
+                );
 
-        EnumSet<Quest> completedQuests = EnumSet.noneOf(Quest.class);
+        int boostedFarmingLevel =
+                client.getBoostedSkillLevel(
+                        Skill.FARMING
+                );
 
-        for (Quest quest : RELEVANT_QUESTS)
-        {
-            if (quest.getState(client) == QuestState.FINISHED)
-            {
-                completedQuests.add(quest);
-            }
-        }
+        int realMagicLevel =
+                client.getRealSkillLevel(
+                        Skill.MAGIC
+                );
 
-        boolean morytaniaEliteRewardClaimed =
-                client.getVarbitValue(VarbitID.MORYTANIA_ELITE_REWARD) > 0;
+        int boostedMagicLevel =
+                client.getBoostedSkillLevel(
+                        Skill.MAGIC
+                );
+
+        int realAgilityLevel =
+                client.getRealSkillLevel(
+                        Skill.AGILITY
+                );
+
+        int boostedAgilityLevel =
+                client.getBoostedSkillLevel(
+                        Skill.AGILITY
+                );
+
+        int realHunterLevel =
+                client.getRealSkillLevel(
+                        Skill.HUNTER
+                );
+
+        int boostedHunterLevel =
+                client.getBoostedSkillLevel(
+                        Skill.HUNTER
+                );
+
+        EnumMap<Quest, QuestState> questStates =
+                readQuestStates();
+
+        EnumMap<DiaryArea, DiaryTier>
+                completedDiaryTiers =
+                readCompletedDiaryTiers();
+
+        EnumMap<DiaryArea, DiaryTier>
+                claimedDiaryTiers =
+                readClaimedDiaryTiers();
 
         return new AccountState(
                 true,
                 realFarmingLevel,
                 boostedFarmingLevel,
-                completedQuests,
-                morytaniaEliteRewardClaimed
+                realMagicLevel,
+                boostedMagicLevel,
+                realAgilityLevel,
+                boostedAgilityLevel,
+                realHunterLevel,
+                boostedHunterLevel,
+                questStates,
+                completedDiaryTiers,
+                claimedDiaryTiers
         );
+    }
+
+    private EnumMap<Quest, QuestState>
+    readQuestStates()
+    {
+        EnumMap<Quest, QuestState> questStates =
+                new EnumMap<>(
+                        Quest.class
+                );
+
+        for (
+                Quest quest
+                : RELEVANT_QUESTS
+        )
+        {
+            questStates.put(
+                    quest,
+                    quest.getState(
+                            client
+                    )
+            );
+        }
+
+        return questStates;
+    }
+
+    private EnumMap<DiaryArea, DiaryTier>
+    readCompletedDiaryTiers()
+    {
+        EnumMap<DiaryArea, DiaryTier> tiers =
+                new EnumMap<>(
+                        DiaryArea.class
+                );
+
+        tiers.put(
+                DiaryArea.ARDOUGNE,
+                readHighestTier(
+                        VarbitID.ARDOUGNE_DIARY_EASY_COMPLETE,
+                        VarbitID.ARDOUGNE_DIARY_MEDIUM_COMPLETE,
+                        VarbitID.ARDOUGNE_DIARY_HARD_COMPLETE,
+                        VarbitID.ARDOUGNE_DIARY_ELITE_COMPLETE
+                )
+        );
+
+        tiers.put(
+                DiaryArea.FALADOR,
+                readHighestTier(
+                        VarbitID.FALADOR_DIARY_EASY_COMPLETE,
+                        VarbitID.FALADOR_DIARY_MEDIUM_COMPLETE,
+                        VarbitID.FALADOR_DIARY_HARD_COMPLETE,
+                        VarbitID.FALADOR_DIARY_ELITE_COMPLETE
+                )
+        );
+
+        tiers.put(
+                DiaryArea.FREMENNIK,
+                readHighestTier(
+                        VarbitID.FREMENNIK_DIARY_EASY_COMPLETE,
+                        VarbitID.FREMENNIK_DIARY_MEDIUM_COMPLETE,
+                        VarbitID.FREMENNIK_DIARY_HARD_COMPLETE,
+                        VarbitID.FREMENNIK_DIARY_ELITE_COMPLETE
+                )
+        );
+
+        tiers.put(
+                DiaryArea.KANDARIN,
+                readHighestTier(
+                        VarbitID.KANDARIN_DIARY_EASY_COMPLETE,
+                        VarbitID.KANDARIN_DIARY_MEDIUM_COMPLETE,
+                        VarbitID.KANDARIN_DIARY_HARD_COMPLETE,
+                        VarbitID.KANDARIN_DIARY_ELITE_COMPLETE
+                )
+        );
+
+        tiers.put(
+                DiaryArea.KOUREND_AND_KEBOS,
+                readHighestTier(
+                        VarbitID.KOUREND_DIARY_EASY_COMPLETE,
+                        VarbitID.KOUREND_DIARY_MEDIUM_COMPLETE,
+                        VarbitID.KOUREND_DIARY_HARD_COMPLETE,
+                        VarbitID.KOUREND_DIARY_ELITE_COMPLETE
+                )
+        );
+
+        tiers.put(
+                DiaryArea.LUMBRIDGE_AND_DRAYNOR,
+                readHighestTier(
+                        VarbitID.LUMBRIDGE_DIARY_EASY_COMPLETE,
+                        VarbitID.LUMBRIDGE_DIARY_MEDIUM_COMPLETE,
+                        VarbitID.LUMBRIDGE_DIARY_HARD_COMPLETE,
+                        VarbitID.LUMBRIDGE_DIARY_ELITE_COMPLETE
+                )
+        );
+
+        tiers.put(
+                DiaryArea.MORYTANIA,
+                readHighestTier(
+                        VarbitID.MORYTANIA_DIARY_EASY_COMPLETE,
+                        VarbitID.MORYTANIA_DIARY_MEDIUM_COMPLETE,
+                        VarbitID.MORYTANIA_DIARY_HARD_COMPLETE,
+                        VarbitID.MORYTANIA_DIARY_ELITE_COMPLETE
+                )
+        );
+
+        return tiers;
+    }
+
+    private EnumMap<DiaryArea, DiaryTier>
+    readClaimedDiaryTiers()
+    {
+        EnumMap<DiaryArea, DiaryTier> tiers =
+                new EnumMap<>(
+                        DiaryArea.class
+                );
+
+        tiers.put(
+                DiaryArea.ARDOUGNE,
+                readHighestTier(
+                        VarbitID.ARDOUGNE_EASY_REWARD,
+                        VarbitID.ARDOUGNE_MEDIUM_REWARD,
+                        VarbitID.ARDOUGNE_HARD_REWARD,
+                        VarbitID.ARDOUGNE_ELITE_REWARD
+                )
+        );
+
+        tiers.put(
+                DiaryArea.FALADOR,
+                readHighestTier(
+                        VarbitID.FALADOR_EASY_REWARD,
+                        VarbitID.FALADOR_MEDIUM_REWARD,
+                        VarbitID.FALADOR_HARD_REWARD,
+                        VarbitID.FALADOR_ELITE_REWARD
+                )
+        );
+
+        tiers.put(
+                DiaryArea.FREMENNIK,
+                readHighestTier(
+                        VarbitID.FREMENNIK_EASY_REWARD,
+                        VarbitID.FREMENNIK_MEDIUM_REWARD,
+                        VarbitID.FREMENNIK_HARD_REWARD,
+                        VarbitID.FREMENNIK_ELITE_REWARD
+                )
+        );
+
+        tiers.put(
+                DiaryArea.KANDARIN,
+                readHighestTier(
+                        VarbitID.KANDARIN_EASY_REWARD,
+                        VarbitID.KANDARIN_MEDIUM_REWARD,
+                        VarbitID.KANDARIN_HARD_REWARD,
+                        VarbitID.KANDARIN_ELITE_REWARD
+                )
+        );
+
+        tiers.put(
+                DiaryArea.KOUREND_AND_KEBOS,
+                readHighestTier(
+                        VarbitID.KOUREND_EASY_REWARD,
+                        VarbitID.KOUREND_MEDIUM_REWARD,
+                        VarbitID.KOUREND_HARD_REWARD,
+                        VarbitID.KOUREND_ELITE_REWARD
+                )
+        );
+
+        tiers.put(
+                DiaryArea.LUMBRIDGE_AND_DRAYNOR,
+                readHighestTier(
+                        VarbitID.LUMBRIDGE_EASY_REWARD,
+                        VarbitID.LUMBRIDGE_MEDIUM_REWARD,
+                        VarbitID.LUMBRIDGE_HARD_REWARD,
+                        VarbitID.LUMBRIDGE_ELITE_REWARD
+                )
+        );
+
+        tiers.put(
+                DiaryArea.MORYTANIA,
+                readHighestTier(
+                        VarbitID.MORYTANIA_EASY_REWARD,
+                        VarbitID.MORYTANIA_MEDIUM_REWARD,
+                        VarbitID.MORYTANIA_HARD_REWARD,
+                        VarbitID.MORYTANIA_ELITE_REWARD
+                )
+        );
+
+        return tiers;
+    }
+
+    private DiaryTier readHighestTier(
+            int easyVarbit,
+            int mediumVarbit,
+            int hardVarbit,
+            int eliteVarbit
+    )
+    {
+        if (
+                client.getVarbitValue(
+                        eliteVarbit
+                ) > 0
+        )
+        {
+            return DiaryTier.ELITE;
+        }
+
+        if (
+                client.getVarbitValue(
+                        hardVarbit
+                ) > 0
+        )
+        {
+            return DiaryTier.HARD;
+        }
+
+        if (
+                client.getVarbitValue(
+                        mediumVarbit
+                ) > 0
+        )
+        {
+            return DiaryTier.MEDIUM;
+        }
+
+        if (
+                client.getVarbitValue(
+                        easyVarbit
+                ) > 0
+        )
+        {
+            return DiaryTier.EASY;
+        }
+
+        return DiaryTier.NONE;
     }
 }
