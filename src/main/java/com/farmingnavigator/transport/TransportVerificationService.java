@@ -10,6 +10,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+import net.runelite.api.Quest;
 import net.runelite.api.gameval.ItemID;
 
 public class TransportVerificationService
@@ -163,7 +164,8 @@ public class TransportVerificationService
                 );
 
             case STONY_BASALT:
-                return evaluateStackItem(
+                return evaluateBasalt(
+                        accountState,
                         storageSnapshot,
                         option,
                         ItemID.STRONGHOLD_TELEPORT_BASALT,
@@ -171,7 +173,8 @@ public class TransportVerificationService
                 );
 
             case ICY_BASALT:
-                return evaluateStackItem(
+                return evaluateBasalt(
+                        accountState,
                         storageSnapshot,
                         option,
                         ItemID.WEISS_TELEPORT_BASALT,
@@ -396,6 +399,41 @@ public class TransportVerificationService
                 option,
                 VerifiedTransportState.MISSING,
                 "No filled Ectophial found in inventory, equipment, or verified bank"
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateBasalt(
+            AccountState accountState,
+            StorageSnapshot storageSnapshot,
+            TransportOption option,
+            int itemId,
+            String itemName
+    )
+    {
+        if (
+                !accountState.hasCompletedQuest(
+                        Quest.MAKING_FRIENDS_WITH_MY_ARM
+                )
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.LOCKED,
+                    "LOCKED - requires completion of "
+                            + Quest.MAKING_FRIENDS_WITH_MY_ARM
+                            .getName()
+                            + " before "
+                            + itemName
+                            + " can be used."
+            );
+        }
+
+        return evaluateStackItem(
+                storageSnapshot,
+                option,
+                itemId,
+                itemName
         );
     }
 
