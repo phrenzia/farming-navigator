@@ -119,11 +119,12 @@ public class HerbPatchTransportService
                                 TransportCategory.ITEM,
                                 TransportVerificationKind.ECTOPHIAL
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 2,
                                 "Fairy ring ALQ",
-                                "Use fairy ring code ALQ and travel to the farming patch.",
-                                TransportCategory.FAIRY_RING
+                                "Use fairy ring code ALQ and travel north to the farming patch.",
+                                TransportCategory.FAIRY_RING,
+                                TransportVerificationKind.FAIRY_RING_ACCESS
                         ),
                         futureTransport(
                                 3,
@@ -154,6 +155,13 @@ public class HerbPatchTransportService
                                 "Kharedst's memoirs",
                                 "Teleport to Lunch by the lancalliums and travel to the patch.",
                                 TransportCategory.ITEM
+                        ),
+                        verifiedTransport(
+                                4,
+                                "Fairy ring AKR",
+                                "Use fairy ring code AKR to Hosidius Vinery, then run west to the farming patch.",
+                                TransportCategory.FAIRY_RING,
+                                TransportVerificationKind.FAIRY_RING_ACCESS
                         )
                 )
         );
@@ -222,6 +230,13 @@ public class HerbPatchTransportService
                                 4,
                                 TeleportSpellDefinition.BATTLEFRONT_TELEPORT,
                                 "Teleport to the Battlefront and travel west to the Farming Guild."
+                        ),
+                        verifiedTransport(
+                                5,
+                                "Fairy ring CIR",
+                                "Use fairy ring code CIR at Mount Karuulm, then run south-west to the Farming Guild.",
+                                TransportCategory.FAIRY_RING,
+                                TransportVerificationKind.FAIRY_RING_ACCESS
                         )
                 )
         );

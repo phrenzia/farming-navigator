@@ -4,6 +4,7 @@ import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
+import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.routing.requirement.RequirementState;
@@ -186,6 +187,14 @@ public class TransportVerificationService
                         option
                 );
 
+            case FAIRY_RING_ACCESS:
+                return evaluateFairyRingAccess(
+                        accountState,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
             case TELEPORT_SPELL:
                 return evaluateTeleportSpell(
                         accountState,
@@ -312,6 +321,106 @@ public class TransportVerificationService
         return new VerifiedTransportResult(
                 option,
                 VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateFairyRingAccess(
+            AccountState accountState,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        null,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new FairyRingAccessRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        /*
+         * FairyRingAccessRequirement has two definitive
+         * BLOCKED outcomes:
+         *
+         * 1. The Fairy Godfather unlock has not happened.
+         *    That is a real account lock.
+         *
+         * 2. The network is unlocked, but the account lacks
+         *    a usable Dramen/Lunar staff and does not have the
+         *    claimed Lumbridge & Draynor Elite exemption.
+         *    That is a missing preparation resource.
+         */
+        VerifiedTransportState blockedState =
+                accountState
+                        .isFairyRingAccessUnlocked()
+                        ? VerifiedTransportState.MISSING
+                        : VerifiedTransportState.LOCKED;
+
+        return new VerifiedTransportResult(
+                option,
+                blockedState,
                 requirementResult
                         .getDetail()
         );
