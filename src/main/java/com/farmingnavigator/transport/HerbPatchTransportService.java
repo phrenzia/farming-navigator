@@ -217,8 +217,14 @@ public class HerbPatchTransportService
                                 TransportCategory.ITEM,
                                 TransportVerificationKind.STONY_BASALT
                         ),
-                        verifiedSpellTransport(
+                        verifiedPohPortalTransport(
                                 2,
+                                "POH portal to Troll Stronghold",
+                                "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Troll Stronghold portal or Portal Nexus destination, then make your way to the roof herb patch.",
+                                PohPortalDestination.TROLL_STRONGHOLD
+                        ),
+                        verifiedSpellTransport(
+                                3,
                                 TeleportSpellDefinition.TROLLHEIM_TELEPORT,
                                 "Teleport to Trollheim and travel to the Troll Stronghold patch."
                         )
@@ -235,8 +241,14 @@ public class HerbPatchTransportService
                                 TransportCategory.ITEM,
                                 TransportVerificationKind.ICY_BASALT
                         ),
-                        futureTransport(
+                        verifiedPohPortalTransport(
                                 2,
+                                "POH portal to Weiss",
+                                "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Weiss portal or Portal Nexus destination, then travel to the herb patch.",
+                                PohPortalDestination.WEISS
+                        ),
+                        futureTransport(
+                                3,
                                 "Fairy ring DKS and Larry's boat",
                                 "Use fairy ring DKS, travel to Larry's boat, then sail to Weiss.",
                                 TransportCategory.FAIRY_RING
@@ -310,14 +322,20 @@ public class HerbPatchTransportService
                                 TeleportSpellDefinition.HARMONY_ISLAND_TELEPORT,
                                 "Teleport directly to Harmony Island."
                         ),
-                        futureTransport(
+                        verifiedPohPortalTransport(
                                 2,
+                                "POH portal to Harmony Island",
+                                "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Harmony Island portal or Portal Nexus destination, then travel south to the herb patch.",
+                                PohPortalDestination.HARMONY_ISLAND
+                        ),
+                        futureTransport(
+                                3,
                                 "Mos Le'Harmless teleport scroll",
                                 "Teleport to Mos Le'Harmless and speak to Brother Tranquility.",
                                 TransportCategory.ITEM
                         ),
                         futureTransport(
-                                3,
+                                4,
                                 "Ectophial and boat",
                                 "Travel through Port Phasmatys and Mos Le'Harmless, then speak to Brother Tranquility.",
                                 TransportCategory.TRANSPORT_NETWORK
