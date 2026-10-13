@@ -155,30 +155,37 @@ public class HerbPatchTransportService
                         futureTransport(
                                 1,
                                 "Xeric's talisman - Glade",
-                                "Teleport to Xeric's Glade and travel to the Hosidius farming patch.",
+                                "Teleport to Xeric's Glade and travel south-west to the Hosidius farming patch.",
                                 TransportCategory.ITEM
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 2,
+                                "POH mounted Xeric's talisman to Glade",
+                                "Enter your POH with Teleport to House or a house tablet, use your mounted Xeric's talisman, select Xeric's Glade, then travel south-west to the Hosidius farming patch.",
+                                TransportCategory.PLAYER_OWNED_HOUSE,
+                                TransportVerificationKind.POH_MOUNTED_XERICS_TALISMAN
+                        ),
+                        futureTransport(
+                                3,
                                 "Hosidius house portal",
                                 "Use a Hosidius player-owned house portal and travel to the patch.",
                                 TransportCategory.PLAYER_OWNED_HOUSE
                         ),
                         futureTransport(
-                                3,
+                                4,
                                 "Kharedst's memoirs",
                                 "Teleport to Lunch by the lancalliums and travel to the patch.",
                                 TransportCategory.ITEM
                         ),
                         verifiedTransport(
-                                4,
+                                5,
                                 "POH fairy ring to AKR",
                                 "Enter your POH with Teleport to House or a house tablet, use your configured POH fairy ring, enter code AKR, then run west to the farming patch.",
                                 TransportCategory.PLAYER_OWNED_HOUSE,
                                 TransportVerificationKind.POH_FAIRY_RING
                         ),
                         verifiedTransport(
-                                5,
+                                6,
                                 "Fairy ring AKR",
                                 "Use fairy ring code AKR to Hosidius Vinery, then run west to the farming patch.",
                                 TransportCategory.FAIRY_RING,
