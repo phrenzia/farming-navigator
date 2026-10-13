@@ -95,39 +95,46 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.ARDOUGNE,
                 transportOptions(
-                        futureTransport(
+                        verifiedTransport(
                                 1,
-                                "Ardougne cloak 2+",
-                                "Use the cloak's Ardougne farming patch teleport.",
+                                "Ardougne cloak 4 / Ardougne max cape",
+                                "Use the unlimited Farm Teleport directly to the Ardougne farming patch.",
+                                TransportCategory.DIARY_ITEM,
+                                TransportVerificationKind.ARDOUGNE_CLOAK_UNLIMITED
+                        ),
+                        futureTransport(
+                                2,
+                                "Ardougne cloak 2/3",
+                                "Use a remaining daily Farm Teleport directly to the Ardougne farming patch.",
                                 TransportCategory.DIARY_ITEM
                         ),
                         verifiedTransport(
-                                2,
+                                3,
                                 "Skills necklace to Fishing Guild",
                                 "Teleport to the Fishing Guild and travel south-east to the patch.",
                                 TransportCategory.JEWELLERY,
                                 TransportVerificationKind.SKILLS_NECKLACE
                         ),
                         verifiedSpellTransport(
-                                3,
+                                4,
                                 TeleportSpellDefinition.FISHING_GUILD_TELEPORT,
                                 "Teleport to the Fishing Guild and travel south-east to the patch."
                         ),
                         verifiedTransport(
-                                4,
+                                5,
                                 "POH jewellery box to Fishing Guild",
                                 "Enter your POH with Teleport to House or a house tablet, use a Fancy or Ornate jewellery box, select Fishing Guild from the Skills necklace destinations, then travel south-east to the herb patch.",
                                 TransportCategory.PLAYER_OWNED_HOUSE,
                                 TransportVerificationKind.POH_JEWELLERY_BOX_SKILLS_NECKLACE
                         ),
                         verifiedPohPortalTransport(
-                                5,
+                                6,
                                 "POH portal to East Ardougne",
                                 "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed East Ardougne portal or Portal Nexus destination, then travel north to the farming patch.",
                                 PohPortalDestination.EAST_ARDOUGNE
                         ),
                         futureTransport(
-                                6,
+                                7,
                                 "Ardougne Teleport",
                                 "Teleport to Ardougne and travel north to the farming patch.",
                                 TransportCategory.SPELL

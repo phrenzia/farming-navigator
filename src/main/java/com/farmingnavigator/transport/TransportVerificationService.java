@@ -6,6 +6,7 @@ import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.poh.PohPortalDestination;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
+import com.farmingnavigator.routing.requirement.ArdougneCloakUnlimitedRequirement;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
 import com.farmingnavigator.routing.requirement.PohFeature;
 import com.farmingnavigator.routing.requirement.PohFeatureRequirement;
@@ -186,6 +187,15 @@ public class TransportVerificationService
                         option
                 );
 
+            case ARDOUGNE_CLOAK_UNLIMITED:
+                return evaluateArdougneCloakUnlimited(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
             case SKILLS_NECKLACE:
                 return evaluateSkillsNecklace(
                         accountState,
@@ -337,6 +347,89 @@ public class TransportVerificationService
                 option,
                 VerifiedTransportState.MISSING,
                 "No Explorer's ring 3 or 4 found in inventory, equipment, or verified bank"
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateArdougneCloakUnlimited(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new ArdougneCloakUnlimitedRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
         );
     }
 
