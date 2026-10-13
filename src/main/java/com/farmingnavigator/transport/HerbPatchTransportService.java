@@ -120,8 +120,14 @@ public class HerbPatchTransportService
                                 TransportCategory.PLAYER_OWNED_HOUSE,
                                 TransportVerificationKind.POH_JEWELLERY_BOX_SKILLS_NECKLACE
                         ),
-                        futureTransport(
+                        verifiedPohPortalTransport(
                                 5,
+                                "POH portal to East Ardougne",
+                                "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed East Ardougne portal or Portal Nexus destination, then travel north to the farming patch.",
+                                PohPortalDestination.EAST_ARDOUGNE
+                        ),
+                        futureTransport(
+                                6,
                                 "Ardougne Teleport",
                                 "Teleport to Ardougne and travel north to the farming patch.",
                                 TransportCategory.SPELL
@@ -363,8 +369,14 @@ public class HerbPatchTransportService
                                 TeleportSpellDefinition.CIVITAS_ILLA_FORTIS_TELEPORT,
                                 "Teleport to Civitas illa Fortis, use the Quetzal Transport System to the Hunter Guild, then run north."
                         ),
-                        futureTransport(
+                        verifiedPohPortalTransport(
                                 4,
+                                "POH portal to Civitas illa Fortis",
+                                "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Civitas illa Fortis portal or Portal Nexus destination, use the Quetzal Transport System to the Hunter Guild, then run north to Ortus Farm.",
+                                PohPortalDestination.CIVITAS_ILLA_FORTIS
+                        ),
+                        futureTransport(
+                                5,
                                 "Fairy ring AJP",
                                 "Use fairy ring code AJP and travel north-west to Ortus Farm.",
                                 TransportCategory.FAIRY_RING
