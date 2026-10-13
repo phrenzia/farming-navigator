@@ -8,6 +8,7 @@ public enum TransportVerificationKind
     ECTOPHIAL,
     STONY_BASALT,
     ICY_BASALT,
+    MOS_LE_HARMLESS_HARMONY,
     FARMING_CAPE,
     FAIRY_RING_ACCESS,
     POH_FAIRY_RING,

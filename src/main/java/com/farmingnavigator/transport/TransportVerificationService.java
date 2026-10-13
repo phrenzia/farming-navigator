@@ -8,6 +8,7 @@ import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.ArdougneCloakUnlimitedRequirement;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
+import com.farmingnavigator.routing.requirement.MosLeHarmlessHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohFeature;
 import com.farmingnavigator.routing.requirement.PohFeatureRequirement;
 import com.farmingnavigator.routing.requirement.PohHouseEntryRequirement;
@@ -229,6 +230,15 @@ public class TransportVerificationService
                         "Icy basalt"
                 );
 
+            case MOS_LE_HARMLESS_HARMONY:
+                return evaluateMosLeHarmlessHarmony(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
             case FARMING_CAPE:
                 return evaluateFarmingCape(
                         accountState,
@@ -420,6 +430,105 @@ public class TransportVerificationService
             return new VerifiedTransportResult(
                     option,
                     VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateMosLeHarmlessHarmony(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new MosLeHarmlessHarmonyRouteRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - Mos Le'Harmless teleport scroll and Harmony Island access requirements are satisfied."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                !accountState.hasCompletedQuest(
+                        Quest.CABIN_FEVER
+                )
+                        || !accountState.hasStartedQuest(
+                        Quest.THE_GREAT_BRAIN_ROBBERY
+                )
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.LOCKED,
                     requirementResult
                             .getDetail()
             );

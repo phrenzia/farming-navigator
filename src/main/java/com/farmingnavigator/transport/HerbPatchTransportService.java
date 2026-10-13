@@ -341,11 +341,12 @@ public class HerbPatchTransportService
                                 "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Harmony Island portal or Portal Nexus destination, then travel south to the herb patch.",
                                 PohPortalDestination.HARMONY_ISLAND
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 3,
                                 "Mos Le'Harmless teleport scroll",
-                                "Teleport to Mos Le'Harmless and speak to Brother Tranquility.",
-                                TransportCategory.ITEM
+                                "Teleport to Mos Le'Harmless and speak to Brother Tranquility to travel to Harmony Island.",
+                                TransportCategory.ITEM,
+                                TransportVerificationKind.MOS_LE_HARMLESS_HARMONY
                         ),
                         futureTransport(
                                 4,
