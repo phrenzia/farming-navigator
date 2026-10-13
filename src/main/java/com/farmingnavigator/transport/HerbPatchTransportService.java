@@ -54,6 +54,12 @@ public class HerbPatchTransportService
                                 4,
                                 TeleportSpellDefinition.FALADOR_TELEPORT,
                                 "Teleport to Falador and travel south to the farming patch."
+                        ),
+                        verifiedPohPortalTransport(
+                                5,
+                                "POH portal to Falador",
+                                "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Falador portal or Portal Nexus destination, then travel south to the farming patch.",
+                                PohPortalDestination.FALADOR
                         )
                 )
         );
@@ -273,15 +279,21 @@ public class HerbPatchTransportService
                                 TeleportSpellDefinition.BATTLEFRONT_TELEPORT,
                                 "Teleport to the Battlefront and travel west to the Farming Guild."
                         ),
-                        verifiedTransport(
+                        verifiedPohPortalTransport(
                                 6,
+                                "POH portal to Battlefront",
+                                "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Battlefront portal or Portal Nexus destination, then travel west to the Farming Guild.",
+                                PohPortalDestination.BATTLEFRONT
+                        ),
+                        verifiedTransport(
+                                7,
                                 "POH fairy ring to CIR",
                                 "Enter your POH with Teleport to House or a house tablet, use your configured POH fairy ring, enter code CIR, then run south-west to the Farming Guild.",
                                 TransportCategory.PLAYER_OWNED_HOUSE,
                                 TransportVerificationKind.POH_FAIRY_RING
                         ),
                         verifiedTransport(
-                                7,
+                                8,
                                 "Fairy ring CIR",
                                 "Use fairy ring code CIR at Mount Karuulm, then run south-west to the Farming Guild.",
                                 TransportCategory.FAIRY_RING,
