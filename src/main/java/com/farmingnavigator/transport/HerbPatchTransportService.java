@@ -1,6 +1,7 @@
 package com.farmingnavigator.transport;
 
 import com.farmingnavigator.farming.HerbPatchDefinition;
+import com.farmingnavigator.poh.PohPortalDestination;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,15 +64,21 @@ public class HerbPatchTransportService
                         verifiedSpellTransport(
                                 1,
                                 TeleportSpellDefinition.CATHERBY_TELEPORT,
-                                "Teleport directly to Catherby and travel a short distance to the patch."
+                                "Teleport directly to Catherby and travel a short distance north to the patch."
+                        ),
+                        verifiedPohPortalTransport(
+                                2,
+                                "POH portal to Catherby",
+                                "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Catherby portal or Portal Nexus destination, then travel north to the farming patch.",
+                                PohPortalDestination.CATHERBY
                         ),
                         verifiedSpellTransport(
-                                2,
+                                3,
                                 TeleportSpellDefinition.CAMELOT_TELEPORT,
                                 "Teleport to Camelot and run east to Catherby."
                         ),
                         futureTransport(
-                                3,
+                                4,
                                 "Charter ship to Catherby",
                                 "Use the charter ship network to reach Catherby.",
                                 TransportCategory.TRANSPORT_NETWORK
@@ -403,6 +410,21 @@ public class HerbPatchTransportService
                 TransportCategory.SPELL,
                 TransportVerificationKind.TELEPORT_SPELL,
                 spellDefinition
+        );
+    }
+
+    private TransportOption verifiedPohPortalTransport(
+            int baselineRank,
+            String displayName,
+            String instructions,
+            PohPortalDestination destination
+    )
+    {
+        return TransportOption.pohPortal(
+                baselineRank,
+                displayName,
+                instructions,
+                destination
         );
     }
 

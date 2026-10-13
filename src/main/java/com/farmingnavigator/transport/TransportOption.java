@@ -1,5 +1,6 @@
 package com.farmingnavigator.transport;
 
+import com.farmingnavigator.poh.PohPortalDestination;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 
 public class TransportOption
@@ -9,7 +10,12 @@ public class TransportOption
     private final String instructions;
     private final TransportCategory category;
     private final TransportVerificationKind verificationKind;
-    private final TeleportSpellDefinition teleportSpellDefinition;
+
+    private final TeleportSpellDefinition
+            teleportSpellDefinition;
+
+    private final PohPortalDestination
+            pohPortalDestination;
 
     public TransportOption(
             int baselineRank,
@@ -25,6 +31,7 @@ public class TransportOption
                 instructions,
                 category,
                 verificationKind,
+                null,
                 null
         );
     }
@@ -36,6 +43,27 @@ public class TransportOption
             TransportCategory category,
             TransportVerificationKind verificationKind,
             TeleportSpellDefinition teleportSpellDefinition
+    )
+    {
+        this(
+                baselineRank,
+                displayName,
+                instructions,
+                category,
+                verificationKind,
+                teleportSpellDefinition,
+                null
+        );
+    }
+
+    private TransportOption(
+            int baselineRank,
+            String displayName,
+            String instructions,
+            TransportCategory category,
+            TransportVerificationKind verificationKind,
+            TeleportSpellDefinition teleportSpellDefinition,
+            PohPortalDestination pohPortalDestination
     )
     {
         if (
@@ -60,13 +88,73 @@ public class TransportOption
             );
         }
 
-        this.baselineRank = baselineRank;
-        this.displayName = displayName;
-        this.instructions = instructions;
-        this.category = category;
-        this.verificationKind = verificationKind;
+        if (
+                verificationKind
+                        == TransportVerificationKind.POH_PORTAL
+                        && pohPortalDestination == null
+        )
+        {
+            throw new IllegalArgumentException(
+                    "POH portal transport requires a portal destination."
+            );
+        }
+
+        if (
+                verificationKind
+                        != TransportVerificationKind.POH_PORTAL
+                        && pohPortalDestination != null
+        )
+        {
+            throw new IllegalArgumentException(
+                    "Only POH_PORTAL transport may carry a POH portal destination."
+            );
+        }
+
+        this.baselineRank =
+                baselineRank;
+
+        this.displayName =
+                displayName;
+
+        this.instructions =
+                instructions;
+
+        this.category =
+                category;
+
+        this.verificationKind =
+                verificationKind;
+
         this.teleportSpellDefinition =
                 teleportSpellDefinition;
+
+        this.pohPortalDestination =
+                pohPortalDestination;
+    }
+
+    public static TransportOption pohPortal(
+            int baselineRank,
+            String displayName,
+            String instructions,
+            PohPortalDestination destination
+    )
+    {
+        if (destination == null)
+        {
+            throw new IllegalArgumentException(
+                    "POH portal destination cannot be null."
+            );
+        }
+
+        return new TransportOption(
+                baselineRank,
+                displayName,
+                instructions,
+                TransportCategory.PLAYER_OWNED_HOUSE,
+                TransportVerificationKind.POH_PORTAL,
+                null,
+                destination
+        );
     }
 
     public int getBaselineRank()
@@ -98,5 +186,11 @@ public class TransportOption
     getTeleportSpellDefinition()
     {
         return teleportSpellDefinition;
+    }
+
+    public PohPortalDestination
+    getPohPortalDestination()
+    {
+        return pohPortalDestination;
     }
 }

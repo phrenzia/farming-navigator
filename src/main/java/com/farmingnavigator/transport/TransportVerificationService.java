@@ -3,6 +3,7 @@ package com.farmingnavigator.transport;
 import com.farmingnavigator.FarmingNavigatorConfig;
 import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.farming.HerbPatchDefinition;
+import com.farmingnavigator.poh.PohPortalDestination;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
@@ -11,6 +12,7 @@ import com.farmingnavigator.routing.requirement.PohFeatureRequirement;
 import com.farmingnavigator.routing.requirement.PohHouseEntryRequirement;
 import com.farmingnavigator.routing.requirement.PohHouseFeatureRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohJewelleryBoxSkillsNecklaceRouteRequirement;
+import com.farmingnavigator.routing.requirement.PohPortalRouteRequirement;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.routing.requirement.RequirementState;
@@ -259,6 +261,15 @@ public class TransportVerificationService
                         storageSnapshot,
                         option,
                         PohFeature.MOUNTED_XERICS_TALISMAN
+                );
+
+            case POH_PORTAL:
+                return evaluatePohPortal(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
                 );
 
             case TELEPORT_SPELL:
@@ -890,6 +901,113 @@ public class TransportVerificationService
                     "READY NOW - POH entry method and configured "
                             + feature.getDisplayName()
                             + " are ready."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluatePohPortal(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        PohPortalDestination destination =
+                option.getPohPortalDestination();
+
+        if (destination == null)
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    "DATA REQUIRED - POH portal destination is missing."
+            );
+        }
+
+        if (config == null)
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    "Configure your POH profile in Farming Navigator."
+            );
+        }
+
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new PohPortalRouteRequirement(
+                        destination
+                )
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - POH entry method and configured "
+                            + destination.getDisplayName()
+                            + " portal destination are ready."
             );
         }
 
