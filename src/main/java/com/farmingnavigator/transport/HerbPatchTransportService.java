@@ -100,8 +100,15 @@ public class HerbPatchTransportService
                                 TeleportSpellDefinition.FISHING_GUILD_TELEPORT,
                                 "Teleport to the Fishing Guild and travel south-east to the patch."
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 4,
+                                "POH jewellery box to Fishing Guild",
+                                "Enter your POH with Teleport to House or a house tablet, use a Fancy or Ornate jewellery box, select Fishing Guild from the Skills necklace destinations, then travel south-east to the herb patch.",
+                                TransportCategory.PLAYER_OWNED_HOUSE,
+                                TransportVerificationKind.POH_JEWELLERY_BOX_SKILLS_NECKLACE
+                        ),
+                        futureTransport(
+                                5,
                                 "Ardougne Teleport",
                                 "Teleport to Ardougne and travel north to the farming patch.",
                                 TransportCategory.SPELL
@@ -240,20 +247,27 @@ public class HerbPatchTransportService
                                 "Use a spirit tree planted in the Farming Guild.",
                                 TransportCategory.TRANSPORT_NETWORK
                         ),
-                        verifiedSpellTransport(
+                        verifiedTransport(
                                 4,
+                                "POH jewellery box to Farming Guild",
+                                "Enter your POH with Teleport to House or a house tablet, use a Fancy or Ornate jewellery box, then select Farming Guild from the Skills necklace destinations.",
+                                TransportCategory.PLAYER_OWNED_HOUSE,
+                                TransportVerificationKind.POH_JEWELLERY_BOX_SKILLS_NECKLACE
+                        ),
+                        verifiedSpellTransport(
+                                5,
                                 TeleportSpellDefinition.BATTLEFRONT_TELEPORT,
                                 "Teleport to the Battlefront and travel west to the Farming Guild."
                         ),
                         verifiedTransport(
-                                5,
+                                6,
                                 "POH fairy ring to CIR",
                                 "Enter your POH with Teleport to House or a house tablet, use your configured POH fairy ring, enter code CIR, then run south-west to the Farming Guild.",
                                 TransportCategory.PLAYER_OWNED_HOUSE,
                                 TransportVerificationKind.POH_FAIRY_RING
                         ),
                         verifiedTransport(
-                                6,
+                                7,
                                 "Fairy ring CIR",
                                 "Use fairy ring code CIR at Mount Karuulm, then run south-west to the Farming Guild.",
                                 TransportCategory.FAIRY_RING,

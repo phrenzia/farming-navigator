@@ -9,6 +9,7 @@ import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
 import com.farmingnavigator.routing.requirement.PohFeature;
 import com.farmingnavigator.routing.requirement.PohFeatureRequirement;
 import com.farmingnavigator.routing.requirement.PohHouseEntryRequirement;
+import com.farmingnavigator.routing.requirement.PohJewelleryBoxSkillsNecklaceRouteRequirement;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.routing.requirement.RequirementState;
@@ -233,6 +234,15 @@ public class TransportVerificationService
 
             case POH_FAIRY_RING:
                 return evaluatePohFairyRing(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
+            case POH_JEWELLERY_BOX_SKILLS_NECKLACE:
+                return evaluatePohJewelleryBoxSkillsNecklace(
                         accountState,
                         config,
                         travelCapabilitySnapshot,
@@ -729,6 +739,97 @@ public class TransportVerificationService
                 option,
                 state,
                 blockers.toString()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluatePohJewelleryBoxSkillsNecklace(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        if (config == null)
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    "Configure your POH profile in Farming Navigator."
+            );
+        }
+
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new PohJewelleryBoxSkillsNecklaceRouteRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - POH entry method and configured Fancy/Ornate jewellery box Skills necklace teleport are ready."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
         );
     }
 
