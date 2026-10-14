@@ -24,6 +24,7 @@ import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.routing.requirement.RequirementState;
 import com.farmingnavigator.routing.requirement.RouteRequirement;
 import com.farmingnavigator.routing.requirement.RuneCostRequirement;
+import com.farmingnavigator.routing.requirement.WeissLarryBoatRouteRequirement;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 import com.farmingnavigator.routing.spell.TeleportSpellRequirement;
 import com.farmingnavigator.storage.StorageSnapshot;
@@ -270,6 +271,15 @@ public class TransportVerificationService
 
             case FAIRY_RING_ACCESS:
                 return evaluateFairyRingAccess(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
+            case WEISS_LARRY_BOAT:
+                return evaluateWeissLarryBoat(
                         accountState,
                         config,
                         travelCapabilitySnapshot,
@@ -995,6 +1005,104 @@ public class TransportVerificationService
         return new VerifiedTransportResult(
                 option,
                 blockedState,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateWeissLarryBoat(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new WeissLarryBoatRouteRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - fairy ring DKS and Larry's boat access to Weiss are ready."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                !accountState.hasCompletedQuest(
+                        Quest.MAKING_FRIENDS_WITH_MY_ARM
+                )
+                        || !accountState
+                        .isFairyRingAccessUnlocked()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.LOCKED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
                 requirementResult
                         .getDetail()
         );

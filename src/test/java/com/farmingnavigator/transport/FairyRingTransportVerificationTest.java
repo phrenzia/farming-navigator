@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class FairyRingTransportVerificationTest
 {
     @Test
-    public void cataloguePromotesOnlySafeFairyRingRoutes()
+    public void catalogueUsesSafeFairyRingVerificationKinds()
     {
         HerbPatchTransportService service =
                 new HerbPatchTransportService();
@@ -55,14 +55,17 @@ public class FairyRingTransportVerificationTest
         /*
          * DKS is not just a fairy-ring destination.
          *
-         * The player must still travel to Larry's boat
-         * and have the Weiss boat route available.
+         * The complete Weiss route also needs Making Friends
+         * with My Arm completed and Larry's boat access.
+         *
+         * It therefore uses its specialized verifier rather
+         * than the generic FAIRY_RING_ACCESS verifier.
          */
         assertVerificationKind(
                 service,
                 HerbPatchDefinition.WEISS,
                 "Fairy ring DKS and Larry's boat",
-                TransportVerificationKind.NOT_IMPLEMENTED
+                TransportVerificationKind.WEISS_LARRY_BOAT
         );
 
         /*

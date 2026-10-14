@@ -262,11 +262,12 @@ public class HerbPatchTransportService
                                 "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Weiss portal or Portal Nexus destination, then travel to the herb patch.",
                                 PohPortalDestination.WEISS
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 3,
                                 "Fairy ring DKS and Larry's boat",
                                 "Use fairy ring DKS, travel to Larry's boat, then sail to Weiss.",
-                                TransportCategory.FAIRY_RING
+                                TransportCategory.FAIRY_RING,
+                                TransportVerificationKind.WEISS_LARRY_BOAT
                         )
                 )
         );
