@@ -61,6 +61,13 @@ public class HerbPatchTransportService
                                 "POH portal to Falador",
                                 "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Falador portal or Portal Nexus destination, then travel south to the farming patch.",
                                 PohPortalDestination.FALADOR
+                        ),
+                        verifiedTransport(
+                                6,
+                                "Skills necklace to Mining Guild",
+                                "Teleport to the Mining Guild and run south to the Falador farming patch.",
+                                TransportCategory.JEWELLERY,
+                                TransportVerificationKind.SKILLS_NECKLACE
                         )
                 )
         );
