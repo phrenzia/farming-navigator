@@ -348,11 +348,12 @@ public class HerbPatchTransportService
                                 TransportCategory.ITEM,
                                 TransportVerificationKind.MOS_LE_HARMLESS_HARMONY
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 4,
                                 "Ectophial and boat",
-                                "Travel through Port Phasmatys and Mos Le'Harmless, then speak to Brother Tranquility.",
-                                TransportCategory.TRANSPORT_NETWORK
+                                "Use a filled Ectophial to reach Port Phasmatys, travel with Bill Teach to Mos Le'Harmless, then speak to Brother Tranquility to reach Harmony Island.",
+                                TransportCategory.TRANSPORT_NETWORK,
+                                TransportVerificationKind.ECTOPHIAL_HARMONY
                         )
                 )
         );

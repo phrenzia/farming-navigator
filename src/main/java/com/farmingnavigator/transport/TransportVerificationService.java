@@ -7,6 +7,7 @@ import com.farmingnavigator.poh.PohPortalDestination;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.ArdougneCloakUnlimitedRequirement;
+import com.farmingnavigator.routing.requirement.EctophialHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
 import com.farmingnavigator.routing.requirement.MosLeHarmlessHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohFeature;
@@ -232,6 +233,15 @@ public class TransportVerificationService
 
             case MOS_LE_HARMLESS_HARMONY:
                 return evaluateMosLeHarmlessHarmony(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
+            case ECTOPHIAL_HARMONY:
+                return evaluateEctophialHarmony(
                         accountState,
                         config,
                         travelCapabilitySnapshot,
@@ -475,6 +485,105 @@ public class TransportVerificationService
                     option,
                     VerifiedTransportState.READY_NOW,
                     "READY NOW - Mos Le'Harmless teleport scroll and Harmony Island access requirements are satisfied."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                !accountState.hasCompletedQuest(
+                        Quest.CABIN_FEVER
+                )
+                        || !accountState.hasStartedQuest(
+                        Quest.THE_GREAT_BRAIN_ROBBERY
+                )
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.LOCKED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateEctophialHarmony(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new EctophialHarmonyRouteRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - filled Ectophial and Harmony Island boat access requirements are satisfied."
             );
         }
 
@@ -814,20 +923,6 @@ public class TransportVerificationService
             )
             {
                 case BLOCKED:
-                    /*
-                     * House entry has two alternatives:
-                     *
-                     * - cast Teleport to House
-                     * - use a verified house tablet
-                     *
-                     * If neither is usable and both have been
-                     * definitively evaluated, the player is
-                     * missing a usable POH-entry preparation.
-                     *
-                     * A locked spell alone must not make this
-                     * route LOCKED because a house tablet does
-                     * not share the spellbook/Magic restriction.
-                     */
                     hasMissingRequirement =
                             true;
                     break;
