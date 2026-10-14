@@ -8,6 +8,7 @@ import com.farmingnavigator.poh.PohPortalDestination;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.ArdougneCloakUnlimitedRequirement;
+import com.farmingnavigator.routing.requirement.ChargedRingOfElementsRequirement;
 import com.farmingnavigator.routing.requirement.EctophialHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
 import com.farmingnavigator.routing.requirement.MosLeHarmlessHarmonyRouteRequirement;
@@ -233,6 +234,15 @@ public class TransportVerificationService
                         "Icy basalt"
                 );
 
+            case RING_OF_ELEMENTS:
+                return evaluateRingOfElements(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
             case MOS_LE_HARMLESS_HARMONY:
                 return evaluateMosLeHarmlessHarmony(
                         accountState,
@@ -401,6 +411,89 @@ public class TransportVerificationService
 
         RequirementResult requirementResult =
                 new ArdougneCloakUnlimitedRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateRingOfElements(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new ChargedRingOfElementsRequirement()
                         .evaluate(
                                 context
                         );

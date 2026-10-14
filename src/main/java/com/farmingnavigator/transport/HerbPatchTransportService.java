@@ -44,11 +44,12 @@ public class HerbPatchTransportService
                                 "Use one of the three daily Cabbage-port teleports.",
                                 TransportCategory.DIARY_ITEM
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 3,
                                 "Ring of the elements",
                                 "Teleport to the Air Altar and travel to the farming patch.",
-                                TransportCategory.ITEM
+                                TransportCategory.ITEM,
+                                TransportVerificationKind.RING_OF_ELEMENTS
                         ),
                         verifiedSpellTransport(
                                 4,
