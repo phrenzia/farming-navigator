@@ -68,6 +68,13 @@ public class HerbPatchTransportService
                                 "Teleport to the Mining Guild and run south to the Falador farming patch.",
                                 TransportCategory.JEWELLERY,
                                 TransportVerificationKind.SKILLS_NECKLACE
+                        ),
+                        verifiedTransport(
+                                7,
+                                "POH jewellery box to Mining Guild",
+                                "Enter your POH with Teleport to House or a house tablet, use a Fancy or Ornate jewellery box, select Mining Guild from the Skills necklace destinations, then run south to the Falador farming patch.",
+                                TransportCategory.PLAYER_OWNED_HOUSE,
+                                TransportVerificationKind.POH_JEWELLERY_BOX_SKILLS_NECKLACE
                         )
                 )
         );
