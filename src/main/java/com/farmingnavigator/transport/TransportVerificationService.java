@@ -19,6 +19,7 @@ import com.farmingnavigator.routing.requirement.PohHouseFeatureRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohHouseLocationRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohJewelleryBoxSkillsNecklaceRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohPortalRouteRequirement;
+import com.farmingnavigator.routing.requirement.QuetzalWhistleRouteRequirement;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.routing.requirement.RequirementState;
@@ -280,6 +281,15 @@ public class TransportVerificationService
 
             case WEISS_LARRY_BOAT:
                 return evaluateWeissLarryBoat(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
+            case QUETZAL_WHISTLE:
+                return evaluateQuetzalWhistle(
                         accountState,
                         config,
                         travelCapabilitySnapshot,
@@ -1095,6 +1105,89 @@ public class TransportVerificationService
             return new VerifiedTransportResult(
                     option,
                     VerifiedTransportState.LOCKED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateQuetzalWhistle(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new QuetzalWhistleRouteRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
                     requirementResult
                             .getDetail()
             );

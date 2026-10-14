@@ -364,11 +364,12 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.ORTUS_FARM,
                 transportOptions(
-                        futureTransport(
+                        verifiedTransport(
                                 1,
                                 "Quetzal whistle",
                                 "Teleport to the Hunter Guild and run north to Ortus Farm.",
-                                TransportCategory.ITEM
+                                TransportCategory.ITEM,
+                                TransportVerificationKind.QUETZAL_WHISTLE
                         ),
                         futureTransport(
                                 2,
