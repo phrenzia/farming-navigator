@@ -3,6 +3,7 @@ package com.farmingnavigator.transport;
 import com.farmingnavigator.FarmingNavigatorConfig;
 import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.farming.HerbPatchDefinition;
+import com.farmingnavigator.poh.PohHouseLocation;
 import com.farmingnavigator.poh.PohPortalDestination;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
@@ -14,6 +15,7 @@ import com.farmingnavigator.routing.requirement.PohFeature;
 import com.farmingnavigator.routing.requirement.PohFeatureRequirement;
 import com.farmingnavigator.routing.requirement.PohHouseEntryRequirement;
 import com.farmingnavigator.routing.requirement.PohHouseFeatureRouteRequirement;
+import com.farmingnavigator.routing.requirement.PohHouseLocationRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohJewelleryBoxSkillsNecklaceRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohPortalRouteRequirement;
 import com.farmingnavigator.routing.requirement.RequirementContext;
@@ -291,6 +293,16 @@ public class TransportVerificationService
                         storageSnapshot,
                         option,
                         PohFeature.MOUNTED_XERICS_TALISMAN
+                );
+
+            case POH_HOSIDIUS_HOUSE_LOCATION:
+                return evaluatePohHouseLocation(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option,
+                        PohHouseLocation.HOSIDIUS
                 );
 
             case POH_PORTAL:
@@ -638,6 +650,102 @@ public class TransportVerificationService
             return new VerifiedTransportResult(
                     option,
                     VerifiedTransportState.LOCKED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluatePohHouseLocation(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option,
+            PohHouseLocation requiredLocation
+    )
+    {
+        if (config == null)
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    "Configure your POH profile in Farming Navigator."
+            );
+        }
+
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new PohHouseLocationRouteRequirement(
+                        requiredLocation
+                )
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - POH entry method and configured "
+                            + requiredLocation.getDisplayName()
+                            + " house location are ready."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
                     requirementResult
                             .getDetail()
             );

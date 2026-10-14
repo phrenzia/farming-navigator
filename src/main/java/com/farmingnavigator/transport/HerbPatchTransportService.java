@@ -191,11 +191,12 @@ public class HerbPatchTransportService
                                 TransportCategory.PLAYER_OWNED_HOUSE,
                                 TransportVerificationKind.POH_MOUNTED_XERICS_TALISMAN
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 3,
                                 "Hosidius house portal",
-                                "Use a Hosidius player-owned house portal and travel to the patch.",
-                                TransportCategory.PLAYER_OWNED_HOUSE
+                                "Enter your POH with Teleport to House or a house tablet, exit through your Hosidius house portal, then travel to the nearby farming patch.",
+                                TransportCategory.PLAYER_OWNED_HOUSE,
+                                TransportVerificationKind.POH_HOSIDIUS_HOUSE_LOCATION
                         ),
                         futureTransport(
                                 4,
