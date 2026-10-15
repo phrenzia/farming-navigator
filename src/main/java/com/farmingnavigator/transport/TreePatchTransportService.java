@@ -48,6 +48,9 @@ public final class TreePatchTransportService
         options.put(TreePatchDefinition.FOSSIL_ISLAND_EAST, fossil);
         options.put(TreePatchDefinition.FOSSIL_ISLAND_MIDDLE, fossil);
         options.put(TreePatchDefinition.FOSSIL_ISLAND_WEST, fossil);
+        options.put(TreePatchDefinition.AVIUM_SAVANNAH_HARDWOOD, List.of(new TransportOption(1,
+                "Fairy ring AJP to Avium Savannah", "Travel to an accessible fairy ring, use AJP, then run south-east to the hardwood patch at Locus Oasis.",
+                TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_AJP)));
         return Collections.unmodifiableMap(options);
     }
     private TransportOption spell(int rank, TeleportSpellDefinition spell, String instructions)

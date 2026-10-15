@@ -571,6 +571,8 @@ public class FarmingNavigatorPlugin
             case VarbitID.LUMBRIDGE_DIARY_MEDIUM_COMPLETE:
             case VarbitID.SEERS_SHERLOCK_TELEPORT:
             case VarbitID.VARLAMORE_VISITED:
+            case VarbitID.FROG_QUEST:
+            case VarbitID.FROG_QUEST_PATCH_UNLOCKED:
                 return true;
 
             default:

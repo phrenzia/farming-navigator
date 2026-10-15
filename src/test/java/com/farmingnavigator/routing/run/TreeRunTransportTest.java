@@ -117,4 +117,31 @@ public class TreeRunTransportTest
         assertTrue(new TransportVerificationService().evaluateAll(account, ctx.getConfig(), ctx.getTravelCapabilitySnapshot(),
                 new StorageSnapshot(Map.of(), Map.of(), Map.of(), false, null), new TreePatchTransportService().getAllOptions()).isEmpty());
     }
+    @Test public void aviumUsesVerifiedAjpAccessAndStillRequiresItsPatchQuest()
+    {
+        for (int scenario = 0; scenario < 4; scenario++)
+        {
+            boolean completed = scenario != 1; boolean rings = scenario != 2; boolean visited = scenario != 3;
+            AccountState avium = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
+                    Map.of(net.runelite.api.Quest.THE_RIBBITING_TALE_OF_A_LILY_PAD_LABOUR_DISPUTE,
+                            completed ? net.runelite.api.QuestState.FINISHED : net.runelite.api.QuestState.IN_PROGRESS),
+                    Map.of(), Map.of(), false, rings, visited);
+            TravelCapabilitySnapshot travel = new TravelCapabilitySnapshot(true, SpellbookType.STANDARD, null,
+                    Map.of(ItemID.DRAMEN_STAFF, 1), Map.of(), Map.of());
+            StorageSnapshot storage = new StorageSnapshot(Map.of(ItemID.DRAMEN_STAFF, 1L), Map.of(), Map.of(), true, Instant.now());
+            RequirementContext ctx = new RequirementContext(avium, new FarmingNavigatorConfig() {}, travel, storage);
+            Map<TreePatchDefinition, List<VerifiedTransportResult>> transports = new TransportVerificationService().evaluateAll(avium,
+                    ctx.getConfig(), travel, storage, new TreePatchTransportService().getAllOptions());
+            TreeRunPlan plan = new TreeRunPlanner().plan(avium, EnumSet.of(TreePatchDefinition.AVIUM_SAVANNAH_HARDWOOD),
+                    TreeRunCrop.TEAK, true, Map.of(), storage, Instant.now()).withTransports(transports, HerbTransportPreference.CATALOGUE, ctx);
+            if (!completed) { assertTrue(plan.getStops().isEmpty()); }
+            else if (!rings || !visited) { assertNull(plan.getStops().get(0).getRecommended()); }
+            else
+            {
+                assertEquals(TransportVerificationKind.FAIRY_RING_AJP, plan.getStops().get(0).getRecommended().getOption().getVerificationKind());
+                assertTrue(plan.getStops().get(0).getRecommended().getOption().getInstructions().contains("Locus Oasis"));
+                assertTrue(plan.getTransportResources().getChecks().isEmpty());
+            }
+        }
+    }
 }

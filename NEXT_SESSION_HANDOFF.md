@@ -106,9 +106,9 @@ Verified mechanics were researched against RuneLite source at `e98399f931c60bfa8
 
 1. Extend run supplies for verified leprechaun/barbarian unlocks and reliably observed compost application. Cure Plant, conservative bottomless supplies, Fertile Soil, shared staff/pouch preparation and Attack wield checks are now implemented. Research exact state before adding assumptions. Future mixed house tablet/spell allocation should retain the shared rune budget and explicit eligibility checks.
 2. Validate more herb transports only after exact unlock/charge evidence is established. Preserve unknown/configuration-required states.
-3. Extend the elapsed-time/completion summary into robust run analytics and a readiness-focused dashboard; separate additional UI components from the large existing panel. Do not turn session elapsed time into a claimed active XP/hour calculation without actual XP/time evidence.
-4. Generalize patch/crop/timer models before adding trees, fruit trees, hardwoods and special patches. Build crop-specific protection and contract state from proven signals.
-5. Add optimization objectives and economics only with explicit, reliable costs/timing/yield models. Current baseline ranks and reusable preference must not be labeled fastest or profit-optimal.
+3. Extend recorded account XP statistics into persisted run history, carefully attributed actions and a readiness-focused dashboard. Current elapsed XP/hour includes preparation/waiting and unrelated Farming XP; it is not an active-action benchmark.
+4. Extend the implemented regular/fruit/hardwood observations, preparation and guided sessions to special patches and remaining crop families. Verify Auburnvale/Kastori/Anglers' Retreat access, three new hardwood protection payments and individual Fossil squirrel assignments before enabling them. Investigate whether FROG_QUEST_PATCH_UNLOCKED adds any requirement beyond the completed Ribbiting Tale; current Wiki patch table lists quest completion only. Both frog state changes now trigger refresh. Contract assignments are displayed, but automatic contract planning, reward analysis and unsupported-family runs remain open.
+5. Add optimization objectives only with explicit, reliable timing/yield/cost models. Current cached-price material subtotals exclude travel, runes, tools, removal and yield; they are not profit or total-run costs. Baseline ranks and reusable preference must not be labeled fastest or profit-optimal. Tree travel has initial supported options rather than an exhaustive catalogue; Avium now uses verified AJP access plus its separate patch-quest gate.
 
 ## Manual validation queue (for the user later)
 
@@ -120,7 +120,9 @@ All items below remain **UNVERIFIED IN GAME**. No game client was launched durin
 - Overlay/map cleanup, settings toggles and narrow sidebar layout at the user's scaling settings.
 - Daily charge counters, spellbook/rune pouch/infinite sources, bank withdrawals, shared budgets and usable fallback changes.
 - Optional notification behavior, focus settings, deduplication, normal/seasonal estimates and no login bursts.
+- Tree health-check/keep/remove/prune/plant transitions, manually confirmed protection, map/item/object/gardener targets and adjacent Fossil walking legs.
+- Recorded XP baseline/finish timing, cached material-price refresh and missing-price presentation, contract TYPE/COMPLETE flag interpretation and crop-conflict warnings.
 
 ## Validation checkpoint
 
-`gradlew.bat clean build` and `gradlew.bat test` passed after the shared-bank-highlight correction; 897 synthetic tests passed with zero failures/errors. The updated narrow guided panel was rendered and visually checked offline. Known build messages are the existing unchecked test-harness warning and Gradle 9 deprecation notice. Automated success does not prove live correctness. All feature commits above were pushed; check `git status` and `git rev-parse HEAD origin/master` before continuing.
+`gradlew.bat clean build` and `gradlew.bat test` passed at the Avium/contract-refresh checkpoint; 1,843 synthetic tests passed with zero failures/errors. Narrow tree preparation, guided payment, recorded statistics, material values and contract warnings were rendered and inspected offline. Known build messages are the existing unchecked test-harness warning and Gradle 9 deprecation notice. Automated success does not prove live correctness. Every completed feature milestone is committed and pushed; check `git status` and `git rev-parse HEAD origin/master` before continuing. No RuneLite client was launched and no usage reset was consumed.

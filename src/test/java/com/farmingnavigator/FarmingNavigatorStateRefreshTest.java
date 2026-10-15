@@ -41,7 +41,15 @@ public class FarmingNavigatorStateRefreshTest
         assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.LUMBRIDGE_CABBAGE_TELEPORT));
         assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.LUMBRIDGE_MEDIUM_REWARD));
         assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.VARLAMORE_VISITED));
+        assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.FROG_QUEST));
+        assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.FROG_QUEST_PATCH_UNLOCKED));
         assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.FAIRY2_QUEENCURE_QUEST));
+    }
+    @Test public void contractAssignmentsAndCompletionTriggerRefresh()
+    {
+        assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.FARMGUILD_CONTRACT_TYPE));
+        assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.FARMGUILD_CONTRACT_COMPLETE));
+        assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey("showFarmingContract"));
     }
 
     @Test
