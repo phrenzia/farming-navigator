@@ -148,6 +148,7 @@ public class FarmingNavigatorPlugin
     @Inject private Notifier notifier;
     @Inject private net.runelite.client.game.ItemManager itemManager;
     @Inject private com.farmingnavigator.contracts.FarmingContractService farmingContractService;
+    @Inject private ConfigManager configManager;
 
     @Inject private OverlayManager overlayManager;
     @Inject private GuidedInventoryOverlay guidedInventoryOverlay;
@@ -188,6 +189,7 @@ public class FarmingNavigatorPlugin
                 );
 
         panel.setTreeCommands(command -> clientThread.invokeLater(() -> handleTreeRunCommand(command)));
+        panel.setContractPreparation(crop -> clientThread.invokeLater(() -> prepareContractRun(crop)));
         navigationButton =
                 NavigationButton.builder()
                         .tooltip(
@@ -733,6 +735,16 @@ public class FarmingNavigatorPlugin
             }
         }
         else { treeRunSession.command(command, now); }
+        updateAccountState();
+    }
+
+    private void prepareContractRun(com.farmingnavigator.contracts.ContractCrop requested)
+    {
+        if (panel == null) { return; }
+        Map<String, Object> settings = com.farmingnavigator.contracts.ContractRunPreparation.settings(
+                farmingContractService.snapshot(), requested, guidedRunSession.snapshot().isActive()
+                        || treeRunSession.snapshot(Instant.now()).isActive());
+        settings.forEach((key, value) -> configManager.setConfiguration(FarmingNavigatorConfig.GROUP, key, value));
         updateAccountState();
     }
 

@@ -9,13 +9,20 @@ import java.awt.Dimension;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import java.util.function.Consumer;
 import net.runelite.client.ui.ColorScheme;
 
 public final class FarmingContractPanel extends JPanel
 {
     public FarmingContractPanel(FarmingContractSnapshot contract, HerbRunCrop herb, TreeRunCrop tree,
             boolean herbGuildSelected, boolean treeGuildSelected)
+    {
+        this(contract, herb, tree, herbGuildSelected, treeGuildSelected, false, null);
+    }
+    public FarmingContractPanel(FarmingContractSnapshot contract, HerbRunCrop herb, TreeRunCrop tree,
+            boolean herbGuildSelected, boolean treeGuildSelected, boolean runActive, Consumer<ContractCrop> prepare)
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); setBackground(ColorScheme.DARKER_GRAY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(9, 8, 12, 8)); setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -37,6 +44,15 @@ public final class FarmingContractPanel extends JPanel
                 if (crop.getHerbRunCrop() == null && crop.getTreeRunCrop() == null)
                 {
                     add(text("Dedicated run planning for this contract family is not available yet.", ColorScheme.LIGHT_GRAY_COLOR));
+                }
+                else if (prepare != null)
+                {
+                    add(text("Prepare selects this crop and only its Farming Guild patch. Review supplies and access before starting guidance.", ColorScheme.LIGHT_GRAY_COLOR));
+                    JButton button = new JButton("Prepare contract run");
+                    button.setAlignmentX(Component.LEFT_ALIGNMENT); button.setEnabled(!runActive);
+                    button.addActionListener(event -> { button.setEnabled(false); prepare.accept(crop); });
+                    add(button);
+                    if (runActive) { add(text("Finish or stop your current guidance before changing the run setup.", ColorScheme.LIGHT_GRAY_COLOR)); }
                 }
                 break;
             case REPORTED_COMPLETE:

@@ -9,7 +9,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.JLabel;
+import javax.swing.JButton;
 import javax.swing.SwingUtilities;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
+import com.farmingnavigator.contracts.ContractCrop;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -51,6 +55,25 @@ public class FarmingContractPanelTest
                     HerbRunCrop.RANARR, TreeRunCrop.OAK, true, true)).contains("assignment not recognized"));
             assertTrue(labels(new FarmingContractPanel(FarmingContractSnapshot.decode(true, 1, 0),
                     HerbRunCrop.RANARR, TreeRunCrop.OAK, true, true)).contains("Dedicated run planning"));
+        });
+    }
+    @Test public void prepareButtonDispatchesRequestedSpecialContractAndDisablesDuringGuidance() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            AtomicReference<ContractCrop> requested = new AtomicReference<>();
+            FarmingContractPanel panel = new FarmingContractPanel(FarmingContractSnapshot.decode(true, 51, 0),
+                    HerbRunCrop.RANARR, TreeRunCrop.CELASTRUS, false, true, false, requested::set);
+            assertFalse(labels(panel).contains("Dedicated run planning"));
+            assertTrue(labels(panel).contains("only its Farming Guild patch"));
+            JButton button = (JButton) Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton).findFirst().get();
+            button.doClick(); assertEquals(ContractCrop.CELASTRUS, requested.get()); assertFalse(button.isEnabled());
+            FarmingContractPanel busy = new FarmingContractPanel(FarmingContractSnapshot.decode(true, 50, 0),
+                    HerbRunCrop.RANARR, TreeRunCrop.REDWOOD, false, true, true, crop -> fail("Busy callback"));
+            JButton disabled = (JButton) Arrays.stream(busy.getComponents()).filter(c -> c instanceof JButton).findFirst().get();
+            assertFalse(disabled.isEnabled()); disabled.doClick();
+            FarmingContractPanel unsupported = new FarmingContractPanel(FarmingContractSnapshot.decode(true, 1, 0),
+                    HerbRunCrop.RANARR, TreeRunCrop.OAK, false, true, false, crop -> fail("Unsupported callback"));
+            assertTrue(Arrays.stream(unsupported.getComponents()).noneMatch(c -> c instanceof JButton));
         });
     }
     private String labels(FarmingContractPanel panel)

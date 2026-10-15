@@ -140,6 +140,8 @@ public class FarmingNavigatorPanel
     private com.farmingnavigator.economics.FarmingMaterialEstimate herbMaterials;
     private com.farmingnavigator.economics.FarmingMaterialEstimate treeMaterials;
     private com.farmingnavigator.contracts.FarmingContractSnapshot farmingContract;
+    private Consumer<com.farmingnavigator.contracts.ContractCrop> contractPreparation;
+    public void setContractPreparation(Consumer<com.farmingnavigator.contracts.ContractCrop> prepare) { contractPreparation = prepare; }
     public void setFarmingContract(com.farmingnavigator.contracts.FarmingContractSnapshot contract) { farmingContract = contract; }
     public void setFarmingMaterials(com.farmingnavigator.economics.FarmingMaterialEstimate herbs,
             com.farmingnavigator.economics.FarmingMaterialEstimate trees) { herbMaterials = herbs; treeMaterials = trees; }
@@ -708,12 +710,10 @@ public class FarmingNavigatorPanel
         if (config.showFarmingContract() && farmingContract != null && (accountState.getBoostedFarmingLevel() >= 45
                 || farmingContract.getState() != com.farmingnavigator.contracts.FarmingContractSnapshot.State.NONE))
         {
-            boolean treeGuildSelected = config.treeRunCrop().getCrop().getFamily() == com.farmingnavigator.farming.tree.TreeFamily.TREE
-                    && config.treeRunPatches().contains(TreePatchDefinition.FARMING_GUILD_TREE)
-                    || config.treeRunCrop().getCrop().getFamily() == com.farmingnavigator.farming.tree.TreeFamily.FRUIT_TREE
-                    && config.treeRunPatches().contains(TreePatchDefinition.FARMING_GUILD_FRUIT);
+            boolean treeGuildSelected = com.farmingnavigator.contracts.ContractRunPreparation.isGuildSelected(config.treeRunCrop(), config.treeRunPatches());
             patchListPanel.add(new com.farmingnavigator.ui.FarmingContractPanel(farmingContract,
-                    config.herbRunCrop(), config.treeRunCrop(), config.herbRunPatches().contains(HerbPatchDefinition.FARMING_GUILD), treeGuildSelected));
+                    config.herbRunCrop(), config.treeRunCrop(), config.herbRunPatches().contains(HerbPatchDefinition.FARMING_GUILD), treeGuildSelected,
+                    guidedRun != null && guidedRun.isActive() || treeGuidedRun != null && treeGuidedRun.isActive(), contractPreparation));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
         if (runMetrics != null)

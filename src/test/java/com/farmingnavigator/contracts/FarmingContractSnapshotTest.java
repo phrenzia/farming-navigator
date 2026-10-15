@@ -23,7 +23,8 @@ public class FarmingContractSnapshotTest
         for (ContractCrop crop : ContractCrop.values())
         {
             if (crop.getFamily() == ContractCrop.Family.HERB) { assertEquals(crop.name(), crop.getHerbRunCrop().name()); }
-            if (crop.getFamily() == ContractCrop.Family.TREE || crop.getFamily() == ContractCrop.Family.FRUIT_TREE)
+            if (crop.getFamily() == ContractCrop.Family.TREE || crop.getFamily() == ContractCrop.Family.FRUIT_TREE
+                    || crop.getFamily() == ContractCrop.Family.REDWOOD || crop.getFamily() == ContractCrop.Family.CELASTRUS)
             {
                 assertEquals(crop.name(), crop.getTreeRunCrop().name());
             }

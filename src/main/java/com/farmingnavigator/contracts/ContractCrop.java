@@ -68,7 +68,11 @@ public enum ContractCrop
     public String getLabel() { return label; }
     public Family getFamily() { return family; }
     public HerbRunCrop getHerbRunCrop() { return family == Family.HERB ? HerbRunCrop.valueOf(name()) : null; }
-    public TreeRunCrop getTreeRunCrop() { return family == Family.TREE || family == Family.FRUIT_TREE ? TreeRunCrop.valueOf(name()) : null; }
+    public TreeRunCrop getTreeRunCrop()
+    {
+        return family == Family.TREE || family == Family.FRUIT_TREE || family == Family.REDWOOD || family == Family.CELASTRUS
+                ? TreeRunCrop.valueOf(name()) : null;
+    }
     public static ContractCrop fromId(int id)
     {
         for (ContractCrop crop : values()) { if (crop.id == id) { return crop; } }
