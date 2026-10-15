@@ -327,6 +327,7 @@ public final class GuidedRunTargets
             case WEISS_LARRY_BOAT:
                 Collections.addAll(items, ItemID.DRAMEN_STAFF, ItemID.LUNAR_MOONCLAN_LIMINAL_STAFF); break;
             case MOS_LE_HARMLESS_HARMONY: items.add(ItemID.TELEPORTSCROLL_MOSLES); break;
+            case TAI_BWO_WANNAI_SCROLL: items.add(ItemID.TELEPORTSCROLL_TAIBWO); break;
             case TELEPORT_SPELL: addSpell(items, option.getTeleportSpellDefinition(), travel); break;
             default: break;
         }

@@ -47,6 +47,13 @@ public final class TreePatchTransportService
                 "Choose Lletya on a charged or eternal teleport crystal, then walk south to the fruit tree patch.", TransportVerificationKind.LLETYA_CRYSTAL)));
         options.put(TreePatchDefinition.PRIFDDINAS_CRYSTAL, List.of(item(1, "Teleport crystal to Prifddinas",
                 "Choose Prifddinas on a charged or eternal teleport crystal, then walk north-east to the crystal tree patch.", TransportVerificationKind.PRIFDDINAS_CRYSTAL)));
+        options.put(TreePatchDefinition.TAI_BWO_WANNAI_CALQUAT, List.of(
+                new TransportOption(1, "Tai bwo wannai teleport scroll",
+                        "Use a loose Tai bwo wannai teleport scroll, then run north to the calquat patch. Master scroll book contents are not checked.",
+                        TransportCategory.ITEM, TransportVerificationKind.TAI_BWO_WANNAI_SCROLL),
+                new TransportOption(2, "Fairy ring CKR to Tai Bwo Wannai",
+                        "Travel to an accessible fairy ring, use CKR, then run north through Tai Bwo Wannai to the calquat patch.",
+                        TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_ACCESS)));
         List<TransportOption> fossil = List.of(item(1, "Digsite pendant, then barge",
                 "Choose the base Digsite destination, quick-travel with the barge guard to Fossil Island, then walk north to the hardwood patches. This route does not require the separate pendant machine destination or mushtrees.", TransportVerificationKind.DIGSITE_BARGE));
         options.put(TreePatchDefinition.FOSSIL_ISLAND_EAST, fossil);

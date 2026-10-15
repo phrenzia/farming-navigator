@@ -154,7 +154,8 @@ public final class RunTransportResourcePlanner
         ARDOUGNE_TABLET(ItemID.POH_TABLET_ARDOUGNETELEPORT, "Ardougne teleport tablet"),
         STONY_BASALT(ItemID.STRONGHOLD_TELEPORT_BASALT, "Stony basalt"),
         ICY_BASALT(ItemID.WEISS_TELEPORT_BASALT, "Icy basalt"),
-        MOS_LE_HARMLESS_SCROLL(ItemID.TELEPORTSCROLL_MOSLES, "Mos le'harmless teleport scroll");
+        MOS_LE_HARMLESS_SCROLL(ItemID.TELEPORTSCROLL_MOSLES, "Mos le'harmless teleport scroll"),
+        TAI_BWO_WANNAI_SCROLL(ItemID.TELEPORTSCROLL_TAIBWO, "Tai bwo wannai teleport scroll");
 
         private final int itemId;
         private final String name;
@@ -174,6 +175,7 @@ public final class RunTransportResourcePlanner
             case STONY_BASALT: return Consumable.STONY_BASALT;
             case ICY_BASALT: return Consumable.ICY_BASALT;
             case MOS_LE_HARMLESS_HARMONY: return Consumable.MOS_LE_HARMLESS_SCROLL;
+            case TAI_BWO_WANNAI_SCROLL: return Consumable.TAI_BWO_WANNAI_SCROLL;
             default: return null;
         }
     }

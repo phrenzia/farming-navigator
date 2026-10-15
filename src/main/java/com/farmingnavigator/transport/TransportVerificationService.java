@@ -196,6 +196,13 @@ public class TransportVerificationService
             case PRIFDDINAS_CRYSTAL:
                 return new TreeTransportVerifier().evaluate(option,
                         new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot));
+            case TAI_BWO_WANNAI_SCROLL:
+                if (!accountState.hasCompletedQuest(Quest.TAI_BWO_WANNAI_TRIO))
+                {
+                    return new VerifiedTransportResult(option, VerifiedTransportState.LOCKED,
+                            "Complete Tai Bwo Wannai Trio to use this teleport scroll. The calquat patch itself does not require the quest.");
+                }
+                return evaluateStackItem(storageSnapshot, option, ItemID.TELEPORTSCROLL_TAIBWO, "Tai bwo wannai teleport scroll");
             case EXPLORER_RING_UNLIMITED:
                 return evaluateExplorerRingUnlimited(
                         storageSnapshot,

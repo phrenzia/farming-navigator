@@ -93,6 +93,7 @@ public class AccountStateService
             Quest.BONE_VOYAGE,
             Quest.MOURNINGS_END_PART_I,
             Quest.SONG_OF_THE_ELVES,
+            Quest.TAI_BWO_WANNAI_TRIO,
             Quest.THE_RIBBITING_TALE_OF_A_LILY_PAD_LABOUR_DISPUTE,
 
             /*
