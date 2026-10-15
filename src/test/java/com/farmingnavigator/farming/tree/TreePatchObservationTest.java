@@ -28,7 +28,7 @@ public class TreePatchObservationTest
                 assertTrue(channels.add(patch.getVarbit()));
             }
         }
-        assertEquals(19, found.size());
+        assertEquals(25, found.size());
         assertEquals(EnumSet.allOf(TreePatchDefinition.class), found);
     }
 
@@ -43,7 +43,10 @@ public class TreePatchObservationTest
                 {TreePatchRegion.BRIMHAVEN, 2765, 3211}, {TreePatchRegion.CATHERBY, 2858, 3432},
                 {TreePatchRegion.LLETYA, 2343, 3160}, {TreePatchRegion.TREE_GNOME_VILLAGE, 2487, 3181},
                 {TreePatchRegion.FOSSIL_ISLAND, 3707, 3838}, {TreePatchRegion.AVIUM_SAVANNAH, 1683, 2971},
-                {TreePatchRegion.ANGLERS_RETREAT, 2472, 2705}};
+                {TreePatchRegion.ANGLERS_RETREAT, 2472, 2705},
+                {TreePatchRegion.TAI_BWO_WANNAI, 2793, 3099}, {TreePatchRegion.KASTORI, 1365, 3035},
+                {TreePatchRegion.GREAT_CONCH, 3125, 2403}, {TreePatchRegion.FARMING_GUILD, 1233, 3754},
+                {TreePatchRegion.PRIFDDINAS, 3292, 6120}};
         for (Object[] row : cases)
         {
             assertEquals(row[0], TreePatchRegion.forLocation(new WorldPoint((int) row[1], (int) row[2], 0)));
@@ -93,17 +96,38 @@ public class TreePatchObservationTest
         assertEquals(TreeCrop.ROSEWOOD, store.snapshot().get(TreePatchDefinition.FOSSIL_ISLAND_WEST).getState().getCrop());
     }
 
-    @Test public void guildReadsTreeGAndFruitKInsteadOfNearbyHerbE()
+    @Test public void guildSeparatesFourTreeChannelsFromNearbyHerbE()
     {
         for (int tick = 1; tick <= 3; tick++)
         {
             sampler.sample(new WorldPoint(1234, 3736, 0), true, false, false, tick, id -> {
-                assertTrue(id == VarbitID.FARMING_TRANSMIT_G || id == VarbitID.FARMING_TRANSMIT_K);
-                return id == VarbitID.FARMING_TRANSMIT_G ? 12 : 226;
+                switch (id)
+                {
+                    case VarbitID.FARMING_TRANSMIT_G: return 12;
+                    case VarbitID.FARMING_TRANSMIT_K: return 226;
+                    case VarbitID.FARMING_TRANSMIT_L: return 14;
+                    case VarbitID.FARMING_TRANSMIT_I: return 37;
+                    default: throw new AssertionError("Unexpected Guild channel: " + id);
+                }
             }, now.plusSeconds(tick), FarmingGrowthRate.NORMAL);
         }
         assertEquals(TreeCrop.OAK, store.snapshot().get(TreePatchDefinition.FARMING_GUILD_TREE).getState().getCrop());
         assertEquals(TreeCrop.PALM, store.snapshot().get(TreePatchDefinition.FARMING_GUILD_FRUIT).getState().getCrop());
+        assertEquals(4, store.snapshot().size());
+        assertEquals(TreePatchCondition.HARVESTABLE, store.snapshot().get(TreePatchDefinition.FARMING_GUILD_CELASTRUS).getState().getCondition());
+        assertEquals(TreePatchCondition.CHECK_HEALTH, store.snapshot().get(TreePatchDefinition.FARMING_GUILD_REDWOOD).getState().getCondition());
+    }
+
+    @Test public void kastoriDoesNotConfuseCalquatAWithFruitB()
+    {
+        for (int tick = 1; tick <= 3; tick++)
+        {
+            sampler.sample(new WorldPoint(1365, 3035, 0), true, false, false, tick,
+                    id -> id == VarbitID.FARMING_TRANSMIT_A ? 34 : 226, now.plusSeconds(tick), FarmingGrowthRate.NORMAL);
+        }
+        assertEquals(2, store.snapshot().size());
+        assertEquals(TreeCrop.CALQUAT, store.snapshot().get(TreePatchDefinition.KASTORI_CALQUAT).getState().getCrop());
+        assertEquals(TreeCrop.PALM, store.snapshot().get(TreePatchDefinition.KASTORI_FRUIT).getState().getCrop());
     }
 
     @Test public void travelModalInstanceAndTickGapRestartSettling()

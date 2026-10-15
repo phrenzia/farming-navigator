@@ -38,17 +38,23 @@ public enum TreePatchRegion
     FALADOR(new int[]{11828, 12084}, TreePatchDefinition.FALADOR_TREE),
     LUMBRIDGE(new int[]{12594, 12850}, TreePatchDefinition.LUMBRIDGE_TREE),
     GNOME_STRONGHOLD(new int[]{9781, 9782, 9526, 9525}, TreePatchDefinition.GNOME_STRONGHOLD_TREE, TreePatchDefinition.GNOME_STRONGHOLD_FRUIT),
-    FARMING_GUILD(new int[]{4922, 5177, 5178, 5179, 4921, 4923, 4665, 4666, 4667}, TreePatchDefinition.FARMING_GUILD_TREE, TreePatchDefinition.FARMING_GUILD_FRUIT),
+    FARMING_GUILD(new int[]{4922, 5177, 5178, 5179, 4921, 4923, 4665, 4666, 4667}, TreePatchDefinition.FARMING_GUILD_TREE, TreePatchDefinition.FARMING_GUILD_FRUIT,
+            TreePatchDefinition.FARMING_GUILD_CELASTRUS, TreePatchDefinition.FARMING_GUILD_REDWOOD),
     AUBURNVALE(new int[]{5427, 5428, 5684}, TreePatchDefinition.AUBURNVALE_TREE),
     BRIMHAVEN(new int[]{11058, 11057}, TreePatchDefinition.BRIMHAVEN_FRUIT),
     CATHERBY(new int[]{11317}, TreePatchDefinition.CATHERBY_FRUIT),
     TREE_GNOME_VILLAGE(new int[]{9777, 10033}, TreePatchDefinition.TREE_GNOME_VILLAGE_FRUIT),
     LLETYA(new int[]{9265, 11103}, TreePatchDefinition.LLETYA_FRUIT),
-    KASTORI(new int[]{5423, 5167, 5424}, TreePatchDefinition.KASTORI_FRUIT),
+    KASTORI(new int[]{5423, 5167, 5424}, TreePatchDefinition.KASTORI_FRUIT, TreePatchDefinition.KASTORI_CALQUAT),
     FOSSIL_ISLAND(new int[]{14651, 14907, 14908, 15164, 14652, 14906, 14650, 15162, 15163},
             TreePatchDefinition.FOSSIL_ISLAND_EAST, TreePatchDefinition.FOSSIL_ISLAND_MIDDLE, TreePatchDefinition.FOSSIL_ISLAND_WEST),
     AVIUM_SAVANNAH(new int[]{6702, 6446}, TreePatchDefinition.AVIUM_SAVANNAH_HARDWOOD),
-    ANGLERS_RETREAT(new int[]{9770}, TreePatchDefinition.ANGLERS_RETREAT_HARDWOOD);
+    ANGLERS_RETREAT(new int[]{9770}, TreePatchDefinition.ANGLERS_RETREAT_HARDWOOD),
+    TAI_BWO_WANNAI(new int[]{11056}, TreePatchDefinition.TAI_BWO_WANNAI_CALQUAT),
+    GREAT_CONCH(new int[]{12581, 12325, 12326, 12327, 12580, 12582, 12583, 12836, 12837, 12838, 12839, 13092, 13093, 13194},
+            TreePatchDefinition.GREAT_CONCH_CALQUAT),
+    PRIFDDINAS(new int[]{13151, 12895, 12894, 13150, 12994, 12993, 12737, 12738, 12126, 12127, 13250},
+            TreePatchDefinition.PRIFDDINAS_CRYSTAL);
 
     private final int[] regions;
     private final List<TreePatchDefinition> patches;

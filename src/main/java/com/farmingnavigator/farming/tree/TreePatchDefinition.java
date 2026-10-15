@@ -48,7 +48,13 @@ public enum TreePatchDefinition
     FOSSIL_ISLAND_MIDDLE("Fossil Island middle", TreeFamily.HARDWOOD_TREE, VarbitID.FARMING_TRANSMIT_B),
     FOSSIL_ISLAND_WEST("Fossil Island west", TreeFamily.HARDWOOD_TREE, VarbitID.FARMING_TRANSMIT_C),
     AVIUM_SAVANNAH_HARDWOOD("Avium Savannah", TreeFamily.HARDWOOD_TREE, VarbitID.FARMING_TRANSMIT_A),
-    ANGLERS_RETREAT_HARDWOOD("Anglers' Retreat", TreeFamily.HARDWOOD_TREE, VarbitID.FARMING_TRANSMIT_A);
+    ANGLERS_RETREAT_HARDWOOD("Anglers' Retreat", TreeFamily.HARDWOOD_TREE, VarbitID.FARMING_TRANSMIT_A),
+    TAI_BWO_WANNAI_CALQUAT("Tai Bwo Wannai", TreeFamily.CALQUAT, VarbitID.FARMING_TRANSMIT_A),
+    KASTORI_CALQUAT("Kastori", TreeFamily.CALQUAT, VarbitID.FARMING_TRANSMIT_A),
+    GREAT_CONCH_CALQUAT("Great Conch", TreeFamily.CALQUAT, VarbitID.FARMING_TRANSMIT_C),
+    FARMING_GUILD_CELASTRUS("Farming Guild", TreeFamily.CELASTRUS, VarbitID.FARMING_TRANSMIT_L),
+    FARMING_GUILD_REDWOOD("Farming Guild", TreeFamily.REDWOOD, VarbitID.FARMING_TRANSMIT_I),
+    PRIFDDINAS_CRYSTAL("Prifddinas", TreeFamily.CRYSTAL_TREE, VarbitID.FARMING_TRANSMIT_E);
 
     private final String label;
     private final TreeFamily family;

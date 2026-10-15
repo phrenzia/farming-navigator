@@ -33,6 +33,26 @@ public class TreeGrowthTimerTest
         assertFalse(estimate(TreeFamily.TREE, 8, FarmingGrowthRate.UNKNOWN, now).isPresent());
     }
 
+    @Test public void specialTreesUseTheirOwnCyclesAndStopEstimatingAfterHealthCheck()
+    {
+        Object[][] cases = {{TreeFamily.CALQUAT, 4, 34, 1120, 1280},
+                {TreeFamily.CELASTRUS, 8, 13, 640, 800},
+                {TreeFamily.REDWOOD, 8, 37, 5760, 6400},
+                {TreeFamily.CRYSTAL_TREE, 8, 14, 400, 480}};
+        for (Object[] row : cases)
+        {
+            TreeFamily family = (TreeFamily) row[0];
+            TreeGrowthWindow window = estimate(family, (int) row[1], FarmingGrowthRate.NORMAL, now).get();
+            assertEquals(family.name(), now.plusSeconds((int) row[3] * 60L), window.getEarliest());
+            assertEquals(family.name(), now.plusSeconds((int) row[4] * 60L), window.getLatest());
+            assertFalse(estimate(family, (int) row[2], FarmingGrowthRate.NORMAL, now).isPresent());
+        }
+        for (int raw : new int[]{14, 16, 17, 28})
+        {
+            assertFalse(estimate(TreeFamily.CELASTRUS, raw, FarmingGrowthRate.NORMAL, now).isPresent());
+        }
+    }
+
     @Test public void finalGrowingStageHasWindowStartingNowWithoutBecomingObservedReady()
     {
         TreeGrowthWindow finalStage = estimate(TreeFamily.TREE, 11, FarmingGrowthRate.NORMAL, now).get();

@@ -15,12 +15,24 @@ public class TreeSceneTargetPolicyTest
     {
         for (TreePatchDefinition patch : TreePatchDefinition.values())
         {
+            if (patch.getFamily() != TreeFamily.TREE && patch.getFamily() != TreeFamily.FRUIT_TREE
+                    && patch.getFamily() != TreeFamily.HARDWOOD_TREE) { continue; }
             int id = patch.getFamily() == TreeFamily.TREE ? ObjectID.FARMING_TREE_PATCH_1
                     : patch.getFamily() == TreeFamily.FRUIT_TREE ? ObjectID.FARMING_FRUIT_TREE_PATCH_1 : ObjectID.FARMING_HARDWOOD_TREE_PATCH_1;
             WorldPoint location = TreePatchDestination.valueOf(patch.name()).getLocation();
             assertEquals(patch.name(), patch, TreeSceneTargetPolicy.treePatch(id, patch.getVarbit(), null, location));
             assertNull(TreeSceneTargetPolicy.treePatch(id, -1, null, location));
             assertNull(TreeSceneTargetPolicy.treePatch(id, patch.getVarbit(), null, new WorldPoint(location.getX(), location.getY(), 1)));
+        }
+    }
+    @Test public void specialTreePatchesDoNotFallBackToHardwoodObjects()
+    {
+        for (TreePatchDefinition patch : TreePatchDefinition.values())
+        {
+            if (patch.getFamily() == TreeFamily.TREE || patch.getFamily() == TreeFamily.FRUIT_TREE
+                    || patch.getFamily() == TreeFamily.HARDWOOD_TREE) { continue; }
+            assertNull(patch.name(), TreeSceneTargetPolicy.treePatch(ObjectID.FARMING_HARDWOOD_TREE_PATCH_1,
+                    patch.getVarbit(), "Teak", TreePatchDestination.valueOf(patch.name()).getLocation()));
         }
     }
     @Test public void adjacentFossilPatchesAreSeparatedByTransmitChannel()

@@ -34,6 +34,32 @@ public class TreeObservationPersistenceTest
         assertEquals(FarmingGrowthRate.LEAGUES, store.snapshot().get(TreePatchDefinition.VARROCK_TREE).getGrowthRate());
     }
 
+    @Test public void allSpecialPatchHistoriesSurviveRestartWithoutChannelCollisions()
+    {
+        Map<TreePatchDefinition, Integer> values = Map.of(
+                TreePatchDefinition.TAI_BWO_WANNAI_CALQUAT, 34,
+                TreePatchDefinition.KASTORI_CALQUAT, 12,
+                TreePatchDefinition.GREAT_CONCH_CALQUAT, 19,
+                TreePatchDefinition.FARMING_GUILD_CELASTRUS, 17,
+                TreePatchDefinition.FARMING_GUILD_REDWOOD, 37,
+                TreePatchDefinition.PRIFDDINAS_CRYSTAL, 14);
+        persistence.loadProfile("A", store, now);
+        values.forEach((patch, raw) -> store.observe(patch, raw, now, FarmingGrowthRate.NORMAL));
+        persistence.save(store.snapshot());
+        persistence.detach();
+        store.clear();
+        persistence.loadProfile("A", store, now.plusSeconds(600));
+        assertEquals(6, store.snapshot().size());
+        values.forEach((patch, raw) -> {
+            assertEquals(raw.intValue(), store.snapshot().get(patch).getState().getRawValue());
+            assertEquals(now, store.snapshot().get(patch).getObservedAt());
+        });
+        assertEquals(TreePatchCondition.HARVESTED,
+                store.snapshot().get(TreePatchDefinition.FARMING_GUILD_CELASTRUS).getState().getCondition());
+        persistence.loadProfile("B", store, now.plusSeconds(600));
+        assertTrue(store.isEmpty());
+    }
+
     @Test public void characterAndModeProfilesDoNotShareHistoryOrWrites()
     {
         persistence.loadProfile("A-normal", store, now);

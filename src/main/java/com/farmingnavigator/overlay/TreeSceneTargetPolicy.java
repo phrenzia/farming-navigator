@@ -37,6 +37,9 @@ public final class TreeSceneTargetPolicy
         for (TreePatchDefinition patch : region.getPatches())
         {
             if (varbit != patch.getVarbit() || !TreePatchDestination.isNear(patch, location)) { continue; }
+            // Special-tree object families need their own verified bases and transformed names.
+            if (patch.getFamily() != TreeFamily.TREE && patch.getFamily() != TreeFamily.FRUIT_TREE
+                    && patch.getFamily() != TreeFamily.HARDWOOD_TREE) { continue; }
             Set<Integer> ids = patch.getFamily() == TreeFamily.TREE ? REGULAR : patch.getFamily() == TreeFamily.FRUIT_TREE ? FRUIT : HARDWOOD;
             Set<String> names = patch.getFamily() == TreeFamily.TREE ? REGULAR_NAMES : patch.getFamily() == TreeFamily.FRUIT_TREE ? FRUIT_NAMES : HARDWOOD_NAMES;
             if (ids.contains(baseId) || names.contains(name)) { return patch; }

@@ -50,11 +50,15 @@ public class TreeObservationsPanelTest
             JButton toggle = (JButton) Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton).findFirst().get();
             toggle.doClick();
             assertTrue(expanded.get());
-            assertTrue(labels(panel).contains("Observed patches: 3 / 19"));
+            assertTrue(labels(panel).contains("Observed patches: 3 / 25"));
             assertTrue(labels(panel).contains("health-check ready: 1; diseased or dead: 1"));
             assertTrue(labels(panel).contains("Regular trees"));
             assertTrue(labels(panel).contains("Fruit trees"));
             assertTrue(labels(panel).contains("Hardwood trees"));
+            assertTrue(labels(panel).contains("Calquat trees"));
+            assertTrue(labels(panel).contains("Celastrus trees"));
+            assertTrue(labels(panel).contains("Redwood trees"));
+            assertTrue(labels(panel).contains("Crystal trees"));
             panel.setSize(225, 2600);
             layout(panel);
             BufferedImage image = new BufferedImage(225, 2600, BufferedImage.TYPE_INT_RGB);
@@ -72,7 +76,7 @@ public class TreeObservationsPanelTest
         SwingUtilities.invokeAndWait(() -> {
             TreeObservationsPanel panel = new TreeObservationsPanel(Map.of(TreePatchDefinition.VARROCK_TREE,
                     observation(TreeFamily.TREE, 12, now.plusSeconds(1))), now, true, value -> {});
-            assertTrue(labels(panel).contains("Observed patches: 0 / 19"));
+            assertTrue(labels(panel).contains("Observed patches: 0 / 25"));
             assertFalse(labels(panel).contains("health-check ready: 1"));
         });
     }
