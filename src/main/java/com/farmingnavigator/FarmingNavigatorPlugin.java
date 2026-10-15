@@ -8,6 +8,7 @@ import com.farmingnavigator.farming.HerbPatchStatus;
 import com.farmingnavigator.farming.state.HerbPatchObservation;
 import com.farmingnavigator.farming.state.HerbPatchObservationService;
 import com.farmingnavigator.farming.state.HerbObservationPersistence;
+import com.farmingnavigator.farming.state.HerbAlertTracker;
 import com.farmingnavigator.poh.PohProfileService;
 import com.farmingnavigator.routing.capability.TravelCapabilityService;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
@@ -59,6 +60,7 @@ import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -132,6 +134,8 @@ public class FarmingNavigatorPlugin
     private long lastPatchTimerRefreshMinute = -1;
     private final GuidedRunSession guidedRunSession = new GuidedRunSession();
     private HerbRunPlan latestSuggestedRun;
+    private final HerbAlertTracker herbAlertTracker = new HerbAlertTracker();
+    @Inject private Notifier notifier;
 
     @Inject private OverlayManager overlayManager;
     @Inject private GuidedInventoryOverlay guidedInventoryOverlay;
@@ -144,6 +148,7 @@ public class FarmingNavigatorPlugin
     protected void startUp()
     {
         lastPatchTimerRefreshMinute = -1;
+        herbAlertTracker.reset();
         guidedRunSession.cancel();
         guidedRunOverlayController.clear();
         overlayManager.add(guidedInventoryOverlay);
@@ -188,6 +193,7 @@ public class FarmingNavigatorPlugin
     @Override
     protected void shutDown()
     {
+        herbAlertTracker.reset();
         overlayManager.remove(guidedInventoryOverlay);
         overlayManager.remove(guidedBankOverlay);
         overlayManager.remove(guidedSceneOverlay);
@@ -238,6 +244,7 @@ public class FarmingNavigatorPlugin
             guidedRunOverlayController.clear();
             herbSceneTracker.clear();
             herbPatchObservationService.reset();
+            herbAlertTracker.reset();
             storageStateService
                     .invalidateBankSnapshot();
         }
@@ -250,6 +257,7 @@ public class FarmingNavigatorPlugin
     @Subscribe
     public void onRuneScapeProfileChanged(RuneScapeProfileChanged event)
     {
+        herbAlertTracker.reset();
         // A mode/account switch must never retain another character's observations or active checklist.
         herbPatchObservationService.reset();
         guidedRunSession.cancel();
@@ -283,6 +291,9 @@ public class FarmingNavigatorPlugin
         if (changed || (minute != lastPatchTimerRefreshMinute && herbPatchObservationService.hasObservations()))
         {
             lastPatchTimerRefreshMinute = minute;
+            herbAlertTracker.poll(herbPatchObservationService.snapshot(), config.herbRunPatches(),
+                    Instant.now(), config.herbObservedAlerts(), config.herbEstimatedAlerts())
+                    .forEach(notifier::notify);
             updateAccountState();
         }
     }

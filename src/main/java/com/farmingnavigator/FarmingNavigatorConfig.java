@@ -98,6 +98,30 @@ public interface FarmingNavigatorConfig
         return HerbRunCompost.ULTRACOMPOST;
     }
 
+    @ConfigItem(
+            keyName = "herbObservedAlerts",
+            name = "Observed herb alerts",
+            description = "Notify when a selected herb patch is newly observed ready, diseased, or dead; uses RuneLite notification settings",
+            position = 4,
+            section = GENERAL_SECTION
+    )
+    default boolean herbObservedAlerts()
+    {
+        return false;
+    }
+
+    @ConfigItem(
+            keyName = "herbEstimatedAlerts",
+            name = "Estimated herb alerts",
+            description = "Notify at the end of an estimated harvest window; healthy growth is assumed and must be confirmed by visiting",
+            position = 5,
+            section = GENERAL_SECTION
+    )
+    default boolean herbEstimatedAlerts()
+    {
+        return false;
+    }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.
