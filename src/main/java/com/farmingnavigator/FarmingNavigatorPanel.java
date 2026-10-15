@@ -136,6 +136,9 @@ public class FarmingNavigatorPanel
     private boolean herbOverviewOpen;
     private boolean treeObservationsOpen;
     private boolean gardenObservationsOpen;
+    private boolean gardenRunDetailsOpen;
+    private com.farmingnavigator.routing.run.GardenRunPlan gardenRunPlan;
+    public void setGardenRunPlan(com.farmingnavigator.routing.run.GardenRunPlan plan) { gardenRunPlan = plan; }
     private Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> gardenObservations = Collections.emptyMap();
     public void setGardenObservations(Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> observations)
     {
@@ -750,6 +753,12 @@ public class FarmingNavigatorPanel
             patchListPanel.add(Box.createVerticalStrut(8));
         }
 
+        if (accountState.isLoggedIn() && gardenRunPlan != null)
+        {
+            patchListPanel.add(new com.farmingnavigator.ui.GardenRunPlanPanel(gardenRunPlan,
+                    gardenRunDetailsOpen, expanded -> gardenRunDetailsOpen = expanded));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
         if (config.showGardenObservations())
         {
             patchListPanel.add(new com.farmingnavigator.ui.GardenObservationsPanel(gardenObservations, overviewTime,

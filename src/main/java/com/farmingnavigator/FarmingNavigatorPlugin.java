@@ -642,6 +642,8 @@ public class FarmingNavigatorPlugin
                 herbPatchObservationService.snapshot();
         Map<TreePatchDefinition, TreePatchObservation> treeObservations = treePatchObservationService.snapshot();
         Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> gardenObservations = gardenPatchObservationService.snapshot();
+        com.farmingnavigator.routing.run.GardenRunPlan gardenRunPlan = new com.farmingnavigator.routing.run.GardenRunPlanner().plan(accountState,
+                config.gardenRunPatches(), config.gardenRunCrop(), config.gardenRunMode(), config.gardenRunProtection(), gardenObservations, storageSnapshot, Instant.now());
 
         HerbRunPlan suggested = new HerbRunPlanner().plan(accountState, patchStatuses,
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
@@ -692,6 +694,7 @@ public class FarmingNavigatorPlugin
                         targetPanel.setGuidedRun(guidedRun);
                         targetPanel.setTreeObservations(treeObservations);
                         targetPanel.setGardenObservations(gardenObservations);
+                        targetPanel.setGardenRunPlan(gardenRunPlan);
                         targetPanel.setTreeRunPlan(treeRunPlan);
                         targetPanel.setTreeGuidedRun(treeGuidedRun);
                         targetPanel.setRunMetrics(metricsSnapshot);

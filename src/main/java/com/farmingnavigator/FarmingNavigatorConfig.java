@@ -229,6 +229,25 @@ public interface FarmingNavigatorConfig
             position = 19, section = GENERAL_SECTION)
     default boolean showGardenObservations() { return true; }
 
+    @ConfigItem(keyName = "gardenRunCrop", name = "Bush/cactus run crop",
+            description = "Seed crop for bush/cactus preparation", position = 20, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.GardenRunCrop gardenRunCrop() { return com.farmingnavigator.routing.run.GardenRunCrop.REDBERRIES; }
+
+    @ConfigItem(keyName = "gardenRunPatches", name = "Bush/cactus run patches",
+            description = "Only patches matching the selected crop family are considered", position = 21, section = GENERAL_SECTION)
+    default Set<com.farmingnavigator.farming.garden.GardenPatchDefinition> gardenRunPatches()
+    {
+        return Collections.unmodifiableSet(EnumSet.allOf(com.farmingnavigator.farming.garden.GardenPatchDefinition.class));
+    }
+
+    @ConfigItem(keyName = "gardenRunMode", name = "Bush/cactus mature plants",
+            description = "Keep mature plants by default; replacement reserves a new seed and protection if selected", position = 22, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.GardenRunMode gardenRunMode() { return com.farmingnavigator.routing.run.GardenRunMode.KEEP_MATURE; }
+
+    @ConfigItem(keyName = "gardenRunProtection", name = "Reserve bush/cactus protection",
+            description = "Reserve exact farmer payments for possible new plants; poison ivy has no payment", position = 23, section = GENERAL_SECTION)
+    default boolean gardenRunProtection() { return true; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.
