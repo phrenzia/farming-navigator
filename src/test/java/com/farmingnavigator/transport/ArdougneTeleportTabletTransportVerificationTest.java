@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class ArdougneTeleportTabletTransportVerificationTest
 {
     @Test
-    public void catalogueAddsTabletWithoutPromotingSpell()
+    public void catalogueKeepsTabletAndSpellSeparate()
     {
         HerbPatchTransportService service =
                 new HerbPatchTransportService();
@@ -65,7 +65,7 @@ public class ArdougneTeleportTabletTransportVerificationTest
         );
 
         assertEquals(
-                TransportVerificationKind.NOT_IMPLEMENTED,
+                TransportVerificationKind.TELEPORT_SPELL,
                 spell.getVerificationKind()
         );
 

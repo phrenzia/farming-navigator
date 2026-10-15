@@ -183,6 +183,20 @@ public enum TeleportSpellDefinition
             false
     ),
 
+    /* Requirements corroborated by Plugin Hub Shortest Path's teleportation_spells.tsv. */
+    ARDOUGNE_TELEPORT(
+            "Ardougne Teleport",
+            "East Ardougne market",
+            51,
+            SpellbookType.STANDARD,
+            RuneCost.builder()
+                    .add(RuneKind.WATER, 2)
+                    .add(RuneKind.LAW, 2)
+                    .build(),
+            Quest.PLAGUE_CITY,
+            false
+    ),
+
     CIVITAS_ILLA_FORTIS_TELEPORT(
             "Civitas illa Fortis Teleport",
             "Sunrise Palace in Civitas illa Fortis",

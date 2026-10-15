@@ -19,7 +19,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class TeleportSpellTransportVerificationTest
@@ -58,26 +57,18 @@ public class TeleportSpellTransportVerificationTest
                 TeleportSpellDefinition.FISHING_GUILD_TELEPORT
         );
 
-        TransportOption fenkenstrainTeleport =
-                findOption(
-                        service,
-                        HerbPatchDefinition.MORYTANIA,
-                        "Fenkenstrain's Castle Teleport"
-                );
-
-        assertNotNull(
-                fenkenstrainTeleport
+        assertSpellRoute(
+                service,
+                HerbPatchDefinition.MORYTANIA,
+                "Fenkenstrain's Castle Teleport",
+                TeleportSpellDefinition.FENKENSTRAINS_CASTLE_TELEPORT
         );
 
-        assertEquals(
-                TransportVerificationKind.NOT_IMPLEMENTED,
-                fenkenstrainTeleport
-                        .getVerificationKind()
-        );
-
-        assertNull(
-                fenkenstrainTeleport
-                        .getTeleportSpellDefinition()
+        assertSpellRoute(
+                service,
+                HerbPatchDefinition.ARDOUGNE,
+                "Ardougne Teleport",
+                TeleportSpellDefinition.ARDOUGNE_TELEPORT
         );
 
         assertSpellRoute(
@@ -108,27 +99,6 @@ public class TeleportSpellTransportVerificationTest
                 TeleportSpellDefinition.CIVITAS_ILLA_FORTIS_TELEPORT
         );
 
-        TransportOption ardougneTeleport =
-                findOption(
-                        service,
-                        HerbPatchDefinition.ARDOUGNE,
-                        "Ardougne Teleport"
-                );
-
-        assertNotNull(
-                ardougneTeleport
-        );
-
-        assertEquals(
-                TransportVerificationKind.NOT_IMPLEMENTED,
-                ardougneTeleport
-                        .getVerificationKind()
-        );
-
-        assertNull(
-                ardougneTeleport
-                        .getTeleportSpellDefinition()
-        );
     }
 
     @Test

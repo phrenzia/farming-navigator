@@ -308,7 +308,7 @@ public class KharyrllTeleportTransportVerificationTest
     }
 
     @Test
-    public void fenkenstrainRouteRemainsFuture()
+    public void fenkenstrainRouteUsesVerifiedSpell()
     {
         HerbPatchTransportService service =
                 new HerbPatchTransportService();
@@ -324,7 +324,7 @@ public class KharyrllTeleportTransportVerificationTest
         );
 
         assertEquals(
-                TransportVerificationKind.NOT_IMPLEMENTED,
+                TransportVerificationKind.TELEPORT_SPELL,
                 option.getVerificationKind()
         );
     }

@@ -47,7 +47,7 @@ public class UrbanPohPortalTransportVerificationTest
     }
 
     @Test
-    public void directArdougneTeleportRemainsNotImplemented()
+    public void directArdougneTeleportUsesVerifiedSpell()
     {
         HerbPatchTransportService service =
                 new HerbPatchTransportService();
@@ -64,7 +64,7 @@ public class UrbanPohPortalTransportVerificationTest
         );
 
         assertEquals(
-                TransportVerificationKind.NOT_IMPLEMENTED,
+                TransportVerificationKind.TELEPORT_SPELL,
                 option.getVerificationKind()
         );
     }

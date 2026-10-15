@@ -168,11 +168,10 @@ public class HerbPatchTransportService
                                 "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed East Ardougne portal or Portal Nexus destination, then travel north to the farming patch.",
                                 PohPortalDestination.EAST_ARDOUGNE
                         ),
-                        futureTransport(
+                        verifiedSpellTransport(
                                 7,
-                                "Ardougne Teleport",
-                                "Teleport to Ardougne and travel north to the farming patch.",
-                                TransportCategory.SPELL
+                                TeleportSpellDefinition.ARDOUGNE_TELEPORT,
+                                "Teleport to Ardougne and travel north to the farming patch."
                         ),
                         verifiedTransport(
                                 8,
@@ -243,11 +242,10 @@ public class HerbPatchTransportService
                                 TransportCategory.FAIRY_RING,
                                 TransportVerificationKind.FAIRY_RING_ACCESS
                         ),
-                        futureTransport(
+                        verifiedSpellTransport(
                                 4,
-                                "Fenkenstrain's Castle Teleport",
-                                "Teleport near Fenkenstrain's Castle and travel east toward the patch.",
-                                TransportCategory.SPELL
+                                TeleportSpellDefinition.FENKENSTRAINS_CASTLE_TELEPORT,
+                                "Teleport near Fenkenstrain's Castle and travel east toward the patch."
                         ),
                         verifiedSpellTransport(
                                 5,
