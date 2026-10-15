@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class PohMountedXericsTransportVerificationTest
 {
     @Test
-    public void catalogueAddsPohMountedXericsWithoutPromotingDirectTalisman()
+    public void catalogueKeepsMountedAndDirectXericsRoutesSeparate()
     {
         HerbPatchTransportService service =
                 new HerbPatchTransportService();
@@ -43,7 +43,7 @@ public class PohMountedXericsTransportVerificationTest
                 service,
                 HerbPatchDefinition.HOSIDIUS,
                 "Xeric's talisman - Glade",
-                TransportVerificationKind.NOT_IMPLEMENTED
+                TransportVerificationKind.XERICS_TALISMAN_GLADE
         );
     }
 

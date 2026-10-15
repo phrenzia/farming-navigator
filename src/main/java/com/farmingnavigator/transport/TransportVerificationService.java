@@ -12,6 +12,7 @@ import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.ArdougneCloakUnlimitedRequirement;
 import com.farmingnavigator.routing.requirement.ArdougneTeleportTabletRouteRequirement;
 import com.farmingnavigator.routing.requirement.ChargedRingOfElementsRequirement;
+import com.farmingnavigator.routing.requirement.ChargedXericsTalismanRequirement;
 import com.farmingnavigator.routing.requirement.CombatBraceletRouteRequirement;
 import com.farmingnavigator.routing.requirement.EctophialHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.ExplorerRing2CabbagePortRequirement;
@@ -303,13 +304,19 @@ public class TransportVerificationService
                 );
 
             case RING_OF_ELEMENTS:
-                return evaluateRingOfElements(
+                return evaluateItemRequirement(
                         accountState,
                         config,
                         travelCapabilitySnapshot,
                         storageSnapshot,
-                        option
+                        option,
+                        new ChargedRingOfElementsRequirement()
                 );
+
+            case XERICS_TALISMAN_GLADE:
+                return evaluateItemRequirement(
+                        accountState, config, travelCapabilitySnapshot, storageSnapshot,
+                        option, new ChargedXericsTalismanRequirement());
 
             case MOS_LE_HARMLESS_HARMONY:
                 return evaluateMosLeHarmlessHarmony(
@@ -862,12 +869,13 @@ public class TransportVerificationService
     }
 
     private VerifiedTransportResult
-    evaluateRingOfElements(
+    evaluateItemRequirement(
             AccountState accountState,
             FarmingNavigatorConfig config,
             TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
-            TransportOption option
+            TransportOption option,
+            RouteRequirement requirement
     )
     {
         RequirementContext context =
@@ -879,7 +887,7 @@ public class TransportVerificationService
                 );
 
         RequirementResult requirementResult =
-                new ChargedRingOfElementsRequirement()
+                requirement
                         .evaluate(
                                 context
                         );

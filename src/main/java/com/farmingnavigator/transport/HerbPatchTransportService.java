@@ -258,11 +258,12 @@ public class HerbPatchTransportService
         options.put(
                 HerbPatchDefinition.HOSIDIUS,
                 transportOptions(
-                        futureTransport(
+                        verifiedTransport(
                                 1,
                                 "Xeric's talisman - Glade",
                                 "Teleport to Xeric's Glade and travel south-west to the Hosidius farming patch.",
-                                TransportCategory.ITEM
+                                TransportCategory.ITEM,
+                                TransportVerificationKind.XERICS_TALISMAN_GLADE
                         ),
                         verifiedTransport(
                                 2,
