@@ -69,7 +69,10 @@ public final class GuidedRunSnapshot
             case HARVEST: return "Harvest the herbs until the patch is empty.";
             case NOTE_PRODUCE: return "Inventory full. Use harvested herbs on a tool leprechaun to note them, or free a slot.";
             case CLEAR: return "Clear the dead herbs from the patch.";
-            case COMPOST: return "Apply your chosen compost, then confirm. Compost application is not automatically verified.";
+            case COMPOST: return compost.isSpell()
+                    ? "Cast Fertile Soil" + (compost == HerbRunCompost.FERTILE_SOIL_ULTRA ? " with volcanic ash and the tome unlock" : " for supercompost")
+                            + ", then confirm. Compost application is not automatically verified."
+                    : "Apply your chosen compost, then confirm. Compost application is not automatically verified.";
             case PLANT: return "Plant a " + crop.getDisplayName() + " seed in the empty herb patch.";
             case CURE: return cure == HerbRunCure.CURE_PLANT
                     ? "Cast Cure Plant on the diseased herbs, or skip this stop if you cannot cure them."

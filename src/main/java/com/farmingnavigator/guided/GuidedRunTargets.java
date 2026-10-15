@@ -108,7 +108,15 @@ public final class GuidedRunTargets
                 inventory.add(ItemID.DIBBER);
                 break;
             case COMPOST:
-                if (session.getCompost().getItemId() > 0) { inventory.add(session.getCompost().getItemId()); }
+                if (session.getCompost().isSpell())
+                {
+                    addRunes(inventory, HerbRunCareResources.FERTILE_SOIL_COST, travel);
+                    if (session.getCompost() == com.farmingnavigator.routing.run.HerbRunCompost.FERTILE_SOIL_ULTRA)
+                    {
+                        inventory.add(ItemID.FOSSIL_VOLCANIC_ASH);
+                    }
+                }
+                else if (session.getCompost().getItemId() > 0) { inventory.add(session.getCompost().getItemId()); }
                 break;
             case CURE:
                 if (session.getCure() == HerbRunCure.CURE_PLANT)

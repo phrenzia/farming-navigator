@@ -97,13 +97,18 @@ public final class HerbRunPlanner
                         "Bring unless barbarian seed planting is unlocked."));
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true,
                         "Useful if weeds are present; tool leprechaun storage is not checked."));
-                if (compost != HerbRunCompost.NONE)
+                if (compost.getItemId() > 0)
                 {
                     supplies.add(new SupplyRequirement(compost.getItemId(), compost.toString(), compost.isBottomless() ? 1 : replantCount, true,
                             compost.isBottomless()
                                     ? "Bring one filled bottomless bucket. Check that its compost type matches and it has at least "
                                             + replantCount + " uses; item presence does not verify contents."
                                     : "One bucket per potential replant; inspect unknown patches first."));
+                }
+                if (compost == HerbRunCompost.FERTILE_SOIL_ULTRA)
+                {
+                    supplies.add(new SupplyRequirement(ItemID.FOSSIL_VOLCANIC_ASH, "Volcanic ash", 2L * replantCount, true,
+                            "Two per potential Fertile Soil ultracompost cast; the ash-covered tome unlock must be confirmed."));
                 }
             }
             supplies.add(new SupplyRequirement(ItemID.FAIRY_ENCHANTED_SECATEURS, "Magic secateurs", 1, true,

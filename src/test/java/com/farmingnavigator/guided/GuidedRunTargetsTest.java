@@ -274,6 +274,24 @@ public class GuidedRunTargetsTest
         assertFalse(targets.getInventoryItems().contains(ItemID.BOTTOMLESS_COMPOST_BUCKET));
     }
 
+    @Test
+    public void fertileSoilStepHighlightsRunesAndAshOnlyInUltraMode()
+    {
+        for (HerbRunCompost compost : java.util.Arrays.asList(HerbRunCompost.FERTILE_SOIL_SUPER, HerbRunCompost.FERTILE_SOIL_ULTRA))
+        {
+            GuidedRunSnapshot snapshot = new GuidedRunSnapshot(GuidedRunStep.COMPOST, HerbRunCrop.RANARR,
+                    plan().getStops().get(0), 1, 0, 0, 0, compost);
+            GuidedRunTargets targets = GuidedRunTargets.from(snapshot, plan(), null);
+            assertTrue(snapshot.getInstruction().contains("Cast Fertile Soil"));
+            assertTrue(snapshot.getInstruction().contains("not automatically verified"));
+            assertTrue(targets.getInventoryItems().contains(ItemID.ASTRALRUNE));
+            assertTrue(targets.getInventoryItems().contains(ItemID.NATURERUNE));
+            assertTrue(targets.getInventoryItems().contains(ItemID.EARTHRUNE));
+            assertFalse(targets.getInventoryItems().contains(ItemID.BUCKET_ULTRACOMPOST));
+            assertEquals(compost == HerbRunCompost.FERTILE_SOIL_ULTRA, targets.getInventoryItems().contains(ItemID.FOSSIL_VOLCANIC_ASH));
+        }
+    }
+
     private GuidedRunTargets targets(GuidedRunStep step)
     {
         return GuidedRunTargets.from(snapshot(step, null), plan(), null);

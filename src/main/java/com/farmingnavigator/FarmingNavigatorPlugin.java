@@ -456,7 +456,8 @@ public class FarmingNavigatorPlugin
     static boolean isRunSetupKey(String key)
     {
         return "herbRunCrop".equals(key) || "herbRunPatches".equals(key) || "herbRunCompost".equals(key)
-                || "herbTransportPreference".equals(key) || "herbHouseEntryMode".equals(key) || "herbRunCure".equals(key);
+                || "herbTransportPreference".equals(key) || "herbHouseEntryMode".equals(key) || "herbRunCure".equals(key)
+                || "herbAshTomeRead".equals(key);
     }
 
     static boolean isRelevantStateVarbit(

@@ -95,7 +95,8 @@ public final class HerbRunPlanPanel extends JPanel
         if (plan.getCareResources() != null)
         {
             details.add(Box.createVerticalStrut(7));
-            details.add(text("Disease treatment: " + plan.getCure(), Color.WHITE));
+            details.add(text("Farming methods", Color.WHITE));
+            details.add(text("Disease treatment: " + plan.getCure(), MUTED));
             details.add(text("Supplies cover observed diseased stops. Unexpected disease may need extra supplies.", MUTED));
             for (RequirementResult check : plan.getCareResources().getChecks())
             {
@@ -105,7 +106,7 @@ public final class HerbRunPlanPanel extends JPanel
         if (resources != null)
         {
             details.add(Box.createVerticalStrut(7));
-            details.add(text("Shared travel supplies", Color.WHITE));
+            details.add(text("Shared spell and travel supplies", Color.WHITE));
             for (RequirementResult check : resources.getChecks())
             {
                 details.add(text(check.getRequirement(), Color.WHITE));

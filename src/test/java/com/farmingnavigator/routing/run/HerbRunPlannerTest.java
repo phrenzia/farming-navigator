@@ -209,6 +209,26 @@ public class HerbRunPlannerTest
                 .getChecks().isEmpty());
     }
 
+    @Test
+    public void fertileSoilReplacesBucketsAndReservesTwoAshPerUltraCast()
+    {
+        for (HerbRunCompost compost : Arrays.asList(HerbRunCompost.FERTILE_SOIL_SUPER, HerbRunCompost.FERTILE_SOIL_ULTRA))
+        {
+            HerbRunPlan plan = new HerbRunPlanner().plan(account(99, 99), patches, EnumSet.allOf(HerbPatchDefinition.class),
+                    HerbRunCrop.RANARR, compost, Collections.emptyMap(), Collections.emptyMap(), null, now);
+            assertFalse(plan.getSupplies().stream().anyMatch(check -> check.getRequirement().getItemId() == ItemID.BUCKET_SUPERCOMPOST
+                    || check.getRequirement().getItemId() == ItemID.BUCKET_ULTRACOMPOST));
+            if (compost == HerbRunCompost.FERTILE_SOIL_ULTRA)
+            {
+                assertEquals(4, supply(plan, ItemID.FOSSIL_VOLCANIC_ASH).getRequirement().getQuantity());
+            }
+            else
+            {
+                assertFalse(plan.getSupplies().stream().anyMatch(check -> check.getRequirement().getItemId() == ItemID.FOSSIL_VOLCANIC_ASH));
+            }
+        }
+    }
+
     private HerbRunPlan plan(Map<HerbPatchDefinition, HerbPatchObservation> observations,
             Map<HerbPatchDefinition, List<VerifiedTransportResult>> transports, Instant time)
     {

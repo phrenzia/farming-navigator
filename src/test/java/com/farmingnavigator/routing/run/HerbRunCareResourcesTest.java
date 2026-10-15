@@ -1,6 +1,7 @@
 package com.farmingnavigator.routing.run;
 
 import com.farmingnavigator.account.AccountState;
+import com.farmingnavigator.FarmingNavigatorConfig;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.loadout.LoadoutService;
 import com.farmingnavigator.loadout.SupplyRequirement;
@@ -127,6 +128,91 @@ public class HerbRunCareResourcesTest
         RunTransportResources total = new RunTransportResourcePlanner().evaluate(stops, context, care.getRunes());
         assertEquals(RequirementState.BLOCKED, total.getChecks().get(0).getState());
         assertTrue(total.getChecks().get(0).getDetail().contains("Astral rune x5"));
+    }
+
+    @Test public void fertileSoilReservesAllCastsAndMatchesRuneLiteMagicLevel()
+    {
+        assertEquals(83, net.runelite.client.plugins.skillcalculator.skills.MagicAction.FERTILE_SOIL.getLevel());
+        assertEquals(66, net.runelite.client.plugins.skillcalculator.skills.MagicAction.CURE_PLANT.getLevel());
+        HerbRunCareResources care = HerbRunCareResources.evaluate(plan(false), HerbRunCure.PLANT_CURE,
+                HerbRunCompost.FERTILE_SOIL_SUPER, eligibleAt83());
+        assertEquals(30, care.getRunes().getQuantity(RuneKind.EARTH));
+        assertEquals(6, care.getRunes().getQuantity(RuneKind.ASTRAL));
+        assertEquals(4, care.getRunes().getQuantity(RuneKind.NATURE));
+        assertTrue(care.getChecks().get(0).isSatisfied());
+        assertTrue(care.getChecks().get(1).getDetail().contains("No volcanic ash is reserved"));
+    }
+
+    private RequirementContext eligibleAt83()
+    {
+        return context(83, 83, QuestState.FINISHED, SpellbookType.LUNAR,
+                Map.of(ItemID.ASTRALRUNE, 6, ItemID.NATURERUNE, 4), Map.of(ItemID.STAFF_OF_EARTH, 1), Collections.emptyMap());
+    }
+
+    @Test public void ultraSoilNeedsExplicitTomeDeclarationAndDoesNotInferItFromLevel()
+    {
+        HerbRunCareResources unknown = HerbRunCareResources.evaluate(plan(false), HerbRunCure.PLANT_CURE,
+                HerbRunCompost.FERTILE_SOIL_ULTRA, eligibleAt83());
+        assertEquals(RequirementState.CONFIGURATION_REQUIRED, unknown.getChecks().get(1).getState());
+        FarmingNavigatorConfig declared = new FarmingNavigatorConfig()
+        {
+            @Override public boolean herbAshTomeRead() { return true; }
+        };
+        RequirementContext base = eligibleAt83();
+        RequirementContext manual = new RequirementContext(base.getAccountState(), declared,
+                base.getTravelCapabilitySnapshot(), base.getStorageSnapshot());
+        HerbRunCareResources known = HerbRunCareResources.evaluate(plan(false), HerbRunCure.PLANT_CURE,
+                HerbRunCompost.FERTILE_SOIL_ULTRA, manual);
+        assertTrue(known.getChecks().get(1).isSatisfied());
+        assertTrue(known.getChecks().get(1).getDetail().contains("Manually declared"));
+    }
+
+    @Test public void cureAndSoilShareFarmingRunePoolWithoutTreatingDiseaseAsReplant()
+    {
+        HerbRunPlan mixed = new HerbRunPlan(HerbRunCrop.GUAM, Arrays.asList(plan(false).getStops().get(0),
+                plan(true).getStops().get(1)), Collections.emptyList(), Collections.emptyMap(), "");
+        HerbRunCareResources care = HerbRunCareResources.evaluate(mixed, HerbRunCure.CURE_PLANT,
+                HerbRunCompost.FERTILE_SOIL_SUPER, eligibleAt83());
+        assertEquals(23, care.getRunes().getQuantity(RuneKind.EARTH));
+        assertEquals(4, care.getRunes().getQuantity(RuneKind.ASTRAL));
+        assertEquals(2, care.getRunes().getQuantity(RuneKind.NATURE));
+    }
+
+    @Test public void soilRequiresBoosted83LunarAndQuestAccess()
+    {
+        for (int magic : new int[]{82, 83})
+        {
+            RequirementContext context = context(82, magic, QuestState.FINISHED, SpellbookType.LUNAR,
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+            assertEquals(magic == 83, HerbRunCareResources.evaluate(plan(false), HerbRunCure.PLANT_CURE,
+                    HerbRunCompost.FERTILE_SOIL_SUPER, context).getChecks().get(0).isSatisfied());
+        }
+        RequirementContext standard = context(99, 99, QuestState.FINISHED, SpellbookType.STANDARD,
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        assertEquals(RequirementState.BLOCKED, HerbRunCareResources.evaluate(plan(false), HerbRunCure.PLANT_CURE,
+                HerbRunCompost.FERTILE_SOIL_SUPER, standard).getChecks().get(0).getState());
+        assertEquals(RequirementState.DATA_REQUIRED, HerbRunCareResources.evaluate(plan(false), HerbRunCure.PLANT_CURE,
+                HerbRunCompost.FERTILE_SOIL_SUPER, null).getChecks().get(0).getState());
+    }
+
+    @Test public void diseasedOnlyPlanDoesNotReserveSoilOrDemandTome()
+    {
+        HerbRunCareResources care = HerbRunCareResources.evaluate(plan(true), HerbRunCure.PLANT_CURE,
+                HerbRunCompost.FERTILE_SOIL_ULTRA, null);
+        assertTrue(care.getRunes().isEmpty());
+        assertTrue(care.getChecks().isEmpty());
+    }
+
+    @Test public void fertileSoilPoolAcceptsInfiniteEarthAndChecksTotalAstrals()
+    {
+        RequirementContext base = eligibleAt83();
+        HerbRunCareResources care = HerbRunCareResources.evaluate(plan(false), HerbRunCure.PLANT_CURE,
+                HerbRunCompost.FERTILE_SOIL_SUPER, base);
+        assertTrue(new RunTransportResourcePlanner().evaluate(Collections.emptyList(), base, care.getRunes()).getChecks().get(0).isReadyNow());
+        RequirementContext shortfall = context(83, 83, QuestState.FINISHED, SpellbookType.LUNAR,
+                Map.of(ItemID.ASTRALRUNE, 5, ItemID.NATURERUNE, 4), Map.of(ItemID.STAFF_OF_EARTH, 1), Collections.emptyMap());
+        assertEquals(RequirementState.BLOCKED, new RunTransportResourcePlanner().evaluate(Collections.emptyList(), shortfall,
+                care.getRunes()).getChecks().get(0).getState());
     }
 
     @Test public void infiniteEarthSourceAndBankedAstralsFundCurePool()

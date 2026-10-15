@@ -92,7 +92,7 @@ public interface FarmingNavigatorConfig
     @ConfigItem(
             keyName = "herbRunCompost",
             name = "Herb run compost",
-            description = "Suggested compost supply; bottomless bucket contents and remaining uses require a manual check",
+            description = "Choose buckets or Fertile Soil; bottomless contents and the ash-covered tome unlock need manual confirmation",
             position = 3,
             section = GENERAL_SECTION
     )
@@ -159,6 +159,18 @@ public interface FarmingNavigatorConfig
     default HerbRunCure herbRunCure()
     {
         return HerbRunCure.PLANT_CURE;
+    }
+
+    @ConfigItem(
+            keyName = "herbAshTomeRead",
+            name = "Ash-covered tome read (manual)",
+            description = "Manually confirm that you have read the ash-covered tome for ultracompost Fertile Soil; this unlock is not automatically verified",
+            position = 9,
+            section = GENERAL_SECTION
+    )
+    default boolean herbAshTomeRead()
+    {
+        return false;
     }
 
     /*
