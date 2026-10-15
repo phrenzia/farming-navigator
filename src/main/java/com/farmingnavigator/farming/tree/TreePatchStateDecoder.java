@@ -52,6 +52,10 @@ public final class TreePatchStateDecoder
             case TREE: return regular(raw);
             case FRUIT_TREE: return fruit(raw);
             case HARDWOOD_TREE: return hardwood(raw);
+            case CALQUAT: return calquat(raw);
+            case CELASTRUS: return celastrus(raw);
+            case REDWOOD: return redwood(raw);
+            case CRYSTAL_TREE: return crystal(raw);
             default: return state(raw, TreeCrop.UNKNOWN, TreePatchCondition.UNKNOWN, -1);
         }
     }
@@ -124,6 +128,48 @@ public final class TreePatchStateDecoder
         return empty(raw);
     }
 
+    private TreePatchState calquat(int raw)
+    {
+        if (raw <= 11) { return state(raw, TreeCrop.CALQUAT, TreePatchCondition.GROWING, raw - 4); }
+        if (raw <= 18) { return state(raw, TreeCrop.CALQUAT, TreePatchCondition.HEALTH_CHECKED, raw - 12); }
+        if (raw <= 25) { return state(raw, TreeCrop.CALQUAT, TreePatchCondition.DISEASED, raw - 18); }
+        if (raw <= 33) { return state(raw, TreeCrop.CALQUAT, TreePatchCondition.DEAD, raw - 25); }
+        if (raw == 34) { return state(raw, TreeCrop.CALQUAT, TreePatchCondition.CHECK_HEALTH, 8); }
+        return empty(raw);
+    }
+
+    private TreePatchState celastrus(int raw)
+    {
+        if (raw <= 7 || raw >= 29) { return empty(raw); }
+        if (raw <= 12) { return state(raw, TreeCrop.CELASTRUS, TreePatchCondition.GROWING, raw - 8); }
+        if (raw == 13) { return state(raw, TreeCrop.CELASTRUS, TreePatchCondition.CHECK_HEALTH, 5); }
+        if (raw <= 16) { return state(raw, TreeCrop.CELASTRUS, TreePatchCondition.HARVESTABLE, raw - 14); }
+        if (raw == 17) { return state(raw, TreeCrop.CELASTRUS, TreePatchCondition.HARVESTED, 0); }
+        if (raw <= 22) { return state(raw, TreeCrop.CELASTRUS, TreePatchCondition.DISEASED, raw - 17); }
+        if (raw <= 27) { return state(raw, TreeCrop.CELASTRUS, TreePatchCondition.DEAD, raw - 22); }
+        return state(raw, TreeCrop.CELASTRUS, TreePatchCondition.STUMP, 0);
+    }
+
+    private TreePatchState redwood(int raw)
+    {
+        if (raw <= 7) { return empty(raw); }
+        if (raw <= 17) { return state(raw, TreeCrop.REDWOOD, TreePatchCondition.GROWING, raw - 8); }
+        if (raw == 18 || raw >= 41 && raw <= 55) { return state(raw, TreeCrop.REDWOOD, TreePatchCondition.HEALTH_CHECKED, 0); }
+        if (raw >= 19 && raw <= 27) { return state(raw, TreeCrop.REDWOOD, TreePatchCondition.DISEASED, raw - 18); }
+        if (raw >= 28 && raw <= 36) { return state(raw, TreeCrop.REDWOOD, TreePatchCondition.DEAD, raw - 27); }
+        if (raw == 37) { return state(raw, TreeCrop.REDWOOD, TreePatchCondition.CHECK_HEALTH, 10); }
+        return unknown(raw);
+    }
+
+    private TreePatchState crystal(int raw)
+    {
+        if (raw >= 8 && raw <= 13) { return state(raw, TreeCrop.CRYSTAL_TREE, TreePatchCondition.GROWING, raw - 8); }
+        if (raw == 14) { return state(raw, TreeCrop.CRYSTAL_TREE, TreePatchCondition.CHECK_HEALTH, 6); }
+        if (raw == 15) { return state(raw, TreeCrop.CRYSTAL_TREE, TreePatchCondition.HEALTH_CHECKED, 0); }
+        return unknown(raw);
+    }
+
+    private TreePatchState unknown(int raw) { return state(raw, TreeCrop.UNKNOWN, TreePatchCondition.UNKNOWN, -1); }
     private TreePatchState empty(int raw) { return state(raw, TreeCrop.UNKNOWN, TreePatchCondition.EMPTY, 3); }
     private TreePatchState state(int raw, TreeCrop crop, TreePatchCondition condition, int stage)
     {

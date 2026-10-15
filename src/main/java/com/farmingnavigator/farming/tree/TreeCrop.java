@@ -46,7 +46,11 @@ public enum TreeCrop
     MAHOGANY("Mahogany", TreeFamily.HARDWOOD_TREE, 640, 9),
     CAMPHOR("Camphor", TreeFamily.HARDWOOD_TREE, 640, 9),
     IRONWOOD("Ironwood", TreeFamily.HARDWOOD_TREE, 640, 9),
-    ROSEWOOD("Rosewood", TreeFamily.HARDWOOD_TREE, 640, 10);
+    ROSEWOOD("Rosewood", TreeFamily.HARDWOOD_TREE, 640, 10),
+    CALQUAT("Calquat", TreeFamily.CALQUAT, 160, 9),
+    CELASTRUS("Celastrus", TreeFamily.CELASTRUS, 160, 6),
+    REDWOOD("Redwood", TreeFamily.REDWOOD, 640, 11),
+    CRYSTAL_TREE("Crystal tree", TreeFamily.CRYSTAL_TREE, 80, 7);
 
     private final String label;
     private final TreeFamily family;

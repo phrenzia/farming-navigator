@@ -28,7 +28,7 @@ public class TreePatchStateDecoderTest
                         fields[2] + "|" + fields[3] + "|" + fields[4]});
             }
         }
-        assertEquals(780, cases.size());
+        assertEquals(1820, cases.size());
         return cases;
     }
 
