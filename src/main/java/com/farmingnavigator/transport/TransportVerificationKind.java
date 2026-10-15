@@ -7,6 +7,7 @@ public enum TransportVerificationKind
     SKILLS_NECKLACE,
     AMULET_OF_GLORY,
     RING_OF_WEALTH,
+    COMBAT_BRACELET,
     ECTOPHIAL,
     STONY_BASALT,
     ICY_BASALT,

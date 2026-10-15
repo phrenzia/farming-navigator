@@ -186,6 +186,13 @@ public class HerbPatchTransportService
                                 "Use fairy ring code BLR outside the Legends' Guild, then travel west to the Ardougne farming patch.",
                                 TransportCategory.FAIRY_RING,
                                 TransportVerificationKind.FAIRY_RING_ACCESS
+                        ),
+                        verifiedTransport(
+                                10,
+                                "Combat bracelet to Ranging Guild",
+                                "Teleport to the Ranging Guild with a charged Combat bracelet, then run south-east to the Ardougne farming patch.",
+                                TransportCategory.JEWELLERY,
+                                TransportVerificationKind.COMBAT_BRACELET
                         )
                 )
         );

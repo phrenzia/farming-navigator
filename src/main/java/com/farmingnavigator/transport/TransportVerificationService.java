@@ -9,6 +9,7 @@ import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.ArdougneCloakUnlimitedRequirement;
 import com.farmingnavigator.routing.requirement.ChargedRingOfElementsRequirement;
+import com.farmingnavigator.routing.requirement.CombatBraceletRouteRequirement;
 import com.farmingnavigator.routing.requirement.EctophialHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
 import com.farmingnavigator.routing.requirement.MosLeHarmlessHarmonyRouteRequirement;
@@ -223,6 +224,15 @@ public class TransportVerificationService
 
             case RING_OF_WEALTH:
                 return evaluateRingOfWealth(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
+            case COMBAT_BRACELET:
+                return evaluateCombatBracelet(
                         accountState,
                         config,
                         travelCapabilitySnapshot,
@@ -1069,6 +1079,88 @@ public class TransportVerificationService
                     VerifiedTransportState.READY_NOW,
                     requirementResult
                             .getDetail()
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateCombatBracelet(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new CombatBraceletRouteRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - a charged Combat bracelet is carried and can teleport to the Ranging Guild."
             );
         }
 
