@@ -34,8 +34,11 @@ public class AccountState
 
     private final boolean fairyRingAccessUnlocked;
 
+    private final boolean varlamoreVisited;
+
     /*
-     * Full constructor including verified account unlock state.
+     * Full constructor including verified account unlock
+     * and persistent travel state.
      */
     public AccountState(
             boolean loggedIn,
@@ -51,7 +54,8 @@ public class AccountState
             Map<DiaryArea, DiaryTier> completedDiaryTiers,
             Map<DiaryArea, DiaryTier> claimedDiaryTiers,
             boolean fireOfNourishmentBuilt,
-            boolean fairyRingAccessUnlocked
+            boolean fairyRingAccessUnlocked,
+            boolean varlamoreVisited
     )
     {
         this.loggedIn =
@@ -122,6 +126,49 @@ public class AccountState
 
         this.fairyRingAccessUnlocked =
                 fairyRingAccessUnlocked;
+
+        this.varlamoreVisited =
+                varlamoreVisited;
+    }
+
+    /*
+     * Compatibility constructor from the exact fairy-ring
+     * access milestone.
+     */
+    public AccountState(
+            boolean loggedIn,
+            int realFarmingLevel,
+            int boostedFarmingLevel,
+            int realMagicLevel,
+            int boostedMagicLevel,
+            int realAgilityLevel,
+            int boostedAgilityLevel,
+            int realHunterLevel,
+            int boostedHunterLevel,
+            Map<Quest, QuestState> questStates,
+            Map<DiaryArea, DiaryTier> completedDiaryTiers,
+            Map<DiaryArea, DiaryTier> claimedDiaryTiers,
+            boolean fireOfNourishmentBuilt,
+            boolean fairyRingAccessUnlocked
+    )
+    {
+        this(
+                loggedIn,
+                realFarmingLevel,
+                boostedFarmingLevel,
+                realMagicLevel,
+                boostedMagicLevel,
+                realAgilityLevel,
+                boostedAgilityLevel,
+                realHunterLevel,
+                boostedHunterLevel,
+                questStates,
+                completedDiaryTiers,
+                claimedDiaryTiers,
+                fireOfNourishmentBuilt,
+                fairyRingAccessUnlocked,
+                false
+        );
     }
 
     /*
@@ -158,6 +205,7 @@ public class AccountState
                 completedDiaryTiers,
                 claimedDiaryTiers,
                 fireOfNourishmentBuilt,
+                false,
                 false
         );
     }
@@ -195,6 +243,7 @@ public class AccountState
                 completedDiaryTiers,
                 claimedDiaryTiers,
                 false,
+                false,
                 false
         );
     }
@@ -230,6 +279,7 @@ public class AccountState
                         morytaniaEliteRewardClaimed
                 ),
                 false,
+                false,
                 false
         );
     }
@@ -249,6 +299,7 @@ public class AccountState
                 null,
                 null,
                 null,
+                false,
                 false,
                 false
         );
@@ -428,6 +479,11 @@ public class AccountState
     public boolean isFairyRingAccessUnlocked()
     {
         return fairyRingAccessUnlocked;
+    }
+
+    public boolean isVarlamoreVisited()
+    {
+        return varlamoreVisited;
     }
 
     private static Map<Quest, QuestState>

@@ -185,6 +185,9 @@ public class AccountStateService
         boolean fairyRingAccessUnlocked =
                 readFairyRingAccessUnlocked();
 
+        boolean varlamoreVisited =
+                readVarlamoreVisited();
+
         return new AccountState(
                 true,
                 realFarmingLevel,
@@ -199,7 +202,8 @@ public class AccountStateService
                 completedDiaryTiers,
                 claimedDiaryTiers,
                 fireOfNourishmentBuilt,
-                fairyRingAccessUnlocked
+                fairyRingAccessUnlocked,
+                varlamoreVisited
         );
     }
 
@@ -256,6 +260,25 @@ public class AccountStateService
     {
         return progress
                 >= FAIRY_RING_ACCESS_PROGRESS;
+    }
+
+    private boolean readVarlamoreVisited()
+    {
+        int visited =
+                client.getVarbitValue(
+                        VarbitID.VARLAMORE_VISITED
+                );
+
+        return hasVisitedVarlamoreFromVarbit(
+                visited
+        );
+    }
+
+    static boolean hasVisitedVarlamoreFromVarbit(
+            int value
+    )
+    {
+        return value > 0;
     }
 
     private EnumMap<DiaryArea, DiaryTier>
