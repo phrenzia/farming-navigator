@@ -84,7 +84,18 @@ public class GardenRunTargetsTest
         {
             GuidedRunTargets targets = GuidedRunTargets.fromGarden(snapshot(step, plan), plan, null);
             assertTrue(targets.getInventoryItems().isEmpty()); assertTrue(targets.getBankItems().isEmpty()); assertNull(targets.getDestination());
+            assertNull(targets.getGardenScenePatch());
         }
+    }
+    @Test public void sceneTargetsDistinguishGardenerFromPatchAndSuppressPreparationAndWaiting()
+    {
+        GuidedRunTargets protect = targets(GardenRunStep.PROTECT, GardenRunCrop.REDBERRIES);
+        assertEquals(GardenPatchDefinition.RIMMINGTON_BUSH, protect.getGardenScenePatch()); assertTrue(protect.isGardenFarmer());
+        assertNull(protect.getTreeScenePatch()); assertNull(protect.getScenePatch());
+        GuidedRunTargets harvest = targets(GardenRunStep.HARVEST, GardenRunCrop.REDBERRIES);
+        assertEquals(GardenPatchDefinition.RIMMINGTON_BUSH, harvest.getGardenScenePatch()); assertFalse(harvest.isGardenFarmer());
+        assertNull(targets(GardenRunStep.PREPARE, GardenRunCrop.REDBERRIES).getGardenScenePatch());
+        assertNull(targets(GardenRunStep.WAIT, GardenRunCrop.REDBERRIES).getGardenScenePatch());
     }
     private static final class RecordingManager extends WorldMapPointManager
     {

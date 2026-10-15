@@ -159,6 +159,7 @@ public class FarmingNavigatorPlugin
     @Inject private GuidedRunOverlayController guidedRunOverlayController;
     @Inject private HerbSceneTracker herbSceneTracker;
     @Inject private com.farmingnavigator.overlay.TreeSceneTracker treeSceneTracker;
+    @Inject private com.farmingnavigator.overlay.GardenSceneTracker gardenSceneTracker;
     @Inject private GuidedSceneOverlay guidedSceneOverlay;
 
     @Override
@@ -229,6 +230,7 @@ public class FarmingNavigatorPlugin
         overlayManager.remove(guidedSceneOverlay);
         herbSceneTracker.clear();
         treeSceneTracker.clear();
+        gardenSceneTracker.clear();
         guidedRunOverlayController.clear();
         guidedRunSession.cancel();
         treeRunSession.cancel();
@@ -266,6 +268,7 @@ public class FarmingNavigatorPlugin
         {
             herbSceneTracker.clear();
             treeSceneTracker.clear();
+            gardenSceneTracker.clear();
             herbPatchObservationService.invalidateRegion();
             treePatchObservationService.invalidateRegion();
             gardenPatchObservationService.invalidateRegion();
@@ -292,6 +295,7 @@ public class FarmingNavigatorPlugin
             guidedRunOverlayController.clear();
             herbSceneTracker.clear();
             treeSceneTracker.clear();
+            gardenSceneTracker.clear();
             herbPatchObservationService.reset();
             treePatchObservationService.reset();
             gardenPatchObservationService.reset();
@@ -317,6 +321,7 @@ public class FarmingNavigatorPlugin
         gardenPatchObservationService.reset();
         guidedRunSession.cancel();
         treeSceneTracker.clear();
+        gardenSceneTracker.clear();
         guidedRunOverlayController.clear();
         runMetrics.clear();
         treeRunSession.cancel();
@@ -330,25 +335,25 @@ public class FarmingNavigatorPlugin
 
     @Subscribe public void onGameObjectSpawned(GameObjectSpawned event)
     {
-        herbSceneTracker.spawned(event.getGameObject()); treeSceneTracker.spawned(event.getGameObject());
+        herbSceneTracker.spawned(event.getGameObject()); treeSceneTracker.spawned(event.getGameObject()); gardenSceneTracker.spawned(event.getGameObject());
     }
     @Subscribe public void onGameObjectDespawned(GameObjectDespawned event)
     {
-        herbSceneTracker.despawned(event.getGameObject()); treeSceneTracker.despawned(event.getGameObject());
+        herbSceneTracker.despawned(event.getGameObject()); treeSceneTracker.despawned(event.getGameObject()); gardenSceneTracker.despawned(event.getGameObject());
     }
     @Subscribe public void onNpcSpawned(NpcSpawned event)
     {
-        herbSceneTracker.spawned(event.getNpc()); treeSceneTracker.spawned(event.getNpc());
+        herbSceneTracker.spawned(event.getNpc()); treeSceneTracker.spawned(event.getNpc()); gardenSceneTracker.spawned(event.getNpc());
     }
     @Subscribe public void onNpcDespawned(NpcDespawned event)
     {
-        herbSceneTracker.despawned(event.getNpc()); treeSceneTracker.despawned(event.getNpc());
+        herbSceneTracker.despawned(event.getNpc()); treeSceneTracker.despawned(event.getNpc()); gardenSceneTracker.despawned(event.getNpc());
     }
     @Subscribe public void onNpcChanged(NpcChanged event)
     {
         herbSceneTracker.despawned(event.getNpc());
         herbSceneTracker.spawned(event.getNpc());
-        treeSceneTracker.despawned(event.getNpc()); treeSceneTracker.spawned(event.getNpc());
+        treeSceneTracker.despawned(event.getNpc()); gardenSceneTracker.despawned(event.getNpc()); treeSceneTracker.spawned(event.getNpc()); gardenSceneTracker.spawned(event.getNpc());
     }
 
     @Subscribe
@@ -820,6 +825,7 @@ public class FarmingNavigatorPlugin
         {
             herbSceneTracker.initializeNearby();
             treeSceneTracker.initializeNearby();
+            gardenSceneTracker.initializeNearby();
         }
     }
 

@@ -25,16 +25,18 @@ public final class GuidedSceneOverlay extends Overlay
     private final GuidedRunOverlayController controller;
     private final HerbSceneTracker scene;
     private final TreeSceneTracker treeScene;
+    private final GardenSceneTracker gardenScene;
 
     @Inject
     public GuidedSceneOverlay(Client client, FarmingNavigatorConfig config,
-            GuidedRunOverlayController controller, HerbSceneTracker scene, TreeSceneTracker treeScene)
+            GuidedRunOverlayController controller, HerbSceneTracker scene, TreeSceneTracker treeScene, GardenSceneTracker gardenScene)
     {
         this.client = client;
         this.config = config;
         this.controller = controller;
         this.scene = scene;
         this.treeScene = treeScene;
+        this.gardenScene = gardenScene;
         setPosition(OverlayPosition.DYNAMIC);
         setLayer(OverlayLayer.ABOVE_SCENE);
     }
@@ -45,8 +47,26 @@ public final class GuidedSceneOverlay extends Overlay
         GuidedRunTargets targets = controller.getTargets();
         WorldView view = client.getTopLevelWorldView();
         if (!config.guidedRunOverlays() || view == null || view.isInstance()
-                || targets.getScenePatch() == null && targets.getTreeScenePatch() == null)
+                || targets.getScenePatch() == null && targets.getTreeScenePatch() == null && targets.getGardenScenePatch() == null)
         {
+            return null;
+        }
+        if (targets.getGardenScenePatch() != null)
+        {
+            if (targets.isGardenFarmer())
+            {
+                for (NPC npc : gardenScene.getFarmers())
+                {
+                    if (GardenSceneTargetPolicy.isFarmerFor(targets.getGardenScenePatch(), npc.getId(), npc.getWorldLocation())) { draw(graphics, npc.getCanvasTilePoly()); }
+                }
+            }
+            else
+            {
+                for (java.util.Map.Entry<GameObject, com.farmingnavigator.farming.garden.GardenPatchDefinition> entry : gardenScene.getPlants().entrySet())
+                {
+                    if (entry.getValue() == targets.getGardenScenePatch()) { draw(graphics, entry.getKey().getCanvasTilePoly()); }
+                }
+            }
             return null;
         }
         if (targets.getTreeScenePatch() != null)

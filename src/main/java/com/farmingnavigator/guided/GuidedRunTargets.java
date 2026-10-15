@@ -33,6 +33,8 @@ public final class GuidedRunTargets
     private final boolean leprechaun;
     private final com.farmingnavigator.farming.tree.TreePatchDefinition treeScenePatch;
     private final boolean treeFarmer;
+    private final com.farmingnavigator.farming.garden.GardenPatchDefinition gardenScenePatch;
+    private final boolean gardenFarmer;
 
     private GuidedRunTargets(Set<Integer> inventoryItems, Set<Integer> bankItems, WorldPoint destination,
             String destinationName, HerbPatchDefinition scenePatch, boolean leprechaun)
@@ -43,6 +45,13 @@ public final class GuidedRunTargets
             String destinationName, HerbPatchDefinition scenePatch, boolean leprechaun,
             com.farmingnavigator.farming.tree.TreePatchDefinition treeScenePatch, boolean treeFarmer)
     {
+        this(inventoryItems, bankItems, destination, destinationName, scenePatch, leprechaun, treeScenePatch, treeFarmer, null, false);
+    }
+    private GuidedRunTargets(Set<Integer> inventoryItems, Set<Integer> bankItems, WorldPoint destination,
+            String destinationName, HerbPatchDefinition scenePatch, boolean leprechaun,
+            com.farmingnavigator.farming.tree.TreePatchDefinition treeScenePatch, boolean treeFarmer,
+            com.farmingnavigator.farming.garden.GardenPatchDefinition gardenScenePatch, boolean gardenFarmer)
+    {
         this.inventoryItems = Collections.unmodifiableSet(new HashSet<>(inventoryItems));
         this.bankItems = Collections.unmodifiableSet(new HashSet<>(bankItems));
         this.destination = destination;
@@ -51,6 +60,7 @@ public final class GuidedRunTargets
         this.leprechaun = leprechaun;
         this.treeScenePatch = treeScenePatch;
         this.treeFarmer = treeFarmer;
+        this.gardenScenePatch = gardenScenePatch; this.gardenFarmer = gardenFarmer;
     }
 
     public Set<Integer> getInventoryItems() { return inventoryItems; }
@@ -61,6 +71,8 @@ public final class GuidedRunTargets
     public boolean isLeprechaun() { return leprechaun; }
     public com.farmingnavigator.farming.tree.TreePatchDefinition getTreeScenePatch() { return treeScenePatch; }
     public boolean isTreeFarmer() { return treeFarmer; }
+    public com.farmingnavigator.farming.garden.GardenPatchDefinition getGardenScenePatch() { return gardenScenePatch; }
+    public boolean isGardenFarmer() { return gardenFarmer; }
 
     public static GuidedRunTargets empty()
     {
@@ -274,7 +286,10 @@ public final class GuidedRunTargets
             for (com.farmingnavigator.routing.requirement.RuneKind kind : preparation.getSource().getSuppliedKinds()) { needed |= spellCost.getQuantity(kind) > 0; }
             if (needed) { inventory.add(preparation.getSource().getItemId()); }
         }
-        return new GuidedRunTargets(inventory, bank, destination, name, null, false);
+        boolean scene = session.getStep() != com.farmingnavigator.guided.garden.GardenRunStep.PREPARE
+                && session.getStep() != com.farmingnavigator.guided.garden.GardenRunStep.WAIT;
+        return new GuidedRunTargets(inventory, bank, destination, name, null, false, null, false,
+                scene ? session.getStop().getPatch() : null, session.getStep() == com.farmingnavigator.guided.garden.GardenRunStep.PROTECT);
     }
 
     private static void addTreeAxes(Set<Integer> items, com.farmingnavigator.routing.run.TreeRunPlan plan)
