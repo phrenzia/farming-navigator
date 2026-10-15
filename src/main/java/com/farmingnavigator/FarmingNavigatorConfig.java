@@ -248,6 +248,10 @@ public interface FarmingNavigatorConfig
             description = "Reserve exact farmer payments for possible new plants; poison ivy has no payment", position = 23, section = GENERAL_SECTION)
     default boolean gardenRunProtection() { return true; }
 
+    @ConfigItem(keyName = "gardenTransportPreference", name = "Bush/cactus transport preference",
+            description = "Rank verified arrival suggestions; this is not measured travel-time optimization", position = 24, section = GENERAL_SECTION)
+    default HerbTransportPreference gardenTransportPreference() { return HerbTransportPreference.CATALOGUE; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

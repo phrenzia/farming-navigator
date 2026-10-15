@@ -642,13 +642,16 @@ public class FarmingNavigatorPlugin
                 herbPatchObservationService.snapshot();
         Map<TreePatchDefinition, TreePatchObservation> treeObservations = treePatchObservationService.snapshot();
         Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> gardenObservations = gardenPatchObservationService.snapshot();
-        com.farmingnavigator.routing.run.GardenRunPlan gardenRunPlan = new com.farmingnavigator.routing.run.GardenRunPlanner().plan(accountState,
-                config.gardenRunPatches(), config.gardenRunCrop(), config.gardenRunMode(), config.gardenRunProtection(), gardenObservations, storageSnapshot, Instant.now());
 
         HerbRunPlan suggested = new HerbRunPlanner().plan(accountState, patchStatuses,
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
                 observations, verifiedTransportResults, storageSnapshot, Instant.now(), config.herbTransportPreference());
         RequirementContext runContext = new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot);
+        Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, List<VerifiedTransportResult>> gardenTransports = transportVerificationService.evaluateAll(accountState,
+                config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.GardenPatchTransportService().getAllOptions());
+        com.farmingnavigator.routing.run.GardenRunPlan gardenRunPlan = new com.farmingnavigator.routing.run.GardenRunPlanner().plan(accountState,
+                config.gardenRunPatches(), config.gardenRunCrop(), config.gardenRunMode(), config.gardenRunProtection(), gardenObservations, storageSnapshot, Instant.now())
+                .withTransports(gardenTransports, config.gardenTransportPreference(), runContext);
         Map<TreePatchDefinition, List<VerifiedTransportResult>> treeTransports = transportVerificationService.evaluateAll(accountState,
                 config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.TreePatchTransportService().getAllOptions());
         com.farmingnavigator.routing.run.TreeRunPlan treeRunPlan = new com.farmingnavigator.routing.run.TreeRunPlanner()
