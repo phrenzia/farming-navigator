@@ -2,6 +2,8 @@ package com.farmingnavigator.transport;
 
 import com.farmingnavigator.FarmingNavigatorConfig;
 import com.farmingnavigator.account.AccountState;
+import com.farmingnavigator.account.DiaryArea;
+import com.farmingnavigator.account.DiaryTier;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.poh.PohHouseLocation;
 import com.farmingnavigator.poh.PohPortalDestination;
@@ -13,6 +15,7 @@ import com.farmingnavigator.routing.requirement.ChargedRingOfElementsRequirement
 import com.farmingnavigator.routing.requirement.CombatBraceletRouteRequirement;
 import com.farmingnavigator.routing.requirement.EctophialHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
+import com.farmingnavigator.routing.requirement.KandarinHeadgearUnlimitedRequirement;
 import com.farmingnavigator.routing.requirement.MosLeHarmlessHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohFeature;
 import com.farmingnavigator.routing.requirement.PohFeatureRequirement;
@@ -198,6 +201,15 @@ public class TransportVerificationService
 
             case ARDOUGNE_CLOAK_UNLIMITED:
                 return evaluateArdougneCloakUnlimited(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
+            case KANDARIN_HEADGEAR_UNLIMITED:
+                return evaluateKandarinHeadgearUnlimited(
                         accountState,
                         config,
                         travelCapabilitySnapshot,
@@ -520,6 +532,103 @@ public class TransportVerificationService
             return new VerifiedTransportResult(
                     option,
                     VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateKandarinHeadgearUnlimited(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new KandarinHeadgearUnlimitedRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - Kandarin headgear 4 carried; Sherlock teleport is unlimited."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                !accountState.hasClaimedDiaryTier(
+                        DiaryArea.KANDARIN,
+                        DiaryTier.ELITE
+                )
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.LOCKED,
                     requirementResult
                             .getDetail()
             );

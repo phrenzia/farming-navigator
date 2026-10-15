@@ -200,6 +200,19 @@ public class HerbPatchTransportService
                                 "Break an Ardougne teleport tablet to reach the East Ardougne market, then travel north to the farming patch.",
                                 TransportCategory.ITEM,
                                 TransportVerificationKind.ARDOUGNE_TELEPORT_TABLET
+                        ),
+                        verifiedTransport(
+                                12,
+                                "Kandarin headgear 4 to Sherlock",
+                                "Use Kandarin headgear 4's unlimited Sherlock teleport, then run south-west to the Ardougne farming patch.",
+                                TransportCategory.DIARY_ITEM,
+                                TransportVerificationKind.KANDARIN_HEADGEAR_UNLIMITED
+                        ),
+                        futureTransport(
+                                13,
+                                "Kandarin headgear 3 to Sherlock",
+                                "Use the remaining daily Sherlock teleport, then run south-west to the Ardougne farming patch.",
+                                TransportCategory.DIARY_ITEM
                         )
                 )
         );
