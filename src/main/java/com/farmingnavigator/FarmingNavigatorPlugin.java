@@ -133,6 +133,7 @@ public class FarmingNavigatorPlugin
     @Inject
     private HerbPatchObservationService herbPatchObservationService;
     @Inject private TreePatchObservationService treePatchObservationService;
+    @Inject private com.farmingnavigator.farming.garden.GardenPatchObservationService gardenPatchObservationService;
 
     private FarmingNavigatorPanel panel;
 
@@ -175,6 +176,7 @@ public class FarmingNavigatorPlugin
         overlayManager.add(guidedSceneOverlay);
         herbPatchObservationService.reset();
         treePatchObservationService.reset();
+        gardenPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
 
@@ -227,6 +229,7 @@ public class FarmingNavigatorPlugin
         treeRunSession.cancel();
         herbPatchObservationService.reset();
         treePatchObservationService.reset();
+        gardenPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
 
@@ -258,6 +261,7 @@ public class FarmingNavigatorPlugin
             treeSceneTracker.clear();
             herbPatchObservationService.invalidateRegion();
             treePatchObservationService.invalidateRegion();
+            gardenPatchObservationService.invalidateRegion();
         }
         if (state == GameState.LOGGED_IN)
         {
@@ -281,6 +285,7 @@ public class FarmingNavigatorPlugin
             treeSceneTracker.clear();
             herbPatchObservationService.reset();
             treePatchObservationService.reset();
+            gardenPatchObservationService.reset();
             herbAlertTracker.reset();
             treeAlertTracker.reset();
             storageStateService
@@ -300,6 +305,7 @@ public class FarmingNavigatorPlugin
         // A mode/account switch must never retain another character's observations or active checklist.
         herbPatchObservationService.reset();
         treePatchObservationService.reset();
+        gardenPatchObservationService.reset();
         guidedRunSession.cancel();
         treeSceneTracker.clear();
         guidedRunOverlayController.clear();
@@ -339,6 +345,7 @@ public class FarmingNavigatorPlugin
     {
         boolean changed = herbPatchObservationService.sample();
         changed |= treePatchObservationService.sample();
+        changed |= gardenPatchObservationService.sample();
         if (treeRunSession.snapshot(Instant.now()).isActive())
         {
             changed |= treeRunSession.observe(herbPatchObservationService.currentLocation(),
@@ -354,6 +361,7 @@ public class FarmingNavigatorPlugin
         long minute = Instant.now().getEpochSecond() / 60;
         if (changed || (minute != lastPatchTimerRefreshMinute
                 && (herbPatchObservationService.hasObservations() || treePatchObservationService.hasObservations()
+                        || gardenPatchObservationService.hasObservations()
                         || guidedRunSession.snapshot().isActive() || treeRunSession.snapshot(Instant.now()).isActive())))
         {
             lastPatchTimerRefreshMinute = minute;
@@ -419,7 +427,8 @@ public class FarmingNavigatorPlugin
     )
     {
         if (event.getKey() != null && (event.getKey().startsWith(HerbObservationPersistence.KEY_PREFIX)
-                || event.getKey().startsWith(TreeObservationPersistence.KEY_PREFIX)))
+                || event.getKey().startsWith(TreeObservationPersistence.KEY_PREFIX)
+                || event.getKey().startsWith(com.farmingnavigator.farming.garden.GardenObservationPersistence.KEY_PREFIX)))
         {
             return; // Observation sampling already refreshes the panel once per changed snapshot.
         }
@@ -632,6 +641,7 @@ public class FarmingNavigatorPlugin
         Map<HerbPatchDefinition, HerbPatchObservation> observations =
                 herbPatchObservationService.snapshot();
         Map<TreePatchDefinition, TreePatchObservation> treeObservations = treePatchObservationService.snapshot();
+        Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> gardenObservations = gardenPatchObservationService.snapshot();
 
         HerbRunPlan suggested = new HerbRunPlanner().plan(accountState, patchStatuses,
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
@@ -681,6 +691,7 @@ public class FarmingNavigatorPlugin
                 () -> {
                         targetPanel.setGuidedRun(guidedRun);
                         targetPanel.setTreeObservations(treeObservations);
+                        targetPanel.setGardenObservations(gardenObservations);
                         targetPanel.setTreeRunPlan(treeRunPlan);
                         targetPanel.setTreeGuidedRun(treeGuidedRun);
                         targetPanel.setRunMetrics(metricsSnapshot);

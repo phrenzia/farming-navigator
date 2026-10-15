@@ -224,6 +224,11 @@ public interface FarmingNavigatorConfig
             position = 18, section = GENERAL_SECTION)
     default boolean showFarmingContract() { return true; }
 
+    @ConfigItem(keyName = "showGardenObservations", name = "Show bush/cactus observations",
+            description = "Display observed bush/cactus history and conditional first health-check windows",
+            position = 19, section = GENERAL_SECTION)
+    default boolean showGardenObservations() { return true; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.
