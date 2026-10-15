@@ -198,6 +198,11 @@ public class HerbPatchTransportService
                                 "Fenkenstrain's Castle Teleport",
                                 "Teleport near Fenkenstrain's Castle and travel east toward the patch.",
                                 TransportCategory.SPELL
+                        ),
+                        verifiedSpellTransport(
+                                5,
+                                TeleportSpellDefinition.KHARYRLL_TELEPORT,
+                                "Teleport to Canifis with Kharyrll Teleport, then travel east to the farming patch west of Port Phasmatys."
                         )
                 )
         );

@@ -55,6 +55,12 @@ public enum RuneSupply
             RuneKind.LAW
     ),
 
+    BLOOD_RUNE(
+            ItemID.BLOODRUNE,
+            "Blood rune",
+            RuneKind.BLOOD
+    ),
+
     SOUL_RUNE(
             ItemID.SOULRUNE,
             "Soul rune",

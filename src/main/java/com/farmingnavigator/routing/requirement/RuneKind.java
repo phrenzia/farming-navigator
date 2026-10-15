@@ -44,6 +44,11 @@ public enum RuneKind
             ItemID.LAWRUNE
     ),
 
+    BLOOD(
+            "Blood rune",
+            ItemID.BLOODRUNE
+    ),
+
     SOUL(
             "Soul rune",
             ItemID.SOULRUNE

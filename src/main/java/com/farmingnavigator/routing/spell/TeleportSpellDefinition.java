@@ -248,6 +248,25 @@ public enum TeleportSpellDefinition
             false
     ),
 
+    KHARYRLL_TELEPORT(
+            "Kharyrll Teleport",
+            "Canifis",
+            66,
+            SpellbookType.ANCIENT,
+            RuneCost.builder()
+                    .add(
+                            RuneKind.BLOOD,
+                            1
+                    )
+                    .add(
+                            RuneKind.LAW,
+                            2
+                    )
+                    .build(),
+            Quest.DESERT_TREASURE_I,
+            false
+    ),
+
     FISHING_GUILD_TELEPORT(
             "Fishing Guild Teleport",
             "Entrance to the Fishing Guild",
