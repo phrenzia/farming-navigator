@@ -264,6 +264,16 @@ public class GuidedRunTargetsTest
         assertEquals(0, session.snapshot().getManuallyCompleted());
     }
 
+    @Test
+    public void bottomlessCompostStepTargetsFilledBucketOnly()
+    {
+        GuidedRunSnapshot snapshot = new GuidedRunSnapshot(GuidedRunStep.COMPOST, HerbRunCrop.RANARR,
+                plan().getStops().get(0), 1, 0, 0, 0, HerbRunCompost.BOTTOMLESS_ULTRACOMPOST);
+        GuidedRunTargets targets = GuidedRunTargets.from(snapshot, plan(), null);
+        assertEquals(Collections.singleton(ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED), targets.getInventoryItems());
+        assertFalse(targets.getInventoryItems().contains(ItemID.BOTTOMLESS_COMPOST_BUCKET));
+    }
+
     private GuidedRunTargets targets(GuidedRunStep step)
     {
         return GuidedRunTargets.from(snapshot(step, null), plan(), null);

@@ -99,8 +99,11 @@ public final class HerbRunPlanner
                         "Useful if weeds are present; tool leprechaun storage is not checked."));
                 if (compost != HerbRunCompost.NONE)
                 {
-                    supplies.add(new SupplyRequirement(compost.getItemId(), compost.toString(), replantCount, true,
-                            "One bucket per potential replant; bottomless bucket and Fertile Soil are not checked."));
+                    supplies.add(new SupplyRequirement(compost.getItemId(), compost.toString(), compost.isBottomless() ? 1 : replantCount, true,
+                            compost.isBottomless()
+                                    ? "Bring one filled bottomless bucket. Check that its compost type matches and it has at least "
+                                            + replantCount + " uses; item presence does not verify contents."
+                                    : "One bucket per potential replant; inspect unknown patches first."));
                 }
             }
             supplies.add(new SupplyRequirement(ItemID.FAIRY_ENCHANTED_SECATEURS, "Magic secateurs", 1, true,

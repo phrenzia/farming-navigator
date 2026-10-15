@@ -550,7 +550,7 @@ public class FarmingNavigatorPlugin
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
                 observations, verifiedTransportResults, storageSnapshot, Instant.now(), config.herbTransportPreference());
         RequirementContext runContext = new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot);
-        HerbRunCareResources care = HerbRunCareResources.evaluate(suggested, config.herbRunCure(), runContext);
+        HerbRunCareResources care = HerbRunCareResources.evaluate(suggested, config.herbRunCure(), config.herbRunCompost(), runContext);
         HerbRunPlan runPlan = suggested.withCareResources(care).withTransportResources(new RunTransportResourcePlanner()
                 .evaluate(suggested.getStops(), runContext, care.getRunes()));
 

@@ -165,6 +165,50 @@ public class HerbRunPlannerTest
         plan(Collections.emptyMap(), Collections.emptyMap(), now).getStops().clear();
     }
 
+    @Test
+    public void bottomlessSelectionNeedsOneFilledBucketAndDoesNotAssumeItsContents()
+    {
+        for (HerbRunCompost compost : Arrays.asList(HerbRunCompost.BOTTOMLESS_COMPOST,
+                HerbRunCompost.BOTTOMLESS_SUPERCOMPOST, HerbRunCompost.BOTTOMLESS_ULTRACOMPOST))
+        {
+            StorageSnapshot storage = new StorageSnapshot(Collections.singletonMap(ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED, 1L),
+                    Collections.emptyMap(), Collections.emptyMap(), true, now);
+            HerbRunPlan plan = new HerbRunPlanner().plan(account(99, 99), patches, EnumSet.allOf(HerbPatchDefinition.class),
+                    HerbRunCrop.RANARR, compost, Collections.emptyMap(), Collections.emptyMap(), storage, now);
+            SupplyCheck check = supply(plan, ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED);
+            assertEquals(1, check.getRequirement().getQuantity());
+            assertEquals(SupplyState.ALREADY_CARRIED, check.getState());
+            assertTrue(check.getRequirement().getNote().contains("at least 2 uses"));
+            HerbRunCareResources care = HerbRunCareResources.evaluate(plan, HerbRunCure.PLANT_CURE, compost, null);
+            assertEquals(com.farmingnavigator.routing.requirement.RequirementState.DATA_REQUIRED,
+                    care.getChecks().get(0).getState());
+            assertTrue(care.getRunes().isEmpty());
+        }
+    }
+
+    @Test
+    public void emptyBottomlessBucketDoesNotSatisfyFilledBucketSupply()
+    {
+        StorageSnapshot storage = new StorageSnapshot(Collections.singletonMap(ItemID.BOTTOMLESS_COMPOST_BUCKET, 1L),
+                Collections.emptyMap(), Collections.singletonMap(ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED, 1L), true, now);
+        HerbRunPlan plan = new HerbRunPlanner().plan(account(99, 99), patches, EnumSet.allOf(HerbPatchDefinition.class),
+                HerbRunCrop.RANARR, HerbRunCompost.BOTTOMLESS_ULTRACOMPOST, Collections.emptyMap(), Collections.emptyMap(), storage, now);
+        assertEquals(SupplyState.AVAILABLE_FROM_BANK, supply(plan, ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED).getState());
+        assertEquals(1, supply(plan, ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED).getWithdrawQuantity());
+    }
+
+    @Test
+    public void allDiseasedStopsDoNotReserveACompostBucket()
+    {
+        HerbRunPlan plan = new HerbRunPlanner().plan(account(99, 99), patches, EnumSet.allOf(HerbPatchDefinition.class),
+                HerbRunCrop.RANARR, HerbRunCompost.BOTTOMLESS_ULTRACOMPOST,
+                Map.of(HerbPatchDefinition.FALADOR, observation(140), HerbPatchDefinition.CATHERBY, observation(140)),
+                Collections.emptyMap(), null, now);
+        assertFalse(plan.getSupplies().stream().anyMatch(check -> check.getRequirement().getItemId() == ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED));
+        assertTrue(HerbRunCareResources.evaluate(plan, HerbRunCure.PLANT_CURE, HerbRunCompost.BOTTOMLESS_ULTRACOMPOST, null)
+                .getChecks().isEmpty());
+    }
+
     private HerbRunPlan plan(Map<HerbPatchDefinition, HerbPatchObservation> observations,
             Map<HerbPatchDefinition, List<VerifiedTransportResult>> transports, Instant time)
     {

@@ -92,7 +92,7 @@ public interface FarmingNavigatorConfig
     @ConfigItem(
             keyName = "herbRunCompost",
             name = "Herb run compost",
-            description = "Suggested bucket supply; bottomless bucket and Fertile Soil supplies are not checked",
+            description = "Suggested compost supply; bottomless bucket contents and remaining uses require a manual check",
             position = 3,
             section = GENERAL_SECTION
     )
