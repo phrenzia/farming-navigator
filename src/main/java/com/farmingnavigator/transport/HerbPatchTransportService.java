@@ -467,11 +467,12 @@ public class HerbPatchTransportService
                                 "Enter your POH with Teleport to House or a house tablet's Inside option, use your installed Civitas illa Fortis portal or Portal Nexus destination, use the Quetzal Transport System to the Hunter Guild, then run north to Ortus Farm.",
                                 PohPortalDestination.CIVITAS_ILLA_FORTIS
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 5,
                                 "Fairy ring AJP",
                                 "Use fairy ring code AJP and travel north-west to Ortus Farm.",
-                                TransportCategory.FAIRY_RING
+                                TransportCategory.FAIRY_RING,
+                                TransportVerificationKind.FAIRY_RING_AJP
                         )
                 )
         );

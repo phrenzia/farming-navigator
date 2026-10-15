@@ -18,6 +18,7 @@ public enum TransportVerificationKind
     ECTOPHIAL_HARMONY,
     FARMING_CAPE,
     FAIRY_RING_ACCESS,
+    FAIRY_RING_AJP,
     WEISS_LARRY_BOAT,
     QUETZAL_WHISTLE,
     POH_FAIRY_RING,

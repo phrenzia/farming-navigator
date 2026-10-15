@@ -81,7 +81,7 @@ public class PohFairyRingTransportVerificationTest
                 service,
                 HerbPatchDefinition.ORTUS_FARM,
                 "Fairy ring AJP",
-                TransportVerificationKind.NOT_IMPLEMENTED
+                TransportVerificationKind.FAIRY_RING_AJP
         );
     }
 

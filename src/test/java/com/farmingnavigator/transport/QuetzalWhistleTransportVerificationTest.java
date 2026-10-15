@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class QuetzalWhistleTransportVerificationTest
 {
     @Test
-    public void cataloguePromotesOnlyQuetzalWhistleRoute()
+    public void catalogueKeepsQuetzalWhistleAndAjpVerificationSeparate()
     {
         HerbPatchTransportService service =
                 new HerbPatchTransportService();
@@ -78,7 +78,7 @@ public class QuetzalWhistleTransportVerificationTest
         );
 
         assertEquals(
-                TransportVerificationKind.NOT_IMPLEMENTED,
+                TransportVerificationKind.FAIRY_RING_AJP,
                 ajp.getVerificationKind()
         );
     }

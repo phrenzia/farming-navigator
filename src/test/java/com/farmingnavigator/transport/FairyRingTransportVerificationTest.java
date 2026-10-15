@@ -69,15 +69,17 @@ public class FairyRingTransportVerificationTest
         );
 
         /*
-         * AJP remains intentionally excluded until its
-         * Varlamore-specific destination access state is
-         * independently verified.
+         * AJP is also not just a generic fairy-ring route.
+         *
+         * It has Varlamore's persistent first-visit gate in
+         * addition to normal fairy-ring access, so it uses
+         * its specialized verifier.
          */
         assertVerificationKind(
                 service,
                 HerbPatchDefinition.ORTUS_FARM,
                 "Fairy ring AJP",
-                TransportVerificationKind.NOT_IMPLEMENTED
+                TransportVerificationKind.FAIRY_RING_AJP
         );
     }
 

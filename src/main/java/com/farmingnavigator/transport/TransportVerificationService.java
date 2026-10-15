@@ -15,6 +15,7 @@ import com.farmingnavigator.routing.requirement.ChargedRingOfElementsRequirement
 import com.farmingnavigator.routing.requirement.CombatBraceletRouteRequirement;
 import com.farmingnavigator.routing.requirement.EctophialHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
+import com.farmingnavigator.routing.requirement.FairyRingAjpRouteRequirement;
 import com.farmingnavigator.routing.requirement.KandarinHeadgearUnlimitedRequirement;
 import com.farmingnavigator.routing.requirement.MosLeHarmlessHarmonyRouteRequirement;
 import com.farmingnavigator.routing.requirement.PohFeature;
@@ -322,6 +323,15 @@ public class TransportVerificationService
 
             case FAIRY_RING_ACCESS:
                 return evaluateFairyRingAccess(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
+            case FAIRY_RING_AJP:
+                return evaluateFairyRingAjp(
                         accountState,
                         config,
                         travelCapabilitySnapshot,
@@ -1510,6 +1520,103 @@ public class TransportVerificationService
         return new VerifiedTransportResult(
                 option,
                 blockedState,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateFairyRingAjp(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new FairyRingAjpRouteRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - fairy ring AJP access requirements are satisfied."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                !accountState
+                        .isFairyRingAccessUnlocked()
+                        || !accountState
+                        .isVarlamoreVisited()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.LOCKED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
                 requirementResult
                         .getDetail()
         );
