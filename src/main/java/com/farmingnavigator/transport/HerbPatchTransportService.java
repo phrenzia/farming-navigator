@@ -80,6 +80,13 @@ public class HerbPatchTransportService
                                 8,
                                 TeleportSpellDefinition.DRAYNOR_MANOR_TELEPORT,
                                 "Teleport to Draynor Manor and run south-west to the Falador farming patch."
+                        ),
+                        verifiedTransport(
+                                9,
+                                "Amulet of glory to Draynor Village",
+                                "Teleport to Draynor Village with an Amulet of glory and run north-west to the Falador farming patch.",
+                                TransportCategory.JEWELLERY,
+                                TransportVerificationKind.AMULET_OF_GLORY
                         )
                 )
         );
