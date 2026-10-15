@@ -3,6 +3,7 @@ package com.farmingnavigator.transport;
 public enum TransportVerificationKind
 {
     EXPLORER_RING_UNLIMITED,
+    EXPLORER_RING_2_DAILY,
     ARDOUGNE_CLOAK_UNLIMITED,
     KANDARIN_HEADGEAR_UNLIMITED,
     KANDARIN_HEADGEAR_3_DAILY,

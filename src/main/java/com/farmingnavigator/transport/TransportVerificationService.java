@@ -14,6 +14,7 @@ import com.farmingnavigator.routing.requirement.ArdougneTeleportTabletRouteRequi
 import com.farmingnavigator.routing.requirement.ChargedRingOfElementsRequirement;
 import com.farmingnavigator.routing.requirement.CombatBraceletRouteRequirement;
 import com.farmingnavigator.routing.requirement.EctophialHarmonyRouteRequirement;
+import com.farmingnavigator.routing.requirement.ExplorerRing2CabbagePortRequirement;
 import com.farmingnavigator.routing.requirement.FairyRingAccessRequirement;
 import com.farmingnavigator.routing.requirement.FairyRingAjpRouteRequirement;
 import com.farmingnavigator.routing.requirement.KandarinHeadgear3DailyRequirement;
@@ -218,6 +219,10 @@ public class TransportVerificationService
                         storageSnapshot,
                         option
                 );
+
+            case EXPLORER_RING_2_DAILY:
+                return evaluateExplorerRing2Daily(
+                        accountState, config, travelCapabilitySnapshot, storageSnapshot, option);
 
             case KANDARIN_HEADGEAR_3_DAILY:
                 return evaluateKandarinHeadgear3Daily(
@@ -740,6 +745,103 @@ public class TransportVerificationService
                 !accountState.hasClaimedDiaryTier(
                         DiaryArea.KANDARIN,
                         DiaryTier.HARD
+                )
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.LOCKED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateExplorerRing2Daily(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new ExplorerRing2CabbagePortRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - Explorer's ring 2 carried; a daily Cabbage-port teleport remains available."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                !accountState.hasClaimedDiaryTier(
+                        DiaryArea.LUMBRIDGE_AND_DRAYNOR,
+                        DiaryTier.MEDIUM
                 )
         )
         {

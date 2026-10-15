@@ -12,6 +12,8 @@ public class FarmingNavigatorStateRefreshTest
     public void transportStateChangesTriggerRefresh()
     {
         assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.SEERS_SHERLOCK_TELEPORT));
+        assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.LUMBRIDGE_CABBAGE_TELEPORT));
+        assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.LUMBRIDGE_MEDIUM_REWARD));
         assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.VARLAMORE_VISITED));
         assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.FAIRY2_QUEENCURE_QUEST));
     }

@@ -1,5 +1,8 @@
 package com.farmingnavigator.routing.requirement;
 
+import com.farmingnavigator.account.AccountState;
+import com.farmingnavigator.account.DiaryArea;
+import com.farmingnavigator.account.DiaryTier;
 import com.farmingnavigator.routing.capability.DailyTransportUseKind;
 import com.farmingnavigator.routing.capability.SpellbookType;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
@@ -362,7 +365,11 @@ public class ExplorerRing2CabbagePortRequirementTest
 
         RequirementContext context =
                 new RequirementContext(
-                        null,
+                        new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
+                                Collections.emptyMap(),
+                                Collections.singletonMap(DiaryArea.LUMBRIDGE_AND_DRAYNOR, DiaryTier.MEDIUM),
+                                Collections.singletonMap(DiaryArea.LUMBRIDGE_AND_DRAYNOR, DiaryTier.MEDIUM),
+                                false, false),
                         null,
                         travelSnapshot,
                         storageSnapshot

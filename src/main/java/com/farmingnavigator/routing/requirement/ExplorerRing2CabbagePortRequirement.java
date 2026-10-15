@@ -1,5 +1,7 @@
 package com.farmingnavigator.routing.requirement;
 
+import com.farmingnavigator.account.DiaryArea;
+import com.farmingnavigator.account.DiaryTier;
 import com.farmingnavigator.routing.capability.DailyTransportUseKind;
 import net.runelite.api.gameval.ItemID;
 
@@ -17,6 +19,11 @@ public class ExplorerRing2CabbagePortRequirement
         this.completeRequirement =
                 new AllOfRequirement(
                         DISPLAY_NAME,
+                        new DiaryRequirement(
+                                DiaryArea.LUMBRIDGE_AND_DRAYNOR,
+                                DiaryTier.MEDIUM,
+                                true
+                        ),
                         new BankBackedItemRequirement(
                                 "Explorer's ring 2",
                                 ItemID.LUMBRIDGE_RING_MEDIUM,

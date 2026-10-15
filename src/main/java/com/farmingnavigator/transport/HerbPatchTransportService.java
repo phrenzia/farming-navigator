@@ -38,11 +38,12 @@ public class HerbPatchTransportService
                                 TransportCategory.DIARY_ITEM,
                                 TransportVerificationKind.EXPLORER_RING_UNLIMITED
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 2,
                                 "Explorer's ring 2",
                                 "Use one of the three daily Cabbage-port teleports.",
-                                TransportCategory.DIARY_ITEM
+                                TransportCategory.DIARY_ITEM,
+                                TransportVerificationKind.EXPLORER_RING_2_DAILY
                         ),
                         verifiedTransport(
                                 3,

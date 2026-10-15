@@ -122,8 +122,8 @@ public class TravelCapabilityService
          * Only populate daily-use entries whose raw game-state
          * semantics are independently verified.
          *
-         * Explorer ring and Ardougne cloak remain intentionally
-         * absent until their exact counter semantics are proven.
+         * Ardougne cloak remains intentionally absent until its exact
+         * counter semantics are proven.
          */
         Map<
                 DailyTransportUseKind,
@@ -180,6 +180,14 @@ public class TravelCapabilityService
             );
         }
 
+        Integer cabbagePortRemaining = decodeCabbagePortRemainingUses(
+                client.getVarbitValue(VarbitID.LUMBRIDGE_CABBAGE_TELEPORT));
+        if (cabbagePortRemaining != null)
+        {
+            remainingUses.put(DailyTransportUseKind.EXPLORER_RING_CABBAGE_PORT,
+                    cabbagePortRemaining);
+        }
+
         return remainingUses;
     }
 
@@ -209,6 +217,18 @@ public class TravelCapabilityService
         }
 
         return null;
+    }
+
+    /*
+     * The counter records uses consumed, up to the three daily teleports.
+     * Corroborated by Plugin Hub Shortest Path's teleportation_items.tsv:
+     * Explorer's ring 2 requires varbit 4552 < 3.
+     * https://github.com/Skretzo/shortest-path/blob/99735452c7c257d3fe5ae79970429cdce907d571/src/main/resources/transports/teleportation_items.tsv
+     * Values outside the documented daily range remain unknown.
+     */
+    static Integer decodeCabbagePortRemainingUses(int used)
+    {
+        return used >= 0 && used <= 3 ? 3 - used : null;
     }
 
     private WorldPoint readCurrentLocation()

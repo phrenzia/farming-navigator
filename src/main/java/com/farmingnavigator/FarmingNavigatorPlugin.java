@@ -350,6 +350,9 @@ public class FarmingNavigatorPlugin
                  * Exact Fairytale II fairy-ring access state.
                  */
             case VarbitID.FAIRY2_QUEENCURE_QUEST:
+            case VarbitID.LUMBRIDGE_CABBAGE_TELEPORT:
+            case VarbitID.LUMBRIDGE_MEDIUM_REWARD:
+            case VarbitID.LUMBRIDGE_DIARY_MEDIUM_COMPLETE:
             case VarbitID.SEERS_SHERLOCK_TELEPORT:
             case VarbitID.VARLAMORE_VISITED:
                 return true;
