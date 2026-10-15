@@ -3,96 +3,97 @@ package com.farmingnavigator.routing.requirement;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+import net.runelite.api.gameval.ItemID;
 
 public enum InfiniteRuneSource
 {
     STAFF_OF_AIR(
             "Staff of air",
-            1381,
+            ItemID.STAFF_OF_AIR,
             1,
             RuneKind.AIR
     ),
 
     STAFF_OF_WATER(
             "Staff of water",
-            1383,
+            ItemID.STAFF_OF_WATER,
             1,
             RuneKind.WATER
     ),
 
     STAFF_OF_EARTH(
             "Staff of earth",
-            1385,
+            ItemID.STAFF_OF_EARTH,
             1,
             RuneKind.EARTH
     ),
 
     STAFF_OF_FIRE(
             "Staff of fire",
-            1387,
+            ItemID.STAFF_OF_FIRE,
             1,
             RuneKind.FIRE
     ),
 
     FIRE_BATTLESTAFF(
             "Fire battlestaff",
-            1393,
+            ItemID.FIRE_BATTLESTAFF,
             30,
             RuneKind.FIRE
     ),
 
     WATER_BATTLESTAFF(
             "Water battlestaff",
-            1395,
+            ItemID.WATER_BATTLESTAFF,
             30,
             RuneKind.WATER
     ),
 
     AIR_BATTLESTAFF(
             "Air battlestaff",
-            1397,
+            ItemID.AIR_BATTLESTAFF,
             30,
             RuneKind.AIR
     ),
 
     EARTH_BATTLESTAFF(
             "Earth battlestaff",
-            1399,
+            ItemID.EARTH_BATTLESTAFF,
             30,
             RuneKind.EARTH
     ),
 
     MYSTIC_FIRE_STAFF(
             "Mystic fire staff",
-            1401,
+            ItemID.MYSTIC_FIRE_STAFF,
             40,
             RuneKind.FIRE
     ),
 
     MYSTIC_WATER_STAFF(
             "Mystic water staff",
-            1403,
+            ItemID.MYSTIC_WATER_STAFF,
             40,
             RuneKind.WATER
     ),
 
     MYSTIC_AIR_STAFF(
             "Mystic air staff",
-            1405,
+            ItemID.MYSTIC_AIR_STAFF,
             40,
             RuneKind.AIR
     ),
 
     MYSTIC_EARTH_STAFF(
             "Mystic earth staff",
-            1407,
+            ItemID.MYSTIC_EARTH_STAFF,
             40,
             RuneKind.EARTH
     ),
 
     LAVA_BATTLESTAFF(
             "Lava battlestaff",
-            3053,
+            ItemID.LAVA_BATTLESTAFF,
             30,
             RuneKind.EARTH,
             RuneKind.FIRE
@@ -100,7 +101,7 @@ public enum InfiniteRuneSource
 
     MYSTIC_LAVA_STAFF(
             "Mystic lava staff",
-            3054,
+            ItemID.MYSTIC_LAVA_STAFF,
             40,
             RuneKind.EARTH,
             RuneKind.FIRE
@@ -108,7 +109,7 @@ public enum InfiniteRuneSource
 
     MUD_BATTLESTAFF(
             "Mud battlestaff",
-            6562,
+            ItemID.MUD_BATTLESTAFF,
             30,
             RuneKind.WATER,
             RuneKind.EARTH
@@ -116,7 +117,7 @@ public enum InfiniteRuneSource
 
     MYSTIC_MUD_STAFF(
             "Mystic mud staff",
-            6563,
+            ItemID.MYSTIC_MUD_STAFF,
             40,
             RuneKind.WATER,
             RuneKind.EARTH
@@ -124,7 +125,7 @@ public enum InfiniteRuneSource
 
     STEAM_BATTLESTAFF(
             "Steam battlestaff",
-            11787,
+            ItemID.STEAM_BATTLESTAFF,
             30,
             RuneKind.WATER,
             RuneKind.FIRE
@@ -132,7 +133,7 @@ public enum InfiniteRuneSource
 
     MYSTIC_STEAM_STAFF(
             "Mystic steam staff",
-            11789,
+            ItemID.MYSTIC_STEAM_BATTLESTAFF,
             40,
             RuneKind.WATER,
             RuneKind.FIRE
@@ -140,7 +141,7 @@ public enum InfiniteRuneSource
 
     SMOKE_BATTLESTAFF(
             "Smoke battlestaff",
-            11998,
+            ItemID.SMOKE_BATTLESTAFF,
             30,
             RuneKind.AIR,
             RuneKind.FIRE
@@ -148,7 +149,7 @@ public enum InfiniteRuneSource
 
     MYSTIC_SMOKE_STAFF(
             "Mystic smoke staff",
-            12000,
+            ItemID.MYSTIC_SMOKE_BATTLESTAFF,
             40,
             RuneKind.AIR,
             RuneKind.FIRE
@@ -156,7 +157,7 @@ public enum InfiniteRuneSource
 
     STEAM_BATTLESTAFF_OR(
             "Steam battlestaff (or)",
-            12795,
+            ItemID.STEAM_BATTLESTAFF_PRETTY,
             30,
             RuneKind.WATER,
             RuneKind.FIRE
@@ -164,7 +165,7 @@ public enum InfiniteRuneSource
 
     MYSTIC_STEAM_STAFF_OR(
             "Mystic steam staff (or)",
-            12796,
+            ItemID.MYSTIC_STEAM_BATTLESTAFF_PRETTY,
             40,
             RuneKind.WATER,
             RuneKind.FIRE
@@ -172,7 +173,7 @@ public enum InfiniteRuneSource
 
     MIST_BATTLESTAFF(
             "Mist battlestaff",
-            20730,
+            ItemID.MIST_BATTLESTAFF,
             30,
             RuneKind.AIR,
             RuneKind.WATER
@@ -180,7 +181,7 @@ public enum InfiniteRuneSource
 
     MYSTIC_MIST_STAFF(
             "Mystic mist staff",
-            20733,
+            ItemID.MYSTIC_MIST_BATTLESTAFF,
             40,
             RuneKind.AIR,
             RuneKind.WATER
@@ -188,7 +189,7 @@ public enum InfiniteRuneSource
 
     DUST_BATTLESTAFF(
             "Dust battlestaff",
-            20736,
+            ItemID.DUST_BATTLESTAFF,
             30,
             RuneKind.AIR,
             RuneKind.EARTH
@@ -196,7 +197,7 @@ public enum InfiniteRuneSource
 
     MYSTIC_DUST_STAFF(
             "Mystic dust staff",
-            20739,
+            ItemID.MYSTIC_DUST_BATTLESTAFF,
             40,
             RuneKind.AIR,
             RuneKind.EARTH
@@ -204,14 +205,14 @@ public enum InfiniteRuneSource
 
     KODAI_WAND(
             "Kodai wand",
-            21006,
+            ItemID.KODAI_WAND,
             80,
             RuneKind.WATER
     ),
 
     LAVA_BATTLESTAFF_OR(
             "Lava battlestaff (or)",
-            21198,
+            ItemID.LAVA_BATTLESTAFF_PRETTY,
             30,
             RuneKind.EARTH,
             RuneKind.FIRE
@@ -219,7 +220,7 @@ public enum InfiniteRuneSource
 
     MYSTIC_LAVA_STAFF_OR(
             "Mystic lava staff (or)",
-            21200,
+            ItemID.MYSTIC_LAVA_STAFF_PRETTY,
             40,
             RuneKind.EARTH,
             RuneKind.FIRE
@@ -227,7 +228,7 @@ public enum InfiniteRuneSource
 
     TWINFLAME_STAFF(
             "Twinflame staff",
-            30634,
+            ItemID.TWINFLAME_STAFF,
             60,
             RuneKind.WATER,
             RuneKind.FIRE
