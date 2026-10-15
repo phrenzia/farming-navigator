@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class ArdougneKandarinHeadgearTransportVerificationTest
 {
     @Test
-    public void catalogueAddsUnlimitedHeadgearAndKeepsHeadgear3Future()
+    public void catalogueKeepsUnlimitedAndDailyHeadgearRoutesSeparate()
     {
         HerbPatchTransportService service =
                 new HerbPatchTransportService();
@@ -65,13 +65,23 @@ public class ArdougneKandarinHeadgearTransportVerificationTest
         );
 
         assertEquals(
-                TransportVerificationKind.NOT_IMPLEMENTED,
+                TransportVerificationKind.KANDARIN_HEADGEAR_3_DAILY,
                 limited.getVerificationKind()
         );
 
         assertEquals(
                 13,
                 limited.getBaselineRank()
+        );
+
+        assertEquals(
+                TransportCategory.DIARY_ITEM,
+                limited.getCategory()
+        );
+
+        assertEquals(
+                "Use the remaining daily Sherlock teleport, then run south-west to the Ardougne farming patch.",
+                limited.getInstructions()
         );
     }
 

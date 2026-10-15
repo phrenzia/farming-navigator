@@ -324,7 +324,7 @@ public class FarmingNavigatorPlugin
         }
     }
 
-    private boolean isRelevantStateVarbit(
+    static boolean isRelevantStateVarbit(
             int varbitId
     )
     {
@@ -350,6 +350,8 @@ public class FarmingNavigatorPlugin
                  * Exact Fairytale II fairy-ring access state.
                  */
             case VarbitID.FAIRY2_QUEENCURE_QUEST:
+            case VarbitID.SEERS_SHERLOCK_TELEPORT:
+            case VarbitID.VARLAMORE_VISITED:
                 return true;
 
             default:

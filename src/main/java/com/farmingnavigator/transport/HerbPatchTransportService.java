@@ -208,11 +208,12 @@ public class HerbPatchTransportService
                                 TransportCategory.DIARY_ITEM,
                                 TransportVerificationKind.KANDARIN_HEADGEAR_UNLIMITED
                         ),
-                        futureTransport(
+                        verifiedTransport(
                                 13,
                                 "Kandarin headgear 3 to Sherlock",
                                 "Use the remaining daily Sherlock teleport, then run south-west to the Ardougne farming patch.",
-                                TransportCategory.DIARY_ITEM
+                                TransportCategory.DIARY_ITEM,
+                                TransportVerificationKind.KANDARIN_HEADGEAR_3_DAILY
                         )
                 )
         );
