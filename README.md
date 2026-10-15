@@ -53,6 +53,7 @@ The current build is an internally tested herb-run assistant with tree observati
 - Tree guidance uses the same inventory/equipment/bank overlays and destination markers as herb guidance, with step-specific sapling, payment, pruning and travel targets. Overlay toggles and cleanup apply to both run types.
 - Tree patch objects and supported farmers use spawn/despawn caches. Scene highlights require matching patch region, transmit metadata and farming-area location. Farmer steps select known patch-specific gardeners; the three individual Fossil squirrel assignments remain suppressed pending verification.
 - Session run statistics record Farming XP gained and elapsed XP/hour for herb/tree guidance, including preparation, waiting and other Farming actions during the checklist. Completed/stopped totals freeze; missing or decreasing XP invalidates the statistic. These are recorded account XP deltas, not predicted crop XP or precise patch attribution.
+- Tree state and estimate alerts are separate opt-ins, default off. They follow selected patches matching the chosen tree family, suppress restored-history login bursts and repeated conditions, and keep estimated health-check readiness conditional.
 
 Configure crop, patches, compost, transport preference, POH entry supplies, overlays and alerts in the plugin settings. Configure the house and installed features in the sidebar's POH editor. Changing herb run setup cancels the active herb checklist.
 

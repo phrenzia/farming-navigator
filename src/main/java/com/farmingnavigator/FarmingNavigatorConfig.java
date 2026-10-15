@@ -204,6 +204,16 @@ public interface FarmingNavigatorConfig
             description = "Rank verified tree travel options; this is not measured travel-time optimization", position = 14, section = GENERAL_SECTION)
     default HerbTransportPreference treeTransportPreference() { return HerbTransportPreference.CATALOGUE; }
 
+    @ConfigItem(keyName = "treeObservedAlerts", name = "Tree state alerts",
+            description = "Notify on fresh health-check-ready, diseased or dead states for selected patches matching the tree run crop family",
+            position = 15, section = GENERAL_SECTION)
+    default boolean treeObservedAlerts() { return false; }
+
+    @ConfigItem(keyName = "treeEstimatedAlerts", name = "Tree estimate alerts",
+            description = "Notify once at the end of a selected tree's conditional growth window; readiness and disease are not verified",
+            position = 16, section = GENERAL_SECTION)
+    default boolean treeEstimatedAlerts() { return false; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

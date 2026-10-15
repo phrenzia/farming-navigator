@@ -144,6 +144,7 @@ public class FarmingNavigatorPlugin
     private com.farmingnavigator.routing.run.TreeRunPlan latestTreeRun;
     private final com.farmingnavigator.analytics.RunMetricsTracker runMetrics = new com.farmingnavigator.analytics.RunMetricsTracker();
     private final HerbAlertTracker herbAlertTracker = new HerbAlertTracker();
+    private final com.farmingnavigator.farming.tree.TreeAlertTracker treeAlertTracker = new com.farmingnavigator.farming.tree.TreeAlertTracker();
     @Inject private Notifier notifier;
 
     @Inject private OverlayManager overlayManager;
@@ -162,6 +163,7 @@ public class FarmingNavigatorPlugin
         latestTreeRun = null;
         runMetrics.clear();
         herbAlertTracker.reset();
+        treeAlertTracker.reset();
         guidedRunSession.cancel();
         treeRunSession.cancel();
         guidedRunOverlayController.clear();
@@ -210,6 +212,7 @@ public class FarmingNavigatorPlugin
     protected void shutDown()
     {
         herbAlertTracker.reset();
+        treeAlertTracker.reset();
         overlayManager.remove(guidedInventoryOverlay);
         overlayManager.remove(guidedBankOverlay);
         overlayManager.remove(guidedSceneOverlay);
@@ -275,6 +278,7 @@ public class FarmingNavigatorPlugin
             herbPatchObservationService.reset();
             treePatchObservationService.reset();
             herbAlertTracker.reset();
+            treeAlertTracker.reset();
             storageStateService
                     .invalidateBankSnapshot();
         }
@@ -288,6 +292,7 @@ public class FarmingNavigatorPlugin
     public void onRuneScapeProfileChanged(RuneScapeProfileChanged event)
     {
         herbAlertTracker.reset();
+        treeAlertTracker.reset();
         // A mode/account switch must never retain another character's observations or active checklist.
         herbPatchObservationService.reset();
         treePatchObservationService.reset();
@@ -351,6 +356,13 @@ public class FarmingNavigatorPlugin
             herbAlertTracker.poll(herbPatchObservationService.snapshot(), config.herbRunPatches(),
                     Instant.now(), config.herbObservedAlerts(), config.herbEstimatedAlerts())
                     .forEach(notifier::notify);
+            java.util.Set<TreePatchDefinition> treeAlertPatches = java.util.EnumSet.noneOf(TreePatchDefinition.class);
+            for (TreePatchDefinition patch : config.treeRunPatches())
+            {
+                if (patch.getFamily() == config.treeRunCrop().getCrop().getFamily()) { treeAlertPatches.add(patch); }
+            }
+            treeAlertTracker.poll(treePatchObservationService.snapshot(), treeAlertPatches, Instant.now(),
+                    config.treeObservedAlerts(), config.treeEstimatedAlerts()).forEach(notifier::notify);
             updateAccountState();
         }
     }
@@ -417,7 +429,7 @@ public class FarmingNavigatorPlugin
         }
 
         clientThread.invokeLater(() -> {
-            if (event.getKey() != null && event.getKey().startsWith("tree")) { treeRunSession.cancel(); }
+            if (isTreeRunSetupKey(event.getKey())) { treeRunSession.cancel(); }
             if (isRunSetupKey(event.getKey()))
             {
                 guidedRunSession.cancel();
@@ -509,6 +521,12 @@ public class FarmingNavigatorPlugin
                     this::updateAccountState
             );
         }
+    }
+
+    static boolean isTreeRunSetupKey(String key)
+    {
+        return "treeRunCrop".equals(key) || "treeRunPatches".equals(key) || "treeRunProtection".equals(key)
+                || "treeTransportPreference".equals(key);
     }
 
     static boolean isRunSetupKey(String key)

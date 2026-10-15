@@ -8,6 +8,17 @@ import static org.junit.Assert.assertTrue;
 
 public class FarmingNavigatorStateRefreshTest
 {
+    @Test public void treeAlertAndDisplaySettingsDoNotCancelTreeRun()
+    {
+        assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeRunCrop"));
+        assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeRunPatches"));
+        assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeRunProtection"));
+        assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeTransportPreference"));
+        assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey("treeObservedAlerts"));
+        assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey("treeEstimatedAlerts"));
+        assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey("showTreeObservations"));
+        assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey(null));
+    }
     @Test
     public void onlyRunSetupChangesInvalidateCurrentChecklist()
     {
