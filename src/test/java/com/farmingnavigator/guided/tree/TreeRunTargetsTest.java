@@ -83,6 +83,17 @@ public class TreeRunTargetsTest
             assertNull(targets.getDestination()); assertNull(targets.getScenePatch());
         }
     }
+    @Test public void sceneTargetsSeparateFarmerStepsFromPatchSteps()
+    {
+        GuidedRunTargets protection = targets(TreeRunStep.PROTECT, TreeRunCrop.OAK);
+        assertEquals(TreePatchDefinition.VARROCK_TREE, protection.getTreeScenePatch());
+        assertTrue(protection.isTreeFarmer());
+        GuidedRunTargets planting = targets(TreeRunStep.PLANT, TreeRunCrop.OAK);
+        assertEquals(TreePatchDefinition.VARROCK_TREE, planting.getTreeScenePatch());
+        assertFalse(planting.isTreeFarmer());
+        assertNull(targets(TreeRunStep.PREPARE, TreeRunCrop.OAK).getTreeScenePatch());
+        assertNull(targets(TreeRunStep.WAIT, TreeRunCrop.OAK).getTreeScenePatch());
+    }
     @Test public void worldMapMarkerStaysStableAndDisablingKeepsForeignMarkers()
     {
         RecordingManager manager = new RecordingManager();

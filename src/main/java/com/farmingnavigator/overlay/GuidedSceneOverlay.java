@@ -24,15 +24,17 @@ public final class GuidedSceneOverlay extends Overlay
     private final FarmingNavigatorConfig config;
     private final GuidedRunOverlayController controller;
     private final HerbSceneTracker scene;
+    private final TreeSceneTracker treeScene;
 
     @Inject
     public GuidedSceneOverlay(Client client, FarmingNavigatorConfig config,
-            GuidedRunOverlayController controller, HerbSceneTracker scene)
+            GuidedRunOverlayController controller, HerbSceneTracker scene, TreeSceneTracker treeScene)
     {
         this.client = client;
         this.config = config;
         this.controller = controller;
         this.scene = scene;
+        this.treeScene = treeScene;
         setPosition(OverlayPosition.DYNAMIC);
         setLayer(OverlayLayer.ABOVE_SCENE);
     }
@@ -42,8 +44,30 @@ public final class GuidedSceneOverlay extends Overlay
     {
         GuidedRunTargets targets = controller.getTargets();
         WorldView view = client.getTopLevelWorldView();
-        if (!config.guidedRunOverlays() || targets.getScenePatch() == null || view == null || view.isInstance())
+        if (!config.guidedRunOverlays() || view == null || view.isInstance()
+                || targets.getScenePatch() == null && targets.getTreeScenePatch() == null)
         {
+            return null;
+        }
+        if (targets.getTreeScenePatch() != null)
+        {
+            if (targets.isTreeFarmer())
+            {
+                for (NPC npc : treeScene.getFarmers())
+                {
+                    if (TreeSceneTargetPolicy.isFarmerFor(targets.getTreeScenePatch(), npc.getId(), npc.getWorldLocation()))
+                    {
+                        draw(graphics, npc.getCanvasTilePoly());
+                    }
+                }
+            }
+            else
+            {
+                for (java.util.Map.Entry<GameObject, com.farmingnavigator.farming.tree.TreePatchDefinition> entry : treeScene.getTrees().entrySet())
+                {
+                    if (entry.getValue() == targets.getTreeScenePatch()) { draw(graphics, entry.getKey().getCanvasTilePoly()); }
+                }
+            }
             return null;
         }
         if (targets.isLeprechaun())

@@ -31,9 +31,17 @@ public final class GuidedRunTargets
     private final String destinationName;
     private final HerbPatchDefinition scenePatch;
     private final boolean leprechaun;
+    private final com.farmingnavigator.farming.tree.TreePatchDefinition treeScenePatch;
+    private final boolean treeFarmer;
 
     private GuidedRunTargets(Set<Integer> inventoryItems, Set<Integer> bankItems, WorldPoint destination,
             String destinationName, HerbPatchDefinition scenePatch, boolean leprechaun)
+    {
+        this(inventoryItems, bankItems, destination, destinationName, scenePatch, leprechaun, null, false);
+    }
+    private GuidedRunTargets(Set<Integer> inventoryItems, Set<Integer> bankItems, WorldPoint destination,
+            String destinationName, HerbPatchDefinition scenePatch, boolean leprechaun,
+            com.farmingnavigator.farming.tree.TreePatchDefinition treeScenePatch, boolean treeFarmer)
     {
         this.inventoryItems = Collections.unmodifiableSet(new HashSet<>(inventoryItems));
         this.bankItems = Collections.unmodifiableSet(new HashSet<>(bankItems));
@@ -41,6 +49,8 @@ public final class GuidedRunTargets
         this.destinationName = destinationName;
         this.scenePatch = scenePatch;
         this.leprechaun = leprechaun;
+        this.treeScenePatch = treeScenePatch;
+        this.treeFarmer = treeFarmer;
     }
 
     public Set<Integer> getInventoryItems() { return inventoryItems; }
@@ -49,6 +59,8 @@ public final class GuidedRunTargets
     public String getDestinationName() { return destinationName; }
     public HerbPatchDefinition getScenePatch() { return scenePatch; }
     public boolean isLeprechaun() { return leprechaun; }
+    public com.farmingnavigator.farming.tree.TreePatchDefinition getTreeScenePatch() { return treeScenePatch; }
+    public boolean isTreeFarmer() { return treeFarmer; }
 
     public static GuidedRunTargets empty()
     {
@@ -203,7 +215,12 @@ public final class GuidedRunTargets
             }
             if (needed) { inventory.add(preparation.getSource().getItemId()); }
         }
-        return new GuidedRunTargets(inventory, bank, destination, name, null, false);
+        boolean scene = session.getStep() != com.farmingnavigator.guided.tree.TreeRunStep.PREPARE
+                && session.getStep() != com.farmingnavigator.guided.tree.TreeRunStep.WAIT;
+        return new GuidedRunTargets(inventory, bank, destination, name, null, false,
+                scene ? session.getStop().getPatch() : null,
+                session.getStep() == com.farmingnavigator.guided.tree.TreeRunStep.PROTECT
+                        || session.getStep() == com.farmingnavigator.guided.tree.TreeRunStep.REMOVE);
     }
 
     private static void addSelectedRuneSource(Set<Integer> items, GuidedRunSnapshot session, HerbRunPlan plan,
