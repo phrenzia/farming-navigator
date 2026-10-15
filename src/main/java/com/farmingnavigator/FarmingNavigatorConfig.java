@@ -219,6 +219,11 @@ public interface FarmingNavigatorConfig
             position = 17, section = GENERAL_SECTION)
     default boolean showFarmingMaterialValues() { return true; }
 
+    @ConfigItem(keyName = "showFarmingContract", name = "Show farming contract",
+            description = "Display the current game-reported guild assignment and crop conflicts; rewards and completion are not predicted",
+            position = 18, section = GENERAL_SECTION)
+    default boolean showFarmingContract() { return true; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

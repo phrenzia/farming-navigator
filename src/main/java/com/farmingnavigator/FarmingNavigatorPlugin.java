@@ -147,6 +147,7 @@ public class FarmingNavigatorPlugin
     private final com.farmingnavigator.farming.tree.TreeAlertTracker treeAlertTracker = new com.farmingnavigator.farming.tree.TreeAlertTracker();
     @Inject private Notifier notifier;
     @Inject private net.runelite.client.game.ItemManager itemManager;
+    @Inject private com.farmingnavigator.contracts.FarmingContractService farmingContractService;
 
     @Inject private OverlayManager overlayManager;
     @Inject private GuidedInventoryOverlay guidedInventoryOverlay;
@@ -544,6 +545,8 @@ public class FarmingNavigatorPlugin
         switch (varbitId)
         {
             case VarbitID.SPELLBOOK:
+            case VarbitID.FARMGUILD_CONTRACT_TYPE:
+            case VarbitID.FARMGUILD_CONTRACT_COMPLETE:
 
             case VarbitID.RUNE_POUCH_QUANTITY_1:
             case VarbitID.RUNE_POUCH_QUANTITY_2:
@@ -662,6 +665,7 @@ public class FarmingNavigatorPlugin
             }
         }
         com.farmingnavigator.analytics.RunMetricsSnapshot metricsSnapshot = runMetrics.snapshot(Instant.now());
+        com.farmingnavigator.contracts.FarmingContractSnapshot farmingContract = farmingContractService.snapshot();
         if (treeGuidedRun.isActive())
         {
             guidedRunOverlayController.updateTree(treeGuidedRun, treeRunPlan, travelCapabilitySnapshot, config.guidedRunOverlays());
@@ -676,6 +680,7 @@ public class FarmingNavigatorPlugin
                         targetPanel.setTreeGuidedRun(treeGuidedRun);
                         targetPanel.setRunMetrics(metricsSnapshot);
                         targetPanel.setFarmingMaterials(herbMaterials, treeMaterials);
+                        targetPanel.setFarmingContract(farmingContract);
                         targetPanel.setHerbRunPlan(runPlan);
                         targetPanel.setAccountState(
                                 accountState,
