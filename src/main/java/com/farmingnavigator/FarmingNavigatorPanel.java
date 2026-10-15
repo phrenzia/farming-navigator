@@ -136,6 +136,8 @@ public class FarmingNavigatorPanel
     private boolean herbOverviewOpen;
     private boolean treeObservationsOpen;
     private boolean treeRunDetailsOpen;
+    private com.farmingnavigator.analytics.RunMetricsSnapshot runMetrics;
+    public void setRunMetrics(com.farmingnavigator.analytics.RunMetricsSnapshot metrics) { runMetrics = metrics; }
     private com.farmingnavigator.routing.run.TreeRunPlan treeRunPlan;
     private com.farmingnavigator.guided.tree.TreeRunSnapshot treeGuidedRun;
     private Consumer<com.farmingnavigator.guided.tree.TreeRunCommand> treeCommands = command -> {};
@@ -697,6 +699,11 @@ public class FarmingNavigatorPanel
         }
 
         java.time.Instant overviewTime = java.time.Instant.now();
+        if (runMetrics != null)
+        {
+            patchListPanel.add(new com.farmingnavigator.ui.RunMetricsPanel(runMetrics));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
         if (treeRunPlan != null)
         {
             patchListPanel.add(new com.farmingnavigator.ui.TreeGuidedRunPanel(treeGuidedRun,

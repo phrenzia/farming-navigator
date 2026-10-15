@@ -121,6 +121,11 @@ public class AccountStateService
                 client;
     }
 
+    public int currentFarmingExperience()
+    {
+        return client.getGameState() == GameState.LOGGED_IN ? client.getSkillExperience(Skill.FARMING) : -1;
+    }
+
     public AccountState createSnapshot()
     {
         if (

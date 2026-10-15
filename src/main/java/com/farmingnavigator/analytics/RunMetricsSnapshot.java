@@ -1,0 +1,31 @@
+package com.farmingnavigator.analytics;
+
+import java.time.Duration;
+import java.util.OptionalDouble;
+
+/** Recorded account XP during a checklist, not crop attribution or a future-yield prediction. */
+public final class RunMetricsSnapshot
+{
+    private final String runName;
+    private final boolean recording;
+    private final boolean completed;
+    private final boolean xpKnown;
+    private final long xpGained;
+    private final Duration elapsed;
+    RunMetricsSnapshot(String runName, boolean recording, boolean completed, boolean xpKnown, long xpGained, Duration elapsed)
+    {
+        this.runName = runName; this.recording = recording; this.completed = completed;
+        this.xpKnown = xpKnown; this.xpGained = xpGained; this.elapsed = elapsed;
+    }
+    public String getRunName() { return runName; }
+    public boolean isRecording() { return recording; }
+    public boolean isCompleted() { return completed; }
+    public boolean isXpKnown() { return xpKnown; }
+    public long getXpGained() { return xpGained; }
+    public Duration getElapsed() { return elapsed; }
+    public OptionalDouble getXpPerHour()
+    {
+        double seconds = elapsed.getSeconds() + elapsed.getNano() / 1_000_000_000d;
+        return xpKnown && seconds > 0 ? OptionalDouble.of(xpGained * 3600d / seconds) : OptionalDouble.empty();
+    }
+}
