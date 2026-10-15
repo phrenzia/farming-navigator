@@ -26,6 +26,11 @@ public final class HerbRunPlanPanel extends JPanel
 
     public HerbRunPlanPanel(HerbRunPlan plan, boolean expanded, Consumer<Boolean> expansionChanged)
     {
+        this(plan, expanded, expansionChanged, null);
+    }
+    public HerbRunPlanPanel(HerbRunPlan plan, boolean expanded, Consumer<Boolean> expansionChanged,
+            com.farmingnavigator.economics.FarmingMaterialEstimate materials)
+    {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(ColorScheme.DARKER_GRAY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(9, 8, 12, 8));
@@ -126,6 +131,7 @@ public final class HerbRunPlanPanel extends JPanel
                 details.add(text("No direct-spell, charged-jewellery or single-use teleport supplies are needed by these legs.", MUTED));
             }
         }
+        if (materials != null) { details.add(new FarmingMaterialsPanel(materials)); }
         if (!plan.getSupplies().isEmpty())
         {
             details.add(Box.createVerticalStrut(7));

@@ -214,6 +214,11 @@ public interface FarmingNavigatorConfig
             position = 16, section = GENERAL_SECTION)
     default boolean treeEstimatedAlerts() { return false; }
 
+    @ConfigItem(keyName = "showFarmingMaterialValues", name = "Show materials value",
+            description = "Estimate reserved farming materials using RuneLite cached prices; excludes travel, tools, spell runes and harvest value",
+            position = 17, section = GENERAL_SECTION)
+    default boolean showFarmingMaterialValues() { return true; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

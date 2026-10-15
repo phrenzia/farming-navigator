@@ -23,6 +23,11 @@ public final class TreeRunPlanPanel extends JPanel
     private static final Color WARNING = new Color(255, 190, 80);
     public TreeRunPlanPanel(TreeRunPlan plan, boolean expanded, Consumer<Boolean> expansionChanged)
     {
+        this(plan, expanded, expansionChanged, null);
+    }
+    public TreeRunPlanPanel(TreeRunPlan plan, boolean expanded, Consumer<Boolean> expansionChanged,
+            com.farmingnavigator.economics.FarmingMaterialEstimate materials)
+    {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(ColorScheme.DARKER_GRAY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(9, 8, 12, 8));
@@ -92,6 +97,7 @@ public final class TreeRunPlanPanel extends JPanel
             plan.getTransportResources().getNotes().forEach(note -> details.add(text(note, MUTED)));
             details.add(text("Herb and tree plans are separate runs; combining them requires additional shared supplies.", MUTED));
         }
+        if (materials != null) { details.add(new FarmingMaterialsPanel(materials)); }
         if (!plan.getSupplies().isEmpty())
         {
             details.add(Box.createVerticalStrut(7)); details.add(text("Farming supplies", Color.WHITE));

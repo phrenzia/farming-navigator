@@ -137,6 +137,10 @@ public class FarmingNavigatorPanel
     private boolean treeObservationsOpen;
     private boolean treeRunDetailsOpen;
     private com.farmingnavigator.analytics.RunMetricsSnapshot runMetrics;
+    private com.farmingnavigator.economics.FarmingMaterialEstimate herbMaterials;
+    private com.farmingnavigator.economics.FarmingMaterialEstimate treeMaterials;
+    public void setFarmingMaterials(com.farmingnavigator.economics.FarmingMaterialEstimate herbs,
+            com.farmingnavigator.economics.FarmingMaterialEstimate trees) { herbMaterials = herbs; treeMaterials = trees; }
     public void setRunMetrics(com.farmingnavigator.analytics.RunMetricsSnapshot metrics) { runMetrics = metrics; }
     private com.farmingnavigator.routing.run.TreeRunPlan treeRunPlan;
     private com.farmingnavigator.guided.tree.TreeRunSnapshot treeGuidedRun;
@@ -694,7 +698,7 @@ public class FarmingNavigatorPanel
                     herbRunPlan.getBlocker().isEmpty() && !herbRunPlan.getStops().isEmpty(), guidedRunCommands));
             patchListPanel.add(Box.createVerticalStrut(8));
             patchListPanel.add(new HerbRunPlanPanel(herbRunPlan, herbRunDetailsOpen,
-                    expanded -> herbRunDetailsOpen = expanded));
+                    expanded -> herbRunDetailsOpen = expanded, herbMaterials));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
 
@@ -714,7 +718,7 @@ public class FarmingNavigatorPanel
                 treeRunPlan != null ? treeRunPlan : new com.farmingnavigator.routing.run.TreeRunPlanner().plan(accountState,
                         config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(),
                         treeObservations, storageSnapshot, overviewTime), treeRunDetailsOpen,
-                expanded -> treeRunDetailsOpen = expanded));
+                expanded -> treeRunDetailsOpen = expanded, treeMaterials));
         patchListPanel.add(Box.createVerticalStrut(8));
         patchListPanel.add(new HerbOverviewPanel(HerbOverview.create(patchStatuses, config.herbRunPatches(),
                 observations, overviewTime), overviewTime, herbOverviewOpen, expanded -> herbOverviewOpen = expanded));

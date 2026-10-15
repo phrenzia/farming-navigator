@@ -146,6 +146,7 @@ public class FarmingNavigatorPlugin
     private final HerbAlertTracker herbAlertTracker = new HerbAlertTracker();
     private final com.farmingnavigator.farming.tree.TreeAlertTracker treeAlertTracker = new com.farmingnavigator.farming.tree.TreeAlertTracker();
     @Inject private Notifier notifier;
+    @Inject private net.runelite.client.game.ItemManager itemManager;
 
     @Inject private OverlayManager overlayManager;
     @Inject private GuidedInventoryOverlay guidedInventoryOverlay;
@@ -642,6 +643,11 @@ public class FarmingNavigatorPlugin
                 .evaluate(suggested.getStops(), runContext, care.getRunes()));
 
         latestSuggestedRun = runPlan;
+        com.farmingnavigator.economics.FarmingMaterialEstimator materialEstimator = new com.farmingnavigator.economics.FarmingMaterialEstimator();
+        com.farmingnavigator.economics.FarmingMaterialEstimate herbMaterials = config.showFarmingMaterialValues() && accountState.isLoggedIn()
+                ? materialEstimator.herbs(runPlan, config.herbRunCompost(), itemManager::getItemPrice) : null;
+        com.farmingnavigator.economics.FarmingMaterialEstimate treeMaterials = config.showFarmingMaterialValues() && accountState.isLoggedIn()
+                ? materialEstimator.trees(treeRunPlan, config.treeRunProtection(), itemManager::getItemPrice) : null;
         guidedRunSession.refreshTransports(verifiedTransportResults, config.herbTransportPreference());
         GuidedRunSnapshot guidedRun = guidedRunSession.snapshot();
         if (runMetrics.isRecording())
@@ -669,6 +675,7 @@ public class FarmingNavigatorPlugin
                         targetPanel.setTreeRunPlan(treeRunPlan);
                         targetPanel.setTreeGuidedRun(treeGuidedRun);
                         targetPanel.setRunMetrics(metricsSnapshot);
+                        targetPanel.setFarmingMaterials(herbMaterials, treeMaterials);
                         targetPanel.setHerbRunPlan(runPlan);
                         targetPanel.setAccountState(
                                 accountState,
