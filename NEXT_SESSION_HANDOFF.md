@@ -12,6 +12,18 @@ Updated 2026-10-15. Repository and current Git history take precedence over this
 
 ## Implemented this session
 
+Continuation after the five-hour window refreshed (user repeated the same below-10%-remaining stop rule):
+
+- `fc9f1d1`: selectable Cure Plant, Lunar/quest/boosted Magic eligibility, farming runes combined with all travel costs, matching guided instructions/targets.
+- `f40c8bc`: one filled bottomless bucket instead of per-patch buckets. Type and charges remain DATA REQUIRED/manual because an arbitrary bucket's item ID does not establish them.
+- `3c5193d`: Fertile Soil super/ultra selections; 83 Magic, Lunar Diplomacy and Lunar book; all casts pooled with travel/cure runes. Ultra reserves two volcanic ash per potential replant and requires an explicitly manual ash-covered-tome declaration. Super mode warns that an upgraded spell may consume carried ash which is not reserved in that mode.
+- `baf687f`: selected/unlocked patch overview with historical conditions, possible readiness estimates and collapsible priority details; offline layout verified.
+- `8681319`: existing infinite-rune equipment IDs migrated to gameval constants.
+- `5e0aa04`: structured rune preparation choices, banked staff/pouch candidates and context-sensitive selected-staff highlights. Do not parse rendered requirement descriptions to derive item targets.
+- Latest feature commit verifies unboosted Attack before suggesting carried/banked staff equipment changes. AccountState now carries real Attack; compatibility constructors use -1 (unknown). Already-equipped sources remain valid evidence. Synthetic helpers may explicitly supply Attack with `withRealAttackLevel`.
+
+All continuation changes passed clean build and full tests (936 tests at the Attack-check checkpoint). RuneLite remains unlaunched. Bottomless contents, compost application and tome unlock are not automatically verified.
+
 Commits through this checkpoint are individually pushed to master:
 
 | Commit | Change |
@@ -64,7 +76,7 @@ Verified mechanics were researched against RuneLite source at `e98399f931c60bfa8
 
 ## Suggested next milestones
 
-1. Extend run supplies for bottomless compost, Fertile Soil, alternative cures and verified leprechaun/barbarian unlocks. Research exact state before adding assumptions. POH budgeting is now implemented; future mixed tablet/spell allocation should retain the shared rune budget and explicit eligibility checks.
+1. Extend run supplies for verified leprechaun/barbarian unlocks and reliably observed compost application. Cure Plant, conservative bottomless supplies, Fertile Soil, shared staff/pouch preparation and Attack wield checks are now implemented. Research exact state before adding assumptions. Future mixed house tablet/spell allocation should retain the shared rune budget and explicit eligibility checks.
 2. Validate more herb transports only after exact unlock/charge evidence is established. Preserve unknown/configuration-required states.
 3. Extend the elapsed-time/completion summary into robust run analytics and a readiness-focused dashboard; separate additional UI components from the large existing panel. Do not turn session elapsed time into a claimed active XP/hour calculation without actual XP/time evidence.
 4. Generalize patch/crop/timer models before adding trees, fruit trees, hardwoods and special patches. Build crop-specific protection and contract state from proven signals.
