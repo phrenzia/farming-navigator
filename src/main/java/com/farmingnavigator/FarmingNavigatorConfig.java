@@ -183,7 +183,7 @@ public interface FarmingNavigatorConfig
     default boolean showTreeObservations() { return true; }
 
     @ConfigItem(keyName = "treeRunCrop", name = "Tree run crop",
-            description = "Finished sapling to bring; tree travel is manual in this planner", position = 11, section = GENERAL_SECTION)
+            description = "Finished sapling to bring; supported travel is checked against current account and supplies", position = 11, section = GENERAL_SECTION)
     default com.farmingnavigator.routing.run.TreeRunCrop treeRunCrop()
     {
         return com.farmingnavigator.routing.run.TreeRunCrop.OAK;

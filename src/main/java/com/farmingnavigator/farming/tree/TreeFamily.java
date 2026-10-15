@@ -2,9 +2,12 @@ package com.farmingnavigator.farming.tree;
 
 public enum TreeFamily
 {
-    TREE("Regular trees"), FRUIT_TREE("Fruit trees"), HARDWOOD_TREE("Hardwood trees"),
-    CALQUAT("Calquat trees"), CELASTRUS("Celastrus trees"), REDWOOD("Redwood trees"), CRYSTAL_TREE("Crystal trees");
+    TREE("Regular trees", "regular tree"), FRUIT_TREE("Fruit trees", "fruit tree"), HARDWOOD_TREE("Hardwood trees", "hardwood tree"),
+    CALQUAT("Calquat trees", "calquat tree"), CELASTRUS("Celastrus trees", "celastrus tree"),
+    REDWOOD("Redwood trees", "redwood tree"), CRYSTAL_TREE("Crystal trees", "crystal tree");
     private final String label;
-    TreeFamily(String label) { this.label = label; }
+    private final String patchLabel;
+    TreeFamily(String label, String patchLabel) { this.label = label; this.patchLabel = patchLabel; }
     public String getLabel() { return label; }
+    public String getPatchLabel() { return patchLabel; }
 }

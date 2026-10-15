@@ -81,4 +81,16 @@ public class TreeAlertTrackerTest
         TreePatchObservation checked = new TreePatchObservation(new TreePatchStateDecoder().decode(TreeFamily.FRUIT_TREE, 14), now, FarmingGrowthRate.NORMAL);
         assertTrue(tracker.poll(Map.of(TreePatchDefinition.CATHERBY_FRUIT, checked), EnumSet.of(TreePatchDefinition.CATHERBY_FRUIT), now, true, true).isEmpty());
     }
+    @Test public void specialTreeAlertsIdentifyTheirFamilyWithoutDuplicatingTreeInCropNames()
+    {
+        TreePatchDefinition redwood = TreePatchDefinition.FARMING_GUILD_REDWOOD;
+        tracker.poll(Map.of(), EnumSet.of(redwood), now, true, true);
+        TreePatchObservation ready = new TreePatchObservation(new TreePatchStateDecoder().decode(TreeFamily.REDWOOD, 37), now, FarmingGrowthRate.NORMAL);
+        assertTrue(tracker.poll(Map.of(redwood, ready), EnumSet.of(redwood), now, true, true).get(0).contains("Farming Guild redwood tree patch"));
+        tracker.reset(); TreePatchDefinition crystal = TreePatchDefinition.PRIFDDINAS_CRYSTAL;
+        TreePatchObservation growing = new TreePatchObservation(new TreePatchStateDecoder().decode(TreeFamily.CRYSTAL_TREE, 13), now, FarmingGrowthRate.NORMAL);
+        tracker.poll(Map.of(crystal, growing), EnumSet.of(crystal), now, true, true);
+        String message = tracker.poll(Map.of(crystal, growing), EnumSet.of(crystal), now.plusSeconds(4800), true, true).get(0);
+        assertTrue(message.contains("Crystal tree may be ready")); assertFalse(message.contains("tree tree"));
+    }
 }

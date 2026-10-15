@@ -37,7 +37,7 @@ public final class TreeAlertTracker
             {
                 String message = observedMessage(state.getCondition());
                 if (message != null) { alerts.add(patch.getLabel() + " "
-                        + (patch.getFamily() == TreeFamily.FRUIT_TREE ? "fruit tree" : patch.getFamily() == TreeFamily.HARDWOOD_TREE ? "hardwood tree" : "tree")
+                        + patch.getFamily().getPatchLabel()
                         + " patch observed " + message + "."); }
             }
             timer.estimate(observation, now).ifPresent(window -> {
@@ -45,7 +45,7 @@ public final class TreeAlertTracker
                         && initialized && old != null && selected.contains(patch) && estimateAlerts)
                 {
                     alerts.add(patch.getLabel() + " " + state.getCrop().getLabel()
-                            + " tree may be ready to check health if growth stayed healthy. Visit to confirm; disease may delay growth.");
+                            + " may be ready to check health if growth stayed healthy. Visit to confirm; disease may delay growth.");
                 }
             });
         }
