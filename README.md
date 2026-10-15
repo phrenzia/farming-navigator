@@ -40,16 +40,16 @@ The current build is an internally tested herb-run assistant. The full roadmap a
 - Ten herb patches have region-validated observations for empty, weeds, growing, harvestable, diseased, dead and unknown states. Observations wait for settled game ticks and skip modals and instances.
 - Last observations survive restart through RuneLite's character/world-mode profile configuration. Original timestamps are preserved; corrupt, future and over-30-day saved records are ignored.
 - Harvest windows assume continued healthy growth. They do not prove readiness or predict disease. Normal and seasonal growth rates are kept distinct.
-- Suggested herb circuits support 15 crops, selected patches, compost choice, farming supplies, shared rune/jewellery budgets and single-use teleport quantities. Default transport ranking prioritizes ready routes; an optional preference favors verified reusable methods. Stop order is deterministic, not optimized by travel time.
-- Guided Run provides preparation, travel, inspection, raking, harvest, clearing, compost confirmation, planting, curing and waiting steps. Fresh nearby patch observations can advance proven transitions. Manual completion and skipped stops remain separate from observed completion.
+- Suggested herb circuits support 15 crops, selected patches, compost choice, farming supplies, shared rune/jewellery budgets and single-use teleport quantities. Every recommended POH visit reserves a house tablet or spell cast according to the selected entry-supply setting; house casts share the direct-teleport rune budget. Default transport ranking prioritizes ready routes; an optional preference favors verified reusable methods. Stop order is deterministic, not optimized by travel time.
+- Guided Run provides preparation, travel, inspection, raking, harvest, clearing, compost confirmation, planting, curing and waiting steps. Fresh nearby patch observations can advance proven transitions. Manual completion and skipped stops remain separate from observed completion. Elapsed minutes include preparation and waiting and freeze at completion.
 - Context-sensitive inventory/equipment and bank highlights, farming-area map markers, cached patch-object highlights and tool leprechaun guidance assist the current step. A full inventory pauses harvesting guidance until a slot is freed; it does not claim that noting occurred.
 - Optional observed-state alerts and conditional estimated-ready alerts use RuneLite notification settings. Both default to off, avoid repeated alerts and suppress restored-history login bursts.
 
-Configure crop, patches, compost, transport preference, overlays and alerts in the plugin settings. Configure the house and installed features in the sidebar's POH editor. Changing run setup cancels the active checklist.
+Configure crop, patches, compost, transport preference, POH entry supplies, overlays and alerts in the plugin settings. Configure the house and installed features in the sidebar's POH editor. Changing run setup cancels the active checklist.
 
 ## Current Limits
 
-Tree, fruit-tree, hardwood and other crop families, contracts, protection payments, economic/XP optimization, measured travel-time routing and comprehensive run analytics remain planned. Bottomless compost, Fertile Soil, tool leprechaun storage and aggregate POH entry resources are not yet verified by the run loadout. Some catalogue transports remain unwired pending reliable unlock/charge evidence. Guided runs do not persist across logout or world hopping.
+Tree, fruit-tree, hardwood and other crop families, contracts, protection payments, economic/XP optimization, measured travel-time routing and comprehensive run analytics remain planned. Bottomless compost, Fertile Soil and tool leprechaun storage are not yet verified by the run loadout. POH entry budgeting reserves a single chosen method for all house visits; mixed tablet/spell allocation is not optimized. Some catalogue transports remain unwired pending reliable unlock/charge evidence. Guided runs and elapsed time do not persist across logout or world hopping.
 
 ## Automated Validation
 

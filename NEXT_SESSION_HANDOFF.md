@@ -31,19 +31,22 @@ Commits through this checkpoint are individually pushed to master:
 | `afbbcce` | Character/world-mode profile persistence with bounded record validation |
 | `95a8cd9` | Opt-in observed and conditional estimated herb alerts |
 | `4dc475b` | Run-wide single-use tablet/basalt/scroll supply checks |
+| `1a83e15` | Reusable transport preference shared by suggested and guided runs |
+| `8409cc5` | Aggregate POH entry tablet/cast budgets and matching highlights |
+| `74c0598` | Guided elapsed time including preparation/waiting, frozen on completion |
 
-The next commit adds a reusable transport preference shared by suggested and guided runs. It preserves the default ready-before-bank catalogue order. Reusable mode ranks a conservative verified-unlimited subset first, including banked items; POH entries, charged items and limited daily uses are outside that subset.
+Reusable preference preserves the default ready-before-bank catalogue order unless selected. Reusable mode ranks a conservative verified-unlimited subset first, including banked items; POH entries, charged items and limited daily uses are outside that subset. POH entry supplies are explicitly selected as tablets (default) or spells. The resource budget reserves one per recommended visit; house casts share runes with direct teleports and retain the existing Magic/spellbook/house requirement check. Mixed entry allocation is not optimized. Existing transport-card readiness still accepts either entry method, so inspect the selected run-wide supply budget as well.
 
 ## Architecture and behavior
 
 - `farming/state`: decoder, region mapping, observation sampler/store/service, growth timer, profile persistence and alert tracker. The store exposes cached immutable snapshots. Profiles use RuneLite `ConfigManager` RS-profile keys and versioned per-patch records, not custom disk files. Saved records keep raw value, timestamp and growth rate; future/corrupt/over-30-day records are ignored.
-- `routing/run`: herb crop/compost definitions, run planner, immutable plan/stops and aggregate transport resources. Fixed patch order is not a shortest-path or measured-time optimizer.
+- `routing/run`: herb crop/compost definitions, run planner, immutable plan/stops and aggregate transport resources. This includes selected house-entry budgeting and a shared reusable transport selector. Fixed patch order is not a shortest-path or measured-time optimizer.
 - `loadout`: reusable quantity-aware checks against inventory, equipment and verified bank. Partial withdrawals and known shortfalls are distinct from unknown bank contents.
 - `guided`: checklist commands/state machine and cached semantic highlight targets. Compost confirmation remains manual; no compost state is invented. Arrival needs the correct area/floor and action progression needs fresh matching observations. Full inventory returns to harvesting after space is freed without claiming a leprechaun interaction was observed.
 - `overlay`: lightweight item rendering, map-point lifecycle, cached herb objects/NPCs, event-driven scene tracker. Nearby initialization scans at most 25x25 tiles once per relevant map load/enable, not each tick/frame. No automated actions or clickable gameplay shortcuts.
 - `ui`: compact plan, loadout, observation/timer text and guided panels. Offline screenshots are generated under ignored `build/verification` by tests.
 - Existing bank gate still requires a bank verified in the current session. Missing daily counter entries mean unknown, while explicit zero means exhausted.
-- Login/hop/connection loss cancels guided runs and clears live caches. Saved observations restore only into their matching RuneScape profile. Alert baseline suppresses historic login bursts; estimates remain conditional and do not complete guided steps.
+- Login/hop/connection loss cancels guided runs and clears live caches. Saved observations restore only into their matching RuneScape profile. Alert baseline suppresses historic login bursts; estimates remain conditional and do not complete guided steps. Guided elapsed time is session-only, includes preparation/waiting and freezes at completion. Negative wall-clock durations are clamped to zero; it is not an active XP/hour metric.
 
 ## Sources and unresolved semantics
 
@@ -60,9 +63,9 @@ Verified mechanics were researched against RuneLite source at `e98399f931c60bfa8
 
 ## Suggested next milestones
 
-1. Close aggregate POH entry budgeting: multiple house visits must not silently reuse a single tablet or one cast's runes. Choose or explicitly configure entry methods, combine house casts with other direct-spell rune costs, retain Magic/spellbook/house checks, and test mixed inventory/bank/unknown cases. Current UI warns that entry supplies are excluded.
+1. Extend run supplies for bottomless compost, Fertile Soil, alternative cures and verified leprechaun/barbarian unlocks. Research exact state before adding assumptions. POH budgeting is now implemented; future mixed tablet/spell allocation should retain the shared rune budget and explicit eligibility checks.
 2. Validate more herb transports only after exact unlock/charge evidence is established. Preserve unknown/configuration-required states.
-3. Add robust run summaries/analytics and a readiness-focused dashboard; separate additional UI components from the large existing panel.
+3. Extend the elapsed-time/completion summary into robust run analytics and a readiness-focused dashboard; separate additional UI components from the large existing panel. Do not turn session elapsed time into a claimed active XP/hour calculation without actual XP/time evidence.
 4. Generalize patch/crop/timer models before adding trees, fruit trees, hardwoods and special patches. Build crop-specific protection and contract state from proven signals.
 5. Add optimization objectives and economics only with explicit, reliable costs/timing/yield models. Current baseline ranks and reusable preference must not be labeled fastest or profit-optimal.
 
@@ -79,4 +82,4 @@ All items below remain **UNVERIFIED IN GAME**. No game client was launched durin
 
 ## Validation checkpoint
 
-`gradlew.bat clean build` and `gradlew.bat test` passed after the reusable preference change; 885 synthetic tests passed. Known build messages are the existing unchecked test-harness warning and Gradle 9 deprecation notice. Automated success does not prove live correctness.
+`gradlew.bat clean build` and `gradlew.bat test` passed after the final elapsed-time feature; 894 synthetic tests passed with zero failures/errors. The updated narrow guided panel was rendered and visually checked offline. Known build messages are the existing unchecked test-harness warning and Gradle 9 deprecation notice. Automated success does not prove live correctness. All feature commits above were pushed; check `git status` and `git rev-parse HEAD origin/master` before continuing.
