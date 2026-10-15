@@ -42,6 +42,12 @@ public final class GuidedRunOverlayController
         applyTargets(enabled ? GuidedRunTargets.fromTree(session, plan, travel) : GuidedRunTargets.empty());
     }
 
+    public void updateGarden(com.farmingnavigator.guided.garden.GardenRunSnapshot session,
+            com.farmingnavigator.routing.run.GardenRunPlan plan, TravelCapabilitySnapshot travel, boolean enabled)
+    {
+        applyTargets(enabled ? GuidedRunTargets.fromGarden(session, plan, travel) : GuidedRunTargets.empty());
+    }
+
     private void applyTargets(GuidedRunTargets next)
     {
         targets = next;

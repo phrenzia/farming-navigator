@@ -232,6 +232,51 @@ public final class GuidedRunTargets
                         && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CRYSTAL);
     }
 
+    public static GuidedRunTargets fromGarden(com.farmingnavigator.guided.garden.GardenRunSnapshot session,
+            com.farmingnavigator.routing.run.GardenRunPlan plan, TravelCapabilitySnapshot travel)
+    {
+        if (session == null || !session.isActive()) { return empty(); }
+        Set<Integer> inventory = new HashSet<>(); Set<Integer> bank = new HashSet<>();
+        WorldPoint destination = null; String name = ""; RuneCost spellCost = RuneCost.builder().build();
+        switch (session.getStep())
+        {
+            case PREPARE:
+                if (plan != null && plan.getCrop() == session.getCrop())
+                {
+                    plan.getSupplies().forEach(check -> {
+                        inventory.addAll(check.getRequirement().getAcceptedItemIds());
+                        if (check.getWithdrawQuantity() > 0) { bank.addAll(check.getRequirement().getAcceptedItemIds()); }
+                    });
+                    plan.getStops().forEach(stop -> addTransport(inventory, bank, stop.getRecommended(), travel, null));
+                    if (plan.getTransportResources() != null) { bank.addAll(plan.getTransportResources().getBankItems()); }
+                }
+                break;
+            case TRAVEL:
+                addTransport(inventory, bank, session.getStop().getRecommended(), travel, null);
+                destination = session.getStop().getPatch().getLocation(); name = session.getStop().getPatch().getLabel() + " bush/cactus farming area";
+                if (session.getStop().getRecommended() != null && session.getStop().getRecommended().getOption().getTeleportSpellDefinition() != null)
+                {
+                    spellCost = session.getStop().getRecommended().getOption().getTeleportSpellDefinition().getRuneCost();
+                }
+                break;
+            case RAKE: inventory.add(ItemID.RAKE); break;
+            case CLEAR: inventory.add(ItemID.SPADE); break;
+            case PLANT: inventory.add(ItemID.DIBBER); inventory.add(session.getCrop().getSeedId()); break;
+            case PROTECT: session.getCrop().protectionPayment(1).ifPresent(payment -> inventory.addAll(payment.getAcceptedItemIds())); break;
+            case PRUNE: inventory.add(ItemID.SECATEURS); inventory.add(ItemID.FAIRY_ENCHANTED_SECATEURS); break;
+            case CURE: inventory.add(ItemID.PLANT_CURE); break;
+            default: break;
+        }
+        RunePreparation preparation = plan == null || plan.getTransportResources() == null ? null : plan.getTransportResources().getRunePreparation();
+        if (preparation != null && preparation.getSource() != null)
+        {
+            boolean needed = session.getStep() == com.farmingnavigator.guided.garden.GardenRunStep.PREPARE;
+            for (com.farmingnavigator.routing.requirement.RuneKind kind : preparation.getSource().getSuppliedKinds()) { needed |= spellCost.getQuantity(kind) > 0; }
+            if (needed) { inventory.add(preparation.getSource().getItemId()); }
+        }
+        return new GuidedRunTargets(inventory, bank, destination, name, null, false);
+    }
+
     private static void addTreeAxes(Set<Integer> items, com.farmingnavigator.routing.run.TreeRunPlan plan)
     {
         if (plan == null) { return; }
