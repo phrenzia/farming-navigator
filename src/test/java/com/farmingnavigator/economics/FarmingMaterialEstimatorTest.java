@@ -61,6 +61,20 @@ public class FarmingMaterialEstimatorTest
                 id -> id == ItemID.BASKET_TOMATO_5 ? 500 : 100);
         assertEquals(1, result.getLines().get(1).getQuantity()); assertEquals(600, result.getKnownSubtotal().getAsLong());
     }
+
+    @Test public void crystalHasNoInventedProtectionCostOrTradePrice()
+    {
+        AccountState unlocked = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
+                Map.of(Quest.SONG_OF_THE_ELVES, QuestState.FINISHED), Map.of(), Map.of());
+        TreeRunPlan plan = new TreeRunPlanner().plan(unlocked, EnumSet.of(TreePatchDefinition.PRIFDDINAS_CRYSTAL),
+                TreeRunCrop.CRYSTAL, true, Map.of(), null, now);
+        FarmingMaterialEstimate result = estimator.trees(plan, true, id -> {
+            assertEquals(ItemID.PLANTPOT_CRYSTAL_TREE_SAPLING, id); return 0;
+        });
+        assertEquals(1, result.getLines().size());
+        assertEquals(1, result.getUnknownPriceCount());
+        assertTrue(result.getNotes().stream().noneMatch(note -> note.contains("protection")));
+    }
     @Test public void unknownAndNegativeQuotesAreExcludedInsteadOfFreeMaterials()
     {
         FarmingMaterialEstimate result = estimator.trees(trees(TreeRunCrop.MAGIC, true), true,

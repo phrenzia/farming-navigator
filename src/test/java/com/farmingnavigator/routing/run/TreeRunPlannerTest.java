@@ -49,7 +49,7 @@ public class TreeRunPlannerTest
             assertEquals(FarmingAction.valueOf(action).getLevel(), crop.getRequiredLevel());
             assertTrue(ids.add(crop.getSaplingId()));
         }
-        assertEquals(21, ids.size());
+        assertEquals(22, ids.size());
     }
     @Test public void includesOnlySelectedMatchingAccessiblePatches()
     {
@@ -98,6 +98,27 @@ public class TreeRunPlannerTest
         assertTrue(result.getExcluded().get(TreePatchDefinition.GREAT_CONCH_CALQUAT).contains("Data required"));
         assertEquals(8, supply(result, ItemID.POISONIVY_BERRIES).getRequirement().getQuantity());
         assertTrue(supply(result, ItemID.POISONIVY_BERRIES).getRequirement().getAcceptedItemIds().contains(ItemID.Cert.POISONIVY_BERRIES));
+    }
+
+    @Test public void crystalRequiresFinishedElvenQuestAndReservesSaplingWithoutFarmerPayment()
+    {
+        Set<TreePatchDefinition> selected = EnumSet.of(TreePatchDefinition.PRIFDDINAS_CRYSTAL);
+        for (QuestState state : List.of(QuestState.NOT_STARTED, QuestState.IN_PROGRESS))
+        {
+            TreeRunPlan locked = planner.plan(account(99, 99, Map.of(Quest.SONG_OF_THE_ELVES, state)), selected,
+                    TreeRunCrop.CRYSTAL, true, Map.of(), null, now);
+            assertTrue(locked.getStops().isEmpty());
+            assertTrue(locked.getExcluded().get(TreePatchDefinition.PRIFDDINAS_CRYSTAL).contains("Complete Song of the Elves"));
+        }
+        TreeRunPlan result = planner.plan(account(99, 99, Map.of(Quest.SONG_OF_THE_ELVES, QuestState.FINISHED)), selected,
+                TreeRunCrop.CRYSTAL, true, Map.of(TreePatchDefinition.PRIFDDINAS_CRYSTAL,
+                        observation(TreeFamily.CRYSTAL_TREE, 0, now, FarmingGrowthRate.NORMAL)), null, now);
+        assertEquals(1, result.getStops().size());
+        assertTrue(result.getStops().get(0).getAction().contains("No farmer payment"));
+        assertEquals(1, supply(result, ItemID.PLANTPOT_CRYSTAL_TREE_SAPLING).getRequirement().getQuantity());
+        assertEquals(3, result.getSupplies().size());
+        assertFalse(TreeRunCrop.CRYSTAL.hasFarmerProtection());
+        assertTrue(result.getWarnings().stream().noneMatch(w -> w.contains("payment is unverified")));
     }
 
     @Test public void celastrusBarkStateKeepsHarvestInstructionsAndSaplingPaymentBudget()

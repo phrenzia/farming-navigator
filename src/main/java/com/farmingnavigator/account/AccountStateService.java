@@ -92,6 +92,7 @@ public class AccountStateService
             Quest.AT_FIRST_LIGHT,
             Quest.BONE_VOYAGE,
             Quest.MOURNINGS_END_PART_I,
+            Quest.SONG_OF_THE_ELVES,
             Quest.THE_RIBBITING_TALE_OF_A_LILY_PAD_LABOUR_DISPUTE,
 
             /*

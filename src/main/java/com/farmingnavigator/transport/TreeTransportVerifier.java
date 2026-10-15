@@ -35,6 +35,11 @@ final class TreeTransportVerifier
                 access = context.getAccountState().hasStartedQuest(Quest.MOURNINGS_END_PART_I);
                 missing = "Start Mourning's End Part I to use the Lletya destination.";
                 break;
+            case PRIFDDINAS_CRYSTAL:
+                family = ChargedTeleportItemDefinition.TELEPORT_CRYSTAL;
+                access = context.getAccountState().hasCompletedQuest(Quest.SONG_OF_THE_ELVES);
+                missing = "Complete Song of the Elves to use the Prifddinas destination.";
+                break;
             default: throw new IllegalArgumentException("Unsupported tree transport kind");
         }
         if (!access) { return new VerifiedTransportResult(option, VerifiedTransportState.LOCKED, missing); }

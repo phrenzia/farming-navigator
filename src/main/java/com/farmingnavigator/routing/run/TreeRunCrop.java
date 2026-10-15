@@ -28,7 +28,8 @@ public enum TreeRunCrop
     ROSEWOOD(TreeCrop.ROSEWOOD, 92, ItemID.PLANTPOT_ROSEWOOD_SAPLING),
     CALQUAT(TreeCrop.CALQUAT, 72, ItemID.PLANTPOT_CALQUAT_SAPLING, ItemID.POISONIVY_BERRIES, ItemID.Cert.POISONIVY_BERRIES, 8, "Poison ivy berries"),
     CELASTRUS(TreeCrop.CELASTRUS, 85, ItemID.PLANTPOT_CELASTRUS_TREE_SAPLING, ItemID.CACTUS_POTATO, ItemID.Cert.CACTUS_POTATO, 8, "Potato cactus"),
-    REDWOOD(TreeCrop.REDWOOD, 90, ItemID.PLANTPOT_REDWOOD_TREE_SAPLING, ItemID.DRAGONFRUIT, ItemID.Cert.DRAGONFRUIT, 6, "Dragonfruit");
+    REDWOOD(TreeCrop.REDWOOD, 90, ItemID.PLANTPOT_REDWOOD_TREE_SAPLING, ItemID.DRAGONFRUIT, ItemID.Cert.DRAGONFRUIT, 6, "Dragonfruit"),
+    CRYSTAL(TreeCrop.CRYSTAL_TREE, 74, ItemID.PLANTPOT_CRYSTAL_TREE_SAPLING);
 
     private final TreeCrop crop;
     private final int requiredLevel;
@@ -55,6 +56,7 @@ public enum TreeRunCrop
     public TreeCrop getCrop() { return crop; }
     public int getRequiredLevel() { return requiredLevel; }
     public int getSaplingId() { return saplingId; }
+    public boolean hasFarmerProtection() { return this != CRYSTAL; }
     public Optional<SupplyRequirement> protectionPayment(int replants)
     {
         if (paymentId == 0 || replants <= 0) { return Optional.empty(); }

@@ -199,7 +199,8 @@ public final class GuidedRunTargets
             case REMOVE:
                 inventory.add(ItemID.SPADE);
                 if (session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CALQUAT
-                        && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CELASTRUS) { inventory.add(ItemID.COINS); }
+                        && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CELASTRUS
+                        && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CRYSTAL) { inventory.add(ItemID.COINS); }
                 break;
             case PROTECT:
                 session.getCrop().protectionPayment(1).ifPresent(payment -> inventory.addAll(payment.getAcceptedItemIds())); break;
@@ -223,7 +224,10 @@ public final class GuidedRunTargets
         return new GuidedRunTargets(inventory, bank, destination, name, null, false,
                 scene ? session.getStop().getPatch() : null,
                 session.getStep() == com.farmingnavigator.guided.tree.TreeRunStep.PROTECT
-                        || session.getStep() == com.farmingnavigator.guided.tree.TreeRunStep.REMOVE);
+                        || session.getStep() == com.farmingnavigator.guided.tree.TreeRunStep.REMOVE
+                        && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CALQUAT
+                        && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CELASTRUS
+                        && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CRYSTAL);
     }
 
     private static void addSelectedRuneSource(Set<Integer> items, GuidedRunSnapshot session, HerbRunPlan plan,
@@ -296,6 +300,7 @@ public final class GuidedRunTargets
             case WEALTH_SPIRIT_TREE: addJewellery(items, ChargedTeleportItemDefinition.RING_OF_WEALTH); break;
             case DIGSITE_BARGE: addJewellery(items, ChargedTeleportItemDefinition.DIGSITE_PENDANT); break;
             case LLETYA_CRYSTAL: addJewellery(items, ChargedTeleportItemDefinition.TELEPORT_CRYSTAL); break;
+            case PRIFDDINAS_CRYSTAL: addJewellery(items, ChargedTeleportItemDefinition.TELEPORT_CRYSTAL); break;
             case COMBAT_BRACELET: addJewellery(items, ChargedTeleportItemDefinition.COMBAT_BRACELET); break;
             case ARDOUGNE_TELEPORT_TABLET: items.add(ItemID.POH_TABLET_ARDOUGNETELEPORT); break;
             case STONY_BASALT: items.add(ItemID.STRONGHOLD_TELEPORT_BASALT); break;

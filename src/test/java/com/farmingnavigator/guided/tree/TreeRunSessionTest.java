@@ -22,7 +22,8 @@ public class TreeRunSessionTest
     private TreeRunPlan plan(TreeRunCrop crop, TreePatchDefinition target)
     {
         AccountState account = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
-                Map.of(Quest.BONE_VOYAGE, QuestState.FINISHED, Quest.MOURNINGS_END_PART_I, QuestState.IN_PROGRESS), Map.of(), Map.of());
+                Map.of(Quest.BONE_VOYAGE, QuestState.FINISHED, Quest.MOURNINGS_END_PART_I, QuestState.IN_PROGRESS,
+                        Quest.SONG_OF_THE_ELVES, QuestState.FINISHED), Map.of(), Map.of());
         return new TreeRunPlanner().plan(account, EnumSet.of(target), crop, true, Map.of(), null, now);
     }
     private void start(TreeRunCrop crop, TreePatchDefinition target, boolean protect)
@@ -105,6 +106,21 @@ public class TreeRunSessionTest
         assertTrue(session.snapshot(now).getInstruction().contains("use a spade"));
         observe(0, 5); assertEquals(TreeRunStep.PLANT, step());
         observe(4, 6); assertEquals(TreeRunStep.COMPLETE, step());
+    }
+
+    @Test public void crystalHealthChopAndPlantNeverRequestNonexistentFarmerProtection()
+    {
+        start(TreeRunCrop.CRYSTAL, TreePatchDefinition.PRIFDDINAS_CRYSTAL, true);
+        observe(14, 2); assertEquals(TreeRunStep.CHECK_HEALTH, step());
+        observe(15, 3); assertEquals(TreeRunStep.KEEP_OR_REMOVE, step());
+        assertTrue(session.snapshot(now).getInstruction().contains("crystal shards"));
+        session.command(TreeRunCommand.REMOVE_TREE, now.plusSeconds(4));
+        assertTrue(session.snapshot(now).getInstruction().contains("suitable axe"));
+        observe(16, 5); assertEquals(TreeRunStep.INSPECT, step());
+        assertEquals(0, session.snapshot(now).getCompleted());
+        observe(0, 6); assertEquals(TreeRunStep.PLANT, step());
+        observe(8, 7); assertEquals(TreeRunStep.COMPLETE, step());
+        assertEquals(0, session.snapshot(now).getProtectionConfirmed());
     }
 
     @Test public void unreservedMatureRedwoodRemovalFinishesBeforeRequestingNewPlantingSupplies()

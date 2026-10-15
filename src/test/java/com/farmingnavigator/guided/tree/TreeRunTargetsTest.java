@@ -83,6 +83,30 @@ public class TreeRunTargetsTest
             assertNull(targets.getDestination()); assertNull(targets.getScenePatch());
         }
     }
+
+    @Test public void crystalTravelSharesChargedItemTargetsButRemovalHasNoFarmerOrCoins()
+    {
+        AccountState account = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
+                Map.of(net.runelite.api.Quest.SONG_OF_THE_ELVES, net.runelite.api.QuestState.FINISHED), Map.of(), Map.of());
+        TravelCapabilitySnapshot travel = new TravelCapabilitySnapshot(true, SpellbookType.STANDARD, null,
+                Map.of(ItemID.MOURNING_TELEPORT_CRYSTAL_1, 1), Map.of(), Map.of());
+        StorageSnapshot storage = new StorageSnapshot(Map.of(ItemID.MOURNING_TELEPORT_CRYSTAL_1, 1L), Map.of(), Map.of(), true, Instant.now());
+        RequirementContext context = new RequirementContext(account, new FarmingNavigatorConfig() {}, travel, storage);
+        TreeRunPlan plan = new TreeRunPlanner().plan(account, EnumSet.of(TreePatchDefinition.PRIFDDINAS_CRYSTAL), TreeRunCrop.CRYSTAL,
+                true, Map.of(), storage, Instant.now()).withTransports(new TransportVerificationService().evaluateAll(account,
+                        context.getConfig(), travel, storage, new TreePatchTransportService().getAllOptions()), HerbTransportPreference.CATALOGUE, context);
+        assertNotNull(plan.getStops().get(0).getRecommended());
+        GuidedRunTargets targets = GuidedRunTargets.fromTree(snapshot(TreeRunStep.TRAVEL, plan), plan, travel);
+        assertTrue(targets.getInventoryItems().contains(ItemID.MOURNING_TELEPORT_CRYSTAL_1));
+        assertTrue(targets.getInventoryItems().contains(ItemID.PRIF_TELEPORT_CRYSTAL));
+        assertEquals(TreePatchDestination.PRIFDDINAS_CRYSTAL.getLocation(), targets.getDestination());
+        GuidedRunTargets removal = GuidedRunTargets.fromTree(snapshot(TreeRunStep.REMOVE, plan), plan, travel);
+        assertEquals(TreePatchDefinition.PRIFDDINAS_CRYSTAL, removal.getTreeScenePatch());
+        assertFalse(removal.isTreeFarmer());
+        assertFalse(removal.getInventoryItems().contains(ItemID.COINS));
+        assertFalse(plan.getTransportResources().getChecks().isEmpty());
+        assertTrue(plan.getTransportResources().getChecks().stream().allMatch(check -> check.isReadyNow()));
+    }
     @Test public void sceneTargetsSeparateFarmerStepsFromPatchSteps()
     {
         GuidedRunTargets protection = targets(TreeRunStep.PROTECT, TreeRunCrop.OAK);

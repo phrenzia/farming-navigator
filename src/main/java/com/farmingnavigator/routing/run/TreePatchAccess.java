@@ -20,6 +20,8 @@ public final class TreePatchAccess
                 return account.getBoostedFarmingLevel() >= 85 ? "" : "85 Farming required for the advanced guild area (boostable).";
             case LLETYA_FRUIT:
                 return account.hasStartedQuest(Quest.MOURNINGS_END_PART_I) ? "" : "Start Mourning's End Part I for Lletya access.";
+            case PRIFDDINAS_CRYSTAL:
+                return account.hasCompletedQuest(Quest.SONG_OF_THE_ELVES) ? "" : "Complete Song of the Elves for Prifddinas access.";
             case FOSSIL_ISLAND_EAST:
             case FOSSIL_ISLAND_MIDDLE:
             case FOSSIL_ISLAND_WEST:

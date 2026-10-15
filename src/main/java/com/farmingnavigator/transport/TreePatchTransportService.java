@@ -45,6 +45,8 @@ public final class TreePatchTransportService
                 "Teleport to the Grand Exchange, use its spirit tree to Tree Gnome Village, follow Elkoy out of the maze, then walk south-west to the fruit tree patch.", TransportVerificationKind.WEALTH_SPIRIT_TREE)));
         options.put(TreePatchDefinition.LLETYA_FRUIT, List.of(item(1, "Teleport crystal to Lletya",
                 "Choose Lletya on a charged or eternal teleport crystal, then walk south to the fruit tree patch.", TransportVerificationKind.LLETYA_CRYSTAL)));
+        options.put(TreePatchDefinition.PRIFDDINAS_CRYSTAL, List.of(item(1, "Teleport crystal to Prifddinas",
+                "Choose Prifddinas on a charged or eternal teleport crystal, then walk north-east to the crystal tree patch.", TransportVerificationKind.PRIFDDINAS_CRYSTAL)));
         List<TransportOption> fossil = List.of(item(1, "Digsite pendant, then barge",
                 "Choose the base Digsite destination, quick-travel with the barge guard to Fossil Island, then walk north to the hardwood patches. This route does not require the separate pendant machine destination or mushtrees.", TransportVerificationKind.DIGSITE_BARGE));
         options.put(TreePatchDefinition.FOSSIL_ISLAND_EAST, fossil);

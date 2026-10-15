@@ -75,7 +75,11 @@ public final class TreeRunPlanner
                 supplies.add(new SupplyRequirement(crop.getSaplingId(), crop + " sapling", replants, false,
                         "One unnoted, fully grown sapling per potential replant. Seeds and seedlings do not count."));
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true, "For weeds; auto-weed and leprechaun storage are not checked."));
-                if (protect)
+                if (!crop.hasFarmerProtection())
+                {
+                    warnings.add("Crystal trees have no farmer protection payment. Compost and harvest yield are not budgeted in this plan.");
+                }
+                else if (protect)
                 {
                     Optional<SupplyRequirement> payment = crop.protectionPayment(replants);
                     if (payment.isPresent()) { supplies.add(payment.get()); }
@@ -93,6 +97,10 @@ public final class TreeRunPlanner
     }
     private String action(TreePatchCondition condition, TreeFamily family)
     {
+        if (family == TreeFamily.CRYSTAL_TREE && (condition == TreePatchCondition.EMPTY || condition == TreePatchCondition.WEEDS))
+        {
+            return "Inspect, rake if needed, then plant a finished crystal sapling. No farmer payment is available.";
+        }
         switch (condition)
         {
             case DISEASED: return "Inspect and prune disease. Keep the living tree; no replacement reserved.";

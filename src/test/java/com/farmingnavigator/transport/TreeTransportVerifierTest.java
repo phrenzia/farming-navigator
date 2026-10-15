@@ -71,6 +71,20 @@ public class TreeTransportVerifierTest
             assertFalse(new ChargedTeleportBudgetRequirement(ChargedTeleportItemDefinition.TELEPORT_CRYSTAL, i + 2).evaluate(context).isReadyNow());
         }
     }
+
+    @Test public void prifddinasDestinationRequiresFinishedQuestAndRealChargedCrystal()
+    {
+        TransportVerificationKind kind = TransportVerificationKind.PRIFDDINAS_CRYSTAL;
+        assertEquals(VerifiedTransportState.LOCKED, result(kind, context(Map.of(Quest.SONG_OF_THE_ELVES, QuestState.IN_PROGRESS),
+                Map.of(ItemID.MOURNING_TELEPORT_CRYSTAL_1, 1), Map.of())).getState());
+        Map<Quest, QuestState> quests = Map.of(Quest.SONG_OF_THE_ELVES, QuestState.FINISHED);
+        assertEquals(VerifiedTransportState.READY_NOW, result(kind,
+                context(quests, Map.of(ItemID.MOURNING_TELEPORT_CRYSTAL_1, 1), Map.of())).getState());
+        assertEquals(VerifiedTransportState.AVAILABLE_FROM_BANK, result(kind,
+                context(quests, Map.of(), Map.of(ItemID.PRIF_TELEPORT_CRYSTAL, 1L))).getState());
+        assertEquals(VerifiedTransportState.MISSING, result(kind,
+                context(quests, Map.of(ItemID.ELF_CRYSTAL_TINY, 1), Map.of())).getState());
+    }
     @Test public void eternalCrystalSupportsManyUsesAndBankedFiniteCrystalsCombine()
     {
         assertTrue(new ChargedTeleportBudgetRequirement(ChargedTeleportItemDefinition.TELEPORT_CRYSTAL, 100)

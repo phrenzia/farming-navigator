@@ -30,7 +30,7 @@ public final class TreeRunSession
     {
         if (plan == null || !plan.getBlocker().isEmpty() || plan.getStops().isEmpty()) { return false; }
         cancel();
-        this.plan = plan; this.protect = protect; startedAt = now;
+        this.plan = plan; this.protect = protect && plan.getCrop().hasFarmerProtection(); startedAt = now;
         enter(TreeRunStep.PREPARE, now); return true;
     }
     public boolean command(TreeRunCommand command, Instant now)

@@ -41,10 +41,12 @@ public final class TreeRunSnapshot
             case CHECK_HEALTH: return "Check the tree's health. The checklist waits for a fresh health-checked state.";
             case HARVEST_BARK: return "Use a suitable axe to harvest available celastrus bark. The checklist waits for an observed depleted-bark state before offering removal.";
             case KEEP_OR_REMOVE:
+                if (crop == TreeRunCrop.CRYSTAL) { return "The crystal tree is health-checked. Keep it, or choose to chop it for crystal shards and replant. Shard yield is not predicted."; }
                 if (crop == TreeRunCrop.CELASTRUS) { return "The celastrus bark is depleted. Keep the remaining tree or choose to cut it down, clear its stump and replant."; }
                 if (crop == TreeRunCrop.REDWOOD) { return "Keep the mature redwood, or explicitly choose removal. No replacement is reserved for an observed mature tree; prepare a new plan after removal."; }
                 return "The tree is health-checked. Pick available fruit if desired, then choose to keep it or remove and replant.";
             case REMOVE:
+                if (crop == TreeRunCrop.CRYSTAL) { return "Chop the crystal tree with a suitable axe to collect crystal shards. Wait for a fresh empty-patch observation before replanting."; }
                 if (crop == TreeRunCrop.REDWOOD) { return "If you still want to remove the redwood, pay Alexandra 2,000 coins. Coins are not budgeted. Prepare a new plan after removal for any unreserved replacement supplies."; }
                 if (crop == TreeRunCrop.CALQUAT) { return "Pick available calquat fruit if desired, then use a spade to remove the tree only if you want to replace it."; }
                 if (crop == TreeRunCrop.CELASTRUS) { return "Cut down the depleted celastrus tree with a suitable axe, then dig up its stump before replanting."; }

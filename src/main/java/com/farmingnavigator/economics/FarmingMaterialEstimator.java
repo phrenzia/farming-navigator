@@ -37,7 +37,7 @@ public final class FarmingMaterialEstimator
         {
             lines.add(new FarmingMaterialEstimate.Line(plan.getCrop().getSaplingId(), plan.getCrop() + " sapling",
                     replants, price.applyAsLong(plan.getCrop().getSaplingId())));
-            if (protect)
+            if (protect && plan.getCrop().hasFarmerProtection())
             {
                 Optional<SupplyRequirement> payment = plan.getCrop().protectionPayment(replants);
                 if (payment.isPresent()) { lines.add(line(payment.get(), price)); }
