@@ -50,6 +50,7 @@ public class RunTransportResourcePlannerTest
         RequirementContext context = context(Map.of(ItemID.AIRRUNE, 6, ItemID.WATERRUNE, 2, ItemID.LAWRUNE, 1),
                 Collections.emptyMap(), Collections.singletonMap(ItemID.LAWRUNE, 1L), Collections.emptyMap());
         assertTrue(new RunTransportResourcePlanner().evaluate(twoSpellStops(), context).getChecks().get(0).requiresBankWithdrawal());
+        assertTrue(new RunTransportResourcePlanner().evaluate(twoSpellStops(), context).getBankItems().contains(ItemID.LAWRUNE));
     }
 
     @Test
@@ -85,6 +86,27 @@ public class RunTransportResourcePlannerTest
         assertEquals(1, result.getChecks().size());
         assertEquals(RequirementState.BLOCKED, result.getChecks().get(0).getState());
         assertTrue(result.getChecks().get(0).getRequirement().contains("2 run teleports"));
+    }
+
+    @Test
+    public void sharedJewelleryWithdrawalTargetsOnlyBankedChargedVariants()
+    {
+        VerifiedTransportResult necklace = consumable(TransportVerificationKind.SKILLS_NECKLACE);
+        List<HerbRunStop> stops = Arrays.asList(new HerbRunStop(HerbPatchDefinition.FALADOR, "Inspect", necklace, null, true),
+                new HerbRunStop(HerbPatchDefinition.FARMING_GUILD, "Inspect", necklace, null, true));
+        RequirementContext context = context(Map.of(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1), Collections.emptyMap(),
+                Map.of(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1L, ItemID.JEWL_NECKLACE_OF_SKILLS, 1L), Collections.emptyMap());
+        RunTransportResources result = new RunTransportResourcePlanner().evaluate(stops, context);
+        assertTrue(result.getChecks().get(0).requiresBankWithdrawal());
+        assertEquals(Collections.singleton(ItemID.JEWL_NECKLACE_OF_SKILLS_1), result.getBankItems());
+    }
+
+    @Test
+    public void satisfiedSharedRuneBudgetDoesNotHighlightUnneededBankRunes()
+    {
+        RequirementContext context = context(Map.of(ItemID.AIRRUNE, 6, ItemID.WATERRUNE, 2, ItemID.LAWRUNE, 2),
+                Collections.emptyMap(), Map.of(ItemID.LAWRUNE, 10L), Collections.emptyMap());
+        assertTrue(new RunTransportResourcePlanner().evaluate(twoSpellStops(), context).getBankItems().isEmpty());
     }
 
     @Test

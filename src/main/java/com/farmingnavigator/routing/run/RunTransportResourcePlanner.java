@@ -8,6 +8,7 @@ import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.routing.requirement.RuneCost;
 import com.farmingnavigator.routing.requirement.RuneCostRequirement;
+import com.farmingnavigator.routing.requirement.RuneSupply;
 import com.farmingnavigator.transport.TransportOption;
 import com.farmingnavigator.transport.TransportVerificationKind;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import net.runelite.api.gameval.ItemID;
 
 /** Aggregates the recommended legs only; fallbacks are alternatives, not extra travel. */
@@ -58,6 +61,7 @@ public final class RunTransportResourcePlanner
             }
         }
         List<RequirementResult> checks = new ArrayList<>();
+        Set<Integer> bankItems = new HashSet<>();
         HerbHouseEntryMode houseEntryMode = context == null || context.getConfig() == null
                 ? HerbHouseEntryMode.TABLETS : context.getConfig().herbHouseEntryMode();
         if (houseEntryMode == null) { houseEntryMode = HerbHouseEntryMode.TABLETS; }
@@ -79,7 +83,20 @@ public final class RunTransportResourcePlanner
         RuneCost totalRunes = runes.build();
         if (!totalRunes.isEmpty())
         {
-            checks.add(new RuneCostRequirement("All recommended spell runes (including selected POH entry)", totalRunes).evaluate(context));
+            RequirementResult runeCheck = new RuneCostRequirement(
+                    "All recommended spell runes (including selected POH entry)", totalRunes).evaluate(context);
+            checks.add(runeCheck);
+            if (runeCheck.requiresBankWithdrawal() && context != null && context.getStorageSnapshot() != null)
+            {
+                for (RuneSupply supply : RuneSupply.values())
+                {
+                    if (supply.getSuppliedKinds().stream().anyMatch(kind -> totalRunes.getQuantity(kind) > 0)
+                            && context.getStorageSnapshot().getVerifiedBankQuantity(supply.getItemId()) > 0)
+                    {
+                        bankItems.add(supply.getItemId());
+                    }
+                }
+            }
         }
         if (houseVisits > 0)
         {
@@ -88,12 +105,24 @@ public final class RunTransportResourcePlanner
                     ? TeleportSpellDefinition.TELEPORT_TO_HOUSE.createRequirement().evaluate(context)
                     : TeleportTabletDefinition.TELEPORT_TO_HOUSE.createRequirement().evaluate(context));
         }
-        jewellery.forEach((family, uses) -> checks.add(new ChargedTeleportBudgetRequirement(family, uses).evaluate(context)));
+        jewellery.forEach((family, uses) -> {
+            RequirementResult check = new ChargedTeleportBudgetRequirement(family, uses).evaluate(context);
+            checks.add(check);
+            if (check.requiresBankWithdrawal() && context != null && context.getStorageSnapshot() != null)
+            {
+                family.getVariants().forEach(variant -> {
+                    if (context.getStorageSnapshot().getVerifiedBankQuantity(variant.getItemId()) > 0)
+                    {
+                        bankItems.add(variant.getItemId());
+                    }
+                });
+            }
+        });
         List<SupplyRequirement> supplies = new ArrayList<>();
         consumables.forEach((item, quantity) -> supplies.add(new SupplyRequirement(item.itemId, item.name, quantity,
                 false, "One consumed per recommended teleport; fallback routes are excluded.")));
         return new RunTransportResources(checks, notes,
-                new LoadoutService().evaluate(supplies, context == null ? null : context.getStorageSnapshot()), houseEntryMode);
+                new LoadoutService().evaluate(supplies, context == null ? null : context.getStorageSnapshot()), houseEntryMode, bankItems);
     }
 
     private enum Consumable

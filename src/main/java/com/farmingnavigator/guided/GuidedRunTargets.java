@@ -77,6 +77,7 @@ public final class GuidedRunTargets
                     plan.getStops().forEach(stop -> addTransport(inventory, bank, stop.getRecommended(), travel, houseEntryMode));
                     if (plan.getTransportResources() != null)
                     {
+                        bank.addAll(plan.getTransportResources().getBankItems());
                         plan.getTransportResources().getConsumables().forEach(check -> {
                             inventory.add(check.getRequirement().getItemId());
                             if (check.getWithdrawQuantity() > 0)

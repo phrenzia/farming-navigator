@@ -210,6 +210,28 @@ public class GuidedRunTargetsTest
         }
     }
 
+    @Test
+    public void preparationIncludesSharedRuneWithdrawalEvenWhenEachLegIsReady()
+    {
+        AccountState account = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), false);
+        java.util.Map<Integer, Integer> carried = java.util.Map.of(ItemID.AIRRUNE, 6, ItemID.WATERRUNE, 2, ItemID.LAWRUNE, 1);
+        TravelCapabilitySnapshot travel = new TravelCapabilitySnapshot(true, SpellbookType.STANDARD, null,
+                carried, Collections.emptyMap(), Collections.emptyMap());
+        StorageSnapshot storage = new StorageSnapshot(java.util.Map.of(ItemID.AIRRUNE, 6L, ItemID.WATERRUNE, 2L, ItemID.LAWRUNE, 1L),
+                Collections.emptyMap(), java.util.Map.of(ItemID.LAWRUNE, 1L), true, Instant.now());
+        VerifiedTransportResult route = new VerifiedTransportResult(new TransportOption(1, "Spell", "Cast manually",
+                TransportCategory.SPELL, TransportVerificationKind.TELEPORT_SPELL, TeleportSpellDefinition.FALADOR_TELEPORT),
+                VerifiedTransportState.READY_NOW, "");
+        List<HerbRunStop> stops = java.util.Arrays.asList(
+                plan().getStops().get(0).withTransports(route, null), plan().getStops().get(0).withTransports(route, null));
+        HerbRunPlan plan = plan().withTransportResources(new RunTransportResourcePlanner().evaluate(stops,
+                new RequirementContext(account, null, travel, storage)));
+        GuidedRunTargets targets = GuidedRunTargets.from(snapshot(GuidedRunStep.PREPARE, null), plan, travel);
+        assertTrue(targets.getBankItems().contains(ItemID.LAWRUNE));
+        assertFalse(targets.getBankItems().contains(ItemID.AIRRUNE));
+    }
+
     private GuidedRunTargets targets(GuidedRunStep step)
     {
         return GuidedRunTargets.from(snapshot(step, null), plan(), null);
