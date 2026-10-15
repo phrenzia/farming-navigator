@@ -3,6 +3,7 @@ package com.farmingnavigator.loadout;
 import com.farmingnavigator.storage.StorageSnapshot;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Map;
 import net.runelite.api.gameval.ItemID;
 import org.junit.Test;
 
@@ -46,6 +47,61 @@ public class LoadoutServiceTest
     public void largeCarriedCountsDoNotOverflow()
     {
         assertEquals(SupplyState.ALREADY_CARRIED, check(Long.MAX_VALUE, Long.MAX_VALUE, 0, true).getState());
+    }
+
+    @Test
+    public void countsNotedAndUnnotedEquivalentPaymentFormsTogether()
+    {
+        SupplyRequirement requirement = new SupplyRequirement(ItemID.COCONUT, "Coconuts", 25, false, "Protection payment",
+                ItemID.Cert.COCONUT);
+        StorageSnapshot storage = new StorageSnapshot(Map.of(ItemID.COCONUT, 5L, ItemID.Cert.COCONUT, 10L),
+                Collections.emptyMap(), Map.of(ItemID.COCONUT, 10L), true, Instant.now());
+        SupplyCheck check = new LoadoutService().evaluate(Collections.singletonList(requirement), storage).get(0);
+        assertEquals(SupplyState.AVAILABLE_FROM_BANK, check.getState());
+        assertEquals(10, check.getWithdrawQuantity());
+        assertEquals(0, check.getMissingQuantity());
+    }
+
+    @Test
+    public void duplicateEquivalentIdsDoNotCountTheSameStackTwice()
+    {
+        SupplyRequirement requirement = new SupplyRequirement(ItemID.COCONUT, "Coconuts", 25, false, "",
+                ItemID.COCONUT, ItemID.Cert.COCONUT, ItemID.Cert.COCONUT);
+        StorageSnapshot storage = new StorageSnapshot(Map.of(ItemID.COCONUT, 10L, ItemID.Cert.COCONUT, 5L),
+                Collections.emptyMap(), Collections.emptyMap(), true, Instant.now());
+        SupplyCheck check = new LoadoutService().evaluate(Collections.singletonList(requirement), storage).get(0);
+        assertEquals(10, check.getMissingQuantity());
+    }
+
+    @Test
+    public void equivalentPaymentTotalsSaturateInsteadOfOverflowing()
+    {
+        SupplyRequirement requirement = new SupplyRequirement(ItemID.COCONUT, "Coconuts", Long.MAX_VALUE, false, "",
+                ItemID.Cert.COCONUT);
+        StorageSnapshot storage = new StorageSnapshot(Map.of(ItemID.COCONUT, Long.MAX_VALUE, ItemID.Cert.COCONUT, Long.MAX_VALUE),
+                Collections.emptyMap(), Collections.emptyMap(), true, Instant.now());
+        assertEquals(SupplyState.ALREADY_CARRIED, new LoadoutService().evaluate(Collections.singletonList(requirement), storage).get(0).getState());
+    }
+
+    @Test
+    public void notedSaplingDoesNotCountUnlessExplicitlyDeclaredEquivalent()
+    {
+        SupplyRequirement sapling = new SupplyRequirement(ItemID.PLANTPOT_OAK_SAPLING, "Oak sapling", 1, false, "Plantable form only");
+        StorageSnapshot storage = new StorageSnapshot(Map.of(ItemID.Cert.PLANTPOT_OAK_SAPLING, 1L),
+                Collections.emptyMap(), Collections.emptyMap(), true, Instant.now());
+        assertEquals(SupplyState.MISSING, new LoadoutService().evaluate(Collections.singletonList(sapling), storage).get(0).getState());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsInvalidEquivalentItemId()
+    {
+        new SupplyRequirement(ItemID.COCONUT, "Coconuts", 1, false, "", 0);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void acceptedVariantsAreImmutable()
+    {
+        new SupplyRequirement(ItemID.COCONUT, "Coconuts", 1, false, "").getAcceptedItemIds().clear();
     }
 
     @Test(expected = UnsupportedOperationException.class)

@@ -13,11 +13,10 @@ public final class LoadoutService
         List<SupplyCheck> checks = new ArrayList<>();
         for (SupplyRequirement requirement : requirements)
         {
-            int id = requirement.getItemId();
             long remaining = requirement.getQuantity();
-            long inventory = storage == null ? 0 : Math.max(0, storage.getInventoryQuantity(id));
+            long inventory = quantity(requirement, storage, 0);
             remaining -= Math.min(remaining, inventory);
-            long equipped = storage == null ? 0 : Math.max(0, storage.getEquipmentQuantity(id));
+            long equipped = quantity(requirement, storage, 1);
             remaining -= Math.min(remaining, equipped);
             if (remaining == 0)
             {
@@ -30,7 +29,7 @@ public final class LoadoutService
             }
             else
             {
-                long bank = Math.max(0, storage.getVerifiedBankQuantity(id));
+                long bank = quantity(requirement, storage, 2);
                 long withdraw = Math.min(remaining, bank);
                 long missing = remaining - withdraw;
                 checks.add(new SupplyCheck(requirement, missing == 0 ? SupplyState.AVAILABLE_FROM_BANK : SupplyState.MISSING,
@@ -38,5 +37,18 @@ public final class LoadoutService
             }
         }
         return Collections.unmodifiableList(checks);
+    }
+
+    private long quantity(SupplyRequirement requirement, StorageSnapshot storage, int location)
+    {
+        if (storage == null) { return 0; }
+        long quantity = 0;
+        for (int id : requirement.getAcceptedItemIds())
+        {
+            long amount = Math.max(0, location == 0 ? storage.getInventoryQuantity(id)
+                    : location == 1 ? storage.getEquipmentQuantity(id) : storage.getVerifiedBankQuantity(id));
+            quantity = quantity > Long.MAX_VALUE - amount ? Long.MAX_VALUE : quantity + amount;
+        }
+        return quantity;
     }
 }

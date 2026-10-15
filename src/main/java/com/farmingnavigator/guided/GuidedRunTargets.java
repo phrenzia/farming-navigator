@@ -73,10 +73,10 @@ public final class GuidedRunTargets
                 if (plan != null && plan.getCrop() == session.getCrop())
                 {
                     plan.getSupplies().forEach(check -> {
-                        inventory.add(check.getRequirement().getItemId());
+                        inventory.addAll(check.getRequirement().getAcceptedItemIds());
                         if (check.getWithdrawQuantity() > 0)
                         {
-                            bank.add(check.getRequirement().getItemId());
+                            bank.addAll(check.getRequirement().getAcceptedItemIds());
                         }
                     });
                     plan.getStops().forEach(stop -> addTransport(inventory, bank, stop.getRecommended(), travel, houseEntryMode));
