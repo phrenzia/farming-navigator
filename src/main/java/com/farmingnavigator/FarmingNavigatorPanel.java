@@ -8,6 +8,8 @@ import com.farmingnavigator.farming.state.PatchCondition;
 import com.farmingnavigator.ui.HerbPatchObservationText;
 import com.farmingnavigator.ui.HerbGrowthTimerText;
 import com.farmingnavigator.ui.HerbRunPlanPanel;
+import com.farmingnavigator.ui.HerbOverviewPanel;
+import com.farmingnavigator.farming.state.HerbOverview;
 import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.guided.GuidedRunCommand;
 import com.farmingnavigator.guided.GuidedRunSnapshot;
@@ -128,6 +130,7 @@ public class FarmingNavigatorPanel
     private boolean pohEditorOpen;
     private HerbRunPlan herbRunPlan;
     private boolean herbRunDetailsOpen;
+    private boolean herbOverviewOpen;
     private GuidedRunSnapshot guidedRun;
     private final Consumer<GuidedRunCommand> guidedRunCommands;
 
@@ -675,6 +678,11 @@ public class FarmingNavigatorPanel
                     expanded -> herbRunDetailsOpen = expanded));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
+
+        java.time.Instant overviewTime = java.time.Instant.now();
+        patchListPanel.add(new HerbOverviewPanel(HerbOverview.create(patchStatuses, config.herbRunPatches(),
+                observations, overviewTime), overviewTime, herbOverviewOpen, expanded -> herbOverviewOpen = expanded));
+        patchListPanel.add(Box.createVerticalStrut(8));
 
         addPohProfileCard(
                 config

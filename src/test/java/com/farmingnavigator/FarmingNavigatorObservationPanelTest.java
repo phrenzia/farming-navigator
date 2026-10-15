@@ -48,6 +48,7 @@ public class FarmingNavigatorObservationPanelTest
                     Collections.emptyMap(), new FarmingNavigatorConfig() {}, observations);
             assertTrue(containsLabel(panel, "Ranarr - Diseased"));
             assertTrue(containsLabel(panel, "bank sync required"));
+            assertTrue(containsLabel(panel, "Herb overview"));
             assertTrue(containsLabel(panel, "Estimated harvest in 60-80 min if healthy."));
             assertFalse(containsLabel(panel, "visit this patch to observe it"));
             panel.setSize(240, 1300);
