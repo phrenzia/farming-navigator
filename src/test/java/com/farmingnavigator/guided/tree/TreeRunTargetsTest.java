@@ -87,7 +87,7 @@ public class TreeRunTargetsTest
     @Test public void crystalTravelSharesChargedItemTargetsButRemovalHasNoFarmerOrCoins()
     {
         AccountState account = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
-                Map.of(net.runelite.api.Quest.SONG_OF_THE_ELVES, net.runelite.api.QuestState.FINISHED), Map.of(), Map.of());
+                Map.of(net.runelite.api.Quest.SONG_OF_THE_ELVES, net.runelite.api.QuestState.FINISHED), Map.of(), Map.of()).withBoostedWoodcuttingLevel(41);
         TravelCapabilitySnapshot travel = new TravelCapabilitySnapshot(true, SpellbookType.STANDARD, null,
                 Map.of(ItemID.MOURNING_TELEPORT_CRYSTAL_1, 1), Map.of(), Map.of());
         StorageSnapshot storage = new StorageSnapshot(Map.of(ItemID.MOURNING_TELEPORT_CRYSTAL_1, 1L), Map.of(), Map.of(), true, Instant.now());
@@ -104,8 +104,26 @@ public class TreeRunTargetsTest
         assertEquals(TreePatchDefinition.PRIFDDINAS_CRYSTAL, removal.getTreeScenePatch());
         assertFalse(removal.isTreeFarmer());
         assertFalse(removal.getInventoryItems().contains(ItemID.COINS));
+        assertTrue(removal.getInventoryItems().contains(ItemID.RUNE_AXE));
+        assertFalse(removal.getInventoryItems().contains(ItemID.DRAGON_AXE));
         assertFalse(plan.getTransportResources().getChecks().isEmpty());
         assertTrue(plan.getTransportResources().getChecks().stream().allMatch(check -> check.isReadyNow()));
+    }
+
+    @Test public void celastrusBarkHighlightsLevelEligibleAxesAndPreparationIncludesBankAlternatives()
+    {
+        Instant now = Instant.now();
+        AccountState account = new AccountState(true, 99, 99, EnumSet.noneOf(net.runelite.api.Quest.class), false)
+                .withBoostedWoodcuttingLevel(41);
+        TreeRunPlan plan = new TreeRunPlanner().plan(account, EnumSet.of(TreePatchDefinition.FARMING_GUILD_CELASTRUS),
+                TreeRunCrop.CELASTRUS, true, Map.of(), new StorageSnapshot(Map.of(), Map.of(), Map.of(ItemID.RUNE_AXE, 1L), true, now), now);
+        GuidedRunTargets bark = GuidedRunTargets.fromTree(snapshot(TreeRunStep.HARVEST_BARK, plan), plan, null);
+        assertTrue(bark.getInventoryItems().contains(ItemID.RUNE_AXE));
+        assertFalse(bark.getInventoryItems().contains(ItemID.DRAGON_AXE));
+        assertFalse(bark.isTreeFarmer());
+        GuidedRunTargets preparation = GuidedRunTargets.fromTree(snapshot(TreeRunStep.PREPARE, plan), plan, null);
+        assertTrue(preparation.getBankItems().contains(ItemID.RUNE_AXE));
+        assertFalse(preparation.getBankItems().contains(ItemID.Cert.RUNE_AXE));
     }
     @Test public void sceneTargetsSeparateFarmerStepsFromPatchSteps()
     {

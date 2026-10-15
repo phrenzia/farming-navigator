@@ -382,6 +382,7 @@ public class FarmingNavigatorPlugin
         if (
                 skill == Skill.FARMING
                         || skill == Skill.ATTACK
+                        || skill == Skill.WOODCUTTING
                         || skill == Skill.MAGIC
                         || skill == Skill.AGILITY
                         || skill == Skill.HUNTER

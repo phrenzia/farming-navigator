@@ -16,6 +16,7 @@ public class AccountState
     private final int realMagicLevel;
     private final int boostedMagicLevel;
     private final int realAttackLevel;
+    private final int boostedWoodcuttingLevel;
 
     private final int realAgilityLevel;
     private final int boostedAgilityLevel;
@@ -70,6 +71,19 @@ public class AccountState
             Map<DiaryArea, DiaryTier> completedDiaryTiers, Map<DiaryArea, DiaryTier> claimedDiaryTiers,
             boolean fireOfNourishmentBuilt, boolean fairyRingAccessUnlocked, boolean varlamoreVisited, int realAttackLevel)
     {
+        this(loggedIn, realFarmingLevel, boostedFarmingLevel, realMagicLevel, boostedMagicLevel,
+                realAgilityLevel, boostedAgilityLevel, realHunterLevel, boostedHunterLevel, questStates,
+                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, realAttackLevel, -1);
+    }
+
+    private AccountState(boolean loggedIn, int realFarmingLevel, int boostedFarmingLevel,
+            int realMagicLevel, int boostedMagicLevel, int realAgilityLevel, int boostedAgilityLevel,
+            int realHunterLevel, int boostedHunterLevel, Map<Quest, QuestState> questStates,
+            Map<DiaryArea, DiaryTier> completedDiaryTiers, Map<DiaryArea, DiaryTier> claimedDiaryTiers,
+            boolean fireOfNourishmentBuilt, boolean fairyRingAccessUnlocked, boolean varlamoreVisited,
+            int realAttackLevel, int boostedWoodcuttingLevel)
+    {
+        this.boostedWoodcuttingLevel = Math.max(-1, boostedWoodcuttingLevel);
         this.realAttackLevel = realAttackLevel >= 1 ? realAttackLevel : -1;
         this.loggedIn =
                 loggedIn;
@@ -345,7 +359,16 @@ public class AccountState
     {
         return new AccountState(loggedIn, realFarmingLevel, boostedFarmingLevel, realMagicLevel, boostedMagicLevel,
                 realAgilityLevel, boostedAgilityLevel, realHunterLevel, boostedHunterLevel, questStates,
-                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, level);
+                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, level, boostedWoodcuttingLevel);
+    }
+
+    /** -1 means an older/synthetic caller has not supplied this skill. Zero is a known drained level. */
+    public int getBoostedWoodcuttingLevel() { return boostedWoodcuttingLevel; }
+    public AccountState withBoostedWoodcuttingLevel(int level)
+    {
+        return new AccountState(loggedIn, realFarmingLevel, boostedFarmingLevel, realMagicLevel, boostedMagicLevel,
+                realAgilityLevel, boostedAgilityLevel, realHunterLevel, boostedHunterLevel, questStates,
+                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, realAttackLevel, level);
     }
 
     public int getBoostedMagicLevel()

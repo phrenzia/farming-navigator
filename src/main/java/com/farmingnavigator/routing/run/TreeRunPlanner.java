@@ -4,6 +4,7 @@ import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.farming.tree.*;
 import com.farmingnavigator.loadout.LoadoutService;
 import com.farmingnavigator.loadout.SupplyRequirement;
+import com.farmingnavigator.loadout.SupplyCheck;
 import com.farmingnavigator.storage.StorageSnapshot;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -93,7 +94,12 @@ public final class TreeRunPlanner
                         "Prune observed diseased trees; magic secateurs also work.", ItemID.FAIRY_ENCHANTED_SECATEURS));
             }
         }
-        return new TreeRunPlan(crop, stops, new LoadoutService().evaluate(supplies, storage), excluded, warnings, "");
+        List<SupplyCheck> checks = new ArrayList<>(new LoadoutService().evaluate(supplies, storage));
+        if (stops.stream().anyMatch(TreeRunStop::isReplant) && (crop == TreeRunCrop.CELASTRUS || crop == TreeRunCrop.CRYSTAL))
+        {
+            checks.add(TreeAxePreparation.evaluate(account, storage));
+        }
+        return new TreeRunPlan(crop, stops, checks, excluded, warnings, "");
     }
     private String action(TreePatchCondition condition, TreeFamily family)
     {

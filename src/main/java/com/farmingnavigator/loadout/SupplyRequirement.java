@@ -45,6 +45,6 @@ public final class SupplyRequirement
     public long getQuantity() { return quantity; }
     public boolean isOptional() { return optional; }
     public String getNote() { return note; }
-    /** Equivalent payment forms only; a noted sapling must not be declared usable for planting. */
+    /** Equivalent usable items/forms only; a noted sapling must not be declared usable for planting. */
     public Set<Integer> getAcceptedItemIds() { return acceptedItemIds; }
 }

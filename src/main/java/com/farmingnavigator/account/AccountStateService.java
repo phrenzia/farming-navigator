@@ -214,7 +214,7 @@ public class AccountStateService
                 fairyRingAccessUnlocked,
                 varlamoreVisited,
                 client.getRealSkillLevel(Skill.ATTACK)
-        );
+        ).withBoostedWoodcuttingLevel(client.getBoostedSkillLevel(Skill.WOODCUTTING));
     }
 
     private EnumMap<Quest, QuestState>

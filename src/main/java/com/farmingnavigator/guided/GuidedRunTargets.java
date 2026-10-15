@@ -198,10 +198,12 @@ public final class GuidedRunTargets
                 inventory.add(ItemID.SPADE); inventory.add(session.getCrop().getSaplingId()); break;
             case REMOVE:
                 inventory.add(ItemID.SPADE);
+                addTreeAxes(inventory, plan);
                 if (session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CALQUAT
                         && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CELASTRUS
                         && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CRYSTAL) { inventory.add(ItemID.COINS); }
                 break;
+            case HARVEST_BARK: addTreeAxes(inventory, plan); break;
             case PROTECT:
                 session.getCrop().protectionPayment(1).ifPresent(payment -> inventory.addAll(payment.getAcceptedItemIds())); break;
             case PRUNE:
@@ -228,6 +230,13 @@ public final class GuidedRunTargets
                         && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CALQUAT
                         && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CELASTRUS
                         && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CRYSTAL);
+    }
+
+    private static void addTreeAxes(Set<Integer> items, com.farmingnavigator.routing.run.TreeRunPlan plan)
+    {
+        if (plan == null) { return; }
+        plan.getSupplies().stream().filter(check -> check.getRequirement().getItemId() == ItemID.BRONZE_AXE)
+                .forEach(check -> items.addAll(check.getRequirement().getAcceptedItemIds()));
     }
 
     private static void addSelectedRuneSource(Set<Integer> items, GuidedRunSnapshot session, HerbRunPlan plan,

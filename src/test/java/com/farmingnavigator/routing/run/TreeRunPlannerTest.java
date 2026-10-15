@@ -116,7 +116,7 @@ public class TreeRunPlannerTest
         assertEquals(1, result.getStops().size());
         assertTrue(result.getStops().get(0).getAction().contains("No farmer payment"));
         assertEquals(1, supply(result, ItemID.PLANTPOT_CRYSTAL_TREE_SAPLING).getRequirement().getQuantity());
-        assertEquals(3, result.getSupplies().size());
+        assertEquals(4, result.getSupplies().size());
         assertFalse(TreeRunCrop.CRYSTAL.hasFarmerProtection());
         assertTrue(result.getWarnings().stream().noneMatch(w -> w.contains("payment is unverified")));
     }
