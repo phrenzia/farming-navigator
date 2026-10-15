@@ -5,6 +5,8 @@ import com.farmingnavigator.account.AccountStateService;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.farming.HerbPatchService;
 import com.farmingnavigator.farming.HerbPatchStatus;
+import com.farmingnavigator.farming.state.HerbPatchObservation;
+import com.farmingnavigator.farming.state.HerbPatchObservationService;
 import com.farmingnavigator.poh.PohProfileService;
 import com.farmingnavigator.routing.capability.TravelCapabilityService;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
@@ -28,6 +30,7 @@ import javax.swing.SwingUtilities;
 import net.runelite.api.GameState;
 import net.runelite.api.Skill;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.StatChanged;
 import net.runelite.api.events.VarbitChanged;
@@ -99,6 +102,9 @@ public class FarmingNavigatorPlugin
     private PohProfileService
             pohProfileService;
 
+    @Inject
+    private HerbPatchObservationService herbPatchObservationService;
+
     private FarmingNavigatorPanel panel;
 
     private NavigationButton navigationButton;
@@ -106,6 +112,7 @@ public class FarmingNavigatorPlugin
     @Override
     protected void startUp()
     {
+        herbPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
 
@@ -142,6 +149,7 @@ public class FarmingNavigatorPlugin
     @Override
     protected void shutDown()
     {
+        herbPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
 
@@ -164,6 +172,11 @@ public class FarmingNavigatorPlugin
         GameState state =
                 event.getGameState();
 
+        if (state == GameState.LOADING)
+        {
+            herbPatchObservationService.invalidateRegion();
+        }
+
         if (
                 state == GameState.LOGIN_SCREEN
                         || state == GameState.LOGGING_IN
@@ -171,6 +184,7 @@ public class FarmingNavigatorPlugin
                         || state == GameState.CONNECTION_LOST
         )
         {
+            herbPatchObservationService.reset();
             storageStateService
                     .invalidateBankSnapshot();
         }
@@ -178,6 +192,15 @@ public class FarmingNavigatorPlugin
         clientThread.invokeLater(
                 this::updateAccountState
         );
+    }
+
+    @Subscribe
+    public void onGameTick(GameTick event)
+    {
+        if (herbPatchObservationService.sample())
+        {
+            updateAccountState();
+        }
     }
 
     @Subscribe
@@ -364,7 +387,8 @@ public class FarmingNavigatorPlugin
 
     private void updateAccountState()
     {
-        if (panel == null)
+        FarmingNavigatorPanel targetPanel = panel;
+        if (targetPanel == null)
         {
             return;
         }
@@ -407,14 +431,18 @@ public class FarmingNavigatorPlugin
                                 transportOptions
                         );
 
+        Map<HerbPatchDefinition, HerbPatchObservation> observations =
+                herbPatchObservationService.snapshot();
+
         SwingUtilities.invokeLater(
                 () ->
-                        panel.setAccountState(
+                        targetPanel.setAccountState(
                                 accountState,
                                 storageSnapshot,
                                 patchStatuses,
                                 verifiedTransportResults,
-                                config
+                                config,
+                                observations
                         )
         );
     }

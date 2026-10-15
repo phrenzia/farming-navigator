@@ -3,6 +3,9 @@ package com.farmingnavigator;
 import com.farmingnavigator.account.AccountState;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.farming.HerbPatchStatus;
+import com.farmingnavigator.farming.state.HerbPatchObservation;
+import com.farmingnavigator.farming.state.PatchCondition;
+import com.farmingnavigator.ui.HerbPatchObservationText;
 import com.farmingnavigator.poh.PohHouseLocation;
 import com.farmingnavigator.poh.PohJewelleryBoxTier;
 import com.farmingnavigator.poh.PohPortalDestination;
@@ -464,6 +467,22 @@ public class FarmingNavigatorPanel
             FarmingNavigatorConfig config
     )
     {
+        setAccountState(accountState, storageSnapshot, patchStatuses, transportResultsByPatch,
+                config, Collections.emptyMap());
+    }
+
+    public void setAccountState(
+            AccountState accountState,
+            StorageSnapshot storageSnapshot,
+            List<HerbPatchStatus> patchStatuses,
+            Map<
+                    HerbPatchDefinition,
+                    List<VerifiedTransportResult>
+                    > transportResultsByPatch,
+            FarmingNavigatorConfig config,
+            Map<HerbPatchDefinition, HerbPatchObservation> observations
+    )
+    {
         int savedScrollPosition;
 
         if (scrollToTopOnNextRefresh)
@@ -497,6 +516,7 @@ public class FarmingNavigatorPanel
                 patchStatuses,
                 transportResultsByPatch,
                 config,
+                observations,
                 savedScrollPosition
         );
     }
@@ -544,6 +564,7 @@ public class FarmingNavigatorPanel
                     List<VerifiedTransportResult>
                     > transportResultsByPatch,
             FarmingNavigatorConfig config,
+            Map<HerbPatchDefinition, HerbPatchObservation> observations,
             int savedScrollPosition
     )
     {
@@ -693,7 +714,8 @@ public class FarmingNavigatorPanel
                             status,
                             results,
                             storageSnapshot
-                                    .isBankVerified()
+                                    .isBankVerified(),
+                            observations.get(status.getPatch())
                     )
             );
 
@@ -1274,7 +1296,8 @@ public class FarmingNavigatorPanel
     private JPanel createPatchRow(
             HerbPatchStatus status,
             List<VerifiedTransportResult> results,
-            boolean bankVerified
+            boolean bankVerified,
+            HerbPatchObservation observation
     )
     {
         JPanel row =
@@ -1355,6 +1378,13 @@ public class FarmingNavigatorPanel
                         AVAILABLE_COLOR
                 )
         );
+
+        row.add(Box.createVerticalStrut(4));
+        boolean needsAttention = observation != null
+                && (observation.getState().getCondition() == PatchCondition.DISEASED
+                || observation.getState().getCondition() == PatchCondition.DEAD);
+        row.add(createWrappedText(HerbPatchObservationText.describe(observation, ZoneId.systemDefault()),
+                needsAttention ? WARNING_COLOR : MUTED_COLOR));
 
         if (
                 !bankVerified
