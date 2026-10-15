@@ -148,6 +148,64 @@ public final class GuidedRunTargets
                 session.getStep() == GuidedRunStep.NOTE_PRODUCE);
     }
 
+    public static GuidedRunTargets fromTree(com.farmingnavigator.guided.tree.TreeRunSnapshot session,
+            com.farmingnavigator.routing.run.TreeRunPlan plan, TravelCapabilitySnapshot travel)
+    {
+        if (session == null || !session.isActive()) { return empty(); }
+        Set<Integer> inventory = new HashSet<>();
+        Set<Integer> bank = new HashSet<>();
+        WorldPoint destination = null;
+        String name = "";
+        RuneCost spellCost = RuneCost.builder().build();
+        switch (session.getStep())
+        {
+            case PREPARE:
+                if (plan != null && plan.getCrop() == session.getCrop())
+                {
+                    plan.getSupplies().forEach(check -> {
+                        inventory.addAll(check.getRequirement().getAcceptedItemIds());
+                        if (check.getWithdrawQuantity() > 0) { bank.addAll(check.getRequirement().getAcceptedItemIds()); }
+                    });
+                    plan.getStops().forEach(stop -> addTransport(inventory, bank, stop.getRecommended(), travel, null));
+                    if (plan.getTransportResources() != null) { bank.addAll(plan.getTransportResources().getBankItems()); }
+                }
+                break;
+            case TRAVEL:
+                if (!session.getStop().isLocalWalk()) { addTransport(inventory, bank, session.getStop().getRecommended(), travel, null); }
+                destination = com.farmingnavigator.guided.tree.TreePatchDestination.valueOf(session.getStop().getPatch().name()).getLocation();
+                name = session.getStop().getPatch().getLabel() + " tree farming area";
+                if (session.getStop().getRecommended() != null
+                        && session.getStop().getRecommended().getOption().getTeleportSpellDefinition() != null)
+                {
+                    spellCost = session.getStop().getRecommended().getOption().getTeleportSpellDefinition().getRuneCost();
+                }
+                break;
+            case RAKE: inventory.add(ItemID.RAKE); break;
+            case CLEAR: inventory.add(ItemID.SPADE); break;
+            case PLANT:
+                inventory.add(ItemID.SPADE); inventory.add(session.getCrop().getSaplingId()); break;
+            case REMOVE:
+                inventory.add(ItemID.SPADE); inventory.add(ItemID.COINS); break;
+            case PROTECT:
+                session.getCrop().protectionPayment(1).ifPresent(payment -> inventory.addAll(payment.getAcceptedItemIds())); break;
+            case PRUNE:
+                inventory.add(ItemID.SECATEURS); inventory.add(ItemID.FAIRY_ENCHANTED_SECATEURS); break;
+            default: break;
+        }
+        RunePreparation preparation = plan == null || plan.getTransportResources() == null
+                ? null : plan.getTransportResources().getRunePreparation();
+        if (preparation != null && preparation.getSource() != null)
+        {
+            boolean needed = session.getStep() == com.farmingnavigator.guided.tree.TreeRunStep.PREPARE;
+            for (com.farmingnavigator.routing.requirement.RuneKind kind : preparation.getSource().getSuppliedKinds())
+            {
+                needed |= spellCost.getQuantity(kind) > 0;
+            }
+            if (needed) { inventory.add(preparation.getSource().getItemId()); }
+        }
+        return new GuidedRunTargets(inventory, bank, destination, name, null, false);
+    }
+
     private static void addSelectedRuneSource(Set<Integer> items, GuidedRunSnapshot session, HerbRunPlan plan,
             HerbHouseEntryMode houseEntryMode)
     {
@@ -215,6 +273,9 @@ public final class GuidedRunTargets
             case SKILLS_NECKLACE: addJewellery(items, ChargedTeleportItemDefinition.SKILLS_NECKLACE); break;
             case AMULET_OF_GLORY: addJewellery(items, ChargedTeleportItemDefinition.AMULET_OF_GLORY); break;
             case RING_OF_WEALTH: addJewellery(items, ChargedTeleportItemDefinition.RING_OF_WEALTH); break;
+            case WEALTH_SPIRIT_TREE: addJewellery(items, ChargedTeleportItemDefinition.RING_OF_WEALTH); break;
+            case DIGSITE_BARGE: addJewellery(items, ChargedTeleportItemDefinition.DIGSITE_PENDANT); break;
+            case LLETYA_CRYSTAL: addJewellery(items, ChargedTeleportItemDefinition.TELEPORT_CRYSTAL); break;
             case COMBAT_BRACELET: addJewellery(items, ChargedTeleportItemDefinition.COMBAT_BRACELET); break;
             case ARDOUGNE_TELEPORT_TABLET: items.add(ItemID.POH_TABLET_ARDOUGNETELEPORT); break;
             case STONY_BASALT: items.add(ItemID.STRONGHOLD_TELEPORT_BASALT); break;

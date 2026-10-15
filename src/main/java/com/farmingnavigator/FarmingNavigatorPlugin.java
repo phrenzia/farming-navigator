@@ -603,7 +603,11 @@ public class FarmingNavigatorPlugin
         latestSuggestedRun = runPlan;
         guidedRunSession.refreshTransports(verifiedTransportResults, config.herbTransportPreference());
         GuidedRunSnapshot guidedRun = guidedRunSession.snapshot();
-        guidedRunOverlayController.update(guidedRun, runPlan, travelCapabilitySnapshot, config.guidedRunOverlays());
+        if (treeGuidedRun.isActive())
+        {
+            guidedRunOverlayController.updateTree(treeGuidedRun, treeRunPlan, travelCapabilitySnapshot, config.guidedRunOverlays());
+        }
+        else { guidedRunOverlayController.update(guidedRun, runPlan, travelCapabilitySnapshot, config.guidedRunOverlays()); }
 
         SwingUtilities.invokeLater(
                 () -> {

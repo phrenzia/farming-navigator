@@ -33,7 +33,18 @@ public final class GuidedRunOverlayController
 
     public void update(GuidedRunSnapshot session, HerbRunPlan plan, TravelCapabilitySnapshot travel, boolean enabled)
     {
-        targets = enabled ? GuidedRunTargets.from(session, plan, travel) : GuidedRunTargets.empty();
+        applyTargets(enabled ? GuidedRunTargets.from(session, plan, travel) : GuidedRunTargets.empty());
+    }
+
+    public void updateTree(com.farmingnavigator.guided.tree.TreeRunSnapshot session,
+            com.farmingnavigator.routing.run.TreeRunPlan plan, TravelCapabilitySnapshot travel, boolean enabled)
+    {
+        applyTargets(enabled ? GuidedRunTargets.fromTree(session, plan, travel) : GuidedRunTargets.empty());
+    }
+
+    private void applyTargets(GuidedRunTargets next)
+    {
+        targets = next;
         if (marker != null && !marker.getWorldPoint().equals(targets.getDestination()))
         {
             worldMap.remove(marker);
@@ -42,7 +53,7 @@ public final class GuidedRunOverlayController
         if (marker == null && targets.getDestination() != null)
         {
             marker = new WorldMapPoint(targets.getDestination(), markerImage);
-            marker.setTooltip("Guided herb run: " + targets.getDestinationName());
+            marker.setTooltip("Guided farming run: " + targets.getDestinationName());
             marker.setName("Farming Navigator destination");
             marker.setSnapToEdge(true);
             marker.setJumpOnClick(false);

@@ -12,6 +12,8 @@ Updated 2026-10-15. Repository and current Git history take precedence over this
 
 ## Implemented this session
 
+Tree item/map checkpoint: 1,796 tests pass after clean build and test. `GuidedRunTargets.fromTree` shares item renderers with herbs, keeps noted saplings out of planting targets, includes both farmer-payment forms, handles crystal/pendant/spirit-route items and selected rune equipment, and marks the current tree farming area during travel. Controller uses a generic farming tooltip and removes only its own marker. Tree scene/farmer targets remain the next step.
+
 Guided tree checkpoint: 1,791 tests pass after clean build/test; the narrow manual-payment card was rendered and inspected offline. New `guided.tree` classes keep a fixed immutable stop plan, refresh transport choices, and gate evidence by timestamp, patch family, plane and a 12-tile farming-area anchor. Actions distinguish health check, keep/remove choice, stump/dead clearing, raking, planting, pruning, waiting and manually confirmed protection. Wrong/unknown fresh state returns to inspection; time passing alone never proves readiness. Manual stop completion/skipping do not claim planting or payment. Completed elapsed time freezes. Plugin wiring makes herb/tree sessions mutually exclusive and clears both plus cached plans on logout/hop/profile/shutdown. Tree settings cancel the tree checklist. **No tree overlays yet.** Tree patch anchors derive from pinned RuneLite FarmingPatchLocation; copyright retained. Fossil anchors represent the shared farming area, not individual clickable objects.
 
 Latest tree checkpoint (1,761 tests; clean build and test passed; offline tree preparation image inspected):
