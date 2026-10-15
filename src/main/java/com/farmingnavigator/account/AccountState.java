@@ -15,6 +15,7 @@ public class AccountState
 
     private final int realMagicLevel;
     private final int boostedMagicLevel;
+    private final int realAttackLevel;
 
     private final int realAgilityLevel;
     private final int boostedAgilityLevel;
@@ -58,6 +59,18 @@ public class AccountState
             boolean varlamoreVisited
     )
     {
+        this(loggedIn, realFarmingLevel, boostedFarmingLevel, realMagicLevel, boostedMagicLevel,
+                realAgilityLevel, boostedAgilityLevel, realHunterLevel, boostedHunterLevel, questStates,
+                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, -1);
+    }
+
+    public AccountState(boolean loggedIn, int realFarmingLevel, int boostedFarmingLevel,
+            int realMagicLevel, int boostedMagicLevel, int realAgilityLevel, int boostedAgilityLevel,
+            int realHunterLevel, int boostedHunterLevel, Map<Quest, QuestState> questStates,
+            Map<DiaryArea, DiaryTier> completedDiaryTiers, Map<DiaryArea, DiaryTier> claimedDiaryTiers,
+            boolean fireOfNourishmentBuilt, boolean fairyRingAccessUnlocked, boolean varlamoreVisited, int realAttackLevel)
+    {
+        this.realAttackLevel = realAttackLevel >= 1 ? realAttackLevel : -1;
         this.loggedIn =
                 loggedIn;
 
@@ -323,6 +336,16 @@ public class AccountState
     public int getRealMagicLevel()
     {
         return realMagicLevel;
+    }
+
+    /** -1 means an older/synthetic caller has not supplied this skill. */
+    public int getRealAttackLevel() { return realAttackLevel; }
+
+    public AccountState withRealAttackLevel(int level)
+    {
+        return new AccountState(loggedIn, realFarmingLevel, boostedFarmingLevel, realMagicLevel, boostedMagicLevel,
+                realAgilityLevel, boostedAgilityLevel, realHunterLevel, boostedHunterLevel, questStates,
+                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, level);
     }
 
     public int getBoostedMagicLevel()

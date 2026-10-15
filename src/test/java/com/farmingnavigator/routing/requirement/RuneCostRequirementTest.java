@@ -745,6 +745,66 @@ public class RuneCostRequirementTest
         assertEquals(null, preparation.getSource());
     }
 
+    @Test
+    public void carriedBattlestaffNeedsKnownSufficientUnboostedAttack()
+    {
+        RequirementContext base = createContext(99, 99,
+                Map.of(ItemID.WATERRUNE, 1, ItemID.LAWRUNE, 1, ItemID.AIR_BATTLESTAFF, 1), Collections.emptyMap(),
+                Collections.emptyMap(), Collections.emptyMap(), false, Collections.emptyMap(), true);
+        for (int attack : new int[]{-1, 1, 29, 30})
+        {
+            RequirementContext context = new RequirementContext(base.getAccountState().withRealAttackLevel(attack), null,
+                    base.getTravelCapabilitySnapshot(), base.getStorageSnapshot());
+            RunePreparation result = createFaladorRuneRequirement().evaluatePreparation(context);
+            assertEquals(attack == 30, result.getResult().isSatisfied());
+            if (attack < 1)
+            {
+                assertEquals(RequirementState.DATA_REQUIRED, result.getResult().getState());
+                assertTrue(result.getResult().getDetail().contains("30 Attack"));
+            }
+            else if (attack < 30) { assertEquals(RequirementState.BLOCKED, result.getResult().getState()); }
+        }
+    }
+
+    @Test
+    public void bankedMysticStaffRequires40AttackAndCannotUseMagicBoostAsProof()
+    {
+        RequirementContext base = createContext(99, 99, Map.of(ItemID.WATERRUNE, 1, ItemID.LAWRUNE, 1),
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), false,
+                Map.of(ItemID.MYSTIC_AIR_STAFF, 1L), true);
+        for (int attack : new int[]{-1, 39, 40})
+        {
+            RequirementContext context = new RequirementContext(base.getAccountState().withRealAttackLevel(attack), null,
+                    base.getTravelCapabilitySnapshot(), base.getStorageSnapshot());
+            RunePreparation result = createFaladorRuneRequirement().evaluatePreparation(context);
+            assertEquals(attack == 40, result.getResult().requiresBankWithdrawal());
+            if (attack == 40) { assertEquals(InfiniteRuneSource.MYSTIC_AIR_STAFF, result.getSource()); }
+        }
+    }
+
+    @Test
+    public void equippedSourceRemainsUsableWhenCompatibilityCallerLacksAttackData()
+    {
+        RequirementContext base = createContext(99, 99, Map.of(ItemID.WATERRUNE, 1, ItemID.LAWRUNE, 1),
+                Map.of(ItemID.AIR_BATTLESTAFF, 1), Collections.emptyMap(), Collections.emptyMap(), false, Collections.emptyMap(), true);
+        RequirementContext unknown = new RequirementContext(base.getAccountState().withRealAttackLevel(-1), null,
+                base.getTravelCapabilitySnapshot(), base.getStorageSnapshot());
+        assertTrue(createFaladorRuneRequirement().evaluate(unknown).isReadyNow());
+    }
+
+    @Test
+    public void basicStaffAlternativeDoesNotNeedUnrelatedAttackData()
+    {
+        RequirementContext base = createContext(99, 99, Map.of(ItemID.WATERRUNE, 1, ItemID.LAWRUNE, 1, ItemID.AIR_BATTLESTAFF, 1),
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), false,
+                Map.of(ItemID.STAFF_OF_AIR, 1L), true);
+        RequirementContext unknown = new RequirementContext(base.getAccountState().withRealAttackLevel(-1), null,
+                base.getTravelCapabilitySnapshot(), base.getStorageSnapshot());
+        RunePreparation result = createFaladorRuneRequirement().evaluatePreparation(unknown);
+        assertTrue(result.getResult().requiresBankWithdrawal());
+        assertEquals(InfiniteRuneSource.STAFF_OF_AIR, result.getSource());
+    }
+
     private RequirementContext createContext(
             int realMagicLevel,
             int boostedMagicLevel,
@@ -801,7 +861,7 @@ public class RuneCostRequirementTest
                 );
 
         return new RequirementContext(
-                accountState,
+                accountState.withRealAttackLevel(99),
                 null,
                 travelSnapshot,
                 storageSnapshot

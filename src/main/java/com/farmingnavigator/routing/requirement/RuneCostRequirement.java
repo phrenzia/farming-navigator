@@ -203,7 +203,7 @@ public class RuneCostRequirement
                 ), pouchPlan.source, pouchPlan.location == SourceLocation.BANK, true);
             }
 
-            return new RunePreparation(createMissingResult(
+            return new RunePreparation(createMissingOrUnknownResult(
                     accountState,
                     liveSnapshot,
                     storageSnapshot,
@@ -211,7 +211,7 @@ public class RuneCostRequirement
             ));
         }
 
-        return new RunePreparation(createMissingResult(
+        return new RunePreparation(createMissingOrUnknownResult(
                 accountState,
                 liveSnapshot,
                 storageSnapshot,
@@ -347,7 +347,7 @@ public class RuneCostRequirement
         )
         {
             if (
-                    canUseSource(
+                    canUseEquippedSource(
                             accountState,
                             source
                     )
@@ -455,10 +455,35 @@ public class RuneCostRequirement
          * A temporary Magic boost does not make an otherwise
          * unwieldable staff count as a usable rune source.
          */
-        return accountState
-                .getRealMagicLevel()
-                >= source
-                .getMinimumRealMagicLevel();
+        return canUseEquippedSource(accountState, source)
+                && (source.getMinimumRealAttackLevel() <= 1
+                || accountState.getRealAttackLevel() >= source.getMinimumRealAttackLevel());
+    }
+
+    private boolean canUseEquippedSource(AccountState account, InfiniteRuneSource source)
+    {
+        // An already worn source proves its wield requirements without inventing a missing skill value.
+        return account.getRealMagicLevel() >= source.getMinimumRealMagicLevel();
+    }
+
+    private RequirementResult createMissingOrUnknownResult(AccountState account, TravelCapabilitySnapshot live,
+            StorageSnapshot storage, Map<RuneSupply, Long> consumables)
+    {
+        if (account.getRealAttackLevel() < 1)
+        {
+            for (InfiniteRuneSource source : InfiniteRuneSource.values())
+            {
+                if (source.getMinimumRealAttackLevel() > 1 && canUseEquippedSource(account, source)
+                        && (live.hasInInventory(source.getItemId()) || storage.getVerifiedBankQuantity(source.getItemId()) > 0)
+                        && coversRuneCost(consumables, source.getSuppliedKinds()))
+                {
+                    return RequirementResult.dataRequired(displayName,
+                            "Attack level is required to verify wielding " + source.getDisplayName()
+                                    + " (" + source.getMinimumRealAttackLevel() + " Attack). It is not assumed usable.");
+                }
+            }
+        }
+        return createMissingResult(account, live, storage, consumables);
     }
 
     private boolean coversRuneCost(

@@ -203,7 +203,8 @@ public class AccountStateService
                 claimedDiaryTiers,
                 fireOfNourishmentBuilt,
                 fairyRingAccessUnlocked,
-                varlamoreVisited
+                varlamoreVisited,
+                client.getRealSkillLevel(Skill.ATTACK)
         );
     }
 
