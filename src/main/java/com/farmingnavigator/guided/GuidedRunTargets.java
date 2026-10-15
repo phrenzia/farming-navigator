@@ -197,7 +197,10 @@ public final class GuidedRunTargets
             case PLANT:
                 inventory.add(ItemID.SPADE); inventory.add(session.getCrop().getSaplingId()); break;
             case REMOVE:
-                inventory.add(ItemID.SPADE); inventory.add(ItemID.COINS); break;
+                inventory.add(ItemID.SPADE);
+                if (session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CALQUAT
+                        && session.getCrop() != com.farmingnavigator.routing.run.TreeRunCrop.CELASTRUS) { inventory.add(ItemID.COINS); }
+                break;
             case PROTECT:
                 session.getCrop().protectionPayment(1).ifPresent(payment -> inventory.addAll(payment.getAcceptedItemIds())); break;
             case PRUNE:

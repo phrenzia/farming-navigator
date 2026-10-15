@@ -50,13 +50,25 @@ public final class TreeRunPlanner
                 }
             }
             boolean replant = condition != TreePatchCondition.DISEASED;
-            if (replant) { replants++; } else { diseased++; }
+            // A checked redwood is normally retained. Replacement supplies need an explicit new plan after removal.
+            if (patch.getFamily() == TreeFamily.REDWOOD && (condition == TreePatchCondition.HEALTH_CHECKED
+                    || condition == TreePatchCondition.CHECK_HEALTH)) { replant = false; }
+            if (replant) { replants++; }
+            if (condition == TreePatchCondition.DISEASED) { diseased++; }
             stops.add(new TreeRunStop(patch, action(condition, patch.getFamily()), replant));
         }
         if (!stops.isEmpty())
         {
             warnings.add("Order follows the patch catalogue. Check travel supplies; unsupported destinations require manual travel.");
             warnings.add("Inspect old observations before acting. Removing a healthy tree is a choice; bring a usable axe or check the farmer's removal fee separately.");
+            if (crop == TreeRunCrop.CELASTRUS)
+            {
+                warnings.add("Bring a usable axe to harvest celastrus bark and cut the depleted tree. Harvest yield and compost are not budgeted.");
+            }
+            if (crop == TreeRunCrop.REDWOOD)
+            {
+                warnings.add("Keep a mature redwood unless you choose to replace it. Alexandra charges 2,000 coins to remove it; removal coins are not budgeted. After removal, prepare a new plan for replant supplies.");
+            }
             supplies.add(new SupplyRequirement(ItemID.SPADE, "Spade", 1, false, "Plant finished saplings and clear stumps."));
             if (replants > 0)
             {
@@ -89,6 +101,8 @@ public final class TreeRunPlanner
             case DEAD: return "Inspect, clear the dead tree, then replant if desired.";
             case STUMP: return "Inspect, clear the stump, then replant if desired.";
             case CHECK_HEALTH: return "Inspect and check health. Remove and replant only if desired.";
+            case HARVESTABLE: return "Harvest available celastrus bark with a usable axe before choosing whether to remove the depleted tree.";
+            case HARVESTED: return "Celastrus bark was harvested. Keep the depleted tree or cut it down, clear its stump and replant as desired.";
             case HEALTH_CHECKED: return family == TreeFamily.FRUIT_TREE
                     ? "Inspect and pick any available fruit. Keep or remove and replant as desired."
                     : "Inspect the healthy tree. Keep or remove and replant as desired.";

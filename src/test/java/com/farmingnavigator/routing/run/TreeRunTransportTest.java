@@ -56,6 +56,21 @@ public class TreeRunTransportTest
         assertTrue(plan.getTransportResources().getChecks().get(0).getDetail().contains("Law rune x2"));
         assertTrue(plan.getStops().stream().allMatch(stop -> stop.getRecommended() != null));
     }
+
+    @Test public void specialGuildTreesUseVerifiedSkillsNecklaceAndSharedChargeBudget()
+    {
+        RequirementContext ctx = context(Map.of(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1), Map.of());
+        for (TreeRunCrop crop : List.of(TreeRunCrop.CELASTRUS, TreeRunCrop.REDWOOD))
+        {
+            TreeRunPlan plan = new TreeRunPlanner().plan(account, EnumSet.allOf(TreePatchDefinition.class), crop,
+                    true, Map.of(), ctx.getStorageSnapshot(), Instant.now())
+                    .withTransports(verified(ctx), HerbTransportPreference.CATALOGUE, ctx);
+            assertEquals(1, plan.getStops().size());
+            assertNotNull(plan.getStops().get(0).getRecommended());
+            assertEquals(TransportVerificationKind.SKILLS_NECKLACE, plan.getStops().get(0).getRecommended().getOption().getVerificationKind());
+            assertTrue(plan.getTransportResources().getChecks().stream().allMatch(check -> check.isReadyNow()));
+        }
+    }
     @Test public void treeSpellShortfallCanBePreparedFromVerifiedBank()
     {
         RequirementContext ctx = context(Map.of(ItemID.AIRRUNE, 6, ItemID.FIRERUNE, 1, ItemID.EARTHRUNE, 1, ItemID.LAWRUNE, 1), Map.of(ItemID.LAWRUNE, 1L));

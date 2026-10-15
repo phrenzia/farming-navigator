@@ -60,6 +60,30 @@ public class TreeGuidedRunPanelTest
             assertFalse(start.isEnabled());
         });
     }
+
+    @Test public void celastrusHarvestCardDoesNotOfferRemovalBeforeBarkIsDepleted() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            Instant now = Instant.parse("2026-10-15T12:00:00Z");
+            TreePatchDefinition patch = TreePatchDefinition.FARMING_GUILD_CELASTRUS;
+            TreeRunPlan plan = new TreeRunPlanner().plan(new AccountState(true, 99, 99, EnumSet.noneOf(net.runelite.api.Quest.class), false),
+                    EnumSet.of(patch), TreeRunCrop.CELASTRUS, true, Map.of(), null, now);
+            TreeRunSession session = new TreeRunSession();
+            session.start(plan, true, now); session.command(TreeRunCommand.CONFIRM, now.plusSeconds(1));
+            session.observe(TreePatchDestination.FARMING_GUILD_CELASTRUS.getLocation(), Map.of(patch, new TreePatchObservation(
+                    new TreePatchStateDecoder().decode(TreeFamily.CELASTRUS, 14), now.plusSeconds(2), FarmingGrowthRate.NORMAL)), now.plusSeconds(2));
+            TreeGuidedRunPanel panel = new TreeGuidedRunPanel(session.snapshot(now.plusSeconds(3)), false, command -> {});
+            assertTrue(labels(panel).contains("available celastrus bark"));
+            assertTrue(Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton)
+                    .noneMatch(c -> ((JButton) c).getText().contains("removal")));
+            panel.setSize(225, 700); layout(panel);
+            BufferedImage image = new BufferedImage(225, 700, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = image.createGraphics(); panel.printAll(graphics); graphics.dispose();
+            File directory = new File("build/verification"); directory.mkdirs();
+            try { ImageIO.write(image, "png", new File(directory, "guided-celastrus-bark.png")); }
+            catch (Exception ex) { throw new AssertionError(ex); }
+        });
+    }
     private String labels(Component component)
     {
         StringBuilder text = new StringBuilder(component instanceof JLabel ? ((JLabel) component).getText() : "");

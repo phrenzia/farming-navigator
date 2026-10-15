@@ -15,6 +15,8 @@ public final class TreePatchAccess
             case FARMING_GUILD_TREE:
                 return account.getBoostedFarmingLevel() >= 65 ? "" : "65 Farming required for the intermediate guild area (boostable).";
             case FARMING_GUILD_FRUIT:
+            case FARMING_GUILD_CELASTRUS:
+            case FARMING_GUILD_REDWOOD:
                 return account.getBoostedFarmingLevel() >= 85 ? "" : "85 Farming required for the advanced guild area (boostable).";
             case LLETYA_FRUIT:
                 return account.hasStartedQuest(Quest.MOURNINGS_END_PART_I) ? "" : "Start Mourning's End Part I for Lletya access.";
@@ -27,6 +29,8 @@ public final class TreePatchAccess
                         ? "" : "Complete The Ribbiting Tale of a Lily Pad Labour Dispute for this patch.";
             case AUBURNVALE_TREE:
             case KASTORI_FRUIT:
+            case KASTORI_CALQUAT:
+            case GREAT_CONCH_CALQUAT:
             case ANGLERS_RETREAT_HARDWOOD:
                 return "Data required: this patch's entry requirements have not been verified.";
             default: return "";

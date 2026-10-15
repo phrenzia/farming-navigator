@@ -56,7 +56,8 @@ public final class TreeGuidedRunPanel extends JPanel
             if (run.getStep() == TreeRunStep.KEEP_OR_REMOVE)
             {
                 add(button("Keep tree / finish stop", TreeRunCommand.KEEP_TREE, commands));
-                add(button("Guide removal and replant", TreeRunCommand.REMOVE_TREE, commands));
+                add(button(run.getStop().isReplant() ? "Guide removal and replant" : "Guide removal only",
+                        TreeRunCommand.REMOVE_TREE, commands));
             }
             add(button("Complete tree stop manually", TreeRunCommand.MARK_COMPLETE, commands));
             add(button("Skip tree stop", TreeRunCommand.SKIP, commands));

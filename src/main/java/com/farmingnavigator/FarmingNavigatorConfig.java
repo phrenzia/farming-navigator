@@ -176,7 +176,7 @@ public interface FarmingNavigatorConfig
     @ConfigItem(
             keyName = "showTreeObservations",
             name = "Show tree observations",
-            description = "Display regular, fruit and hardwood tree history and conditional health-check windows",
+            description = "Display tree patch history and conditional health-check windows, including special trees",
             position = 10,
             section = GENERAL_SECTION
     )

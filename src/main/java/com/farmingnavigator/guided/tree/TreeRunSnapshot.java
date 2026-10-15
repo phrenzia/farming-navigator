@@ -39,8 +39,16 @@ public final class TreeRunSnapshot
             case TRAVEL: return "Travel to " + stop.getPatch().getLabel() + " and approach the patch.";
             case INSPECT: return "Inspect the tree patch. A fresh nearby observation is required to choose an action.";
             case CHECK_HEALTH: return "Check the tree's health. The checklist waits for a fresh health-checked state.";
-            case KEEP_OR_REMOVE: return "The tree is health-checked. Pick available fruit if desired, then choose to keep it or remove and replant.";
-            case REMOVE: return "Remove the healthy tree only if you want to replace it. Use a suitable axe or pay the farmer; removal fees are not budgeted.";
+            case HARVEST_BARK: return "Use a suitable axe to harvest available celastrus bark. The checklist waits for an observed depleted-bark state before offering removal.";
+            case KEEP_OR_REMOVE:
+                if (crop == TreeRunCrop.CELASTRUS) { return "The celastrus bark is depleted. Keep the remaining tree or choose to cut it down, clear its stump and replant."; }
+                if (crop == TreeRunCrop.REDWOOD) { return "Keep the mature redwood, or explicitly choose removal. No replacement is reserved for an observed mature tree; prepare a new plan after removal."; }
+                return "The tree is health-checked. Pick available fruit if desired, then choose to keep it or remove and replant.";
+            case REMOVE:
+                if (crop == TreeRunCrop.REDWOOD) { return "If you still want to remove the redwood, pay Alexandra 2,000 coins. Coins are not budgeted. Prepare a new plan after removal for any unreserved replacement supplies."; }
+                if (crop == TreeRunCrop.CALQUAT) { return "Pick available calquat fruit if desired, then use a spade to remove the tree only if you want to replace it."; }
+                if (crop == TreeRunCrop.CELASTRUS) { return "Cut down the depleted celastrus tree with a suitable axe, then dig up its stump before replanting."; }
+                return "Remove the healthy tree only if you want to replace it. Use a suitable axe or pay the farmer; removal fees are not budgeted.";
             case CLEAR: return "Inspect, then clear the dead tree or dig up the stump.";
             case RAKE: return "Rake the patch until it is empty.";
             case PLANT: return "Plant an unnoted " + crop + " sapling in the empty patch.";

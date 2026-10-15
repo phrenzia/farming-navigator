@@ -33,6 +33,8 @@ public final class TreePatchTransportService
                 "Teleport to the Farming Guild and enter the appropriate tree-patch tier; maintain any required Farming boost.", TransportVerificationKind.SKILLS_NECKLACE));
         options.put(TreePatchDefinition.FARMING_GUILD_TREE, guild);
         options.put(TreePatchDefinition.FARMING_GUILD_FRUIT, guild);
+        options.put(TreePatchDefinition.FARMING_GUILD_CELASTRUS, guild);
+        options.put(TreePatchDefinition.FARMING_GUILD_REDWOOD, guild);
         options.put(TreePatchDefinition.BRIMHAVEN_FRUIT, List.of(item(1, "Amulet of glory to Karamja",
                 "Teleport to Musa Point on Karamja and travel west to the fruit tree patch north of Brimhaven.", TransportVerificationKind.AMULET_OF_GLORY)));
         options.put(TreePatchDefinition.GNOME_STRONGHOLD_TREE, List.of(item(1, "Wealth to Exchange, then spirit tree",

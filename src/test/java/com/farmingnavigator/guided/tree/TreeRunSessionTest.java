@@ -79,6 +79,50 @@ public class TreeRunSessionTest
         assertEquals(1, session.snapshot(now).getManual());
         assertEquals(0, session.snapshot(now).getProtectionConfirmed());
     }
+
+    @Test public void celastrusChecksHealthHarvestsBarkThenOffersOptionalRemoval()
+    {
+        start(TreeRunCrop.CELASTRUS, TreePatchDefinition.FARMING_GUILD_CELASTRUS, true);
+        observe(13, 2); assertEquals(TreeRunStep.CHECK_HEALTH, step());
+        observe(14, 3); assertEquals(TreeRunStep.HARVEST_BARK, step());
+        assertTrue(session.snapshot(now).getInstruction().contains("available celastrus bark"));
+        assertFalse(session.command(TreeRunCommand.REMOVE_TREE, now.plusSeconds(4)));
+        observe(16, 5); assertEquals(TreeRunStep.HARVEST_BARK, step());
+        assertEquals(0, session.snapshot(now).getCompleted());
+        observe(17, 6); assertEquals(TreeRunStep.KEEP_OR_REMOVE, step());
+        assertTrue(session.snapshot(now).getInstruction().contains("bark is depleted"));
+        session.command(TreeRunCommand.REMOVE_TREE, now.plusSeconds(7));
+        observe(28, 8); assertEquals(TreeRunStep.CLEAR, step());
+        observe(0, 9); assertEquals(TreeRunStep.PLANT, step());
+        observe(8, 10); assertEquals(TreeRunStep.PROTECT, step());
+    }
+
+    @Test public void calquatRemovalUsesSpadeAndRequiresFreshEmptyPatch()
+    {
+        start(TreeRunCrop.CALQUAT, TreePatchDefinition.TAI_BWO_WANNAI_CALQUAT, false);
+        observe(34, 2); observe(12, 3); assertEquals(TreeRunStep.KEEP_OR_REMOVE, step());
+        session.command(TreeRunCommand.REMOVE_TREE, now.plusSeconds(4));
+        assertTrue(session.snapshot(now).getInstruction().contains("use a spade"));
+        observe(0, 5); assertEquals(TreeRunStep.PLANT, step());
+        observe(4, 6); assertEquals(TreeRunStep.COMPLETE, step());
+    }
+
+    @Test public void unreservedMatureRedwoodRemovalFinishesBeforeRequestingNewPlantingSupplies()
+    {
+        patch = TreePatchDefinition.FARMING_GUILD_REDWOOD;
+        AccountState account = new AccountState(true, 99, 99, EnumSet.noneOf(Quest.class), false);
+        TreeRunPlan mature = new TreeRunPlanner().plan(account, EnumSet.of(patch), TreeRunCrop.REDWOOD, true,
+                Map.of(patch, observation(37, now)), null, now);
+        assertFalse(mature.getStops().get(0).isReplant());
+        assertTrue(session.start(mature, true, now));
+        session.command(TreeRunCommand.CONFIRM, now.plusSeconds(1));
+        observe(37, 2); observe(18, 3); assertEquals(TreeRunStep.KEEP_OR_REMOVE, step());
+        assertTrue(session.snapshot(now).getInstruction().contains("prepare a new plan"));
+        session.command(TreeRunCommand.REMOVE_TREE, now.plusSeconds(4));
+        assertTrue(session.snapshot(now).getInstruction().contains("2,000 coins"));
+        observe(0, 5); assertEquals(TreeRunStep.COMPLETE, step());
+        assertEquals(0, session.snapshot(now).getProtectionConfirmed());
+    }
     @Test public void matchingPlantCompletesWithoutProtectionOnlyWhenDisabled()
     {
         start(TreeRunCrop.TEAK, TreePatchDefinition.FOSSIL_ISLAND_EAST, false);

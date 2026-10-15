@@ -49,7 +49,7 @@ public class TreeRunPlannerTest
             assertEquals(FarmingAction.valueOf(action).getLevel(), crop.getRequiredLevel());
             assertTrue(ids.add(crop.getSaplingId()));
         }
-        assertEquals(18, ids.size());
+        assertEquals(21, ids.size());
     }
     @Test public void includesOnlySelectedMatchingAccessiblePatches()
     {
@@ -82,6 +82,49 @@ public class TreeRunPlannerTest
         assertEquals("", access.missingRequirement(TreePatchDefinition.FARMING_GUILD_TREE, account(64, 65, Map.of())));
         assertFalse(access.missingRequirement(TreePatchDefinition.FARMING_GUILD_FRUIT, account(84, 84, Map.of())).isEmpty());
         assertEquals("", access.missingRequirement(TreePatchDefinition.FARMING_GUILD_FRUIT, account(84, 85, Map.of())));
+        for (TreePatchDefinition patch : List.of(TreePatchDefinition.FARMING_GUILD_CELASTRUS, TreePatchDefinition.FARMING_GUILD_REDWOOD))
+        {
+            assertFalse(access.missingRequirement(patch, account(84, 84, Map.of())).isEmpty());
+            assertEquals("", access.missingRequirement(patch, account(84, 85, Map.of())));
+        }
+    }
+
+    @Test public void calquatReservesEightBerriesButExcludesUnverifiedDestinations()
+    {
+        TreeRunPlan result = plan(TreeRunCrop.CALQUAT, Map.of());
+        assertEquals(1, result.getStops().size());
+        assertEquals(TreePatchDefinition.TAI_BWO_WANNAI_CALQUAT, result.getStops().get(0).getPatch());
+        assertTrue(result.getExcluded().get(TreePatchDefinition.KASTORI_CALQUAT).contains("Data required"));
+        assertTrue(result.getExcluded().get(TreePatchDefinition.GREAT_CONCH_CALQUAT).contains("Data required"));
+        assertEquals(8, supply(result, ItemID.POISONIVY_BERRIES).getRequirement().getQuantity());
+        assertTrue(supply(result, ItemID.POISONIVY_BERRIES).getRequirement().getAcceptedItemIds().contains(ItemID.Cert.POISONIVY_BERRIES));
+    }
+
+    @Test public void celastrusBarkStateKeepsHarvestInstructionsAndSaplingPaymentBudget()
+    {
+        TreeRunPlan result = plan(TreeRunCrop.CELASTRUS, Map.of(TreePatchDefinition.FARMING_GUILD_CELASTRUS,
+                observation(TreeFamily.CELASTRUS, 14, now, FarmingGrowthRate.NORMAL)));
+        assertEquals(1, result.getStops().size());
+        assertTrue(result.getStops().get(0).getAction().contains("bark"));
+        assertEquals(1, supply(result, ItemID.PLANTPOT_CELASTRUS_TREE_SAPLING).getRequirement().getQuantity());
+        assertEquals(8, supply(result, ItemID.CACTUS_POTATO).getRequirement().getQuantity());
+    }
+
+    @Test public void matureRedwoodKeepsTreeWithoutReservingReplacementOrProtection()
+    {
+        for (int raw : new int[]{18, 37, 41})
+        {
+            TreeRunPlan result = plan(TreeRunCrop.REDWOOD, Map.of(TreePatchDefinition.FARMING_GUILD_REDWOOD,
+                    observation(TreeFamily.REDWOOD, raw, now, FarmingGrowthRate.NORMAL)));
+            assertEquals(1, result.getStops().size());
+            assertFalse(result.getStops().get(0).isReplant());
+            assertTrue(result.getSupplies().stream().noneMatch(check -> check.getRequirement().getItemId() == ItemID.PLANTPOT_REDWOOD_TREE_SAPLING
+                    || check.getRequirement().getItemId() == ItemID.DRAGONFRUIT || check.getRequirement().getItemId() == ItemID.SECATEURS));
+        }
+        TreeRunPlan empty = plan(TreeRunCrop.REDWOOD, Map.of(TreePatchDefinition.FARMING_GUILD_REDWOOD,
+                observation(TreeFamily.REDWOOD, 0, now, FarmingGrowthRate.NORMAL)));
+        assertEquals(1, supply(empty, ItemID.PLANTPOT_REDWOOD_TREE_SAPLING).getRequirement().getQuantity());
+        assertEquals(6, supply(empty, ItemID.DRAGONFRUIT).getRequirement().getQuantity());
     }
     @Test public void lletyaRequiresStartedQuestAndIslandRequiresCompletion()
     {

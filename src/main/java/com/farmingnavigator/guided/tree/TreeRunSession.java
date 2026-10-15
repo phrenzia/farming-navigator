@@ -74,6 +74,11 @@ public final class TreeRunSession
         if (state.getCrop().getFamily() != null && state.getCrop().getFamily() != stop.getPatch().getFamily()) { return false; }
         TreePatchCondition condition = state.getCondition();
         TreeRunStep before = step;
+        if (!stop.isReplant() && stop.getPatch().getFamily() == TreeFamily.REDWOOD
+                && (condition == TreePatchCondition.EMPTY || condition == TreePatchCondition.WEEDS))
+        {
+            finish(false, false, now); return true;
+        }
         if (condition == TreePatchCondition.UNKNOWN)
         {
             if (step != TreeRunStep.INSPECT) { enter(TreeRunStep.INSPECT, now); }
@@ -87,11 +92,20 @@ public final class TreeRunSession
                 inspect(state, now); break;
             case CHECK_HEALTH:
                 if (condition == TreePatchCondition.HEALTH_CHECKED) { enter(TreeRunStep.KEEP_OR_REMOVE, now); }
+                else if (condition == TreePatchCondition.HARVESTABLE) { enter(TreeRunStep.HARVEST_BARK, now); }
+                else if (condition == TreePatchCondition.HARVESTED) { enter(TreeRunStep.KEEP_OR_REMOVE, now); }
+                break;
+            case HARVEST_BARK:
+                if (condition == TreePatchCondition.HARVESTED) { enter(TreeRunStep.KEEP_OR_REMOVE, now); }
                 break;
             case REMOVE:
             case CLEAR:
             case RAKE:
-                if (condition == TreePatchCondition.EMPTY) { enter(TreeRunStep.PLANT, now); }
+                if (condition == TreePatchCondition.EMPTY)
+                {
+                    if (step == TreeRunStep.REMOVE && !stop.isReplant()) { finish(false, false, now); }
+                    else { enter(TreeRunStep.PLANT, now); }
+                }
                 else if (condition == TreePatchCondition.WEEDS && step != TreeRunStep.RAKE) { enter(TreeRunStep.RAKE, now); }
                 else if (condition == TreePatchCondition.STUMP && step == TreeRunStep.REMOVE) { enter(TreeRunStep.CLEAR, now); }
                 break;
@@ -117,11 +131,12 @@ public final class TreeRunSession
         {
             case PLANT: return condition == TreePatchCondition.EMPTY;
             case CHECK_HEALTH: return condition == TreePatchCondition.CHECK_HEALTH;
+            case HARVEST_BARK: return condition == TreePatchCondition.HARVESTABLE;
             case PRUNE: return condition == TreePatchCondition.DISEASED;
             case RAKE: return condition == TreePatchCondition.WEEDS;
             case CLEAR: return condition == TreePatchCondition.DEAD || condition == TreePatchCondition.STUMP;
             case REMOVE:
-            case KEEP_OR_REMOVE: return condition == TreePatchCondition.HEALTH_CHECKED;
+            case KEEP_OR_REMOVE: return condition == TreePatchCondition.HEALTH_CHECKED || condition == TreePatchCondition.HARVESTED;
             default: return true;
         }
     }
@@ -133,6 +148,8 @@ public final class TreeRunSession
             case WEEDS: enter(TreeRunStep.RAKE, now); break;
             case CHECK_HEALTH: enter(TreeRunStep.CHECK_HEALTH, now); break;
             case HEALTH_CHECKED: enter(TreeRunStep.KEEP_OR_REMOVE, now); break;
+            case HARVESTABLE: enter(TreeRunStep.HARVEST_BARK, now); break;
+            case HARVESTED: enter(TreeRunStep.KEEP_OR_REMOVE, now); break;
             case STUMP:
             case DEAD: enter(TreeRunStep.CLEAR, now); break;
             case DISEASED: pruningCrop = state.getCrop(); enter(TreeRunStep.PRUNE, now); break;
