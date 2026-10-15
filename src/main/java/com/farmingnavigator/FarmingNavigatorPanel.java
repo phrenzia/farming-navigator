@@ -10,6 +10,9 @@ import com.farmingnavigator.ui.HerbGrowthTimerText;
 import com.farmingnavigator.ui.HerbRunPlanPanel;
 import com.farmingnavigator.ui.HerbOverviewPanel;
 import com.farmingnavigator.farming.state.HerbOverview;
+import com.farmingnavigator.farming.tree.TreePatchDefinition;
+import com.farmingnavigator.farming.tree.TreePatchObservation;
+import com.farmingnavigator.ui.TreeObservationsPanel;
 import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.guided.GuidedRunCommand;
 import com.farmingnavigator.guided.GuidedRunSnapshot;
@@ -131,6 +134,13 @@ public class FarmingNavigatorPanel
     private HerbRunPlan herbRunPlan;
     private boolean herbRunDetailsOpen;
     private boolean herbOverviewOpen;
+    private boolean treeObservationsOpen;
+    private Map<TreePatchDefinition, TreePatchObservation> treeObservations = Collections.emptyMap();
+
+    public void setTreeObservations(Map<TreePatchDefinition, TreePatchObservation> observations)
+    {
+        treeObservations = Map.copyOf(observations);
+    }
     private GuidedRunSnapshot guidedRun;
     private final Consumer<GuidedRunCommand> guidedRunCommands;
 
@@ -683,6 +693,13 @@ public class FarmingNavigatorPanel
         patchListPanel.add(new HerbOverviewPanel(HerbOverview.create(patchStatuses, config.herbRunPatches(),
                 observations, overviewTime), overviewTime, herbOverviewOpen, expanded -> herbOverviewOpen = expanded));
         patchListPanel.add(Box.createVerticalStrut(8));
+
+        if (config.showTreeObservations())
+        {
+            patchListPanel.add(new TreeObservationsPanel(treeObservations, overviewTime,
+                    treeObservationsOpen, expanded -> treeObservationsOpen = expanded));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
 
         addPohProfileCard(
                 config

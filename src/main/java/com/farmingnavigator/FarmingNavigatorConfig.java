@@ -173,6 +173,15 @@ public interface FarmingNavigatorConfig
         return false;
     }
 
+    @ConfigItem(
+            keyName = "showTreeObservations",
+            name = "Show tree observations",
+            description = "Display regular, fruit and hardwood tree history and conditional health-check windows",
+            position = 10,
+            section = GENERAL_SECTION
+    )
+    default boolean showTreeObservations() { return true; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

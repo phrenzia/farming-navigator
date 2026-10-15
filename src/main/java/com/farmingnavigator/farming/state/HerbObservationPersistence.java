@@ -1,7 +1,6 @@
 package com.farmingnavigator.farming.state;
 
 import com.farmingnavigator.farming.HerbPatchDefinition;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
@@ -10,11 +9,7 @@ import java.util.Objects;
 public final class HerbObservationPersistence
 {
     public static final String KEY_PREFIX = "herbObservationV1_";
-    public interface Backend
-    {
-        String read(String profile, String key);
-        void write(String profile, String key, String value);
-    }
+    public interface Backend extends ObservationPersistenceBackend { }
 
     private final Backend backend;
     private String profile;
@@ -68,36 +63,13 @@ public final class HerbObservationPersistence
 
     static String encode(HerbPatchObservation observation)
     {
-        return "1|" + observation.getState().getRawValue() + "|" + observation.getObservedAt().toEpochMilli()
-                + "|" + observation.getGrowthRate().name();
+        return ObservationRecordCodec.encode(observation.getState().getRawValue(), observation.getObservedAt(), observation.getGrowthRate());
     }
 
     static HerbPatchObservation decode(String value, Instant now)
     {
-        if (value == null || value.length() > 100)
-        {
-            return null;
-        }
-        try
-        {
-            String[] fields = value.split("\\|", -1);
-            if (fields.length != 4 || !"1".equals(fields[0]))
-            {
-                return null;
-            }
-            int raw = Integer.parseInt(fields[1]);
-            Instant observedAt = Instant.ofEpochMilli(Long.parseLong(fields[2]));
-            if (raw < 0 || raw > 255 || observedAt.isAfter(now)
-                    || Duration.between(observedAt, now).compareTo(Duration.ofDays(30)) > 0)
-            {
-                return null;
-            }
-            return new HerbPatchObservation(new HerbPatchStateDecoder().decode(raw), observedAt,
-                    FarmingGrowthRate.valueOf(fields[3]));
-        }
-        catch (IllegalArgumentException ex)
-        {
-            return null;
-        }
+        ObservationRecordCodec.Value record = ObservationRecordCodec.decode(value, now);
+        return record == null ? null : new HerbPatchObservation(new HerbPatchStateDecoder().decode(record.getRaw()),
+                record.getAt(), record.getRate());
     }
 }

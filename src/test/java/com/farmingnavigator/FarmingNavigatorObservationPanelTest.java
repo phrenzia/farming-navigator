@@ -33,6 +33,12 @@ public class FarmingNavigatorObservationPanelTest
     {
         SwingUtilities.invokeAndWait(() -> {
             FarmingNavigatorPanel panel = new FarmingNavigatorPanel(() -> {}, null);
+            panel.setTreeObservations(Collections.singletonMap(
+                    com.farmingnavigator.farming.tree.TreePatchDefinition.VARROCK_TREE,
+                    new com.farmingnavigator.farming.tree.TreePatchObservation(
+                            new com.farmingnavigator.farming.tree.TreePatchStateDecoder().decode(
+                                    com.farmingnavigator.farming.tree.TreeFamily.TREE, 12),
+                            Instant.now().minusSeconds(1), FarmingGrowthRate.NORMAL)));
             AccountState account = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), false);
             StorageSnapshot storage = new StorageSnapshot(Collections.emptyMap(), Collections.emptyMap(),
@@ -49,6 +55,8 @@ public class FarmingNavigatorObservationPanelTest
             assertTrue(containsLabel(panel, "Ranarr - Diseased"));
             assertTrue(containsLabel(panel, "bank sync required"));
             assertTrue(containsLabel(panel, "Herb overview"));
+            assertTrue(containsLabel(panel, "Tree observations"));
+            assertTrue(containsLabel(panel, "Oak - Ready to check health"));
             assertTrue(containsLabel(panel, "Estimated harvest in 60-80 min if healthy."));
             assertFalse(containsLabel(panel, "visit this patch to observe it"));
             panel.setSize(240, 1300);
@@ -67,6 +75,9 @@ public class FarmingNavigatorObservationPanelTest
             {
                 throw new AssertionError(error);
             }
+            panel.setAccountState(account, storage, Collections.emptyList(), Collections.emptyMap(),
+                    new FarmingNavigatorConfig() { @Override public boolean showTreeObservations() { return false; } }, observations);
+            assertFalse(containsLabel(panel, "Tree observations"));
         });
     }
 
