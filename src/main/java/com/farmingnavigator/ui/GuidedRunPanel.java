@@ -31,6 +31,10 @@ public final class GuidedRunPanel extends JPanel
             if (session != null)
             {
                 add(text(session.getInstruction(), ColorScheme.LIGHT_GRAY_COLOR));
+                if (session.getStep() == GuidedRunStep.COMPLETE)
+                {
+                    add(text(elapsedText(session), ColorScheme.LIGHT_GRAY_COLOR));
+                }
             }
             JButton start = button("Start guided herb run", GuidedRunCommand.START, commands);
             start.setEnabled(canStart);
@@ -39,6 +43,7 @@ public final class GuidedRunPanel extends JPanel
         }
         add(text(session.getCrop().getDisplayName() + ": " + session.getCompleted() + " completed, "
                 + session.getSkipped() + " skipped / " + session.getTotal(), ColorScheme.LIGHT_GRAY_COLOR));
+        add(text(elapsedText(session), ColorScheme.LIGHT_GRAY_COLOR));
         add(Box.createVerticalStrut(5));
         add(text(session.getInstruction(), Color.WHITE));
         if (session.getStop() != null && session.getStep() != GuidedRunStep.PREPARE)
@@ -77,6 +82,11 @@ public final class GuidedRunPanel extends JPanel
             add(button("Skip this stop", GuidedRunCommand.SKIP, commands));
         }
         add(button("Stop guided run", GuidedRunCommand.CANCEL, commands));
+    }
+
+    private String elapsedText(GuidedRunSnapshot session)
+    {
+        return "Elapsed: " + session.getElapsed().toMinutes() + " min (includes preparation and waiting).";
     }
 
     private JButton button(String label, GuidedRunCommand command, Consumer<GuidedRunCommand> commands)

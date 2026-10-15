@@ -288,7 +288,8 @@ public class FarmingNavigatorPlugin
                     herbPatchObservationService.currentLocation(), Instant.now());
         }
         long minute = Instant.now().getEpochSecond() / 60;
-        if (changed || (minute != lastPatchTimerRefreshMinute && herbPatchObservationService.hasObservations()))
+        if (changed || (minute != lastPatchTimerRefreshMinute
+                && (herbPatchObservationService.hasObservations() || guidedRunSession.snapshot().isActive())))
         {
             lastPatchTimerRefreshMinute = minute;
             herbAlertTracker.poll(herbPatchObservationService.snapshot(), config.herbRunPatches(),

@@ -224,6 +224,31 @@ public class GuidedRunSessionTest
     }
 
     @Test
+    public void elapsedIncludesPreparationAndFreezesWhenRunCompletes()
+    {
+        GuidedRunSession session = start(HerbRunCompost.NONE, false);
+        assertEquals(60, session.snapshot(now.plusSeconds(60)).getElapsed().getSeconds());
+        session.confirm(now.plusSeconds(61));
+        session.markComplete(now.plusSeconds(120));
+        assertEquals(GuidedRunStep.COMPLETE, session.snapshot().getStep());
+        assertEquals(120, session.snapshot(now.plusSeconds(999)).getElapsed().getSeconds());
+        assertEquals(1, session.snapshot().getManuallyCompleted());
+        session.cancel();
+        assertEquals(0, session.snapshot(now.plusSeconds(1000)).getElapsed().getSeconds());
+    }
+
+    @Test
+    public void clockBeforeRunStartDoesNotShowNegativeDuration()
+    {
+        GuidedRunSession session = start(HerbRunCompost.NONE, false);
+        assertEquals(0, session.snapshot(now.minusSeconds(60)).getElapsed().getSeconds());
+        session.confirm(now.plusSeconds(1));
+        session.skip(now.plusSeconds(10));
+        assertEquals(10, session.snapshot(now.plusSeconds(500)).getElapsed().getSeconds());
+        assertEquals(1, session.snapshot().getSkipped());
+    }
+
+    @Test
     public void everyDestinationUsesCorrectRegionAndRequiresNearbyGroundFloor()
     {
         for (HerbPatchDestination destination : HerbPatchDestination.values())

@@ -13,6 +13,7 @@ import com.farmingnavigator.transport.VerifiedTransportResult;
 import com.farmingnavigator.routing.run.HerbTransportPreference;
 import com.farmingnavigator.routing.run.HerbTransportSelector;
 import java.time.Instant;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ public final class GuidedRunSession
     private HerbRunCompost compost;
     private GuidedRunStep step = GuidedRunStep.INACTIVE;
     private Instant enteredAt = Instant.EPOCH;
+    private Instant startedAt;
     private Instant interruptedHarvestAt = Instant.EPOCH;
     private HerbCrop curingCrop = HerbCrop.UNKNOWN;
     private int index;
@@ -44,6 +46,7 @@ public final class GuidedRunSession
         stops = new ArrayList<>(plan.getStops());
         crop = plan.getCrop();
         this.compost = compost;
+        startedAt = now;
         enter(GuidedRunStep.PREPARE, now);
         return true;
     }
@@ -185,14 +188,23 @@ public final class GuidedRunSession
 
     public GuidedRunSnapshot snapshot()
     {
+        return snapshot(Instant.now());
+    }
+
+    public GuidedRunSnapshot snapshot(Instant now)
+    {
+        Instant end = step == GuidedRunStep.COMPLETE ? enteredAt : now;
+        Duration elapsed = startedAt == null || end.isBefore(startedAt)
+                ? Duration.ZERO : Duration.between(startedAt, end);
         return new GuidedRunSnapshot(step, crop, index < stops.size() ? stops.get(index) : null,
-                stops.size(), completed, skipped, manuallyCompleted, compost);
+                stops.size(), completed, skipped, manuallyCompleted, compost, elapsed);
     }
 
     public void cancel()
     {
         stops = Collections.emptyList();
         crop = null;
+        startedAt = null;
         step = GuidedRunStep.INACTIVE;
         index = completed = skipped = manuallyCompleted = 0;
     }

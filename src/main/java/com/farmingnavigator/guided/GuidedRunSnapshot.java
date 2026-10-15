@@ -3,6 +3,7 @@ package com.farmingnavigator.guided;
 import com.farmingnavigator.routing.run.HerbRunCrop;
 import com.farmingnavigator.routing.run.HerbRunStop;
 import com.farmingnavigator.routing.run.HerbRunCompost;
+import java.time.Duration;
 
 public final class GuidedRunSnapshot
 {
@@ -14,9 +15,16 @@ public final class GuidedRunSnapshot
     private final int skipped;
     private final int manuallyCompleted;
     private final HerbRunCompost compost;
+    private final Duration elapsed;
 
     GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
             int completed, int skipped, int manuallyCompleted, HerbRunCompost compost)
+    {
+        this(step, crop, stop, total, completed, skipped, manuallyCompleted, compost, Duration.ZERO);
+    }
+
+    GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
+            int completed, int skipped, int manuallyCompleted, HerbRunCompost compost, Duration elapsed)
     {
         this.step = step;
         this.crop = crop;
@@ -26,6 +34,7 @@ public final class GuidedRunSnapshot
         this.skipped = skipped;
         this.manuallyCompleted = manuallyCompleted;
         this.compost = compost;
+        this.elapsed = elapsed;
     }
 
     public GuidedRunStep getStep() { return step; }
@@ -36,6 +45,7 @@ public final class GuidedRunSnapshot
     public int getSkipped() { return skipped; }
     public int getManuallyCompleted() { return manuallyCompleted; }
     public HerbRunCompost getCompost() { return compost; }
+    public Duration getElapsed() { return elapsed; }
     public boolean isActive() { return step != GuidedRunStep.INACTIVE && step != GuidedRunStep.COMPLETE; }
 
     public String getInstruction()
