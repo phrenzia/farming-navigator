@@ -727,7 +727,8 @@ public class FarmingNavigatorPanel
             patchListPanel.add(new com.farmingnavigator.ui.FarmingContractPanel(farmingContract,
                     config.herbRunCrop(), config.treeRunCrop(), config.herbRunPatches().contains(HerbPatchDefinition.FARMING_GUILD), treeGuildSelected,
                     guidedRun != null && guidedRun.isActive() || treeGuidedRun != null && treeGuidedRun.isActive()
-                            || gardenGuidedRun != null && gardenGuidedRun.isActive(), contractPreparation));
+                            || gardenGuidedRun != null && gardenGuidedRun.isActive(), contractPreparation, config.gardenRunCrop(),
+                    com.farmingnavigator.contracts.ContractRunPreparation.isGuildSelected(config.gardenRunCrop(), config.gardenRunPatches())));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
         if (runMetrics != null)

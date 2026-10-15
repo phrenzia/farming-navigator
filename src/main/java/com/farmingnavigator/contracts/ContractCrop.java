@@ -27,6 +27,7 @@ package com.farmingnavigator.contracts;
 
 import com.farmingnavigator.routing.run.HerbRunCrop;
 import com.farmingnavigator.routing.run.TreeRunCrop;
+import com.farmingnavigator.routing.run.GardenRunCrop;
 
 /** Assignment IDs verified against pinned RuneLite Produce contractVarbitValue metadata. */
 public enum ContractCrop
@@ -68,6 +69,7 @@ public enum ContractCrop
     public String getLabel() { return label; }
     public Family getFamily() { return family; }
     public HerbRunCrop getHerbRunCrop() { return family == Family.HERB ? HerbRunCrop.valueOf(name()) : null; }
+    public GardenRunCrop getGardenRunCrop() { return family == Family.BUSH || family == Family.CACTUS ? GardenRunCrop.valueOf(name()) : null; }
     public TreeRunCrop getTreeRunCrop()
     {
         return family == Family.TREE || family == Family.FRUIT_TREE || family == Family.REDWOOD || family == Family.CELASTRUS

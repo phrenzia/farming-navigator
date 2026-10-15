@@ -38,11 +38,26 @@ public class ContractRunPreparationTest
         {
             assertTrue(ContractRunPreparation.settings(snapshot, ContractCrop.RANARR, false).isEmpty());
         }
-        assertTrue(ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, 1, 0), ContractCrop.REDBERRIES, false).isEmpty());
+        assertTrue(ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, 40, 0), ContractCrop.POTATO, false).isEmpty());
         assertTrue(ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, 24, 0), null, false).isEmpty());
     }
     @Test public void activeChecklistCannotBeReconfiguredEvenWithMatchingAssignment()
     {
         assertTrue(ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, 24, 0), ContractCrop.RANARR, true).isEmpty());
+    }
+    @Test public void gardenContractSetupSelectsMatchingGuildPlotAndExplicitReplacementMode()
+    {
+        for (ContractCrop crop : ContractCrop.values())
+        {
+            if (crop.getGardenRunCrop() == null) { continue; }
+            com.farmingnavigator.farming.garden.GardenPatchDefinition patch = crop.getFamily() == ContractCrop.Family.BUSH
+                    ? com.farmingnavigator.farming.garden.GardenPatchDefinition.FARMING_GUILD_BUSH
+                    : com.farmingnavigator.farming.garden.GardenPatchDefinition.FARMING_GUILD_CACTUS;
+            Map<String, Object> settings = ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, crop.getId(), 0), crop, false);
+            assertEquals(Map.of("gardenRunCrop", crop.getGardenRunCrop(), "gardenRunPatches", EnumSet.of(patch),
+                    "gardenRunMode", com.farmingnavigator.routing.run.GardenRunMode.REPLACE_MATURE), settings);
+            assertTrue(ContractRunPreparation.isGuildSelected(crop.getGardenRunCrop(), EnumSet.of(patch)));
+            assertTrue(ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, crop.getId(), 0), crop, true).isEmpty());
+        }
     }
 }

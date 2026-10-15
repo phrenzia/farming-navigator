@@ -24,6 +24,12 @@ public final class FarmingContractPanel extends JPanel
     public FarmingContractPanel(FarmingContractSnapshot contract, HerbRunCrop herb, TreeRunCrop tree,
             boolean herbGuildSelected, boolean treeGuildSelected, boolean runActive, Consumer<ContractCrop> prepare)
     {
+        this(contract, herb, tree, herbGuildSelected, treeGuildSelected, runActive, prepare, null, false);
+    }
+    public FarmingContractPanel(FarmingContractSnapshot contract, HerbRunCrop herb, TreeRunCrop tree,
+            boolean herbGuildSelected, boolean treeGuildSelected, boolean runActive, Consumer<ContractCrop> prepare,
+            com.farmingnavigator.routing.run.GardenRunCrop garden, boolean gardenGuildSelected)
+    {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); setBackground(ColorScheme.DARKER_GRAY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(9, 8, 12, 8)); setAlignmentX(Component.LEFT_ALIGNMENT);
         setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
@@ -37,17 +43,23 @@ public final class FarmingContractPanel extends JPanel
                 boolean herbConflict = herbGuildSelected && crop.getHerbRunCrop() != null && crop.getHerbRunCrop() != herb;
                 boolean treeConflict = treeGuildSelected && crop.getTreeRunCrop() != null
                         && crop.getTreeRunCrop().getCrop().getFamily() == tree.getCrop().getFamily() && crop.getTreeRunCrop() != tree;
-                if (herbConflict || treeConflict)
+                boolean gardenConflict = gardenGuildSelected && garden != null && crop.getGardenRunCrop() != null
+                        && crop.getGardenRunCrop().getCrop().getFamily() == garden.getCrop().getFamily() && crop.getGardenRunCrop() != garden;
+                if (herbConflict || treeConflict || gardenConflict)
                 {
                     add(text("Your selected guild run crop differs from this contract. Check before clearing or replanting the guild patch.", new Color(255, 190, 80)));
                 }
-                if (crop.getHerbRunCrop() == null && crop.getTreeRunCrop() == null)
+                if (crop.getHerbRunCrop() == null && crop.getTreeRunCrop() == null && crop.getGardenRunCrop() == null)
                 {
                     add(text("Dedicated run planning for this contract family is not available yet.", ColorScheme.LIGHT_GRAY_COLOR));
                 }
                 else if (prepare != null)
                 {
                     add(text("Prepare selects this crop and only its Farming Guild patch. Review supplies and access before starting guidance.", ColorScheme.LIGHT_GRAY_COLOR));
+                    if (crop.getGardenRunCrop() != null)
+                    {
+                        add(text("Bush/cactus contract preparation selects replacement mode. Check health first when available; clearing a mature plant remains your choice.", ColorScheme.LIGHT_GRAY_COLOR));
+                    }
                     JButton button = new JButton("Prepare contract run");
                     button.setAlignmentX(Component.LEFT_ALIGNMENT); button.setEnabled(!runActive);
                     button.addActionListener(event -> { button.setEnabled(false); prepare.accept(crop); });
