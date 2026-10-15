@@ -8,6 +8,17 @@ import static org.junit.Assert.assertTrue;
 
 public class FarmingNavigatorStateRefreshTest
 {
+    @Test public void gardenSetupChangesInvalidateOnlyTheGardenChecklist()
+    {
+        for (String key : new String[]{"gardenRunCrop", "gardenRunPatches", "gardenRunMode", "gardenRunProtection", "gardenTransportPreference"})
+        {
+            assertTrue(FarmingNavigatorPlugin.isGardenRunSetupKey(key));
+            assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey(key)); assertFalse(FarmingNavigatorPlugin.isRunSetupKey(key));
+        }
+        assertFalse(FarmingNavigatorPlugin.isGardenRunSetupKey("showGardenObservations"));
+        assertFalse(FarmingNavigatorPlugin.isGardenRunSetupKey("guidedRunOverlays"));
+        assertFalse(FarmingNavigatorPlugin.isGardenRunSetupKey(null));
+    }
     @Test public void treeAlertAndDisplaySettingsDoNotCancelTreeRun()
     {
         assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeRunCrop"));

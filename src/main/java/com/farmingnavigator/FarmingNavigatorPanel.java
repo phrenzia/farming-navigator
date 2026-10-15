@@ -137,6 +137,10 @@ public class FarmingNavigatorPanel
     private boolean treeObservationsOpen;
     private boolean gardenObservationsOpen;
     private boolean gardenRunDetailsOpen;
+    private com.farmingnavigator.guided.garden.GardenRunSnapshot gardenGuidedRun;
+    private Consumer<com.farmingnavigator.guided.garden.GardenRunCommand> gardenCommands = command -> {};
+    public void setGardenGuidedRun(com.farmingnavigator.guided.garden.GardenRunSnapshot snapshot) { gardenGuidedRun = snapshot; }
+    public void setGardenCommands(Consumer<com.farmingnavigator.guided.garden.GardenRunCommand> commands) { gardenCommands = commands; }
     private com.farmingnavigator.routing.run.GardenRunPlan gardenRunPlan;
     public void setGardenRunPlan(com.farmingnavigator.routing.run.GardenRunPlan plan) { gardenRunPlan = plan; }
     private Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> gardenObservations = Collections.emptyMap();
@@ -722,7 +726,8 @@ public class FarmingNavigatorPanel
             boolean treeGuildSelected = com.farmingnavigator.contracts.ContractRunPreparation.isGuildSelected(config.treeRunCrop(), config.treeRunPatches());
             patchListPanel.add(new com.farmingnavigator.ui.FarmingContractPanel(farmingContract,
                     config.herbRunCrop(), config.treeRunCrop(), config.herbRunPatches().contains(HerbPatchDefinition.FARMING_GUILD), treeGuildSelected,
-                    guidedRun != null && guidedRun.isActive() || treeGuidedRun != null && treeGuidedRun.isActive(), contractPreparation));
+                    guidedRun != null && guidedRun.isActive() || treeGuidedRun != null && treeGuidedRun.isActive()
+                            || gardenGuidedRun != null && gardenGuidedRun.isActive(), contractPreparation));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
         if (runMetrics != null)
@@ -755,6 +760,9 @@ public class FarmingNavigatorPanel
 
         if (accountState.isLoggedIn() && gardenRunPlan != null)
         {
+            patchListPanel.add(new com.farmingnavigator.ui.GardenGuidedRunPanel(gardenGuidedRun,
+                    gardenRunPlan.getBlocker().isEmpty() && !gardenRunPlan.getStops().isEmpty(), gardenCommands));
+            patchListPanel.add(Box.createVerticalStrut(8));
             patchListPanel.add(new com.farmingnavigator.ui.GardenRunPlanPanel(gardenRunPlan,
                     gardenRunDetailsOpen, expanded -> gardenRunDetailsOpen = expanded));
             patchListPanel.add(Box.createVerticalStrut(8));
