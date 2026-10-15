@@ -7,6 +7,8 @@ import com.farmingnavigator.farming.state.HerbPatchObservation;
 import com.farmingnavigator.farming.state.PatchCondition;
 import com.farmingnavigator.ui.HerbPatchObservationText;
 import com.farmingnavigator.ui.HerbGrowthTimerText;
+import com.farmingnavigator.ui.HerbRunPlanPanel;
+import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.poh.PohHouseLocation;
 import com.farmingnavigator.poh.PohJewelleryBoxTier;
 import com.farmingnavigator.poh.PohPortalDestination;
@@ -120,6 +122,14 @@ public class FarmingNavigatorPanel
     private final JScrollPane patchScrollPane;
 
     private boolean pohEditorOpen;
+    private HerbRunPlan herbRunPlan;
+    private boolean herbRunDetailsOpen;
+
+    public void setHerbRunPlan(HerbRunPlan plan)
+    {
+        herbRunPlan = plan;
+    }
+
 
     private boolean scrollToTopOnNextRefresh;
 
@@ -636,6 +646,13 @@ public class FarmingNavigatorPanel
         patchListPanel.add(
                 Box.createVerticalStrut(8)
         );
+
+        if (herbRunPlan != null)
+        {
+            patchListPanel.add(new HerbRunPlanPanel(herbRunPlan, herbRunDetailsOpen,
+                    expanded -> herbRunDetailsOpen = expanded));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
 
         addPohProfileCard(
                 config

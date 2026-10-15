@@ -10,6 +10,8 @@ import com.farmingnavigator.farming.state.HerbPatchObservationService;
 import com.farmingnavigator.poh.PohProfileService;
 import com.farmingnavigator.routing.capability.TravelCapabilityService;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
+import com.farmingnavigator.routing.run.HerbRunPlan;
+import com.farmingnavigator.routing.run.HerbRunPlanner;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.storage.StorageStateService;
 import com.farmingnavigator.transport.HerbPatchTransportService;
@@ -440,8 +442,13 @@ public class FarmingNavigatorPlugin
         Map<HerbPatchDefinition, HerbPatchObservation> observations =
                 herbPatchObservationService.snapshot();
 
+        HerbRunPlan runPlan = new HerbRunPlanner().plan(accountState, patchStatuses,
+                config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
+                observations, verifiedTransportResults, storageSnapshot, Instant.now());
+
         SwingUtilities.invokeLater(
-                () ->
+                () -> {
+                        targetPanel.setHerbRunPlan(runPlan);
                         targetPanel.setAccountState(
                                 accountState,
                                 storageSnapshot,
@@ -449,7 +456,8 @@ public class FarmingNavigatorPlugin
                                 verifiedTransportResults,
                                 config,
                                 observations
-                        )
+                        );
+                }
         );
     }
 

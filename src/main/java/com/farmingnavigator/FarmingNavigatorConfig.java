@@ -3,7 +3,11 @@ package com.farmingnavigator;
 import com.farmingnavigator.poh.PohHouseLocation;
 import com.farmingnavigator.poh.PohJewelleryBoxTier;
 import com.farmingnavigator.poh.PohPortalDestination;
+import com.farmingnavigator.farming.HerbPatchDefinition;
+import com.farmingnavigator.routing.run.HerbRunCrop;
+import com.farmingnavigator.routing.run.HerbRunCompost;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
@@ -56,6 +60,42 @@ public interface FarmingNavigatorConfig
     default boolean guidedRunOverlays()
     {
         return true;
+    }
+
+    @ConfigItem(
+            keyName = "herbRunCrop",
+            name = "Herb run crop",
+            description = "Herb seed to bring for the suggested run",
+            position = 1,
+            section = GENERAL_SECTION
+    )
+    default HerbRunCrop herbRunCrop()
+    {
+        return HerbRunCrop.GUAM;
+    }
+
+    @ConfigItem(
+            keyName = "herbRunPatches",
+            name = "Herb run patches",
+            description = "Patches to consider; locked and not-yet-ready growing patches are excluded",
+            position = 2,
+            section = GENERAL_SECTION
+    )
+    default Set<HerbPatchDefinition> herbRunPatches()
+    {
+        return EnumSet.allOf(HerbPatchDefinition.class);
+    }
+
+    @ConfigItem(
+            keyName = "herbRunCompost",
+            name = "Herb run compost",
+            description = "Suggested bucket supply; bottomless bucket and Fertile Soil supplies are not checked",
+            position = 3,
+            section = GENERAL_SECTION
+    )
+    default HerbRunCompost herbRunCompost()
+    {
+        return HerbRunCompost.ULTRACOMPOST;
     }
 
     /*
