@@ -6,6 +6,7 @@ import com.farmingnavigator.poh.PohPortalDestination;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.routing.run.HerbRunCrop;
 import com.farmingnavigator.routing.run.HerbRunCompost;
+import com.farmingnavigator.routing.run.HerbTransportPreference;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -120,6 +121,18 @@ public interface FarmingNavigatorConfig
     default boolean herbEstimatedAlerts()
     {
         return false;
+    }
+
+    @ConfigItem(
+            keyName = "herbTransportPreference",
+            name = "Herb transport preference",
+            description = "Reusable preference favors verified unlimited methods, even if bank withdrawal is needed; travel time is not optimized",
+            position = 6,
+            section = GENERAL_SECTION
+    )
+    default HerbTransportPreference herbTransportPreference()
+    {
+        return HerbTransportPreference.CATALOGUE;
     }
 
     /*

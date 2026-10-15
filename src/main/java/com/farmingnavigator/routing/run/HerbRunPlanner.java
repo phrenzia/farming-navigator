@@ -11,17 +11,14 @@ import com.farmingnavigator.loadout.LoadoutService;
 import com.farmingnavigator.loadout.SupplyRequirement;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.transport.VerifiedTransportResult;
-import com.farmingnavigator.transport.VerifiedTransportState;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import net.runelite.api.gameval.ItemID;
 
 /** A deterministic suggested circuit, with independent transport alternatives and quantity-aware supplies. */
@@ -32,6 +29,16 @@ public final class HerbRunPlanner
             Map<HerbPatchDefinition, HerbPatchObservation> observations,
             Map<HerbPatchDefinition, List<VerifiedTransportResult>> transports,
             StorageSnapshot storage, Instant now)
+    {
+        return plan(account, patchStatuses, selected, crop, compost, observations, transports, storage, now,
+                HerbTransportPreference.CATALOGUE);
+    }
+
+    public HerbRunPlan plan(AccountState account, List<HerbPatchStatus> patchStatuses,
+            Set<HerbPatchDefinition> selected, HerbRunCrop crop, HerbRunCompost compost,
+            Map<HerbPatchDefinition, HerbPatchObservation> observations,
+            Map<HerbPatchDefinition, List<VerifiedTransportResult>> transports,
+            StorageSnapshot storage, Instant now, HerbTransportPreference transportPreference)
     {
         Map<HerbPatchDefinition, String> excluded = new EnumMap<>(HerbPatchDefinition.class);
         List<HerbRunStop> stops = new ArrayList<>();
@@ -73,12 +80,8 @@ public final class HerbRunPlanner
             boolean replant = condition != PatchCondition.DISEASED;
             replantCount += replant ? 1 : 0;
             cureCount += replant ? 0 : 1;
-            List<VerifiedTransportResult> usable = transports.getOrDefault(patch, Collections.emptyList()).stream()
-                    .filter(VerifiedTransportResult::isUsableForPlannedRun)
-                    .sorted(Comparator.comparingInt((VerifiedTransportResult result) ->
-                            result.getState() == VerifiedTransportState.READY_NOW ? 0 : 1)
-                            .thenComparingInt(result -> result.getOption().getBaselineRank()))
-                    .collect(Collectors.toList());
+            List<VerifiedTransportResult> usable = HerbTransportSelector.select(
+                    transports.getOrDefault(patch, Collections.emptyList()), transportPreference);
             stops.add(new HerbRunStop(patch, nextAction(condition),
                     usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1), replant));
         }

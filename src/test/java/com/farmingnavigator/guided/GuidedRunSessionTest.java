@@ -208,6 +208,22 @@ public class GuidedRunSessionTest
     }
 
     @Test
+    public void guidedRefreshKeepsReusableTransportPreference()
+    {
+        GuidedRunSession session = start(HerbRunCompost.NONE, false);
+        VerifiedTransportResult ring = new VerifiedTransportResult(new TransportOption(9, "Unlimited ring", "Teleport",
+                TransportCategory.DIARY_ITEM, TransportVerificationKind.EXPLORER_RING_UNLIMITED),
+                VerifiedTransportState.AVAILABLE_FROM_BANK, "");
+        VerifiedTransportResult ready = new VerifiedTransportResult(new TransportOption(1, "Tablet", "Teleport",
+                TransportCategory.ITEM, TransportVerificationKind.ARDOUGNE_TELEPORT_TABLET),
+                VerifiedTransportState.READY_NOW, "");
+        session.refreshTransports(Collections.singletonMap(HerbPatchDefinition.FALADOR, Arrays.asList(ready, ring)),
+                com.farmingnavigator.routing.run.HerbTransportPreference.REUSABLE_FIRST);
+        assertEquals(ring, session.snapshot().getStop().getRecommended());
+        assertEquals(ready, session.snapshot().getStop().getFallback());
+    }
+
+    @Test
     public void everyDestinationUsesCorrectRegionAndRequiresNearbyGroundFloor()
     {
         for (HerbPatchDestination destination : HerbPatchDestination.values())

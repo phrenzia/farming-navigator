@@ -453,7 +453,8 @@ public class FarmingNavigatorPlugin
 
     static boolean isRunSetupKey(String key)
     {
-        return "herbRunCrop".equals(key) || "herbRunPatches".equals(key) || "herbRunCompost".equals(key);
+        return "herbRunCrop".equals(key) || "herbRunPatches".equals(key) || "herbRunCompost".equals(key)
+                || "herbTransportPreference".equals(key);
     }
 
     static boolean isRelevantStateVarbit(
@@ -545,13 +546,13 @@ public class FarmingNavigatorPlugin
 
         HerbRunPlan suggested = new HerbRunPlanner().plan(accountState, patchStatuses,
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
-                observations, verifiedTransportResults, storageSnapshot, Instant.now());
+                observations, verifiedTransportResults, storageSnapshot, Instant.now(), config.herbTransportPreference());
         HerbRunPlan runPlan = suggested.withTransportResources(new RunTransportResourcePlanner()
                 .evaluate(suggested.getStops(), new RequirementContext(accountState, config,
                         travelCapabilitySnapshot, storageSnapshot)));
 
         latestSuggestedRun = runPlan;
-        guidedRunSession.refreshTransports(verifiedTransportResults);
+        guidedRunSession.refreshTransports(verifiedTransportResults, config.herbTransportPreference());
         GuidedRunSnapshot guidedRun = guidedRunSession.snapshot();
         guidedRunOverlayController.update(guidedRun, runPlan, travelCapabilitySnapshot, config.guidedRunOverlays());
 

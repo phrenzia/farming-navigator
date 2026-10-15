@@ -10,14 +10,13 @@ import com.farmingnavigator.routing.run.HerbRunCrop;
 import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.routing.run.HerbRunStop;
 import com.farmingnavigator.transport.VerifiedTransportResult;
-import com.farmingnavigator.transport.VerifiedTransportState;
+import com.farmingnavigator.routing.run.HerbTransportPreference;
+import com.farmingnavigator.routing.run.HerbTransportSelector;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import net.runelite.api.coords.WorldPoint;
 
 /** Client-thread checklist state only. It never performs or sends a gameplay action. */
@@ -169,15 +168,17 @@ public final class GuidedRunSession
 
     public void refreshTransports(Map<HerbPatchDefinition, List<VerifiedTransportResult>> results)
     {
+        refreshTransports(results, HerbTransportPreference.CATALOGUE);
+    }
+
+    public void refreshTransports(Map<HerbPatchDefinition, List<VerifiedTransportResult>> results,
+            HerbTransportPreference preference)
+    {
         for (int i = index; i < stops.size(); i++)
         {
             HerbRunStop stop = stops.get(i);
-            List<VerifiedTransportResult> usable = results.getOrDefault(stop.getPatch(), Collections.emptyList()).stream()
-                    .filter(VerifiedTransportResult::isUsableForPlannedRun)
-                    .sorted(Comparator.comparingInt((VerifiedTransportResult result) ->
-                            result.getState() == VerifiedTransportState.READY_NOW ? 0 : 1)
-                            .thenComparingInt(result -> result.getOption().getBaselineRank()))
-                    .collect(Collectors.toList());
+            List<VerifiedTransportResult> usable = HerbTransportSelector.select(
+                    results.getOrDefault(stop.getPatch(), Collections.emptyList()), preference);
             stops.set(i, stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
         }
     }
