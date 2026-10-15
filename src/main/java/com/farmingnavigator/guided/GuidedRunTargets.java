@@ -1,5 +1,6 @@
 package com.farmingnavigator.guided;
 
+import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.RuneSupply;
@@ -22,23 +23,30 @@ public final class GuidedRunTargets
     private final Set<Integer> bankItems;
     private final WorldPoint destination;
     private final String destinationName;
+    private final HerbPatchDefinition scenePatch;
+    private final boolean leprechaun;
 
-    private GuidedRunTargets(Set<Integer> inventoryItems, Set<Integer> bankItems, WorldPoint destination, String destinationName)
+    private GuidedRunTargets(Set<Integer> inventoryItems, Set<Integer> bankItems, WorldPoint destination,
+            String destinationName, HerbPatchDefinition scenePatch, boolean leprechaun)
     {
         this.inventoryItems = Collections.unmodifiableSet(new HashSet<>(inventoryItems));
         this.bankItems = Collections.unmodifiableSet(new HashSet<>(bankItems));
         this.destination = destination;
         this.destinationName = destinationName;
+        this.scenePatch = scenePatch;
+        this.leprechaun = leprechaun;
     }
 
     public Set<Integer> getInventoryItems() { return inventoryItems; }
     public Set<Integer> getBankItems() { return bankItems; }
     public WorldPoint getDestination() { return destination; }
     public String getDestinationName() { return destinationName; }
+    public HerbPatchDefinition getScenePatch() { return scenePatch; }
+    public boolean isLeprechaun() { return leprechaun; }
 
     public static GuidedRunTargets empty()
     {
-        return new GuidedRunTargets(Collections.emptySet(), Collections.emptySet(), null, "");
+        return new GuidedRunTargets(Collections.emptySet(), Collections.emptySet(), null, "", null, false);
     }
 
     public static GuidedRunTargets from(GuidedRunSnapshot session, HerbRunPlan plan, TravelCapabilitySnapshot travel)
@@ -82,9 +90,24 @@ public final class GuidedRunTargets
                 if (session.getCompost().getItemId() > 0) { inventory.add(session.getCompost().getItemId()); }
                 break;
             case CURE: inventory.add(ItemID.PLANT_CURE); break;
+            case NOTE_PRODUCE:
+                Collections.addAll(inventory, ItemID.UNIDENTIFIED_GUAM, ItemID.UNIDENTIFIED_MARENTILL,
+                        ItemID.UNIDENTIFIED_TARROMIN, ItemID.UNIDENTIFIED_HARRALANDER, ItemID.UNIDENTIFIED_RANARR,
+                        ItemID.UNIDENTIFIED_TOADFLAX, ItemID.UNIDENTIFIED_IRIT, ItemID.UNIDENTIFIED_AVANTOE,
+                        ItemID.UNIDENTIFIED_KWUARM, ItemID.UNIDENTIFIED_SNAPDRAGON, ItemID.UNIDENTIFIED_HUASCA,
+                        ItemID.UNIDENTIFIED_CADANTINE, ItemID.UNIDENTIFIED_LANTADYME,
+                        ItemID.UNIDENTIFIED_DWARF_WEED, ItemID.UNIDENTIFIED_TORSTOL,
+                        ItemID.GUAM_LEAF, ItemID.MARENTILL, ItemID.TARROMIN, ItemID.HARRALANDER,
+                        ItemID.RANARR_WEED, ItemID.TOADFLAX, ItemID.IRIT_LEAF, ItemID.AVANTOE,
+                        ItemID.KWUARM, ItemID.SNAPDRAGON, ItemID.HUASCA, ItemID.CADANTINE,
+                        ItemID.LANTADYME, ItemID.DWARF_WEED, ItemID.TORSTOL);
+                break;
             default: break;
         }
-        return new GuidedRunTargets(inventory, bank, destination, name);
+        HerbPatchDefinition scenePatch = session.getStep() == GuidedRunStep.PREPARE || session.getStep() == GuidedRunStep.WAIT
+                ? null : session.getStop().getPatch();
+        return new GuidedRunTargets(inventory, bank, destination, name, scenePatch,
+                session.getStep() == GuidedRunStep.NOTE_PRODUCE);
     }
 
     private static void addTransport(Set<Integer> inventory, Set<Integer> bank, VerifiedTransportResult route,

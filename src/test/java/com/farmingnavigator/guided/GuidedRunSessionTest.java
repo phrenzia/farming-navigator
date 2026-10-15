@@ -159,6 +159,35 @@ public class GuidedRunSessionTest
     }
 
     @Test
+    public void fullInventoryPausesHarvestAndFreedSlotResumesSameEvidenceWindow()
+    {
+        GuidedRunSession session = start(HerbRunCompost.ULTRACOMPOST, false);
+        session.confirm(now.plusSeconds(1));
+        observe(session, 36, 2);
+        assertFalse(session.observeInventory(-1, falador, now.plusSeconds(3)));
+        assertFalse(session.observeInventory(0, new WorldPoint(3200, 3200, 0), now.plusSeconds(3)));
+        assertTrue(session.observeInventory(0, falador, now.plusSeconds(3)));
+        assertEquals(GuidedRunStep.NOTE_PRODUCE, session.snapshot().getStep());
+        assertFalse(session.observeInventory(-1, falador, now.plusSeconds(4)));
+        assertTrue(session.observeInventory(1, falador, now.plusSeconds(6)));
+        assertEquals(GuidedRunStep.HARVEST, session.snapshot().getStep());
+        assertTrue(session.observe(falador, observation(0, now.plusSeconds(5)), now.plusSeconds(6)));
+        assertEquals(GuidedRunStep.COMPOST, session.snapshot().getStep());
+    }
+
+    @Test
+    public void observedEmptyPatchCanEndInventoryInterruptionWithoutGuessingSpace()
+    {
+        GuidedRunSession session = start(HerbRunCompost.NONE, false);
+        session.confirm(now.plusSeconds(1));
+        observe(session, 36, 2);
+        session.observeInventory(0, falador, now.plusSeconds(3));
+        assertTrue(observe(session, 0, 4));
+        assertEquals(GuidedRunStep.PLANT, session.snapshot().getStep());
+        assertFalse(session.observeInventory(0, falador, now.plusSeconds(5)));
+    }
+
+    @Test
     public void cancellationClearsSessionAndEmptyPlanCannotStart()
     {
         GuidedRunSession session = start(HerbRunCompost.NONE, false);

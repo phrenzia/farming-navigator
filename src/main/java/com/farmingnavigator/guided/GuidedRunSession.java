@@ -28,6 +28,7 @@ public final class GuidedRunSession
     private HerbRunCompost compost;
     private GuidedRunStep step = GuidedRunStep.INACTIVE;
     private Instant enteredAt = Instant.EPOCH;
+    private Instant interruptedHarvestAt = Instant.EPOCH;
     private HerbCrop curingCrop = HerbCrop.UNKNOWN;
     private int index;
     private int completed;
@@ -102,7 +103,8 @@ public final class GuidedRunSession
             }
             return false;
         }
-        if ((step == GuidedRunStep.RAKE || step == GuidedRunStep.HARVEST || step == GuidedRunStep.CLEAR)
+        if ((step == GuidedRunStep.RAKE || step == GuidedRunStep.HARVEST || step == GuidedRunStep.CLEAR
+                || step == GuidedRunStep.NOTE_PRODUCE)
                 && state.getCondition() == PatchCondition.EMPTY)
         {
             enter(compost == HerbRunCompost.NONE ? GuidedRunStep.PLANT : GuidedRunStep.COMPOST, now);
@@ -131,6 +133,28 @@ public final class GuidedRunSession
         }
         finishStop(true, false, now);
         return true;
+    }
+
+    public boolean observeInventory(int freeSlots, WorldPoint player, Instant now)
+    {
+        if (!snapshot().isActive() || !HerbPatchDestination.isNear(stops.get(index).getPatch(), player))
+        {
+            return false;
+        }
+        if (step == GuidedRunStep.HARVEST && freeSlots == 0)
+        {
+            interruptedHarvestAt = enteredAt;
+            enter(GuidedRunStep.NOTE_PRODUCE, now);
+            return true;
+        }
+        if (step == GuidedRunStep.NOTE_PRODUCE && freeSlots > 0)
+        {
+            // This resumes the same harvest action, so preserve its evidence cutoff.
+            step = GuidedRunStep.HARVEST;
+            enteredAt = interruptedHarvestAt;
+            return true;
+        }
+        return false;
     }
 
     public boolean markComplete(Instant now)

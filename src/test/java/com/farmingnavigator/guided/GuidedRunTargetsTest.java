@@ -69,6 +69,19 @@ public class GuidedRunTargetsTest
     }
 
     @Test
+    public void notingTargetsOnlyUnnotedHerbsAndNearbyLeprechaun()
+    {
+        GuidedRunTargets targets = targets(GuidedRunStep.NOTE_PRODUCE);
+        assertTrue(targets.isLeprechaun());
+        assertEquals(HerbPatchDefinition.FALADOR, targets.getScenePatch());
+        assertTrue(targets.getInventoryItems().contains(ItemID.UNIDENTIFIED_RANARR));
+        assertTrue(targets.getInventoryItems().contains(ItemID.RANARR_WEED));
+        assertFalse(targets.getInventoryItems().contains(ItemID.Cert.UNIDENTIFIED_RANARR));
+        assertFalse(targets(GuidedRunStep.HARVEST).isLeprechaun());
+        assertNull(targets(GuidedRunStep.WAIT).getScenePatch());
+    }
+
+    @Test
     public void chargedNecklaceVariantsExcludeUnchargedItem()
     {
         GuidedRunTargets targets = travel(TransportVerificationKind.SKILLS_NECKLACE, VerifiedTransportState.READY_NOW, null);

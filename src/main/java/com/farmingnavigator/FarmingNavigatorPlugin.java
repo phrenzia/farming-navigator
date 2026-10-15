@@ -20,6 +20,8 @@ import com.farmingnavigator.guided.GuidedRunSnapshot;
 import com.farmingnavigator.overlay.GuidedInventoryOverlay;
 import com.farmingnavigator.overlay.GuidedBankOverlay;
 import com.farmingnavigator.overlay.GuidedRunOverlayController;
+import com.farmingnavigator.overlay.HerbSceneTracker;
+import com.farmingnavigator.overlay.GuidedSceneOverlay;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.storage.StorageStateService;
 import com.farmingnavigator.transport.HerbPatchTransportService;
@@ -42,6 +44,11 @@ import net.runelite.api.GameState;
 import net.runelite.api.Skill;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.GameObjectSpawned;
+import net.runelite.api.events.GameObjectDespawned;
+import net.runelite.api.events.NpcSpawned;
+import net.runelite.api.events.NpcDespawned;
+import net.runelite.api.events.NpcChanged;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.StatChanged;
 import net.runelite.api.events.VarbitChanged;
@@ -128,6 +135,8 @@ public class FarmingNavigatorPlugin
     @Inject private GuidedInventoryOverlay guidedInventoryOverlay;
     @Inject private GuidedBankOverlay guidedBankOverlay;
     @Inject private GuidedRunOverlayController guidedRunOverlayController;
+    @Inject private HerbSceneTracker herbSceneTracker;
+    @Inject private GuidedSceneOverlay guidedSceneOverlay;
 
     @Override
     protected void startUp()
@@ -137,6 +146,7 @@ public class FarmingNavigatorPlugin
         guidedRunOverlayController.clear();
         overlayManager.add(guidedInventoryOverlay);
         overlayManager.add(guidedBankOverlay);
+        overlayManager.add(guidedSceneOverlay);
         herbPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
@@ -167,9 +177,10 @@ public class FarmingNavigatorPlugin
                 navigationButton
         );
 
-        clientThread.invokeLater(
-                this::updateAccountState
-        );
+        clientThread.invokeLater(() -> {
+            initializeSceneIfActive();
+            updateAccountState();
+        });
     }
 
     @Override
@@ -177,6 +188,8 @@ public class FarmingNavigatorPlugin
     {
         overlayManager.remove(guidedInventoryOverlay);
         overlayManager.remove(guidedBankOverlay);
+        overlayManager.remove(guidedSceneOverlay);
+        herbSceneTracker.clear();
         guidedRunOverlayController.clear();
         guidedRunSession.cancel();
         herbPatchObservationService.reset();
@@ -204,7 +217,12 @@ public class FarmingNavigatorPlugin
 
         if (state == GameState.LOADING)
         {
+            herbSceneTracker.clear();
             herbPatchObservationService.invalidateRegion();
+        }
+        if (state == GameState.LOGGED_IN)
+        {
+            clientThread.invokeLater(this::initializeSceneIfActive);
         }
 
         if (
@@ -216,6 +234,7 @@ public class FarmingNavigatorPlugin
         {
             guidedRunSession.cancel();
             guidedRunOverlayController.clear();
+            herbSceneTracker.clear();
             herbPatchObservationService.reset();
             storageStateService
                     .invalidateBankSnapshot();
@@ -226,6 +245,16 @@ public class FarmingNavigatorPlugin
         );
     }
 
+    @Subscribe public void onGameObjectSpawned(GameObjectSpawned event) { herbSceneTracker.spawned(event.getGameObject()); }
+    @Subscribe public void onGameObjectDespawned(GameObjectDespawned event) { herbSceneTracker.despawned(event.getGameObject()); }
+    @Subscribe public void onNpcSpawned(NpcSpawned event) { herbSceneTracker.spawned(event.getNpc()); }
+    @Subscribe public void onNpcDespawned(NpcDespawned event) { herbSceneTracker.despawned(event.getNpc()); }
+    @Subscribe public void onNpcChanged(NpcChanged event)
+    {
+        herbSceneTracker.despawned(event.getNpc());
+        herbSceneTracker.spawned(event.getNpc());
+    }
+
     @Subscribe
     public void onGameTick(GameTick event)
     {
@@ -234,6 +263,8 @@ public class FarmingNavigatorPlugin
         {
             changed |= guidedRunSession.observe(herbPatchObservationService.currentLocation(),
                     herbPatchObservationService.snapshot(), Instant.now());
+            changed |= guidedRunSession.observeInventory(storageStateService.getFreeInventorySlots(),
+                    herbPatchObservationService.currentLocation(), Instant.now());
         }
         long minute = Instant.now().getEpochSecond() / 60;
         if (changed || (minute != lastPatchTimerRefreshMinute && herbPatchObservationService.hasObservations()))
@@ -529,6 +560,14 @@ public class FarmingNavigatorPlugin
             default: break;
         }
         updateAccountState();
+    }
+
+    private void initializeSceneIfActive()
+    {
+        if (panel != null)
+        {
+            herbSceneTracker.initializeNearby();
+        }
     }
 
     private BufferedImage

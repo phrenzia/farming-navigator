@@ -47,6 +47,7 @@ public final class GuidedRunSnapshot
             case INSPECT: return "Inspect the herb patch. Fresh patch data is needed before choosing an action.";
             case RAKE: return "Rake the weeds from the herb patch.";
             case HARVEST: return "Harvest the herbs until the patch is empty.";
+            case NOTE_PRODUCE: return "Inventory full. Use harvested herbs on a tool leprechaun to note them, or free a slot.";
             case CLEAR: return "Clear the dead herbs from the patch.";
             case COMPOST: return "Apply your chosen compost, then confirm. Compost application is not automatically verified.";
             case PLANT: return "Plant a " + crop.getDisplayName() + " seed in the empty herb patch.";

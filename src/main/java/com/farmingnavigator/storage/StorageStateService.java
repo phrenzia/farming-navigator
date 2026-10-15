@@ -117,6 +117,29 @@ public class StorageStateService
         );
     }
 
+    public int getFreeInventorySlots()
+    {
+        ItemContainer container = client.getItemContainer(InventoryID.INV);
+        return container == null ? -1 : countFreeInventorySlots(container.getItems());
+    }
+
+    static int countFreeInventorySlots(Item[] items)
+    {
+        if (items == null)
+        {
+            return -1;
+        }
+        int occupied = 0;
+        for (Item item : items)
+        {
+            if (item != null && item.getId() > 0 && item.getQuantity() > 0)
+            {
+                occupied++;
+            }
+        }
+        return Math.max(0, 28 - occupied);
+    }
+
     private Map<Integer, Long> readContainer(
             ItemContainer container,
             boolean ignoreBankFillers
