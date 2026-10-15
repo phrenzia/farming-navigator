@@ -39,7 +39,7 @@ public class TreeRunPlanPanelTest
             toggle.doClick(); assertTrue(expanded.get());
             String labels = labels(panel);
             assertTrue(labels.contains("Oak - 2 stops"));
-            assertTrue(labels.contains("Travel manually"));
+            assertTrue(labels.contains("manual travel"));
             assertTrue(labels.contains("2 x Oak sapling"));
             assertTrue(labels.contains("2 x Tomatoes (full basket of 5)"));
             assertTrue(labels.contains("open the bank"));

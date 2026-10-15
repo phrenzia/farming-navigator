@@ -14,6 +14,8 @@ Updated 2026-10-15. Repository and current Git history take precedence over this
 
 Latest tree checkpoint (1,761 tests; clean build and test passed; offline tree preparation image inspected):
 
+Tree transport follow-up: 1,768 tests pass after clean build and test. `TransportVerificationService.evaluateAll` now accepts any patch-key map in its five-argument overload; the older four-argument herb API remains. `RunTravelStop` makes shared rune/charge budgets reusable across herb and tree stops. Eight tree destinations support initial verified spells/jewellery, including newly defined Varrock/Lumbridge spells. Tree config has its own transport preference. No live action or optimal-time claim. Before-bank transport verification still returns no recommendations. Tree panel displays all shared checks and manual-leg notes; herb/tree plans are explicitly separate budgets.
+
 - `1c2d6d6`: regular/fruit/hardwood state decoder, 780 pinned-source fixture cases and 18 crop growth definitions.
 - `6b32d0b`: 19 tree patch identities; three settled ticks, modal/instance guards and precise transmit-region boundaries; profile/world-mode persistence using shared V1 record codec; conditional growth windows and collapsible observations.
 - `177ad7f`: equivalent supply forms sum safely with deduplication and overflow saturation; noted/unnoted farmer payments can combine. Ordinary saplings still accept only their planting form.

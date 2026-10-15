@@ -25,12 +25,12 @@ import net.runelite.api.gameval.ItemID;
 /** Aggregates the recommended legs only; fallbacks are alternatives, not extra travel. */
 public final class RunTransportResourcePlanner
 {
-    public RunTransportResources evaluate(List<HerbRunStop> stops, RequirementContext context)
+    public RunTransportResources evaluate(List<? extends RunTravelStop> stops, RequirementContext context)
     {
         return evaluate(stops, context, RuneCost.builder().build());
     }
 
-    public RunTransportResources evaluate(List<HerbRunStop> stops, RequirementContext context, RuneCost farmingRunes)
+    public RunTransportResources evaluate(List<? extends RunTravelStop> stops, RequirementContext context, RuneCost farmingRunes)
     {
         RuneCost.Builder runes = RuneCost.builder();
         farmingRunes.getQuantities().forEach(runes::add);
@@ -38,11 +38,11 @@ public final class RunTransportResourcePlanner
         Map<Consumable, Integer> consumables = new EnumMap<>(Consumable.class);
         List<String> notes = new ArrayList<>();
         int houseVisits = 0;
-        for (HerbRunStop stop : stops)
+        for (RunTravelStop stop : stops)
         {
             if (stop.getRecommended() == null)
             {
-                notes.add("Choose transport for " + stop.getPatch().getDisplayName() + ".");
+                notes.add("Choose transport for " + stop.getTravelLabel() + ".");
                 continue;
             }
             TransportOption option = stop.getRecommended().getOption();

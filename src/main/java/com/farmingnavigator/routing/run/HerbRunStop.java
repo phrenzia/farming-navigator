@@ -3,7 +3,7 @@ package com.farmingnavigator.routing.run;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.transport.VerifiedTransportResult;
 
-public final class HerbRunStop
+public final class HerbRunStop implements RunTravelStop
 {
     private final HerbPatchDefinition patch;
     private final String action;
@@ -26,6 +26,7 @@ public final class HerbRunStop
     public VerifiedTransportResult getRecommended() { return recommended; }
     public VerifiedTransportResult getFallback() { return fallback; }
     public boolean isReplant() { return replant; }
+    @Override public String getTravelLabel() { return patch.getDisplayName(); }
 
     public HerbRunStop withTransports(VerifiedTransportResult primary, VerifiedTransportResult alternative)
     {

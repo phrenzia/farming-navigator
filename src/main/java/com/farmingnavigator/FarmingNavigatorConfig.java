@@ -200,6 +200,10 @@ public interface FarmingNavigatorConfig
             description = "Include farmer payments for potential replants; unverified payment data is flagged", position = 13, section = GENERAL_SECTION)
     default boolean treeRunProtection() { return true; }
 
+    @ConfigItem(keyName = "treeTransportPreference", name = "Tree transport preference",
+            description = "Rank verified tree travel options; this is not measured travel-time optimization", position = 14, section = GENERAL_SECTION)
+    default HerbTransportPreference treeTransportPreference() { return HerbTransportPreference.CATALOGUE; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

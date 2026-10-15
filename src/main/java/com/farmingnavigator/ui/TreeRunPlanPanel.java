@@ -54,7 +54,39 @@ public final class TreeRunPlanPanel extends JPanel
         {
             details.add(Box.createVerticalStrut(7));
             details.add(text(index++ + ". " + stop.getPatch().getLabel(), Color.WHITE));
+            if (stop.getRecommended() == null)
+            {
+                details.add(text("No verified transport selected. Travel manually and check your route.", WARNING));
+            }
+            else
+            {
+                details.add(text("Travel: " + stop.getRecommended().getOption().getDisplayName() + " - "
+                        + stop.getRecommended().getState().getDisplayName(), MUTED));
+                details.add(text(stop.getRecommended().getOption().getInstructions(), MUTED));
+            }
+            if (stop.getFallback() != null)
+            {
+                details.add(text("Fallback: " + stop.getFallback().getOption().getDisplayName()
+                        + " - " + stop.getFallback().getState().getDisplayName(), MUTED));
+            }
             details.add(text(stop.getAction(), MUTED));
+        }
+        if (plan.getTransportResources() != null)
+        {
+            details.add(Box.createVerticalStrut(7)); details.add(text("Shared tree travel supplies", Color.WHITE));
+            plan.getTransportResources().getChecks().forEach(check -> {
+                details.add(text(check.getRequirement() + ": " + (check.isReadyNow() ? "Ready now"
+                        : check.requiresBankWithdrawal() ? "Available from bank"
+                        : check.getState().toString().replace('_', ' ').toLowerCase(java.util.Locale.ROOT)),
+                        check.isReadyNow() ? MUTED : WARNING));
+                details.add(text(check.getDetail(), MUTED));
+            });
+            plan.getTransportResources().getConsumables().forEach(check -> {
+                details.add(text(check.getRequirement().getQuantity() + " x " + check.getRequirement().getName(), Color.WHITE));
+                details.add(text(supplyState(check), MUTED));
+            });
+            plan.getTransportResources().getNotes().forEach(note -> details.add(text(note, MUTED)));
+            details.add(text("Herb and tree plans are separate runs; combining them requires additional shared supplies.", MUTED));
         }
         if (!plan.getSupplies().isEmpty())
         {

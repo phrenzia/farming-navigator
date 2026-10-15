@@ -7,6 +7,12 @@ import net.runelite.api.Quest;
 
 public enum TeleportSpellDefinition
 {
+    VARROCK_TELEPORT("Varrock Teleport", "Varrock town square (or configured Grand Exchange redirect)", 25,
+            SpellbookType.STANDARD, RuneCost.builder().add(RuneKind.AIR, 3).add(RuneKind.FIRE, 1)
+                    .add(RuneKind.LAW, 1).build(), null, false),
+    LUMBRIDGE_TELEPORT("Lumbridge Teleport", "Lumbridge Castle courtyard", 31,
+            SpellbookType.STANDARD, RuneCost.builder().add(RuneKind.AIR, 3).add(RuneKind.EARTH, 1)
+                    .add(RuneKind.LAW, 1).build(), null, false),
     DRAYNOR_MANOR_TELEPORT(
             "Draynor Manor Teleport",
             "Draynor Manor",

@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import com.farmingnavigator.routing.requirement.RequirementContext;
+import com.farmingnavigator.transport.VerifiedTransportResult;
 
 public final class TreeRunPlan
 {
@@ -15,8 +18,14 @@ public final class TreeRunPlan
     private final Map<TreePatchDefinition, String> excluded;
     private final List<String> warnings;
     private final String blocker;
+    private final RunTransportResources transportResources;
     TreeRunPlan(TreeRunCrop crop, List<TreeRunStop> stops, List<SupplyCheck> supplies,
             Map<TreePatchDefinition, String> excluded, List<String> warnings, String blocker)
+    {
+        this(crop, stops, supplies, excluded, warnings, blocker, null);
+    }
+    private TreeRunPlan(TreeRunCrop crop, List<TreeRunStop> stops, List<SupplyCheck> supplies,
+            Map<TreePatchDefinition, String> excluded, List<String> warnings, String blocker, RunTransportResources resources)
     {
         this.crop = crop;
         this.stops = List.copyOf(stops);
@@ -26,6 +35,7 @@ public final class TreeRunPlan
         this.excluded = Collections.unmodifiableMap(copy);
         this.warnings = List.copyOf(warnings);
         this.blocker = blocker;
+        this.transportResources = resources;
     }
     public TreeRunCrop getCrop() { return crop; }
     public List<TreeRunStop> getStops() { return stops; }
@@ -33,4 +43,18 @@ public final class TreeRunPlan
     public Map<TreePatchDefinition, String> getExcluded() { return excluded; }
     public List<String> getWarnings() { return warnings; }
     public String getBlocker() { return blocker; }
+    public RunTransportResources getTransportResources() { return transportResources; }
+    public TreeRunPlan withTransports(Map<TreePatchDefinition, List<VerifiedTransportResult>> transports,
+            HerbTransportPreference preference, RequirementContext context)
+    {
+        List<TreeRunStop> routed = new ArrayList<>();
+        for (TreeRunStop stop : stops)
+        {
+            List<VerifiedTransportResult> usable = HerbTransportSelector.select(
+                    transports.getOrDefault(stop.getPatch(), List.of()), preference);
+            routed.add(stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
+        }
+        return new TreeRunPlan(crop, routed, supplies, excluded, warnings, blocker,
+                new RunTransportResourcePlanner().evaluate(routed, context));
+    }
 }

@@ -566,6 +566,12 @@ public class FarmingNavigatorPlugin
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
                 observations, verifiedTransportResults, storageSnapshot, Instant.now(), config.herbTransportPreference());
         RequirementContext runContext = new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot);
+        com.farmingnavigator.routing.run.TreeRunPlan treeRunPlan = new com.farmingnavigator.routing.run.TreeRunPlanner()
+                .plan(accountState, config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(),
+                        treeObservations, storageSnapshot, Instant.now())
+                .withTransports(transportVerificationService.evaluateAll(accountState, config, travelCapabilitySnapshot,
+                        storageSnapshot, new com.farmingnavigator.transport.TreePatchTransportService().getAllOptions()),
+                        config.treeTransportPreference(), runContext);
         HerbRunCareResources care = HerbRunCareResources.evaluate(suggested, config.herbRunCure(), config.herbRunCompost(), runContext);
         HerbRunPlan runPlan = suggested.withCareResources(care).withTransportResources(new RunTransportResourcePlanner()
                 .evaluate(suggested.getStops(), runContext, care.getRunes()));
@@ -579,6 +585,7 @@ public class FarmingNavigatorPlugin
                 () -> {
                         targetPanel.setGuidedRun(guidedRun);
                         targetPanel.setTreeObservations(treeObservations);
+                        targetPanel.setTreeRunPlan(treeRunPlan);
                         targetPanel.setHerbRunPlan(runPlan);
                         targetPanel.setAccountState(
                                 accountState,

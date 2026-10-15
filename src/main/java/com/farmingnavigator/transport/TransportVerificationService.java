@@ -41,7 +41,6 @@ import com.farmingnavigator.storage.StorageSnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -93,8 +92,8 @@ public class TransportVerificationService
         );
     }
 
-    public Map<
-            HerbPatchDefinition,
+    public <P> Map<
+            P,
             List<VerifiedTransportResult>
             > evaluateAll(
             AccountState accountState,
@@ -102,7 +101,7 @@ public class TransportVerificationService
             TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
             Map<
-                    HerbPatchDefinition,
+                    P,
                     List<TransportOption>
                     > optionsByPatch
     )
@@ -119,17 +118,11 @@ public class TransportVerificationService
             return Collections.emptyMap();
         }
 
-        EnumMap<
-                HerbPatchDefinition,
-                List<VerifiedTransportResult>
-                > results =
-                new EnumMap<>(
-                        HerbPatchDefinition.class
-                );
+        Map<P, List<VerifiedTransportResult>> results = new java.util.LinkedHashMap<>();
 
         for (
                 Map.Entry<
-                        HerbPatchDefinition,
+                        P,
                         List<TransportOption>
                         > entry
                 : optionsByPatch.entrySet()

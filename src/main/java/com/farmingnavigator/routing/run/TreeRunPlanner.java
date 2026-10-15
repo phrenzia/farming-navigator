@@ -55,7 +55,7 @@ public final class TreeRunPlanner
         }
         if (!stops.isEmpty())
         {
-            warnings.add("Travel manually; tree teleports and travel supplies are not planned yet. Order follows the patch catalogue.");
+            warnings.add("Order follows the patch catalogue. Check travel supplies; unsupported destinations require manual travel.");
             warnings.add("Inspect old observations before acting. Removing a healthy tree is a choice; bring a usable axe or check the farmer's removal fee separately.");
             supplies.add(new SupplyRequirement(ItemID.SPADE, "Spade", 1, false, "Plant finished saplings and clear stumps."));
             if (replants > 0)
