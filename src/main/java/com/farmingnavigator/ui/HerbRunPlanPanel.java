@@ -105,9 +105,14 @@ public final class HerbRunPlanPanel extends JPanel
             {
                 details.add(text(note, WARNING));
             }
-            if (resources.getChecks().isEmpty() && resources.getNotes().isEmpty())
+            for (SupplyCheck check : resources.getConsumables())
             {
-                details.add(text("No direct-spell or charged-jewellery pool is shared by these legs.", MUTED));
+                details.add(text(LoadoutText.describe(check),
+                        check.getState() == SupplyState.MISSING || check.getState() == SupplyState.DATA_REQUIRED ? WARNING : MUTED));
+            }
+            if (resources.getChecks().isEmpty() && resources.getNotes().isEmpty() && resources.getConsumables().isEmpty())
+            {
+                details.add(text("No direct-spell, charged-jewellery or single-use teleport supplies are needed by these legs.", MUTED));
             }
         }
         if (!plan.getSupplies().isEmpty())

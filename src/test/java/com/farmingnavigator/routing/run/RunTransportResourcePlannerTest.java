@@ -1,6 +1,8 @@
 package com.farmingnavigator.routing.run;
 
 import com.farmingnavigator.account.AccountState;
+import com.farmingnavigator.loadout.SupplyState;
+import com.farmingnavigator.loadout.SupplyCheck;
 import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.routing.capability.SpellbookType;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
@@ -90,6 +92,67 @@ public class RunTransportResourcePlannerTest
                 new HerbRunStop(HerbPatchDefinition.FALADOR, "Inspect", null, null, true)), null);
         assertTrue(result.getChecks().isEmpty());
         assertEquals("Choose transport for Falador.", result.getNotes().get(0));
+    }
+
+    @Test
+    public void singleUseTeleportsAreCountedAcrossTheWholeRun()
+    {
+        VerifiedTransportResult tablet = consumable(TransportVerificationKind.ARDOUGNE_TELEPORT_TABLET);
+        List<HerbRunStop> stops = Arrays.asList(new HerbRunStop(HerbPatchDefinition.FALADOR, "Inspect", tablet, tablet, true),
+                new HerbRunStop(HerbPatchDefinition.ARDOUGNE, "Inspect", tablet, null, true));
+        SupplyCheck check = new RunTransportResourcePlanner().evaluate(stops,
+                context(Map.of(ItemID.POH_TABLET_ARDOUGNETELEPORT, 1), Collections.emptyMap(),
+                        Collections.emptyMap(), Collections.emptyMap())).getConsumables().get(0);
+        assertEquals(2, check.getRequirement().getQuantity());
+        assertEquals(SupplyState.MISSING, check.getState());
+        assertEquals(1, check.getMissingQuantity());
+    }
+
+    @Test
+    public void consumableBudgetCanWithdrawTheShortfallFromBank()
+    {
+        VerifiedTransportResult tablet = consumable(TransportVerificationKind.ARDOUGNE_TELEPORT_TABLET);
+        List<HerbRunStop> stops = Arrays.asList(new HerbRunStop(HerbPatchDefinition.FALADOR, "Inspect", tablet, null, true),
+                new HerbRunStop(HerbPatchDefinition.ARDOUGNE, "Inspect", tablet, null, true));
+        SupplyCheck check = new RunTransportResourcePlanner().evaluate(stops,
+                context(Map.of(ItemID.POH_TABLET_ARDOUGNETELEPORT, 1), Collections.emptyMap(),
+                        Map.of(ItemID.POH_TABLET_ARDOUGNETELEPORT, 1L), Collections.emptyMap())).getConsumables().get(0);
+        assertEquals(SupplyState.AVAILABLE_FROM_BANK, check.getState());
+        assertEquals(1, check.getWithdrawQuantity());
+        assertEquals(0, check.getMissingQuantity());
+    }
+
+    @Test
+    public void basaltAndHarmonyScrollUseTheirExistingVerifiedItemIds()
+    {
+        TransportVerificationKind[] kinds = {TransportVerificationKind.STONY_BASALT, TransportVerificationKind.ICY_BASALT,
+                TransportVerificationKind.MOS_LE_HARMLESS_HARMONY};
+        int[] ids = {ItemID.STRONGHOLD_TELEPORT_BASALT, ItemID.WEISS_TELEPORT_BASALT, ItemID.TELEPORTSCROLL_MOSLES};
+        for (int i = 0; i < kinds.length; i++)
+        {
+            SupplyCheck check = new RunTransportResourcePlanner().evaluate(Collections.singletonList(
+                    new HerbRunStop(HerbPatchDefinition.WEISS, "Inspect", consumable(kinds[i]), null, true)),
+                    context(Map.of(ids[i], 1), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap()))
+                    .getConsumables().get(0);
+            assertEquals(ids[i], check.getRequirement().getItemId());
+            assertEquals(SupplyState.ALREADY_CARRIED, check.getState());
+        }
+    }
+
+    @Test
+    public void consumableBudgetDoesNotGuessWhenStorageIsUnknown()
+    {
+        SupplyCheck check = new RunTransportResourcePlanner().evaluate(Collections.singletonList(
+                new HerbRunStop(HerbPatchDefinition.WEISS, "Inspect", consumable(TransportVerificationKind.ICY_BASALT), null, true)),
+                null).getConsumables().get(0);
+        assertEquals(SupplyState.DATA_REQUIRED, check.getState());
+        assertEquals(0, check.getMissingQuantity());
+    }
+
+    private VerifiedTransportResult consumable(TransportVerificationKind kind)
+    {
+        return new VerifiedTransportResult(new TransportOption(1, "Consumable", "Use manually", TransportCategory.ITEM,
+                kind), VerifiedTransportState.READY_NOW, "");
     }
 
     private List<HerbRunStop> twoSpellStops()

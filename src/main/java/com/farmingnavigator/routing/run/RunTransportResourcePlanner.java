@@ -1,6 +1,8 @@
 package com.farmingnavigator.routing.run;
 
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
+import com.farmingnavigator.loadout.LoadoutService;
+import com.farmingnavigator.loadout.SupplyRequirement;
 import com.farmingnavigator.routing.requirement.ChargedTeleportBudgetRequirement;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.requirement.RequirementResult;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import net.runelite.api.gameval.ItemID;
 
 /** Aggregates the recommended legs only; fallbacks are alternatives, not extra travel. */
 public final class RunTransportResourcePlanner
@@ -20,6 +23,7 @@ public final class RunTransportResourcePlanner
     {
         RuneCost.Builder runes = RuneCost.builder();
         Map<ChargedTeleportItemDefinition, Integer> jewellery = new EnumMap<>(ChargedTeleportItemDefinition.class);
+        Map<Consumable, Integer> consumables = new EnumMap<>(Consumable.class);
         List<String> notes = new ArrayList<>();
         for (HerbRunStop stop : stops)
         {
@@ -29,6 +33,11 @@ public final class RunTransportResourcePlanner
                 continue;
             }
             TransportOption option = stop.getRecommended().getOption();
+            Consumable consumable = consumable(option.getVerificationKind());
+            if (consumable != null)
+            {
+                consumables.merge(consumable, 1, Integer::sum);
+            }
             if (option.getVerificationKind() == TransportVerificationKind.TELEPORT_SPELL
                     && option.getTeleportSpellDefinition() != null)
             {
@@ -53,7 +62,40 @@ public final class RunTransportResourcePlanner
             checks.add(new RuneCostRequirement("All recommended direct-spell runes", totalRunes).evaluate(context));
         }
         jewellery.forEach((family, uses) -> checks.add(new ChargedTeleportBudgetRequirement(family, uses).evaluate(context)));
-        return new RunTransportResources(checks, notes);
+        List<SupplyRequirement> supplies = new ArrayList<>();
+        consumables.forEach((item, quantity) -> supplies.add(new SupplyRequirement(item.itemId, item.name, quantity,
+                false, "One consumed per recommended teleport; fallback routes are excluded.")));
+        return new RunTransportResources(checks, notes,
+                new LoadoutService().evaluate(supplies, context == null ? null : context.getStorageSnapshot()));
+    }
+
+    private enum Consumable
+    {
+        ARDOUGNE_TABLET(ItemID.POH_TABLET_ARDOUGNETELEPORT, "Ardougne teleport tablet"),
+        STONY_BASALT(ItemID.STRONGHOLD_TELEPORT_BASALT, "Stony basalt"),
+        ICY_BASALT(ItemID.WEISS_TELEPORT_BASALT, "Icy basalt"),
+        MOS_LE_HARMLESS_SCROLL(ItemID.TELEPORTSCROLL_MOSLES, "Mos le'harmless teleport scroll");
+
+        private final int itemId;
+        private final String name;
+
+        Consumable(int itemId, String name)
+        {
+            this.itemId = itemId;
+            this.name = name;
+        }
+    }
+
+    private Consumable consumable(TransportVerificationKind kind)
+    {
+        switch (kind)
+        {
+            case ARDOUGNE_TELEPORT_TABLET: return Consumable.ARDOUGNE_TABLET;
+            case STONY_BASALT: return Consumable.STONY_BASALT;
+            case ICY_BASALT: return Consumable.ICY_BASALT;
+            case MOS_LE_HARMLESS_HARMONY: return Consumable.MOS_LE_HARMLESS_SCROLL;
+            default: return null;
+        }
     }
 
     private ChargedTeleportItemDefinition jewelleryFamily(TransportVerificationKind kind)

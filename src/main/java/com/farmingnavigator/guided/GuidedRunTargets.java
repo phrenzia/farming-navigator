@@ -72,6 +72,16 @@ public final class GuidedRunTargets
                         }
                     });
                     plan.getStops().forEach(stop -> addTransport(inventory, bank, stop.getRecommended(), travel));
+                    if (plan.getTransportResources() != null)
+                    {
+                        plan.getTransportResources().getConsumables().forEach(check -> {
+                            inventory.add(check.getRequirement().getItemId());
+                            if (check.getWithdrawQuantity() > 0)
+                            {
+                                bank.add(check.getRequirement().getItemId());
+                            }
+                        });
+                    }
                 }
                 break;
             case TRAVEL:
