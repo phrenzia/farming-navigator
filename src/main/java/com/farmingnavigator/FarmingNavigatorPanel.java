@@ -142,6 +142,8 @@ public class FarmingNavigatorPanel
     public void setGardenGuidedRun(com.farmingnavigator.guided.garden.GardenRunSnapshot snapshot) { gardenGuidedRun = snapshot; }
     public void setGardenCommands(Consumer<com.farmingnavigator.guided.garden.GardenRunCommand> commands) { gardenCommands = commands; }
     private com.farmingnavigator.routing.run.GardenRunPlan gardenRunPlan;
+    private com.farmingnavigator.economics.FarmingMaterialEstimate gardenMaterials;
+    public void setGardenMaterials(com.farmingnavigator.economics.FarmingMaterialEstimate materials) { gardenMaterials = materials; }
     public void setGardenRunPlan(com.farmingnavigator.routing.run.GardenRunPlan plan) { gardenRunPlan = plan; }
     private Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> gardenObservations = Collections.emptyMap();
     public void setGardenObservations(Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> observations)
@@ -765,7 +767,7 @@ public class FarmingNavigatorPanel
                     gardenRunPlan.getBlocker().isEmpty() && !gardenRunPlan.getStops().isEmpty(), gardenCommands));
             patchListPanel.add(Box.createVerticalStrut(8));
             patchListPanel.add(new com.farmingnavigator.ui.GardenRunPlanPanel(gardenRunPlan,
-                    gardenRunDetailsOpen, expanded -> gardenRunDetailsOpen = expanded));
+                    gardenRunDetailsOpen, expanded -> gardenRunDetailsOpen = expanded, gardenMaterials));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
         if (config.showGardenObservations())

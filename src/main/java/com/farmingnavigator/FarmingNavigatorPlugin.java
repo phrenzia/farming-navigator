@@ -696,6 +696,8 @@ public class FarmingNavigatorPlugin
                 ? materialEstimator.herbs(runPlan, config.herbRunCompost(), itemManager::getItemPrice) : null;
         com.farmingnavigator.economics.FarmingMaterialEstimate treeMaterials = config.showFarmingMaterialValues() && accountState.isLoggedIn()
                 ? materialEstimator.trees(treeRunPlan, config.treeRunProtection(), itemManager::getItemPrice) : null;
+        com.farmingnavigator.economics.FarmingMaterialEstimate gardenMaterials = config.showFarmingMaterialValues() && accountState.isLoggedIn()
+                ? materialEstimator.gardens(gardenRunPlan, itemManager::getItemPrice) : null;
         guidedRunSession.refreshTransports(verifiedTransportResults, config.herbTransportPreference());
         GuidedRunSnapshot guidedRun = guidedRunSession.snapshot();
         if (runMetrics.isRecording())
@@ -728,6 +730,7 @@ public class FarmingNavigatorPlugin
                         targetPanel.setTreeObservations(treeObservations);
                         targetPanel.setGardenObservations(gardenObservations);
                         targetPanel.setGardenRunPlan(gardenRunPlan);
+                        targetPanel.setGardenMaterials(gardenMaterials);
                         targetPanel.setGardenGuidedRun(gardenGuidedRun);
                         targetPanel.setTreeRunPlan(treeRunPlan);
                         targetPanel.setTreeGuidedRun(treeGuidedRun);

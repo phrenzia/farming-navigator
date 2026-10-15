@@ -124,4 +124,39 @@ public class FarmingMaterialEstimatorTest
         FarmingMaterialEstimate result = estimator.trees(empty, true, id -> { fail("Unexpected price lookup"); return 0; });
         assertTrue(result.getLines().isEmpty()); assertEquals(0, result.getKnownSubtotal().getAsLong());
     }
+    @Test public void gardenReplacementValuesSeedsAndFullSackPaymentsWithoutPricingTools()
+    {
+        com.farmingnavigator.farming.garden.GardenPatchDefinition patch = com.farmingnavigator.farming.garden.GardenPatchDefinition.RIMMINGTON_BUSH;
+        GardenRunPlan plan = new GardenRunPlanner().plan(account(), EnumSet.of(patch), GardenRunCrop.REDBERRIES,
+                GardenRunMode.REPLACE_MATURE, true, Map.of(), null, now);
+        FarmingMaterialEstimate result = estimator.gardens(plan, id -> {
+            if (id == ItemID.REDBERRY_BUSH_SEED) { return 100; }
+            if (id == ItemID.SACK_CABBAGE_10) { return 50; }
+            fail("Unexpected tool or travel price lookup"); return 0;
+        });
+        assertEquals(2, result.getLines().size()); assertEquals(300, result.getKnownSubtotal().getAsLong());
+    }
+    @Test public void keptMatureGardenPlantsAndPoisonIvyDoNotInventSeedOrPaymentCosts()
+    {
+        com.farmingnavigator.farming.garden.GardenPatchDefinition patch = com.farmingnavigator.farming.garden.GardenPatchDefinition.RIMMINGTON_BUSH;
+        GardenRunPlan keep = new GardenRunPlanner().plan(account(), EnumSet.of(patch), GardenRunCrop.REDBERRIES,
+                GardenRunMode.KEEP_MATURE, true, Map.of(patch, new com.farmingnavigator.farming.garden.GardenPatchObservation(
+                        new com.farmingnavigator.farming.garden.GardenPatchStateDecoder().decode(com.farmingnavigator.farming.garden.GardenFamily.BUSH, 250),
+                        now, com.farmingnavigator.farming.state.FarmingGrowthRate.NORMAL)), null, now);
+        assertTrue(estimator.gardens(keep, id -> { fail("No consumables reserved"); return 0; }).getLines().isEmpty());
+        GardenRunPlan ivy = new GardenRunPlanner().plan(account(), EnumSet.of(patch), GardenRunCrop.POISON_IVY,
+                GardenRunMode.REPLACE_MATURE, true, Map.of(), null, now);
+        FarmingMaterialEstimate result = estimator.gardens(ivy, id -> { assertEquals(ItemID.POISONIVY_BUSH_SEED, id); return 0; });
+        assertEquals(1, result.getUnknownPriceCount()); assertEquals(1, result.getLines().size());
+    }
+    @Test public void diseasedCactusValuesCureButNoReplacementOrReusableTools()
+    {
+        com.farmingnavigator.farming.garden.GardenPatchDefinition patch = com.farmingnavigator.farming.garden.GardenPatchDefinition.AL_KHARID_CACTUS;
+        GardenRunPlan plan = new GardenRunPlanner().plan(account(), EnumSet.of(patch), GardenRunCrop.CACTUS,
+                GardenRunMode.REPLACE_MATURE, true, Map.of(patch, new com.farmingnavigator.farming.garden.GardenPatchObservation(
+                        new com.farmingnavigator.farming.garden.GardenPatchStateDecoder().decode(com.farmingnavigator.farming.garden.GardenFamily.CACTUS, 19),
+                        now, com.farmingnavigator.farming.state.FarmingGrowthRate.NORMAL)), null, now);
+        FarmingMaterialEstimate result = estimator.gardens(plan, id -> { assertEquals(ItemID.PLANT_CURE, id); return 100; });
+        assertEquals(1, result.getLines().size()); assertEquals(100, result.getKnownSubtotal().getAsLong());
+    }
 }
