@@ -48,11 +48,17 @@ public final class TreeRunPlan
             HerbTransportPreference preference, RequirementContext context)
     {
         List<TreeRunStop> routed = new ArrayList<>();
+        boolean previousFossil = false;
         for (TreeRunStop stop : stops)
         {
+            boolean fossil = stop.getPatch() == TreePatchDefinition.FOSSIL_ISLAND_EAST
+                    || stop.getPatch() == TreePatchDefinition.FOSSIL_ISLAND_MIDDLE
+                    || stop.getPatch() == TreePatchDefinition.FOSSIL_ISLAND_WEST;
             List<VerifiedTransportResult> usable = HerbTransportSelector.select(
                     transports.getOrDefault(stop.getPatch(), List.of()), preference);
-            routed.add(stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
+            routed.add(fossil && previousFossil ? stop.withLocalWalk()
+                    : stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
+            previousFossil = fossil;
         }
         return new TreeRunPlan(crop, routed, supplies, excluded, warnings, blocker,
                 new RunTransportResourcePlanner().evaluate(routed, context));

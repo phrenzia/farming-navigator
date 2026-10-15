@@ -2,6 +2,9 @@ package com.farmingnavigator.transport;
 
 public enum TransportVerificationKind
 {
+    WEALTH_SPIRIT_TREE,
+    DIGSITE_BARGE,
+    LLETYA_CRYSTAL,
     EXPLORER_RING_UNLIMITED,
     EXPLORER_RING_2_DAILY,
     ARDOUGNE_CLOAK_UNLIMITED,

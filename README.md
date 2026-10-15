@@ -48,7 +48,7 @@ The current build is an internally tested herb-run assistant with tree observati
 
 - Regular, fruit and hardwood tree observations cover 19 patch identities and 18 crops, with settled region checks, profile persistence and conditional health-check windows. Health-checked fruit trees do not imply fruit is available.
 - Tree preparation selects a sapling and matching patches, checks supported access requirements, excludes early growing trees and budgets potential replants and farmer payments. Noted/unnoted payments combine; planting requires unnoted finished saplings and baskets must be full. New hardwood payment data and three newer patch unlocks remain explicitly unverified.
-- Eight tree patch destinations have an initial verified spell/jewellery catalogue, ranked recommendations and fallbacks, and a combined rune/charge budget for the selected tree run. Other legs require manual travel. Herb and tree budgets describe separate runs; combining the runs is not budgeted.
+- Tree destinations have an initial verified spell/jewellery catalogue, spirit-tree connections, Lletya crystals and Digsite pendant/barge travel, ranked recommendations and fallbacks, and a combined rune/charge budget. Adjacent Fossil Island patches share one arrival teleport. Unsupported legs require manual travel. Herb and tree budgets describe separate runs; combining the runs is not budgeted.
 
 Configure crop, patches, compost, transport preference, POH entry supplies, overlays and alerts in the plugin settings. Configure the house and installed features in the sidebar's POH editor. Changing herb run setup cancels the active herb checklist.
 

@@ -8,6 +8,10 @@ import net.runelite.api.gameval.ItemID;
 
 public enum ChargedTeleportItemDefinition
 {
+    TELEPORT_CRYSTAL("Teleport crystal", combine(finiteVariants("Teleport crystal",
+            ItemID.MOURNING_TELEPORT_CRYSTAL_1, ItemID.MOURNING_TELEPORT_CRYSTAL_2,
+            ItemID.MOURNING_TELEPORT_CRYSTAL_3, ItemID.MOURNING_TELEPORT_CRYSTAL_4, ItemID.MOURNING_TELEPORT_CRYSTAL_5),
+            Collections.singletonList(unlimited(ItemID.PRIF_TELEPORT_CRYSTAL, "Eternal teleport crystal")))),
     BURNING_AMULET(
             "Burning amulet",
             finiteVariants(

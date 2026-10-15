@@ -54,7 +54,11 @@ public final class TreeRunPlanPanel extends JPanel
         {
             details.add(Box.createVerticalStrut(7));
             details.add(text(index++ + ". " + stop.getPatch().getLabel(), Color.WHITE));
-            if (stop.getRecommended() == null)
+            if (stop.isLocalWalk())
+            {
+                details.add(text("Travel: walk to the next nearby Fossil Island hardwood patch; no additional teleport reserved.", MUTED));
+            }
+            else if (stop.getRecommended() == null)
             {
                 details.add(text("No verified transport selected. Travel manually and check your route.", WARNING));
             }

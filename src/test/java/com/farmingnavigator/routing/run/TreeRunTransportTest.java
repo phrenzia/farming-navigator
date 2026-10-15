@@ -41,7 +41,7 @@ public class TreeRunTransportTest
         assertTrue(results.get(TreePatchDefinition.VARROCK_TREE).get(0).isUsableForPlannedRun());
         assertEquals(TeleportSpellDefinition.VARROCK_TELEPORT, results.get(TreePatchDefinition.VARROCK_TREE).get(0).getOption().getTeleportSpellDefinition());
         assertTrue(results.get(TreePatchDefinition.VARROCK_TREE).get(0).getOption().getInstructions().contains("choose Varrock explicitly"));
-        assertFalse(results.containsKey(TreePatchDefinition.FOSSIL_ISLAND_EAST));
+        assertFalse(results.get(TreePatchDefinition.FOSSIL_ISLAND_EAST).get(0).isUsableForPlannedRun());
     }
     @Test public void individuallyReadyTreeSpellsCannotReuseOneLawRune()
     {
@@ -91,6 +91,25 @@ public class TreeRunTransportTest
         assertEquals(3, TeleportSpellDefinition.VARROCK_TELEPORT.getRuneCost().getQuantity(RuneKind.AIR));
         assertEquals(1, TeleportSpellDefinition.VARROCK_TELEPORT.getRuneCost().getQuantity(RuneKind.FIRE));
         assertEquals(1, TeleportSpellDefinition.LUMBRIDGE_TELEPORT.getRuneCost().getQuantity(RuneKind.EARTH));
+    }
+    @Test public void threeFossilPatchesReserveOnlyOnePendantTeleport()
+    {
+        RequirementContext base = context(Map.of(ItemID.NECKLACE_OF_DIGSITE_1, 1), Map.of());
+        AccountState islandAccount = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
+                Map.of(net.runelite.api.Quest.BONE_VOYAGE, net.runelite.api.QuestState.FINISHED), Map.of(), Map.of());
+        RequirementContext ctx = new RequirementContext(islandAccount, base.getConfig(), base.getTravelCapabilitySnapshot(), base.getStorageSnapshot());
+        Map<TreePatchDefinition, List<VerifiedTransportResult>> results = new TransportVerificationService().evaluateAll(islandAccount,
+                ctx.getConfig(), ctx.getTravelCapabilitySnapshot(), ctx.getStorageSnapshot(), new TreePatchTransportService().getAllOptions());
+        TreeRunPlan plan = new TreeRunPlanner().plan(islandAccount, EnumSet.of(TreePatchDefinition.FOSSIL_ISLAND_EAST,
+                TreePatchDefinition.FOSSIL_ISLAND_MIDDLE, TreePatchDefinition.FOSSIL_ISLAND_WEST), TreeRunCrop.TEAK, true,
+                Map.of(), ctx.getStorageSnapshot(), Instant.now()).withTransports(results, HerbTransportPreference.CATALOGUE, ctx);
+        assertEquals(3, plan.getStops().size());
+        assertFalse(plan.getStops().get(0).isLocalWalk());
+        assertTrue(plan.getStops().get(1).isLocalWalk());
+        assertTrue(plan.getStops().get(2).isLocalWalk());
+        assertEquals(1, plan.getTransportResources().getChecks().size());
+        assertTrue(plan.getTransportResources().getChecks().get(0).isReadyNow());
+        assertTrue(plan.getTransportResources().getChecks().get(0).getRequirement().contains("1 run teleports"));
     }
     @Test public void unverifiedBankWithholdsTravelRecommendations()
     {

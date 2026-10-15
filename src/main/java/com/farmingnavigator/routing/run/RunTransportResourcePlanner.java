@@ -40,6 +40,7 @@ public final class RunTransportResourcePlanner
         int houseVisits = 0;
         for (RunTravelStop stop : stops)
         {
+            if (stop.isLocalWalk()) { continue; }
             if (stop.getRecommended() == null)
             {
                 notes.add("Choose transport for " + stop.getTravelLabel() + ".");
@@ -184,6 +185,9 @@ public final class RunTransportResourcePlanner
             case SKILLS_NECKLACE: return ChargedTeleportItemDefinition.SKILLS_NECKLACE;
             case AMULET_OF_GLORY: return ChargedTeleportItemDefinition.AMULET_OF_GLORY;
             case RING_OF_WEALTH: return ChargedTeleportItemDefinition.RING_OF_WEALTH;
+            case WEALTH_SPIRIT_TREE: return ChargedTeleportItemDefinition.RING_OF_WEALTH;
+            case DIGSITE_BARGE: return ChargedTeleportItemDefinition.DIGSITE_PENDANT;
+            case LLETYA_CRYSTAL: return ChargedTeleportItemDefinition.TELEPORT_CRYSTAL;
             case COMBAT_BRACELET: return ChargedTeleportItemDefinition.COMBAT_BRACELET;
             default: return null;
         }

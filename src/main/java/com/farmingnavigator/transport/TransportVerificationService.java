@@ -190,6 +190,11 @@ public class TransportVerificationService
                 option.getVerificationKind()
         )
         {
+            case WEALTH_SPIRIT_TREE:
+            case DIGSITE_BARGE:
+            case LLETYA_CRYSTAL:
+                return new TreeTransportVerifier().evaluate(option,
+                        new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot));
             case EXPLORER_RING_UNLIMITED:
                 return evaluateExplorerRingUnlimited(
                         storageSnapshot,

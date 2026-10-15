@@ -35,6 +35,19 @@ public final class TreePatchTransportService
         options.put(TreePatchDefinition.FARMING_GUILD_FRUIT, guild);
         options.put(TreePatchDefinition.BRIMHAVEN_FRUIT, List.of(item(1, "Amulet of glory to Karamja",
                 "Teleport to Musa Point on Karamja and travel west to the fruit tree patch north of Brimhaven.", TransportVerificationKind.AMULET_OF_GLORY)));
+        options.put(TreePatchDefinition.GNOME_STRONGHOLD_TREE, List.of(item(1, "Wealth to Exchange, then spirit tree",
+                "Teleport to the Grand Exchange, walk to its spirit tree, travel to Gnome Stronghold, then walk south-west to the regular tree patch.", TransportVerificationKind.WEALTH_SPIRIT_TREE)));
+        options.put(TreePatchDefinition.GNOME_STRONGHOLD_FRUIT, List.of(item(1, "Wealth to Exchange, then spirit tree",
+                "Teleport to the Grand Exchange, walk to its spirit tree, travel to Gnome Stronghold, then walk east to the fruit tree patch.", TransportVerificationKind.WEALTH_SPIRIT_TREE)));
+        options.put(TreePatchDefinition.TREE_GNOME_VILLAGE_FRUIT, List.of(item(1, "Wealth to Exchange, then spirit tree",
+                "Teleport to the Grand Exchange, use its spirit tree to Tree Gnome Village, follow Elkoy out of the maze, then walk south-west to the fruit tree patch.", TransportVerificationKind.WEALTH_SPIRIT_TREE)));
+        options.put(TreePatchDefinition.LLETYA_FRUIT, List.of(item(1, "Teleport crystal to Lletya",
+                "Choose Lletya on a charged or eternal teleport crystal, then walk south to the fruit tree patch.", TransportVerificationKind.LLETYA_CRYSTAL)));
+        List<TransportOption> fossil = List.of(item(1, "Digsite pendant, then barge",
+                "Choose the base Digsite destination, quick-travel with the barge guard to Fossil Island, then walk north to the hardwood patches. This route does not require the separate pendant machine destination or mushtrees.", TransportVerificationKind.DIGSITE_BARGE));
+        options.put(TreePatchDefinition.FOSSIL_ISLAND_EAST, fossil);
+        options.put(TreePatchDefinition.FOSSIL_ISLAND_MIDDLE, fossil);
+        options.put(TreePatchDefinition.FOSSIL_ISLAND_WEST, fossil);
         return Collections.unmodifiableMap(options);
     }
     private TransportOption spell(int rank, TeleportSpellDefinition spell, String instructions)

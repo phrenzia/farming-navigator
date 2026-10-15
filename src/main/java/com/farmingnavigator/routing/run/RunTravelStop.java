@@ -7,4 +7,5 @@ public interface RunTravelStop
 {
     VerifiedTransportResult getRecommended();
     String getTravelLabel();
+    default boolean isLocalWalk() { return false; }
 }
