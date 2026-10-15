@@ -14,6 +14,9 @@ import com.farmingnavigator.routing.run.HerbRunCrop;
 import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.routing.run.HerbRunPlanner;
 import com.farmingnavigator.routing.run.HerbRunStop;
+import com.farmingnavigator.routing.run.HerbHouseEntryMode;
+import com.farmingnavigator.routing.run.RunTransportResourcePlanner;
+import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.transport.TransportCategory;
@@ -185,6 +188,26 @@ public class GuidedRunTargetsTest
         controller.update(session, plan(), null, true);
         controller.clear();
         assertEquals(Collections.singletonList(foreign), manager.points);
+    }
+
+    @Test
+    public void houseTravelHighlightsOnlyTheConfiguredEntrySupplies()
+    {
+        VerifiedTransportResult route = new VerifiedTransportResult(new TransportOption(1, "House", "Enter manually",
+                TransportCategory.PLAYER_OWNED_HOUSE, TransportVerificationKind.POH_MOUNTED_XERICS_TALISMAN),
+                VerifiedTransportState.READY_NOW, "");
+        for (HerbHouseEntryMode mode : HerbHouseEntryMode.values())
+        {
+            FarmingNavigatorConfig config = new FarmingNavigatorConfig()
+            {
+                @Override public HerbHouseEntryMode herbHouseEntryMode() { return mode; }
+            };
+            HerbRunPlan plan = plan().withTransportResources(new RunTransportResourcePlanner().evaluate(
+                    Collections.emptyList(), new RequirementContext(null, config)));
+            GuidedRunTargets targets = GuidedRunTargets.from(snapshot(GuidedRunStep.TRAVEL, route), plan, null);
+            assertEquals(mode == HerbHouseEntryMode.TABLETS, targets.getInventoryItems().contains(ItemID.POH_TABLET_TELEPORTTOHOUSE));
+            assertEquals(mode == HerbHouseEntryMode.SPELL, targets.getInventoryItems().contains(ItemID.LAWRUNE));
+        }
     }
 
     private GuidedRunTargets targets(GuidedRunStep step)

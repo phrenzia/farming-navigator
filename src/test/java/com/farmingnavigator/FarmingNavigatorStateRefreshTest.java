@@ -15,6 +15,7 @@ public class FarmingNavigatorStateRefreshTest
         assertTrue(FarmingNavigatorPlugin.isRunSetupKey("herbRunPatches"));
         assertTrue(FarmingNavigatorPlugin.isRunSetupKey("herbRunCompost"));
         assertTrue(FarmingNavigatorPlugin.isRunSetupKey("herbTransportPreference"));
+        assertTrue(FarmingNavigatorPlugin.isRunSetupKey("herbHouseEntryMode"));
         assertFalse(FarmingNavigatorPlugin.isRunSetupKey("guidedRunOverlays"));
         assertFalse(FarmingNavigatorPlugin.isRunSetupKey("pohHouseLocation"));
         assertFalse(FarmingNavigatorPlugin.isRunSetupKey(null));

@@ -11,6 +11,7 @@ public final class RunTransportResources
     private final List<RequirementResult> checks;
     private final List<String> notes;
     private final List<SupplyCheck> consumables;
+    private final HerbHouseEntryMode houseEntryMode;
 
     RunTransportResources(List<RequirementResult> checks, List<String> notes)
     {
@@ -19,12 +20,20 @@ public final class RunTransportResources
 
     RunTransportResources(List<RequirementResult> checks, List<String> notes, List<SupplyCheck> consumables)
     {
+        this(checks, notes, consumables, null);
+    }
+
+    RunTransportResources(List<RequirementResult> checks, List<String> notes, List<SupplyCheck> consumables,
+            HerbHouseEntryMode houseEntryMode)
+    {
         this.checks = Collections.unmodifiableList(new ArrayList<>(checks));
         this.notes = Collections.unmodifiableList(new ArrayList<>(notes));
         this.consumables = Collections.unmodifiableList(new ArrayList<>(consumables));
+        this.houseEntryMode = houseEntryMode;
     }
 
     public List<RequirementResult> getChecks() { return checks; }
     public List<String> getNotes() { return notes; }
     public List<SupplyCheck> getConsumables() { return consumables; }
+    public HerbHouseEntryMode getHouseEntryMode() { return houseEntryMode; }
 }

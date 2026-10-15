@@ -5,6 +5,7 @@ import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.RuneSupply;
 import com.farmingnavigator.routing.run.HerbRunPlan;
+import com.farmingnavigator.routing.run.HerbHouseEntryMode;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 import com.farmingnavigator.transport.TransportCategory;
 import com.farmingnavigator.transport.TransportOption;
@@ -59,6 +60,8 @@ public final class GuidedRunTargets
         Set<Integer> bank = new HashSet<>();
         WorldPoint destination = null;
         String name = "";
+        HerbHouseEntryMode houseEntryMode = plan == null || plan.getTransportResources() == null
+                ? null : plan.getTransportResources().getHouseEntryMode();
         switch (session.getStep())
         {
             case PREPARE:
@@ -71,7 +74,7 @@ public final class GuidedRunTargets
                             bank.add(check.getRequirement().getItemId());
                         }
                     });
-                    plan.getStops().forEach(stop -> addTransport(inventory, bank, stop.getRecommended(), travel));
+                    plan.getStops().forEach(stop -> addTransport(inventory, bank, stop.getRecommended(), travel, houseEntryMode));
                     if (plan.getTransportResources() != null)
                     {
                         plan.getTransportResources().getConsumables().forEach(check -> {
@@ -85,7 +88,7 @@ public final class GuidedRunTargets
                 }
                 break;
             case TRAVEL:
-                addTransport(inventory, bank, session.getStop().getRecommended(), travel);
+                addTransport(inventory, bank, session.getStop().getRecommended(), travel, houseEntryMode);
                 destination = HerbPatchDestination.valueOf(session.getStop().getPatch().name()).getLocation();
                 name = session.getStop().getPatch().getDisplayName() + " farming area";
                 break;
@@ -121,7 +124,7 @@ public final class GuidedRunTargets
     }
 
     private static void addTransport(Set<Integer> inventory, Set<Integer> bank, VerifiedTransportResult route,
-            TravelCapabilitySnapshot travel)
+            TravelCapabilitySnapshot travel, HerbHouseEntryMode houseEntryMode)
     {
         if (route == null || !route.isUsableForPlannedRun())
         {
@@ -131,8 +134,14 @@ public final class GuidedRunTargets
         TransportOption option = route.getOption();
         if (option.getCategory() == TransportCategory.PLAYER_OWNED_HOUSE)
         {
-            items.add(ItemID.POH_TABLET_TELEPORTTOHOUSE);
-            addSpell(items, TeleportSpellDefinition.TELEPORT_TO_HOUSE, travel);
+            if (houseEntryMode != HerbHouseEntryMode.SPELL)
+            {
+                items.add(ItemID.POH_TABLET_TELEPORTTOHOUSE);
+            }
+            if (houseEntryMode != HerbHouseEntryMode.TABLETS)
+            {
+                addSpell(items, TeleportSpellDefinition.TELEPORT_TO_HOUSE, travel);
+            }
         }
         switch (option.getVerificationKind())
         {

@@ -1,6 +1,8 @@
 package com.farmingnavigator.routing.run;
 
 import com.farmingnavigator.account.AccountState;
+import com.farmingnavigator.FarmingNavigatorConfig;
+import com.farmingnavigator.poh.PohHouseLocation;
 import com.farmingnavigator.loadout.SupplyState;
 import com.farmingnavigator.loadout.SupplyCheck;
 import com.farmingnavigator.farming.HerbPatchDefinition;
@@ -153,6 +155,101 @@ public class RunTransportResourcePlannerTest
     {
         return new VerifiedTransportResult(new TransportOption(1, "Consumable", "Use manually", TransportCategory.ITEM,
                 kind), VerifiedTransportState.READY_NOW, "");
+    }
+
+    @Test
+    public void eachHouseVisitReservesATabletAndBankCanSupplyShortfall()
+    {
+        RequirementContext base = context(Map.of(ItemID.POH_TABLET_TELEPORTTOHOUSE, 1), Collections.emptyMap(),
+                Map.of(ItemID.POH_TABLET_TELEPORTTOHOUSE, 1L), Collections.emptyMap());
+        RunTransportResources result = new RunTransportResourcePlanner().evaluate(twoHouseStops(), houseContext(base, HerbHouseEntryMode.TABLETS));
+        SupplyCheck check = result.getConsumables().get(0);
+        assertEquals(2, check.getRequirement().getQuantity());
+        assertEquals(1, check.getWithdrawQuantity());
+        assertEquals(SupplyState.AVAILABLE_FROM_BANK, check.getState());
+        assertEquals(HerbHouseEntryMode.TABLETS, result.getHouseEntryMode());
+        assertTrue(result.getNotes().get(0).contains("2 x House tablets"));
+    }
+
+    @Test
+    public void singleTabletCannotFundTwoHouseVisits()
+    {
+        RequirementContext base = context(Map.of(ItemID.POH_TABLET_TELEPORTTOHOUSE, 1), Collections.emptyMap(),
+                Collections.emptyMap(), Collections.emptyMap());
+        SupplyCheck check = new RunTransportResourcePlanner().evaluate(twoHouseStops(), houseContext(base, HerbHouseEntryMode.TABLETS))
+                .getConsumables().get(0);
+        assertEquals(SupplyState.MISSING, check.getState());
+        assertEquals(1, check.getMissingQuantity());
+    }
+
+    @Test
+    public void houseCastsAndDirectTeleportsShareOneLawRuneBudget()
+    {
+        RequirementContext base = context(Map.of(ItemID.AIRRUNE, 5, ItemID.EARTHRUNE, 2, ItemID.WATERRUNE, 1, ItemID.LAWRUNE, 2),
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        List<HerbRunStop> stops = new java.util.ArrayList<>(twoHouseStops());
+        stops.add(new HerbRunStop(HerbPatchDefinition.FALADOR, "Inspect", spell(), null, true));
+        RunTransportResources result = new RunTransportResourcePlanner().evaluate(stops, houseContext(base, HerbHouseEntryMode.SPELL));
+        assertEquals(RequirementState.BLOCKED, result.getChecks().get(0).getState());
+        assertTrue(result.getChecks().get(0).getDetail().contains("Law rune x3"));
+        assertTrue(result.getConsumables().isEmpty());
+    }
+
+    @Test
+    public void equippedInfiniteSourcesAndBankedRunesCanSupportAllHouseCasts()
+    {
+        RequirementContext base = context(Map.of(ItemID.EARTHRUNE, 2, ItemID.LAWRUNE, 1), Map.of(ItemID.STAFF_OF_AIR, 1),
+                Map.of(ItemID.LAWRUNE, 1L), Collections.emptyMap());
+        RunTransportResources result = new RunTransportResourcePlanner().evaluate(twoHouseStops(), houseContext(base, HerbHouseEntryMode.SPELL));
+        assertTrue(result.getChecks().get(0).requiresBankWithdrawal());
+        assertTrue(result.getChecks().get(1).isSatisfied());
+    }
+
+    @Test
+    public void houseSpellModeStillRequiresCorrectSpellbookAndConfiguredHouse()
+    {
+        RequirementContext base = context(Map.of(ItemID.AIRRUNE, 2, ItemID.EARTHRUNE, 2, ItemID.LAWRUNE, 2),
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        TravelCapabilitySnapshot wrongBook = new TravelCapabilitySnapshot(true, SpellbookType.ANCIENT, null,
+                Map.of(ItemID.AIRRUNE, 2, ItemID.EARTHRUNE, 2, ItemID.LAWRUNE, 2), Collections.emptyMap(), Collections.emptyMap());
+        RequirementContext configured = houseContext(base, HerbHouseEntryMode.SPELL);
+        RequirementContext wrong = new RequirementContext(base.getAccountState(), configured.getConfig(), wrongBook, base.getStorageSnapshot());
+        assertEquals(RequirementState.BLOCKED, new RunTransportResourcePlanner().evaluate(twoHouseStops(), wrong).getChecks().get(1).getState());
+        FarmingNavigatorConfig noHouse = new FarmingNavigatorConfig()
+        {
+            @Override public HerbHouseEntryMode herbHouseEntryMode() { return HerbHouseEntryMode.SPELL; }
+        };
+        RequirementContext unconfigured = new RequirementContext(base.getAccountState(), noHouse,
+                base.getTravelCapabilitySnapshot(), base.getStorageSnapshot());
+        assertEquals(RequirementState.BLOCKED, new RunTransportResourcePlanner()
+                .evaluate(twoHouseStops(), unconfigured).getChecks().get(1).getState());
+    }
+
+    @Test
+    public void houseEntryWithUnknownStorageRemainsDataRequired()
+    {
+        RunTransportResources result = new RunTransportResourcePlanner().evaluate(twoHouseStops(), null);
+        assertEquals(RequirementState.DATA_REQUIRED, result.getChecks().get(0).getState());
+        assertEquals(SupplyState.DATA_REQUIRED, result.getConsumables().get(0).getState());
+    }
+
+    private RequirementContext houseContext(RequirementContext base, HerbHouseEntryMode mode)
+    {
+        FarmingNavigatorConfig config = new FarmingNavigatorConfig()
+        {
+            @Override public HerbHouseEntryMode herbHouseEntryMode() { return mode; }
+            @Override public PohHouseLocation pohHouseLocation() { return PohHouseLocation.RIMMINGTON; }
+        };
+        return new RequirementContext(base.getAccountState(), config, base.getTravelCapabilitySnapshot(), base.getStorageSnapshot());
+    }
+
+    private List<HerbRunStop> twoHouseStops()
+    {
+        VerifiedTransportResult house = new VerifiedTransportResult(new TransportOption(1, "POH feature", "Enter house manually",
+                TransportCategory.PLAYER_OWNED_HOUSE, TransportVerificationKind.POH_MOUNTED_XERICS_TALISMAN),
+                VerifiedTransportState.READY_NOW, "");
+        return Arrays.asList(new HerbRunStop(HerbPatchDefinition.HOSIDIUS, "Inspect", house, null, true),
+                new HerbRunStop(HerbPatchDefinition.CATHERBY, "Inspect", house, null, true));
     }
 
     private List<HerbRunStop> twoSpellStops()

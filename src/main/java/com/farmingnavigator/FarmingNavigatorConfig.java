@@ -7,6 +7,7 @@ import com.farmingnavigator.farming.HerbPatchDefinition;
 import com.farmingnavigator.routing.run.HerbRunCrop;
 import com.farmingnavigator.routing.run.HerbRunCompost;
 import com.farmingnavigator.routing.run.HerbTransportPreference;
+import com.farmingnavigator.routing.run.HerbHouseEntryMode;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -133,6 +134,18 @@ public interface FarmingNavigatorConfig
     default HerbTransportPreference herbTransportPreference()
     {
         return HerbTransportPreference.CATALOGUE;
+    }
+
+    @ConfigItem(
+            keyName = "herbHouseEntryMode",
+            name = "Herb POH entry supplies",
+            description = "Reserve one tablet or one spell cast per recommended POH visit; spell mode shares runes with direct teleports",
+            position = 7,
+            section = GENERAL_SECTION
+    )
+    default HerbHouseEntryMode herbHouseEntryMode()
+    {
+        return HerbHouseEntryMode.TABLETS;
     }
 
     /*
