@@ -7,6 +7,7 @@ import com.farmingnavigator.farming.HerbPatchService;
 import com.farmingnavigator.farming.HerbPatchStatus;
 import com.farmingnavigator.farming.state.HerbPatchObservation;
 import com.farmingnavigator.farming.state.HerbPatchObservationService;
+import com.farmingnavigator.farming.state.HerbObservationPersistence;
 import com.farmingnavigator.poh.PohProfileService;
 import com.farmingnavigator.routing.capability.TravelCapabilityService;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
@@ -61,6 +62,7 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.events.RuneScapeProfileChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
@@ -245,6 +247,17 @@ public class FarmingNavigatorPlugin
         );
     }
 
+    @Subscribe
+    public void onRuneScapeProfileChanged(RuneScapeProfileChanged event)
+    {
+        // A mode/account switch must never retain another character's observations or active checklist.
+        herbPatchObservationService.reset();
+        guidedRunSession.cancel();
+        guidedRunOverlayController.clear();
+        storageStateService.invalidateBankSnapshot();
+        clientThread.invokeLater(this::updateAccountState);
+    }
+
     @Subscribe public void onGameObjectSpawned(GameObjectSpawned event) { herbSceneTracker.spawned(event.getGameObject()); }
     @Subscribe public void onGameObjectDespawned(GameObjectDespawned event) { herbSceneTracker.despawned(event.getGameObject()); }
     @Subscribe public void onNpcSpawned(NpcSpawned event) { herbSceneTracker.spawned(event.getNpc()); }
@@ -319,6 +332,10 @@ public class FarmingNavigatorPlugin
             ConfigChanged event
     )
     {
+        if (event.getKey() != null && event.getKey().startsWith(HerbObservationPersistence.KEY_PREFIX))
+        {
+            return; // Observation sampling already refreshes the panel once per changed snapshot.
+        }
         if (
                 !FarmingNavigatorConfig.GROUP
                         .equals(

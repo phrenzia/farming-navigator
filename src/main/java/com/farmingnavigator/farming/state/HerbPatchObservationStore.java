@@ -8,7 +8,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
-/** Session-only observations, owned by the client thread. Clear on account/session changes. */
+/** Observations owned by the client thread. Clear before restoring another account's history. */
 public class HerbPatchObservationStore
 {
     private final Map<HerbPatchDefinition, HerbPatchObservation> observations =
