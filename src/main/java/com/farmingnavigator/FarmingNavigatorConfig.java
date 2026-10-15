@@ -8,6 +8,7 @@ import com.farmingnavigator.routing.run.HerbRunCrop;
 import com.farmingnavigator.routing.run.HerbRunCompost;
 import com.farmingnavigator.routing.run.HerbTransportPreference;
 import com.farmingnavigator.routing.run.HerbHouseEntryMode;
+import com.farmingnavigator.routing.run.HerbRunCure;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -146,6 +147,18 @@ public interface FarmingNavigatorConfig
     default HerbHouseEntryMode herbHouseEntryMode()
     {
         return HerbHouseEntryMode.TABLETS;
+    }
+
+    @ConfigItem(
+            keyName = "herbRunCure",
+            name = "Herb disease treatment",
+            description = "Reserve potions or Cure Plant casts for observed diseased stops; unexpected disease may require extra supplies",
+            position = 8,
+            section = GENERAL_SECTION
+    )
+    default HerbRunCure herbRunCure()
+    {
+        return HerbRunCure.PLANT_CURE;
     }
 
     /*

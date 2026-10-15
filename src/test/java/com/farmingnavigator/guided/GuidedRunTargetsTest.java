@@ -16,6 +16,10 @@ import com.farmingnavigator.routing.run.HerbRunPlanner;
 import com.farmingnavigator.routing.run.HerbRunStop;
 import com.farmingnavigator.routing.run.HerbHouseEntryMode;
 import com.farmingnavigator.routing.run.RunTransportResourcePlanner;
+import com.farmingnavigator.routing.run.HerbRunCareResources;
+import com.farmingnavigator.routing.run.HerbRunCure;
+import com.farmingnavigator.farming.state.HerbPatchObservation;
+import com.farmingnavigator.farming.state.HerbPatchStateDecoder;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 import com.farmingnavigator.storage.StorageSnapshot;
@@ -230,6 +234,34 @@ public class GuidedRunTargetsTest
         GuidedRunTargets targets = GuidedRunTargets.from(snapshot(GuidedRunStep.PREPARE, null), plan, travel);
         assertTrue(targets.getBankItems().contains(ItemID.LAWRUNE));
         assertFalse(targets.getBankItems().contains(ItemID.AIRRUNE));
+    }
+
+    @Test
+    public void selectedCureSpellSurvivesSessionAndHighlightsRunesUntilHealthyObservation()
+    {
+        Instant now = Instant.parse("2026-10-15T12:00:00Z");
+        HerbRunPlan base = plan();
+        HerbRunPlan selected = base.withCareResources(HerbRunCareResources.evaluate(base, HerbRunCure.CURE_PLANT, null));
+        GuidedRunSession session = new GuidedRunSession();
+        assertTrue(session.start(selected, HerbRunCompost.ULTRACOMPOST, now));
+        session.confirm(now.plusSeconds(1));
+        session.observe(HerbPatchDestination.FALADOR.getLocation(), Collections.singletonMap(HerbPatchDefinition.FALADOR,
+                new HerbPatchObservation(new HerbPatchStateDecoder().decode(140), now.plusSeconds(2))), now.plusSeconds(2));
+        assertEquals(GuidedRunStep.CURE, session.snapshot().getStep());
+        assertEquals(HerbRunCure.CURE_PLANT, session.snapshot().getCure());
+        assertTrue(session.snapshot().getInstruction().contains("Cast Cure Plant"));
+        GuidedRunTargets targets = GuidedRunTargets.from(session.snapshot(), selected, null);
+        assertTrue(targets.getInventoryItems().contains(ItemID.ASTRALRUNE));
+        assertTrue(targets.getInventoryItems().contains(ItemID.EARTHRUNE));
+        assertTrue(targets.getInventoryItems().contains(ItemID.MUDRUNE));
+        assertFalse(targets.getInventoryItems().contains(ItemID.LAWRUNE));
+        assertFalse(targets.getInventoryItems().contains(ItemID.PLANT_CURE));
+        assertEquals(0, session.snapshot().getCompleted());
+        session.observe(HerbPatchDestination.FALADOR.getLocation(), Collections.singletonMap(HerbPatchDefinition.FALADOR,
+                new HerbPatchObservation(new HerbPatchStateDecoder().decode(33), now.plusSeconds(3))), now.plusSeconds(3));
+        assertEquals(GuidedRunStep.COMPLETE, session.snapshot().getStep());
+        assertEquals(1, session.snapshot().getCompleted());
+        assertEquals(0, session.snapshot().getManuallyCompleted());
     }
 
     private GuidedRunTargets targets(GuidedRunStep step)

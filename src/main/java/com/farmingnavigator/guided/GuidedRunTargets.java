@@ -6,6 +6,9 @@ import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.RuneSupply;
 import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.routing.run.HerbHouseEntryMode;
+import com.farmingnavigator.routing.run.HerbRunCure;
+import com.farmingnavigator.routing.run.HerbRunCareResources;
+import com.farmingnavigator.routing.requirement.RuneCost;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 import com.farmingnavigator.transport.TransportCategory;
 import com.farmingnavigator.transport.TransportOption;
@@ -86,6 +89,10 @@ public final class GuidedRunTargets
                             }
                         });
                     }
+                    if (plan.getCareResources() != null)
+                    {
+                        addRunes(inventory, plan.getCareResources().getRunes(), travel);
+                    }
                 }
                 break;
             case TRAVEL:
@@ -103,7 +110,13 @@ public final class GuidedRunTargets
             case COMPOST:
                 if (session.getCompost().getItemId() > 0) { inventory.add(session.getCompost().getItemId()); }
                 break;
-            case CURE: inventory.add(ItemID.PLANT_CURE); break;
+            case CURE:
+                if (session.getCure() == HerbRunCure.CURE_PLANT)
+                {
+                    addRunes(inventory, HerbRunCareResources.CURE_PLANT_COST, travel);
+                }
+                else { inventory.add(ItemID.PLANT_CURE); }
+                break;
             case NOTE_PRODUCE:
                 Collections.addAll(inventory, ItemID.UNIDENTIFIED_GUAM, ItemID.UNIDENTIFIED_MARENTILL,
                         ItemID.UNIDENTIFIED_TARROMIN, ItemID.UNIDENTIFIED_HARRALANDER, ItemID.UNIDENTIFIED_RANARR,
@@ -191,10 +204,15 @@ public final class GuidedRunTargets
     private static void addSpell(Set<Integer> items, TeleportSpellDefinition spell, TravelCapabilitySnapshot travel)
     {
         if (spell == null) { return; }
+        addRunes(items, spell.getRuneCost(), travel);
+    }
+
+    private static void addRunes(Set<Integer> items, RuneCost cost, TravelCapabilitySnapshot travel)
+    {
         boolean pouchUseful = false;
         for (RuneSupply supply : RuneSupply.values())
         {
-            if (supply.getSuppliedKinds().stream().anyMatch(kind -> spell.getRuneCost().getQuantity(kind) > 0))
+            if (supply.getSuppliedKinds().stream().anyMatch(kind -> cost.getQuantity(kind) > 0))
             {
                 items.add(supply.getItemId());
                 pouchUseful |= travel != null && travel.getStoredRunePouchQuantities().getOrDefault(supply.getItemId(), 0) > 0;

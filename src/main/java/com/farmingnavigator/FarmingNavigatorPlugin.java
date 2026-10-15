@@ -14,6 +14,7 @@ import com.farmingnavigator.routing.capability.TravelCapabilityService;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.routing.run.HerbRunPlanner;
+import com.farmingnavigator.routing.run.HerbRunCareResources;
 import com.farmingnavigator.routing.run.RunTransportResourcePlanner;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.guided.GuidedRunCommand;
@@ -455,7 +456,7 @@ public class FarmingNavigatorPlugin
     static boolean isRunSetupKey(String key)
     {
         return "herbRunCrop".equals(key) || "herbRunPatches".equals(key) || "herbRunCompost".equals(key)
-                || "herbTransportPreference".equals(key) || "herbHouseEntryMode".equals(key);
+                || "herbTransportPreference".equals(key) || "herbHouseEntryMode".equals(key) || "herbRunCure".equals(key);
     }
 
     static boolean isRelevantStateVarbit(
@@ -548,9 +549,10 @@ public class FarmingNavigatorPlugin
         HerbRunPlan suggested = new HerbRunPlanner().plan(accountState, patchStatuses,
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
                 observations, verifiedTransportResults, storageSnapshot, Instant.now(), config.herbTransportPreference());
-        HerbRunPlan runPlan = suggested.withTransportResources(new RunTransportResourcePlanner()
-                .evaluate(suggested.getStops(), new RequirementContext(accountState, config,
-                        travelCapabilitySnapshot, storageSnapshot)));
+        RequirementContext runContext = new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot);
+        HerbRunCareResources care = HerbRunCareResources.evaluate(suggested, config.herbRunCure(), runContext);
+        HerbRunPlan runPlan = suggested.withCareResources(care).withTransportResources(new RunTransportResourcePlanner()
+                .evaluate(suggested.getStops(), runContext, care.getRunes()));
 
         latestSuggestedRun = runPlan;
         guidedRunSession.refreshTransports(verifiedTransportResults, config.herbTransportPreference());

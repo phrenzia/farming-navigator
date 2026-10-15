@@ -26,7 +26,13 @@ public final class RunTransportResourcePlanner
 {
     public RunTransportResources evaluate(List<HerbRunStop> stops, RequirementContext context)
     {
+        return evaluate(stops, context, RuneCost.builder().build());
+    }
+
+    public RunTransportResources evaluate(List<HerbRunStop> stops, RequirementContext context, RuneCost farmingRunes)
+    {
         RuneCost.Builder runes = RuneCost.builder();
+        farmingRunes.getQuantities().forEach(runes::add);
         Map<ChargedTeleportItemDefinition, Integer> jewellery = new EnumMap<>(ChargedTeleportItemDefinition.class);
         Map<Consumable, Integer> consumables = new EnumMap<>(Consumable.class);
         List<String> notes = new ArrayList<>();
@@ -84,7 +90,7 @@ public final class RunTransportResourcePlanner
         if (!totalRunes.isEmpty())
         {
             RequirementResult runeCheck = new RuneCostRequirement(
-                    "All recommended spell runes (including selected POH entry)", totalRunes).evaluate(context);
+                    "All recommended spell runes (travel, house entry and farming)", totalRunes).evaluate(context);
             checks.add(runeCheck);
             if (runeCheck.requiresBankWithdrawal() && context != null && context.getStorageSnapshot() != null)
             {

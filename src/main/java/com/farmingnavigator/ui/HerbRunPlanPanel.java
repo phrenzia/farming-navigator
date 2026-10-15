@@ -92,6 +92,16 @@ public final class HerbRunPlanPanel extends JPanel
             plan.getExcluded().forEach((patch, reason) -> details.add(text(patch.getDisplayName() + ": " + reason, MUTED)));
         }
         RunTransportResources resources = plan.getTransportResources();
+        if (plan.getCareResources() != null)
+        {
+            details.add(Box.createVerticalStrut(7));
+            details.add(text("Disease treatment: " + plan.getCure(), Color.WHITE));
+            details.add(text("Supplies cover observed diseased stops. Unexpected disease may need extra supplies.", MUTED));
+            for (RequirementResult check : plan.getCareResources().getChecks())
+            {
+                details.add(text(check.getRequirement() + ": " + check.getDetail(), check.isSatisfied() ? MUTED : WARNING));
+            }
+        }
         if (resources != null)
         {
             details.add(Box.createVerticalStrut(7));

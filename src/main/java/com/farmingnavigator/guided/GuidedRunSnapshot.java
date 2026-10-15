@@ -4,6 +4,7 @@ import com.farmingnavigator.routing.run.HerbRunCrop;
 import com.farmingnavigator.routing.run.HerbRunStop;
 import com.farmingnavigator.routing.run.HerbRunCompost;
 import java.time.Duration;
+import com.farmingnavigator.routing.run.HerbRunCure;
 
 public final class GuidedRunSnapshot
 {
@@ -16,6 +17,7 @@ public final class GuidedRunSnapshot
     private final int manuallyCompleted;
     private final HerbRunCompost compost;
     private final Duration elapsed;
+    private final HerbRunCure cure;
 
     GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
             int completed, int skipped, int manuallyCompleted, HerbRunCompost compost)
@@ -26,6 +28,12 @@ public final class GuidedRunSnapshot
     GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
             int completed, int skipped, int manuallyCompleted, HerbRunCompost compost, Duration elapsed)
     {
+        this(step, crop, stop, total, completed, skipped, manuallyCompleted, compost, elapsed, HerbRunCure.PLANT_CURE);
+    }
+
+    GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
+            int completed, int skipped, int manuallyCompleted, HerbRunCompost compost, Duration elapsed, HerbRunCure cure)
+    {
         this.step = step;
         this.crop = crop;
         this.stop = stop;
@@ -35,6 +43,7 @@ public final class GuidedRunSnapshot
         this.manuallyCompleted = manuallyCompleted;
         this.compost = compost;
         this.elapsed = elapsed;
+        this.cure = cure;
     }
 
     public GuidedRunStep getStep() { return step; }
@@ -46,6 +55,7 @@ public final class GuidedRunSnapshot
     public int getManuallyCompleted() { return manuallyCompleted; }
     public HerbRunCompost getCompost() { return compost; }
     public Duration getElapsed() { return elapsed; }
+    public HerbRunCure getCure() { return cure; }
     public boolean isActive() { return step != GuidedRunStep.INACTIVE && step != GuidedRunStep.COMPLETE; }
 
     public String getInstruction()
@@ -61,7 +71,9 @@ public final class GuidedRunSnapshot
             case CLEAR: return "Clear the dead herbs from the patch.";
             case COMPOST: return "Apply your chosen compost, then confirm. Compost application is not automatically verified.";
             case PLANT: return "Plant a " + crop.getDisplayName() + " seed in the empty herb patch.";
-            case CURE: return "Cure the diseased herbs, or skip this stop if you cannot cure them.";
+            case CURE: return cure == HerbRunCure.CURE_PLANT
+                    ? "Cast Cure Plant on the diseased herbs, or skip this stop if you cannot cure them."
+                    : "Use plant cure on the diseased herbs, or skip this stop if you cannot cure them.";
             case WAIT: return "The patch is still growing. Wait for it to become harvestable or skip this stop.";
             case COMPLETE: return "Run complete: " + completed + " stops completed, " + skipped + " skipped. "
                     + manuallyCompleted + " completions were confirmed manually.";
