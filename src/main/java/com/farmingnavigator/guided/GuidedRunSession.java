@@ -161,7 +161,7 @@ public final class GuidedRunSession
     public GuidedRunSnapshot snapshot()
     {
         return new GuidedRunSnapshot(step, crop, index < stops.size() ? stops.get(index) : null,
-                stops.size(), completed, skipped, manuallyCompleted);
+                stops.size(), completed, skipped, manuallyCompleted, compost);
     }
 
     public void cancel()

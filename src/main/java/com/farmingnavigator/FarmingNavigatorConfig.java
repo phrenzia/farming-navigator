@@ -65,7 +65,7 @@ public interface FarmingNavigatorConfig
     @ConfigItem(
             keyName = "herbRunCrop",
             name = "Herb run crop",
-            description = "Herb seed to bring for the suggested run",
+            description = "Herb seed to bring for the suggested run. Changing run setup stops the current guided run.",
             position = 1,
             section = GENERAL_SECTION
     )

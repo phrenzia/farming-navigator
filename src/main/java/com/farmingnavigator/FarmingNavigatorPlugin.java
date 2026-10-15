@@ -17,6 +17,9 @@ import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.guided.GuidedRunCommand;
 import com.farmingnavigator.guided.GuidedRunSession;
 import com.farmingnavigator.guided.GuidedRunSnapshot;
+import com.farmingnavigator.overlay.GuidedInventoryOverlay;
+import com.farmingnavigator.overlay.GuidedBankOverlay;
+import com.farmingnavigator.overlay.GuidedRunOverlayController;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.storage.StorageStateService;
 import com.farmingnavigator.transport.HerbPatchTransportService;
@@ -55,6 +58,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.ui.overlay.OverlayManager;
 
 @PluginDescriptor(
         name = "Farming Navigator",
@@ -120,11 +124,19 @@ public class FarmingNavigatorPlugin
     private final GuidedRunSession guidedRunSession = new GuidedRunSession();
     private HerbRunPlan latestSuggestedRun;
 
+    @Inject private OverlayManager overlayManager;
+    @Inject private GuidedInventoryOverlay guidedInventoryOverlay;
+    @Inject private GuidedBankOverlay guidedBankOverlay;
+    @Inject private GuidedRunOverlayController guidedRunOverlayController;
+
     @Override
     protected void startUp()
     {
         lastPatchTimerRefreshMinute = -1;
         guidedRunSession.cancel();
+        guidedRunOverlayController.clear();
+        overlayManager.add(guidedInventoryOverlay);
+        overlayManager.add(guidedBankOverlay);
         herbPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
@@ -163,6 +175,9 @@ public class FarmingNavigatorPlugin
     @Override
     protected void shutDown()
     {
+        overlayManager.remove(guidedInventoryOverlay);
+        overlayManager.remove(guidedBankOverlay);
+        guidedRunOverlayController.clear();
         guidedRunSession.cancel();
         herbPatchObservationService.reset();
         storageStateService
@@ -200,6 +215,7 @@ public class FarmingNavigatorPlugin
         )
         {
             guidedRunSession.cancel();
+            guidedRunOverlayController.clear();
             herbPatchObservationService.reset();
             storageStateService
                     .invalidateBankSnapshot();
@@ -282,9 +298,14 @@ public class FarmingNavigatorPlugin
             return;
         }
 
-        clientThread.invokeLater(
-                this::updateAccountState
-        );
+        clientThread.invokeLater(() -> {
+            if (isRunSetupKey(event.getKey()))
+            {
+                guidedRunSession.cancel();
+                guidedRunOverlayController.clear();
+            }
+            updateAccountState();
+        });
     }
 
     @Subscribe
@@ -369,6 +390,11 @@ public class FarmingNavigatorPlugin
                     this::updateAccountState
             );
         }
+    }
+
+    static boolean isRunSetupKey(String key)
+    {
+        return "herbRunCrop".equals(key) || "herbRunPatches".equals(key) || "herbRunCompost".equals(key);
     }
 
     static boolean isRelevantStateVarbit(
@@ -468,6 +494,7 @@ public class FarmingNavigatorPlugin
         latestSuggestedRun = runPlan;
         guidedRunSession.refreshTransports(verifiedTransportResults);
         GuidedRunSnapshot guidedRun = guidedRunSession.snapshot();
+        guidedRunOverlayController.update(guidedRun, runPlan, travelCapabilitySnapshot, config.guidedRunOverlays());
 
         SwingUtilities.invokeLater(
                 () -> {

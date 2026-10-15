@@ -9,6 +9,17 @@ import static org.junit.Assert.assertTrue;
 public class FarmingNavigatorStateRefreshTest
 {
     @Test
+    public void onlyRunSetupChangesInvalidateCurrentChecklist()
+    {
+        assertTrue(FarmingNavigatorPlugin.isRunSetupKey("herbRunCrop"));
+        assertTrue(FarmingNavigatorPlugin.isRunSetupKey("herbRunPatches"));
+        assertTrue(FarmingNavigatorPlugin.isRunSetupKey("herbRunCompost"));
+        assertFalse(FarmingNavigatorPlugin.isRunSetupKey("guidedRunOverlays"));
+        assertFalse(FarmingNavigatorPlugin.isRunSetupKey("pohHouseLocation"));
+        assertFalse(FarmingNavigatorPlugin.isRunSetupKey(null));
+    }
+
+    @Test
     public void transportStateChangesTriggerRefresh()
     {
         assertTrue(FarmingNavigatorPlugin.isRelevantStateVarbit(VarbitID.SEERS_SHERLOCK_TELEPORT));

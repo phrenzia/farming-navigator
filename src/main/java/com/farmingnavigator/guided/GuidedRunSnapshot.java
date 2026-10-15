@@ -2,6 +2,7 @@ package com.farmingnavigator.guided;
 
 import com.farmingnavigator.routing.run.HerbRunCrop;
 import com.farmingnavigator.routing.run.HerbRunStop;
+import com.farmingnavigator.routing.run.HerbRunCompost;
 
 public final class GuidedRunSnapshot
 {
@@ -12,9 +13,10 @@ public final class GuidedRunSnapshot
     private final int completed;
     private final int skipped;
     private final int manuallyCompleted;
+    private final HerbRunCompost compost;
 
     GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
-            int completed, int skipped, int manuallyCompleted)
+            int completed, int skipped, int manuallyCompleted, HerbRunCompost compost)
     {
         this.step = step;
         this.crop = crop;
@@ -23,6 +25,7 @@ public final class GuidedRunSnapshot
         this.completed = completed;
         this.skipped = skipped;
         this.manuallyCompleted = manuallyCompleted;
+        this.compost = compost;
     }
 
     public GuidedRunStep getStep() { return step; }
@@ -32,6 +35,7 @@ public final class GuidedRunSnapshot
     public int getCompleted() { return completed; }
     public int getSkipped() { return skipped; }
     public int getManuallyCompleted() { return manuallyCompleted; }
+    public HerbRunCompost getCompost() { return compost; }
     public boolean isActive() { return step != GuidedRunStep.INACTIVE && step != GuidedRunStep.COMPLETE; }
 
     public String getInstruction()
