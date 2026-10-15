@@ -6,6 +6,7 @@ public enum TransportVerificationKind
     ARDOUGNE_CLOAK_UNLIMITED,
     SKILLS_NECKLACE,
     AMULET_OF_GLORY,
+    RING_OF_WEALTH,
     ECTOPHIAL,
     STONY_BASALT,
     ICY_BASALT,

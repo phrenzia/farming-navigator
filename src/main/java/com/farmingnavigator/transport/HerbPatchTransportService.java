@@ -87,6 +87,13 @@ public class HerbPatchTransportService
                                 "Teleport to Draynor Village with an Amulet of glory and run north-west to the Falador farming patch.",
                                 TransportCategory.JEWELLERY,
                                 TransportVerificationKind.AMULET_OF_GLORY
+                        ),
+                        verifiedTransport(
+                                10,
+                                "Ring of wealth to Falador Park",
+                                "Teleport to Falador Park with a charged Ring of wealth, then travel south to the Falador farming patch.",
+                                TransportCategory.JEWELLERY,
+                                TransportVerificationKind.RING_OF_WEALTH
                         )
                 )
         );
