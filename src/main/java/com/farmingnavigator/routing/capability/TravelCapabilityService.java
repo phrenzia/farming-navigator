@@ -1,6 +1,7 @@
 package com.farmingnavigator.routing.capability;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -117,6 +118,19 @@ public class TravelCapabilityService
                     Collections.emptyMap();
         }
 
+        /*
+         * Only populate daily-use entries whose raw game-state
+         * semantics are independently verified.
+         *
+         * Explorer ring and Ardougne cloak remain intentionally
+         * absent until their exact counter semantics are proven.
+         */
+        Map<
+                DailyTransportUseKind,
+                Integer
+                > dailyRemainingUses =
+                readVerifiedDailyRemainingUses();
+
         return new TravelCapabilitySnapshot(
                 true,
                 activeSpellbook,
@@ -125,8 +139,76 @@ public class TravelCapabilityService
                 equipmentQuantities,
                 usableRunePouchQuantities,
                 storedRunePouchQuantities,
-                runePouchCarried
+                runePouchCarried,
+                dailyRemainingUses
         );
+    }
+
+    private Map<
+            DailyTransportUseKind,
+            Integer
+            >
+    readVerifiedDailyRemainingUses()
+    {
+        EnumMap<
+                DailyTransportUseKind,
+                Integer
+                > remainingUses =
+                new EnumMap<>(
+                        DailyTransportUseKind.class
+                );
+
+        Integer kandarinSherlockRemaining =
+                decodeKandarinSherlockRemainingUses(
+                        client.getVarbitValue(
+                                VarbitID.SEERS_SHERLOCK_TELEPORT
+                        )
+                );
+
+        /*
+         * Unknown/unverified raw values are deliberately omitted.
+         *
+         * An absent entry means DATA REQUIRED. It must never be
+         * silently converted into "used" or "available".
+         */
+        if (kandarinSherlockRemaining != null)
+        {
+            remainingUses.put(
+                    DailyTransportUseKind
+                            .KANDARIN_SHERLOCK_TELEPORT,
+                    kandarinSherlockRemaining
+            );
+        }
+
+        return remainingUses;
+    }
+
+    static Integer
+    decodeKandarinSherlockRemainingUses(
+            int varbitValue
+    )
+    {
+        /*
+         * Verified game-state semantics:
+         *
+         * 0 = the headgear 3 Sherlock teleport has not been used
+         *     today, so its single daily use remains.
+         *
+         * 1 = the daily teleport has been used.
+         *
+         * Do not infer meanings for any other raw value.
+         */
+        if (varbitValue == 0)
+        {
+            return 1;
+        }
+
+        if (varbitValue == 1)
+        {
+            return 0;
+        }
+
+        return null;
     }
 
     private WorldPoint readCurrentLocation()

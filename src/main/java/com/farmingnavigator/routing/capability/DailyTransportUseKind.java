@@ -8,6 +8,10 @@ public enum DailyTransportUseKind
 
     ARDOUGNE_FARM_TELEPORT(
             "Ardougne farm teleport"
+    ),
+
+    KANDARIN_SHERLOCK_TELEPORT(
+            "Kandarin headgear Sherlock teleport"
     );
 
     private final String displayName;
