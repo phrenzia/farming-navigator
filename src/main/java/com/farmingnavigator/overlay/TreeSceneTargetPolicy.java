@@ -17,6 +17,15 @@ public final class TreeSceneTargetPolicy
             ObjectID.FARMING_FRUIT_TREE_PATCH_3, ObjectID.FARMING_FRUIT_TREE_PATCH_4, ObjectID.FARMING_FRUIT_TREE_PATCH_5);
     private static final Set<Integer> HARDWOOD = Set.of(ObjectID.FARMING_HARDWOOD_TREE_PATCH_1,
             ObjectID.FARMING_HARDWOOD_TREE_PATCH_2, ObjectID.FARMING_HARDWOOD_TREE_PATCH_3);
+    private static final Set<Integer> CALQUAT = Set.of(ObjectID.FARMING_CALQUAT_TREE_PATCH,
+            ObjectID.FARMING_CALQUAT_TREE_PATCH_2, ObjectID.FARMING_CALQUAT_TREE_PATCH_3);
+    private static final Set<Integer> CELASTRUS = Set.of(ObjectID.FARMING_CELASTRUS_PATCH_1);
+    private static final Set<Integer> REDWOOD = Set.of(ObjectID.FARMING_REDWOOD_TREE_PATCH_0_1,
+            ObjectID.FARMING_REDWOOD_TREE_PATCH_0_2, ObjectID.FARMING_REDWOOD_TREE_PATCH_0_3,
+            ObjectID.FARMING_REDWOOD_TREE_PATCH_0_4, ObjectID.FARMING_REDWOOD_TREE_PATCH_0_5,
+            ObjectID.FARMING_REDWOOD_TREE_PATCH_0_6, ObjectID.FARMING_REDWOOD_TREE_PATCH_0_7,
+            ObjectID.FARMING_REDWOOD_TREE_PATCH_0_8, ObjectID.FARMING_REDWOOD_TREE_PATCH_0_9);
+    private static final Set<Integer> CRYSTAL = Set.of(ObjectID.FARMING_CRYSTAL_TREE_PATCH_1);
     private static final Set<Integer> CANOPIES = Set.of(ObjectID.FARMING_TREE_PATCH_1_CANOPY,
             ObjectID.FARMING_TREE_PATCH_2_CANOPY, ObjectID.FARMING_TREE_PATCH_3_CANOPY, ObjectID.FARMING_TREE_PATCH_4_CANOPY,
             ObjectID.FARMING_TREE_PATCH_5_CANOPY, ObjectID.FARMING_HARDWOOD_TREE_PATCH_1_CANOPY,
@@ -37,14 +46,24 @@ public final class TreeSceneTargetPolicy
         for (TreePatchDefinition patch : region.getPatches())
         {
             if (varbit != patch.getVarbit() || !TreePatchDestination.isNear(patch, location)) { continue; }
-            // Special-tree object families need their own verified bases and transformed names.
-            if (patch.getFamily() != TreeFamily.TREE && patch.getFamily() != TreeFamily.FRUIT_TREE
-                    && patch.getFamily() != TreeFamily.HARDWOOD_TREE) { continue; }
-            Set<Integer> ids = patch.getFamily() == TreeFamily.TREE ? REGULAR : patch.getFamily() == TreeFamily.FRUIT_TREE ? FRUIT : HARDWOOD;
-            Set<String> names = patch.getFamily() == TreeFamily.TREE ? REGULAR_NAMES : patch.getFamily() == TreeFamily.FRUIT_TREE ? FRUIT_NAMES : HARDWOOD_NAMES;
-            if (ids.contains(baseId) || names.contains(name)) { return patch; }
+            if (matchesFamily(patch.getFamily(), baseId, name)) { return patch; }
         }
         return null;
+    }
+    private static boolean matchesFamily(TreeFamily family, int baseId, String name)
+    {
+        switch (family)
+        {
+            case TREE: return REGULAR.contains(baseId) || REGULAR_NAMES.contains(name);
+            case FRUIT_TREE: return FRUIT.contains(baseId) || FRUIT_NAMES.contains(name);
+            case HARDWOOD_TREE: return HARDWOOD.contains(baseId) || HARDWOOD_NAMES.contains(name);
+            // Exact special-tree bases only; no name fallback for upper redwood sections or decorative objects.
+            case CALQUAT: return CALQUAT.contains(baseId);
+            case CELASTRUS: return CELASTRUS.contains(baseId);
+            case REDWOOD: return REDWOOD.contains(baseId);
+            case CRYSTAL_TREE: return CRYSTAL.contains(baseId);
+            default: return false;
+        }
     }
     public static boolean isKnownFarmer(int id)
     {
@@ -75,6 +94,11 @@ public final class TreeSceneTargetPolicy
             case LLETYA_FRUIT: return id == NpcID.FARMING_GARDENER_FRUIT_TREE_5;
             case FARMING_GUILD_FRUIT: return id == NpcID.FARMING_GARDENER_FARMGUILD_T3;
             case AVIUM_SAVANNAH_HARDWOOD: return id == NpcID.FROG_QUEST_MARCELLUS_FARMER;
+            case TAI_BWO_WANNAI_CALQUAT: return id == NpcID.FARMING_GARDENER_CALQUAT;
+            case KASTORI_CALQUAT: return id == NpcID.FARMING_GARDENER_CALQUAT_2;
+            case GREAT_CONCH_CALQUAT: return id == NpcID.FARMING_GARDENER_CALQUAT_3;
+            case FARMING_GUILD_CELASTRUS: return id == NpcID.FARMING_GARDENER_FARMGUILD_CELASTRUS;
+            case FARMING_GUILD_REDWOOD: return id == NpcID.FARMING_GARDENER_FARMGUILD_REDWOOD;
             default:
                 // The three Fossil squirrel IDs are known, but their individual patch assignment is not yet verified.
                 return false;

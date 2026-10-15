@@ -15,10 +15,18 @@ public class TreeSceneTargetPolicyTest
     {
         for (TreePatchDefinition patch : TreePatchDefinition.values())
         {
-            if (patch.getFamily() != TreeFamily.TREE && patch.getFamily() != TreeFamily.FRUIT_TREE
-                    && patch.getFamily() != TreeFamily.HARDWOOD_TREE) { continue; }
-            int id = patch.getFamily() == TreeFamily.TREE ? ObjectID.FARMING_TREE_PATCH_1
-                    : patch.getFamily() == TreeFamily.FRUIT_TREE ? ObjectID.FARMING_FRUIT_TREE_PATCH_1 : ObjectID.FARMING_HARDWOOD_TREE_PATCH_1;
+            int id;
+            switch (patch.getFamily())
+            {
+                case TREE: id = ObjectID.FARMING_TREE_PATCH_1; break;
+                case FRUIT_TREE: id = ObjectID.FARMING_FRUIT_TREE_PATCH_1; break;
+                case HARDWOOD_TREE: id = ObjectID.FARMING_HARDWOOD_TREE_PATCH_1; break;
+                case CALQUAT: id = ObjectID.FARMING_CALQUAT_TREE_PATCH; break;
+                case CELASTRUS: id = ObjectID.FARMING_CELASTRUS_PATCH_1; break;
+                case REDWOOD: id = ObjectID.FARMING_REDWOOD_TREE_PATCH_0_5; break;
+                case CRYSTAL_TREE: id = ObjectID.FARMING_CRYSTAL_TREE_PATCH_1; break;
+                default: throw new AssertionError(patch);
+            }
             WorldPoint location = TreePatchDestination.valueOf(patch.name()).getLocation();
             assertEquals(patch.name(), patch, TreeSceneTargetPolicy.treePatch(id, patch.getVarbit(), null, location));
             assertNull(TreeSceneTargetPolicy.treePatch(id, -1, null, location));
@@ -34,6 +42,33 @@ public class TreeSceneTargetPolicyTest
             assertNull(patch.name(), TreeSceneTargetPolicy.treePatch(ObjectID.FARMING_HARDWOOD_TREE_PATCH_1,
                     patch.getVarbit(), "Teak", TreePatchDestination.valueOf(patch.name()).getLocation()));
         }
+    }
+
+    @Test public void guildSpecialBasesAndFarmersCannotCrossAdjacentChannels()
+    {
+        WorldPoint area = TreePatchDestination.FARMING_GUILD_CELASTRUS.getLocation();
+        assertEquals(TreePatchDefinition.FARMING_GUILD_CELASTRUS, TreeSceneTargetPolicy.treePatch(
+                ObjectID.FARMING_CELASTRUS_PATCH_1, VarbitID.FARMING_TRANSMIT_L, "Harvested Celastrus tree", area));
+        assertNull(TreeSceneTargetPolicy.treePatch(ObjectID.FARMING_CELASTRUS_PATCH_1, VarbitID.FARMING_TRANSMIT_I, "Celastrus tree", area));
+        assertTrue(TreeSceneTargetPolicy.isFarmerFor(TreePatchDefinition.FARMING_GUILD_CELASTRUS,
+                NpcID.FARMING_GARDENER_FARMGUILD_CELASTRUS, area));
+        assertFalse(TreeSceneTargetPolicy.isFarmerFor(TreePatchDefinition.FARMING_GUILD_CELASTRUS,
+                NpcID.FARMING_GARDENER_FARMGUILD_REDWOOD, area));
+        assertTrue(TreeSceneTargetPolicy.isFarmerFor(TreePatchDefinition.FARMING_GUILD_REDWOOD,
+                NpcID.FARMING_GARDENER_FARMGUILD_REDWOOD, TreePatchDestination.FARMING_GUILD_REDWOOD.getLocation()));
+    }
+
+    @Test public void upperRedwoodSectionsAndDecorativeNamesAreNotSceneTargets()
+    {
+        WorldPoint area = TreePatchDestination.FARMING_GUILD_REDWOOD.getLocation();
+        assertNull(TreeSceneTargetPolicy.treePatch(ObjectID.FARMING_REDWOOD_TREE_PATCH_1_1,
+                VarbitID.FARMING_TRANSMIT_I, "Redwood tree", area));
+        assertNull(TreeSceneTargetPolicy.treePatch(ObjectID.FARMING_REDWOOD_TREE_PATCH_2_1,
+                VarbitID.FARMING_TRANSMIT_I, "Redwood tree", area));
+        assertNull(TreeSceneTargetPolicy.treePatch(ObjectID.REDWOODTREE_CANOPY_CORNER,
+                VarbitID.FARMING_TRANSMIT_I, "Redwood tree", area));
+        assertNull(TreeSceneTargetPolicy.treePatch(ObjectID.TREE_PATCH_WEEDED,
+                VarbitID.FARMING_TRANSMIT_L, "Celastrus tree", area));
     }
     @Test public void adjacentFossilPatchesAreSeparatedByTransmitChannel()
     {
