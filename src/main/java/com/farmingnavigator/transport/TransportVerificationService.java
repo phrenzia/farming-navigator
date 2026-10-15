@@ -8,6 +8,7 @@ import com.farmingnavigator.poh.PohPortalDestination;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.item.ChargedTeleportItemDefinition;
 import com.farmingnavigator.routing.requirement.ArdougneCloakUnlimitedRequirement;
+import com.farmingnavigator.routing.requirement.ArdougneTeleportTabletRouteRequirement;
 import com.farmingnavigator.routing.requirement.ChargedRingOfElementsRequirement;
 import com.farmingnavigator.routing.requirement.CombatBraceletRouteRequirement;
 import com.farmingnavigator.routing.requirement.EctophialHarmonyRouteRequirement;
@@ -233,6 +234,15 @@ public class TransportVerificationService
 
             case COMBAT_BRACELET:
                 return evaluateCombatBracelet(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot,
+                        option
+                );
+
+            case ARDOUGNE_TELEPORT_TABLET:
+                return evaluateArdougneTeleportTablet(
                         accountState,
                         config,
                         travelCapabilitySnapshot,
@@ -1198,6 +1208,102 @@ public class TransportVerificationService
             return new VerifiedTransportResult(
                     option,
                     VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        return new VerifiedTransportResult(
+                option,
+                VerifiedTransportState.MISSING,
+                requirementResult
+                        .getDetail()
+        );
+    }
+
+    private VerifiedTransportResult
+    evaluateArdougneTeleportTablet(
+            AccountState accountState,
+            FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,
+            StorageSnapshot storageSnapshot,
+            TransportOption option
+    )
+    {
+        RequirementContext context =
+                new RequirementContext(
+                        accountState,
+                        config,
+                        travelCapabilitySnapshot,
+                        storageSnapshot
+                );
+
+        RequirementResult requirementResult =
+                new ArdougneTeleportTabletRouteRequirement()
+                        .evaluate(
+                                context
+                        );
+
+        if (
+                requirementResult
+                        .isReadyNow()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.READY_NOW,
+                    "READY NOW - Ardougne teleport tablet carried and Plague City is complete."
+            );
+        }
+
+        if (
+                requirementResult
+                        .requiresBankWithdrawal()
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.AVAILABLE_FROM_BANK,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.DATA_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.DATA_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                requirementResult.getState()
+                        == RequirementState.CONFIGURATION_REQUIRED
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.CONFIGURATION_REQUIRED,
+                    requirementResult
+                            .getDetail()
+            );
+        }
+
+        if (
+                !accountState.hasCompletedQuest(
+                        Quest.PLAGUE_CITY
+                )
+        )
+        {
+            return new VerifiedTransportResult(
+                    option,
+                    VerifiedTransportState.LOCKED,
                     requirementResult
                             .getDetail()
             );

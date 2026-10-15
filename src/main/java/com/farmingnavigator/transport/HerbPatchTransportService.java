@@ -193,6 +193,13 @@ public class HerbPatchTransportService
                                 "Teleport to the Ranging Guild with a charged Combat bracelet, then run south-east to the Ardougne farming patch.",
                                 TransportCategory.JEWELLERY,
                                 TransportVerificationKind.COMBAT_BRACELET
+                        ),
+                        verifiedTransport(
+                                11,
+                                "Ardougne teleport tablet",
+                                "Break an Ardougne teleport tablet to reach the East Ardougne market, then travel north to the farming patch.",
+                                TransportCategory.ITEM,
+                                TransportVerificationKind.ARDOUGNE_TELEPORT_TABLET
                         )
                 )
         );
