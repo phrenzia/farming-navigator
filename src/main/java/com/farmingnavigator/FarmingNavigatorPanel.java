@@ -137,6 +137,10 @@ public class FarmingNavigatorPanel
     private boolean treeObservationsOpen;
     private boolean treeRunDetailsOpen;
     private com.farmingnavigator.routing.run.TreeRunPlan treeRunPlan;
+    private com.farmingnavigator.guided.tree.TreeRunSnapshot treeGuidedRun;
+    private Consumer<com.farmingnavigator.guided.tree.TreeRunCommand> treeCommands = command -> {};
+    public void setTreeGuidedRun(com.farmingnavigator.guided.tree.TreeRunSnapshot snapshot) { treeGuidedRun = snapshot; }
+    public void setTreeCommands(Consumer<com.farmingnavigator.guided.tree.TreeRunCommand> commands) { treeCommands = commands; }
     public void setTreeRunPlan(com.farmingnavigator.routing.run.TreeRunPlan plan) { treeRunPlan = plan; }
     private Map<TreePatchDefinition, TreePatchObservation> treeObservations = Collections.emptyMap();
 
@@ -693,6 +697,12 @@ public class FarmingNavigatorPanel
         }
 
         java.time.Instant overviewTime = java.time.Instant.now();
+        if (treeRunPlan != null)
+        {
+            patchListPanel.add(new com.farmingnavigator.ui.TreeGuidedRunPanel(treeGuidedRun,
+                    treeRunPlan.getBlocker().isEmpty() && !treeRunPlan.getStops().isEmpty(), treeCommands));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
         patchListPanel.add(new com.farmingnavigator.ui.TreeRunPlanPanel(
                 treeRunPlan != null ? treeRunPlan : new com.farmingnavigator.routing.run.TreeRunPlanner().plan(accountState,
                         config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(),

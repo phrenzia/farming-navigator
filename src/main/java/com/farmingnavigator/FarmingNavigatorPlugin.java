@@ -140,6 +140,8 @@ public class FarmingNavigatorPlugin
     private long lastPatchTimerRefreshMinute = -1;
     private final GuidedRunSession guidedRunSession = new GuidedRunSession();
     private HerbRunPlan latestSuggestedRun;
+    private final com.farmingnavigator.guided.tree.TreeRunSession treeRunSession = new com.farmingnavigator.guided.tree.TreeRunSession();
+    private com.farmingnavigator.routing.run.TreeRunPlan latestTreeRun;
     private final HerbAlertTracker herbAlertTracker = new HerbAlertTracker();
     @Inject private Notifier notifier;
 
@@ -154,8 +156,11 @@ public class FarmingNavigatorPlugin
     protected void startUp()
     {
         lastPatchTimerRefreshMinute = -1;
+        latestSuggestedRun = null;
+        latestTreeRun = null;
         herbAlertTracker.reset();
         guidedRunSession.cancel();
+        treeRunSession.cancel();
         guidedRunOverlayController.clear();
         overlayManager.add(guidedInventoryOverlay);
         overlayManager.add(guidedBankOverlay);
@@ -175,6 +180,7 @@ public class FarmingNavigatorPlugin
                         command -> clientThread.invokeLater(() -> handleGuidedRunCommand(command))
                 );
 
+        panel.setTreeCommands(command -> clientThread.invokeLater(() -> handleTreeRunCommand(command)));
         navigationButton =
                 NavigationButton.builder()
                         .tooltip(
@@ -207,6 +213,7 @@ public class FarmingNavigatorPlugin
         herbSceneTracker.clear();
         guidedRunOverlayController.clear();
         guidedRunSession.cancel();
+        treeRunSession.cancel();
         herbPatchObservationService.reset();
         treePatchObservationService.reset();
         storageStateService
@@ -221,6 +228,8 @@ public class FarmingNavigatorPlugin
 
         navigationButton = null;
         panel = null;
+        latestSuggestedRun = null;
+        latestTreeRun = null;
     }
 
     @Subscribe
@@ -250,6 +259,9 @@ public class FarmingNavigatorPlugin
         )
         {
             guidedRunSession.cancel();
+            treeRunSession.cancel();
+            latestSuggestedRun = null;
+            latestTreeRun = null;
             guidedRunOverlayController.clear();
             herbSceneTracker.clear();
             herbPatchObservationService.reset();
@@ -273,7 +285,10 @@ public class FarmingNavigatorPlugin
         treePatchObservationService.reset();
         guidedRunSession.cancel();
         guidedRunOverlayController.clear();
+        treeRunSession.cancel();
         storageStateService.invalidateBankSnapshot();
+        latestSuggestedRun = null;
+        latestTreeRun = null;
         clientThread.invokeLater(this::updateAccountState);
     }
 
@@ -292,6 +307,11 @@ public class FarmingNavigatorPlugin
     {
         boolean changed = herbPatchObservationService.sample();
         changed |= treePatchObservationService.sample();
+        if (treeRunSession.snapshot(Instant.now()).isActive())
+        {
+            changed |= treeRunSession.observe(herbPatchObservationService.currentLocation(),
+                    treePatchObservationService.snapshot(), Instant.now());
+        }
         if (guidedRunSession.snapshot().isActive())
         {
             changed |= guidedRunSession.observe(herbPatchObservationService.currentLocation(),
@@ -302,7 +322,7 @@ public class FarmingNavigatorPlugin
         long minute = Instant.now().getEpochSecond() / 60;
         if (changed || (minute != lastPatchTimerRefreshMinute
                 && (herbPatchObservationService.hasObservations() || treePatchObservationService.hasObservations()
-                        || guidedRunSession.snapshot().isActive())))
+                        || guidedRunSession.snapshot().isActive() || treeRunSession.snapshot(Instant.now()).isActive())))
         {
             lastPatchTimerRefreshMinute = minute;
             herbAlertTracker.poll(herbPatchObservationService.snapshot(), config.herbRunPatches(),
@@ -374,6 +394,7 @@ public class FarmingNavigatorPlugin
         }
 
         clientThread.invokeLater(() -> {
+            if (event.getKey() != null && event.getKey().startsWith("tree")) { treeRunSession.cancel(); }
             if (isRunSetupKey(event.getKey()))
             {
                 guidedRunSession.cancel();
@@ -566,12 +587,15 @@ public class FarmingNavigatorPlugin
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
                 observations, verifiedTransportResults, storageSnapshot, Instant.now(), config.herbTransportPreference());
         RequirementContext runContext = new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot);
+        Map<TreePatchDefinition, List<VerifiedTransportResult>> treeTransports = transportVerificationService.evaluateAll(accountState,
+                config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.TreePatchTransportService().getAllOptions());
         com.farmingnavigator.routing.run.TreeRunPlan treeRunPlan = new com.farmingnavigator.routing.run.TreeRunPlanner()
                 .plan(accountState, config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(),
                         treeObservations, storageSnapshot, Instant.now())
-                .withTransports(transportVerificationService.evaluateAll(accountState, config, travelCapabilitySnapshot,
-                        storageSnapshot, new com.farmingnavigator.transport.TreePatchTransportService().getAllOptions()),
-                        config.treeTransportPreference(), runContext);
+                .withTransports(treeTransports, config.treeTransportPreference(), runContext);
+        latestTreeRun = treeRunPlan;
+        treeRunSession.refreshTransports(treeTransports, config.treeTransportPreference(), runContext);
+        com.farmingnavigator.guided.tree.TreeRunSnapshot treeGuidedRun = treeRunSession.snapshot(Instant.now());
         HerbRunCareResources care = HerbRunCareResources.evaluate(suggested, config.herbRunCure(), config.herbRunCompost(), runContext);
         HerbRunPlan runPlan = suggested.withCareResources(care).withTransportResources(new RunTransportResourcePlanner()
                 .evaluate(suggested.getStops(), runContext, care.getRunes()));
@@ -586,6 +610,7 @@ public class FarmingNavigatorPlugin
                         targetPanel.setGuidedRun(guidedRun);
                         targetPanel.setTreeObservations(treeObservations);
                         targetPanel.setTreeRunPlan(treeRunPlan);
+                        targetPanel.setTreeGuidedRun(treeGuidedRun);
                         targetPanel.setHerbRunPlan(runPlan);
                         targetPanel.setAccountState(
                                 accountState,
@@ -601,20 +626,37 @@ public class FarmingNavigatorPlugin
 
     private void handleGuidedRunCommand(GuidedRunCommand command)
     {
-        if (panel == null)
+        if (panel == null || !accountStateService.createSnapshot().isLoggedIn())
         {
             return;
         }
         Instant now = Instant.now();
         switch (command)
         {
-            case START: guidedRunSession.start(latestSuggestedRun, config.herbRunCompost(), now); break;
+            case START:
+                if (guidedRunSession.start(latestSuggestedRun, config.herbRunCompost(), now)) { treeRunSession.cancel(); }
+                break;
             case CONFIRM: guidedRunSession.confirm(now); break;
             case SKIP: guidedRunSession.skip(now); break;
             case MARK_COMPLETE: guidedRunSession.markComplete(now); break;
             case CANCEL: guidedRunSession.cancel(); break;
             default: break;
         }
+        updateAccountState();
+    }
+
+    private void handleTreeRunCommand(com.farmingnavigator.guided.tree.TreeRunCommand command)
+    {
+        if (panel == null || !accountStateService.createSnapshot().isLoggedIn()) { return; }
+        Instant now = Instant.now();
+        if (command == com.farmingnavigator.guided.tree.TreeRunCommand.START)
+        {
+            if (treeRunSession.start(latestTreeRun, config.treeRunProtection(), now))
+            {
+                guidedRunSession.cancel(); guidedRunOverlayController.clear();
+            }
+        }
+        else { treeRunSession.command(command, now); }
         updateAccountState();
     }
 
