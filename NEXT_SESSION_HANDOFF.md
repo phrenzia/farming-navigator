@@ -12,6 +12,16 @@ Updated 2026-10-15. Repository and current Git history take precedence over this
 
 ## Implemented this session
 
+Latest tree checkpoint (1,761 tests; clean build and test passed; offline tree preparation image inspected):
+
+- `1c2d6d6`: regular/fruit/hardwood state decoder, 780 pinned-source fixture cases and 18 crop growth definitions.
+- `6b32d0b`: 19 tree patch identities; three settled ticks, modal/instance guards and precise transmit-region boundaries; profile/world-mode persistence using shared V1 record codec; conditional growth windows and collapsible observations.
+- `177ad7f`: equivalent supply forms sum safely with deduplication and overflow saturation; noted/unnoted farmer payments can combine. Ordinary saplings still accept only their planting form.
+- Tree preparation now supports 18 finished sapling choices, selected matching patches, boosted planting/guild access checks, started Mourning's End I, finished Bone Voyage/Ribbiting Tale, conditional growing exclusions and pruning supplies instead of replacement for observed disease. Full-basket payments for 15 established crops are reserved per potential replant. Three new hardwood payments remain DATA REQUIRED.
+- Auburnvale, Kastori and Anglers' Retreat entry requirements remain unverified/excluded. Tree travel and removal fees are not budgeted. No tree guided session yet; healthy-tree removal stays optional. Fruit health-checked never promises six fruit.
+- Tree sources: RuneLite SHA `e98399f931c60bfa8e42f924da850f508ec8e00d` FarmingWorld, PatchImplementation, Produce and FarmingAction. Relevant BSD notices retained. Wiki [tree guide](https://oldschool.runescape.wiki/w/Tree_farming_guide), [contract payment tables](https://oldschool.runescape.wiki/w/Contract_farming), [Lletya access](https://oldschool.runescape.wiki/w/Fruit_tree_patch/Patches). New hardwood farmer payments need reliable research before filling them in.
+- Oak timing follows RuneLite Produce/states; older Wiki training tables disagree about total cycles. Keep conditional wording and verify in game only when the user authorizes their own manual testing. No live validation performed.
+
 Continuation after the five-hour window refreshed (user repeated the same below-10%-remaining stop rule):
 
 - `fc9f1d1`: selectable Cure Plant, Lunar/quest/boosted Magic eligibility, farming runes combined with all travel costs, matching guided instructions/targets.

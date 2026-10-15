@@ -90,6 +90,9 @@ public class AccountStateService
             Quest.CHILDREN_OF_THE_SUN,
             Quest.TWILIGHTS_PROMISE,
             Quest.AT_FIRST_LIGHT,
+            Quest.BONE_VOYAGE,
+            Quest.MOURNINGS_END_PART_I,
+            Quest.THE_RIBBITING_TALE_OF_A_LILY_PAD_LABOUR_DISPUTE,
 
             /*
              * Fairy rings and Morytania access chains.

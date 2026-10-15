@@ -182,6 +182,24 @@ public interface FarmingNavigatorConfig
     )
     default boolean showTreeObservations() { return true; }
 
+    @ConfigItem(keyName = "treeRunCrop", name = "Tree run crop",
+            description = "Finished sapling to bring; tree travel is manual in this planner", position = 11, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.TreeRunCrop treeRunCrop()
+    {
+        return com.farmingnavigator.routing.run.TreeRunCrop.OAK;
+    }
+
+    @ConfigItem(keyName = "treeRunPatches", name = "Tree run patches",
+            description = "Only patches matching the selected tree crop family are considered", position = 12, section = GENERAL_SECTION)
+    default Set<com.farmingnavigator.farming.tree.TreePatchDefinition> treeRunPatches()
+    {
+        return Collections.unmodifiableSet(EnumSet.allOf(com.farmingnavigator.farming.tree.TreePatchDefinition.class));
+    }
+
+    @ConfigItem(keyName = "treeRunProtection", name = "Reserve tree protection",
+            description = "Include farmer payments for potential replants; unverified payment data is flagged", position = 13, section = GENERAL_SECTION)
+    default boolean treeRunProtection() { return true; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

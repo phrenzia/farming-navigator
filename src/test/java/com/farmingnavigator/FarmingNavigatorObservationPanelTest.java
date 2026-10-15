@@ -56,6 +56,8 @@ public class FarmingNavigatorObservationPanelTest
             assertTrue(containsLabel(panel, "bank sync required"));
             assertTrue(containsLabel(panel, "Herb overview"));
             assertTrue(containsLabel(panel, "Tree observations"));
+            assertTrue(containsLabel(panel, "Tree run preparation"));
+            assertTrue(containsLabel(panel, "6 x Oak sapling"));
             assertTrue(containsLabel(panel, "Oak - Ready to check health"));
             assertTrue(containsLabel(panel, "Estimated harvest in 60-80 min if healthy."));
             assertFalse(containsLabel(panel, "visit this patch to observe it"));

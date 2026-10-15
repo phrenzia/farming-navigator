@@ -135,6 +135,7 @@ public class FarmingNavigatorPanel
     private boolean herbRunDetailsOpen;
     private boolean herbOverviewOpen;
     private boolean treeObservationsOpen;
+    private boolean treeRunDetailsOpen;
     private Map<TreePatchDefinition, TreePatchObservation> treeObservations = Collections.emptyMap();
 
     public void setTreeObservations(Map<TreePatchDefinition, TreePatchObservation> observations)
@@ -690,6 +691,12 @@ public class FarmingNavigatorPanel
         }
 
         java.time.Instant overviewTime = java.time.Instant.now();
+        patchListPanel.add(new com.farmingnavigator.ui.TreeRunPlanPanel(
+                new com.farmingnavigator.routing.run.TreeRunPlanner().plan(accountState,
+                        config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(),
+                        treeObservations, storageSnapshot, overviewTime), treeRunDetailsOpen,
+                expanded -> treeRunDetailsOpen = expanded));
+        patchListPanel.add(Box.createVerticalStrut(8));
         patchListPanel.add(new HerbOverviewPanel(HerbOverview.create(patchStatuses, config.herbRunPatches(),
                 observations, overviewTime), overviewTime, herbOverviewOpen, expanded -> herbOverviewOpen = expanded));
         patchListPanel.add(Box.createVerticalStrut(8));

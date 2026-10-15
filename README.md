@@ -33,7 +33,7 @@ Farming Navigator is a RuneLite Plugin Hub plugin designed to make Farming runs 
 
 ## Current Development Stage
 
-The current build is an internally tested herb-run assistant. The full roadmap above is not complete. All live client behavior is **UNVERIFIED IN GAME**.
+The current build is an internally tested herb-run assistant with tree observations and preparation. The full roadmap above is not complete. All live client behavior is **UNVERIFIED IN GAME**.
 
 - Account, quest, diary, claimed reward, spellbook, skill and configured POH requirements are checked for supported herb transports. Routes distinguish ready, banked, missing, locked, unknown and configuration-required states.
 - A bank snapshot is trusted only after the bank has been opened in the current session. Unsupported transport semantics remain explicit instead of being guessed.
@@ -46,11 +46,14 @@ The current build is an internally tested herb-run assistant. The full roadmap a
 - Optional observed-state alerts and conditional estimated-ready alerts use RuneLite notification settings. Both default to off, avoid repeated alerts and suppress restored-history login bursts.
 - The selected-patch overview separates historical conditions from possible readiness estimates. Cure Plant and Fertile Soil share the full-run rune pool with travel. Bottomless bucket supplies reserve one filled bucket and require manual type/charge checks. Ultracompost Fertile Soil reserves volcanic ash and uses an explicitly manual tome-unlock declaration. Selected infinite-rune equipment and required banked pouches are included in guidance; carried/banked battlestaves require sufficient unboosted Attack.
 
-Configure crop, patches, compost, transport preference, POH entry supplies, overlays and alerts in the plugin settings. Configure the house and installed features in the sidebar's POH editor. Changing run setup cancels the active checklist.
+- Regular, fruit and hardwood tree observations cover 19 patch identities and 18 crops, with settled region checks, profile persistence and conditional health-check windows. Health-checked fruit trees do not imply fruit is available.
+- Tree preparation selects a sapling and matching patches, checks supported access requirements, excludes early growing trees and budgets potential replants and farmer payments. Noted/unnoted payments combine; planting requires unnoted finished saplings and baskets must be full. New hardwood payment data and three newer patch unlocks remain explicitly unverified. Tree travel is currently manual.
+
+Configure crop, patches, compost, transport preference, POH entry supplies, overlays and alerts in the plugin settings. Configure the house and installed features in the sidebar's POH editor. Changing herb run setup cancels the active herb checklist.
 
 ## Current Limits
 
-Tree, fruit-tree, hardwood and other crop families, contracts, protection payments, economic/XP optimization, measured travel-time routing and comprehensive run analytics remain planned. Tool leprechaun storage, bottomless contents/charges, the tome unlock and compost application are not automatically verified. POH entry budgeting reserves a single chosen method for all house visits; mixed tablet/spell allocation is not optimized. Some catalogue transports remain unwired pending reliable unlock/charge evidence. Guided runs and elapsed time do not persist across logout or world hopping.
+Other crop families, tree transport/guided execution, automatic protection-purchase tracking, contracts, economic/XP optimization, measured travel-time routing and comprehensive run analytics remain planned. Tool leprechaun storage, bottomless contents/charges, the tome unlock and compost application are not automatically verified. POH entry budgeting reserves a single chosen method for all house visits; mixed tablet/spell allocation is not optimized. Some catalogue transports remain unwired pending reliable unlock/charge evidence. Guided runs and elapsed time do not persist across logout or world hopping.
 
 ## Automated Validation
 
