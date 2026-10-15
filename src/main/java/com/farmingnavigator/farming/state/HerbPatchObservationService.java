@@ -9,6 +9,7 @@ import net.runelite.api.GameState;
 import net.runelite.api.Player;
 import net.runelite.api.WidgetNode;
 import net.runelite.api.WorldView;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.widgets.WidgetModalMode;
 
 /** Reads one region-specific herb varbit per settled game tick; never scans the scene. */
@@ -62,5 +63,16 @@ public class HerbPatchObservationService
     public boolean hasObservations()
     {
         return !store.isEmpty();
+    }
+
+    public WorldPoint currentLocation()
+    {
+        WorldView view = client.getTopLevelWorldView();
+        Player player = client.getLocalPlayer();
+        if (client.getGameState() != GameState.LOGGED_IN || player == null || view == null || view.isInstance())
+        {
+            return null;
+        }
+        return player.getWorldLocation();
     }
 }

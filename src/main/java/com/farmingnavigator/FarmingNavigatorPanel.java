@@ -9,6 +9,10 @@ import com.farmingnavigator.ui.HerbPatchObservationText;
 import com.farmingnavigator.ui.HerbGrowthTimerText;
 import com.farmingnavigator.ui.HerbRunPlanPanel;
 import com.farmingnavigator.routing.run.HerbRunPlan;
+import com.farmingnavigator.guided.GuidedRunCommand;
+import com.farmingnavigator.guided.GuidedRunSnapshot;
+import com.farmingnavigator.ui.GuidedRunPanel;
+import java.util.function.Consumer;
 import com.farmingnavigator.poh.PohHouseLocation;
 import com.farmingnavigator.poh.PohJewelleryBoxTier;
 import com.farmingnavigator.poh.PohPortalDestination;
@@ -124,6 +128,14 @@ public class FarmingNavigatorPanel
     private boolean pohEditorOpen;
     private HerbRunPlan herbRunPlan;
     private boolean herbRunDetailsOpen;
+    private GuidedRunSnapshot guidedRun;
+    private final Consumer<GuidedRunCommand> guidedRunCommands;
+
+    public void setGuidedRun(GuidedRunSnapshot snapshot)
+    {
+        guidedRun = snapshot;
+    }
+
 
     public void setHerbRunPlan(HerbRunPlan plan)
     {
@@ -138,7 +150,14 @@ public class FarmingNavigatorPanel
             PohProfileService pohProfileService
     )
     {
+        this(refreshAction, pohProfileService, command -> {});
+    }
+
+    public FarmingNavigatorPanel(Runnable refreshAction, PohProfileService pohProfileService,
+            Consumer<GuidedRunCommand> guidedRunCommands)
+    {
         super(false);
+        this.guidedRunCommands = guidedRunCommands;
 
         this.refreshAction =
                 refreshAction;
@@ -649,6 +668,9 @@ public class FarmingNavigatorPanel
 
         if (herbRunPlan != null)
         {
+            patchListPanel.add(new GuidedRunPanel(guidedRun,
+                    herbRunPlan.getBlocker().isEmpty() && !herbRunPlan.getStops().isEmpty(), guidedRunCommands));
+            patchListPanel.add(Box.createVerticalStrut(8));
             patchListPanel.add(new HerbRunPlanPanel(herbRunPlan, herbRunDetailsOpen,
                     expanded -> herbRunDetailsOpen = expanded));
             patchListPanel.add(Box.createVerticalStrut(8));

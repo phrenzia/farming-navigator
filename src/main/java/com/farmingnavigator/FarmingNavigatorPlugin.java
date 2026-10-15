@@ -14,6 +14,9 @@ import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.routing.run.HerbRunPlanner;
 import com.farmingnavigator.routing.run.RunTransportResourcePlanner;
 import com.farmingnavigator.routing.requirement.RequirementContext;
+import com.farmingnavigator.guided.GuidedRunCommand;
+import com.farmingnavigator.guided.GuidedRunSession;
+import com.farmingnavigator.guided.GuidedRunSnapshot;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.storage.StorageStateService;
 import com.farmingnavigator.transport.HerbPatchTransportService;
@@ -114,11 +117,14 @@ public class FarmingNavigatorPlugin
 
     private NavigationButton navigationButton;
     private long lastPatchTimerRefreshMinute = -1;
+    private final GuidedRunSession guidedRunSession = new GuidedRunSession();
+    private HerbRunPlan latestSuggestedRun;
 
     @Override
     protected void startUp()
     {
         lastPatchTimerRefreshMinute = -1;
+        guidedRunSession.cancel();
         herbPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
@@ -129,7 +135,8 @@ public class FarmingNavigatorPlugin
                                 clientThread.invokeLater(
                                         this::updateAccountState
                                 ),
-                        pohProfileService
+                        pohProfileService,
+                        command -> clientThread.invokeLater(() -> handleGuidedRunCommand(command))
                 );
 
         navigationButton =
@@ -156,6 +163,7 @@ public class FarmingNavigatorPlugin
     @Override
     protected void shutDown()
     {
+        guidedRunSession.cancel();
         herbPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
@@ -191,6 +199,7 @@ public class FarmingNavigatorPlugin
                         || state == GameState.CONNECTION_LOST
         )
         {
+            guidedRunSession.cancel();
             herbPatchObservationService.reset();
             storageStateService
                     .invalidateBankSnapshot();
@@ -205,6 +214,11 @@ public class FarmingNavigatorPlugin
     public void onGameTick(GameTick event)
     {
         boolean changed = herbPatchObservationService.sample();
+        if (guidedRunSession.snapshot().isActive())
+        {
+            changed |= guidedRunSession.observe(herbPatchObservationService.currentLocation(),
+                    herbPatchObservationService.snapshot(), Instant.now());
+        }
         long minute = Instant.now().getEpochSecond() / 60;
         if (changed || (minute != lastPatchTimerRefreshMinute && herbPatchObservationService.hasObservations()))
         {
@@ -451,8 +465,13 @@ public class FarmingNavigatorPlugin
                 .evaluate(suggested.getStops(), new RequirementContext(accountState, config,
                         travelCapabilitySnapshot, storageSnapshot)));
 
+        latestSuggestedRun = runPlan;
+        guidedRunSession.refreshTransports(verifiedTransportResults);
+        GuidedRunSnapshot guidedRun = guidedRunSession.snapshot();
+
         SwingUtilities.invokeLater(
                 () -> {
+                        targetPanel.setGuidedRun(guidedRun);
                         targetPanel.setHerbRunPlan(runPlan);
                         targetPanel.setAccountState(
                                 accountState,
@@ -464,6 +483,25 @@ public class FarmingNavigatorPlugin
                         );
                 }
         );
+    }
+
+    private void handleGuidedRunCommand(GuidedRunCommand command)
+    {
+        if (panel == null)
+        {
+            return;
+        }
+        Instant now = Instant.now();
+        switch (command)
+        {
+            case START: guidedRunSession.start(latestSuggestedRun, config.herbRunCompost(), now); break;
+            case CONFIRM: guidedRunSession.confirm(now); break;
+            case SKIP: guidedRunSession.skip(now); break;
+            case MARK_COMPLETE: guidedRunSession.markComplete(now); break;
+            case CANCEL: guidedRunSession.cancel(); break;
+            default: break;
+        }
+        updateAccountState();
     }
 
     private BufferedImage

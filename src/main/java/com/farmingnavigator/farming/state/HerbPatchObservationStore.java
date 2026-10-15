@@ -14,6 +14,7 @@ public class HerbPatchObservationStore
     private final Map<HerbPatchDefinition, HerbPatchObservation> observations =
             new EnumMap<>(HerbPatchDefinition.class);
     private final HerbPatchStateDecoder decoder = new HerbPatchStateDecoder();
+    private Map<HerbPatchDefinition, HerbPatchObservation> cachedSnapshot = Collections.emptyMap();
 
     public boolean observe(HerbPatchDefinition patch, int raw, Instant observedAt)
     {
@@ -39,17 +40,23 @@ public class HerbPatchObservationStore
         }
         // Unknown raw values replace old known data rather than leaving stale certainty.
         observations.put(patch, new HerbPatchObservation(decoder.decode(raw), observedAt, growthRate));
+        cachedSnapshot = null;
         return true;
     }
 
     public Map<HerbPatchDefinition, HerbPatchObservation> snapshot()
     {
-        return Collections.unmodifiableMap(new EnumMap<>(observations));
+        if (cachedSnapshot == null)
+        {
+            cachedSnapshot = Collections.unmodifiableMap(new EnumMap<>(observations));
+        }
+        return cachedSnapshot;
     }
 
     public void clear()
     {
         observations.clear();
+        cachedSnapshot = Collections.emptyMap();
     }
 
     public boolean isEmpty()

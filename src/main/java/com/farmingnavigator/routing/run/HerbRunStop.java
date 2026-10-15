@@ -26,4 +26,9 @@ public final class HerbRunStop
     public VerifiedTransportResult getRecommended() { return recommended; }
     public VerifiedTransportResult getFallback() { return fallback; }
     public boolean isReplant() { return replant; }
+
+    public HerbRunStop withTransports(VerifiedTransportResult primary, VerifiedTransportResult alternative)
+    {
+        return new HerbRunStop(patch, action, primary, alternative, replant);
+    }
 }
