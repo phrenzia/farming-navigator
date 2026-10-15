@@ -165,6 +165,20 @@ public class HerbPatchTransportService
                                 "Ardougne Teleport",
                                 "Teleport to Ardougne and travel north to the farming patch.",
                                 TransportCategory.SPELL
+                        ),
+                        verifiedTransport(
+                                8,
+                                "POH fairy ring to BLR",
+                                "Enter your POH with Teleport to House or a house tablet, use your configured POH fairy ring, enter code BLR, then travel west to the Ardougne farming patch.",
+                                TransportCategory.PLAYER_OWNED_HOUSE,
+                                TransportVerificationKind.POH_FAIRY_RING
+                        ),
+                        verifiedTransport(
+                                9,
+                                "Fairy ring BLR",
+                                "Use fairy ring code BLR outside the Legends' Guild, then travel west to the Ardougne farming patch.",
+                                TransportCategory.FAIRY_RING,
+                                TransportVerificationKind.FAIRY_RING_ACCESS
                         )
                 )
         );
