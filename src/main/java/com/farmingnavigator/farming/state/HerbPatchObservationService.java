@@ -40,7 +40,8 @@ public class HerbPatchObservationService
         return sampler.sample(player == null ? null : player.getWorldLocation(),
                 client.getGameState() == GameState.LOGGED_IN, modalOpen,
                 worldView == null || worldView.isInstance(),
-                client.getTickCount(), client::getVarbitValue, Instant.now());
+                client.getTickCount(), client::getVarbitValue, Instant.now(),
+                FarmingGrowthRate.fromWorldTypes(client.getWorldType()));
     }
 
     public Map<HerbPatchDefinition, HerbPatchObservation> snapshot()
@@ -56,5 +57,10 @@ public class HerbPatchObservationService
     public void invalidateRegion()
     {
         sampler.invalidateRegion();
+    }
+
+    public boolean hasObservations()
+    {
+        return !store.isEmpty();
     }
 }

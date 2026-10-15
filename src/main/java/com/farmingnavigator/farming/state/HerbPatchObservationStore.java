@@ -17,6 +17,11 @@ public class HerbPatchObservationStore
 
     public boolean observe(HerbPatchDefinition patch, int raw, Instant observedAt)
     {
+        return observe(patch, raw, observedAt, FarmingGrowthRate.UNKNOWN);
+    }
+
+    public boolean observe(HerbPatchDefinition patch, int raw, Instant observedAt, FarmingGrowthRate growthRate)
+    {
         Objects.requireNonNull(patch);
         Objects.requireNonNull(observedAt);
         HerbPatchObservation previous = observations.get(patch);
@@ -26,14 +31,14 @@ public class HerbPatchObservationStore
             {
                 return false;
             }
-            if (raw == previous.getState().getRawValue()
+            if (raw == previous.getState().getRawValue() && growthRate == previous.getGrowthRate()
                     && Duration.between(previous.getObservedAt(), observedAt).getSeconds() < 30)
             {
                 return false;
             }
         }
         // Unknown raw values replace old known data rather than leaving stale certainty.
-        observations.put(patch, new HerbPatchObservation(decoder.decode(raw), observedAt));
+        observations.put(patch, new HerbPatchObservation(decoder.decode(raw), observedAt, growthRate));
         return true;
     }
 
@@ -45,5 +50,10 @@ public class HerbPatchObservationStore
     public void clear()
     {
         observations.clear();
+    }
+
+    public boolean isEmpty()
+    {
+        return observations.isEmpty();
     }
 }

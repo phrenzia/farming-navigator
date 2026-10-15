@@ -6,6 +6,7 @@ import com.farmingnavigator.farming.HerbPatchStatus;
 import com.farmingnavigator.farming.state.HerbPatchObservation;
 import com.farmingnavigator.farming.state.PatchCondition;
 import com.farmingnavigator.ui.HerbPatchObservationText;
+import com.farmingnavigator.ui.HerbGrowthTimerText;
 import com.farmingnavigator.poh.PohHouseLocation;
 import com.farmingnavigator.poh.PohJewelleryBoxTier;
 import com.farmingnavigator.poh.PohPortalDestination;
@@ -1385,6 +1386,12 @@ public class FarmingNavigatorPanel
                 || observation.getState().getCondition() == PatchCondition.DEAD);
         row.add(createWrappedText(HerbPatchObservationText.describe(observation, ZoneId.systemDefault()),
                 needsAttention ? WARNING_COLOR : MUTED_COLOR));
+        String timerText = HerbGrowthTimerText.describe(observation, Instant.now());
+        if (!timerText.isEmpty())
+        {
+            row.add(Box.createVerticalStrut(3));
+            row.add(createWrappedText(timerText, MUTED_COLOR));
+        }
 
         if (
                 !bankVerified

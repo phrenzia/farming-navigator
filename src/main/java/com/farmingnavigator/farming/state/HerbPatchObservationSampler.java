@@ -20,6 +20,12 @@ public class HerbPatchObservationSampler
     public boolean sample(WorldPoint location, boolean loggedIn, boolean modalOpen,
             boolean instanced, int tick, IntUnaryOperator readVarbit, Instant now)
     {
+        return sample(location, loggedIn, modalOpen, instanced, tick, readVarbit, now, FarmingGrowthRate.UNKNOWN);
+    }
+
+    public boolean sample(WorldPoint location, boolean loggedIn, boolean modalOpen,
+            boolean instanced, int tick, IntUnaryOperator readVarbit, Instant now, FarmingGrowthRate growthRate)
+    {
         if (!loggedIn)
         {
             reset();
@@ -45,7 +51,7 @@ public class HerbPatchObservationSampler
         {
             return false;
         }
-        return store.observe(region.getPatch(), readVarbit.applyAsInt(region.getVarbit()), now);
+        return store.observe(region.getPatch(), readVarbit.applyAsInt(region.getVarbit()), now, growthRate);
     }
 
     public void reset()

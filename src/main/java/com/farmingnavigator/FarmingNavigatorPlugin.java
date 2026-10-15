@@ -23,6 +23,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -108,10 +109,12 @@ public class FarmingNavigatorPlugin
     private FarmingNavigatorPanel panel;
 
     private NavigationButton navigationButton;
+    private long lastPatchTimerRefreshMinute = -1;
 
     @Override
     protected void startUp()
     {
+        lastPatchTimerRefreshMinute = -1;
         herbPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
@@ -197,8 +200,11 @@ public class FarmingNavigatorPlugin
     @Subscribe
     public void onGameTick(GameTick event)
     {
-        if (herbPatchObservationService.sample())
+        boolean changed = herbPatchObservationService.sample();
+        long minute = Instant.now().getEpochSecond() / 60;
+        if (changed || (minute != lastPatchTimerRefreshMinute && herbPatchObservationService.hasObservations()))
         {
+            lastPatchTimerRefreshMinute = minute;
             updateAccountState();
         }
     }
