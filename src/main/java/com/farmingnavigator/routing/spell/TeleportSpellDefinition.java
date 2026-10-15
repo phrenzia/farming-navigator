@@ -7,6 +7,29 @@ import net.runelite.api.Quest;
 
 public enum TeleportSpellDefinition
 {
+    DRAYNOR_MANOR_TELEPORT(
+            "Draynor Manor Teleport",
+            "Draynor Manor",
+            17,
+            SpellbookType.ARCEUUS,
+            RuneCost.builder()
+                    .add(
+                            RuneKind.EARTH,
+                            1
+                    )
+                    .add(
+                            RuneKind.WATER,
+                            1
+                    )
+                    .add(
+                            RuneKind.LAW,
+                            1
+                    )
+                    .build(),
+            null,
+            false
+    ),
+
     BATTLEFRONT_TELEPORT(
             "Battlefront Teleport",
             "Ancient Grave outside the Kebos Battlefront",
