@@ -292,6 +292,26 @@ public class GuidedRunTargetsTest
         }
     }
 
+    @Test
+    public void selectedRuneStaffIsHighlightedForPreparationAndRelevantFarmingStepOnly()
+    {
+        AccountState account = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), false);
+        TravelCapabilitySnapshot travel = new TravelCapabilitySnapshot(true, SpellbookType.LUNAR, null,
+                java.util.Map.of(ItemID.ASTRALRUNE, 1), java.util.Map.of(ItemID.STAFF_OF_EARTH, 1), Collections.emptyMap());
+        StorageSnapshot storage = new StorageSnapshot(java.util.Map.of(ItemID.ASTRALRUNE, 1L),
+                java.util.Map.of(ItemID.STAFF_OF_EARTH, 1L), Collections.emptyMap(), true, Instant.now());
+        HerbRunPlan selected = plan().withTransportResources(new RunTransportResourcePlanner().evaluate(Collections.emptyList(),
+                new RequirementContext(account, null, travel, storage), HerbRunCareResources.CURE_PLANT_COST));
+        GuidedRunSnapshot cure = new GuidedRunSnapshot(GuidedRunStep.CURE, HerbRunCrop.RANARR, selected.getStops().get(0),
+                1, 0, 0, 0, HerbRunCompost.ULTRACOMPOST, java.time.Duration.ZERO, HerbRunCure.CURE_PLANT);
+        assertTrue(GuidedRunTargets.from(cure, selected, travel).getInventoryItems().contains(ItemID.STAFF_OF_EARTH));
+        assertTrue(GuidedRunTargets.from(snapshot(GuidedRunStep.PREPARE, null), selected, travel)
+                .getInventoryItems().contains(ItemID.STAFF_OF_EARTH));
+        assertFalse(GuidedRunTargets.from(snapshot(GuidedRunStep.PLANT, null), selected, travel)
+                .getInventoryItems().contains(ItemID.STAFF_OF_EARTH));
+    }
+
     private GuidedRunTargets targets(GuidedRunStep step)
     {
         return GuidedRunTargets.from(snapshot(step, null), plan(), null);

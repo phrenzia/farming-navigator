@@ -274,6 +274,24 @@ public class RunTransportResourcePlannerTest
                 new HerbRunStop(HerbPatchDefinition.CATHERBY, "Inspect", house, null, true));
     }
 
+    @Test
+    public void pooledRunePreparationHighlightsBankedStaffAndRequiredPouch()
+    {
+        RequirementContext staff = context(Map.of(ItemID.WATERRUNE, 2, ItemID.LAWRUNE, 2), Collections.emptyMap(),
+                Map.of(ItemID.STAFF_OF_AIR, 1L), Collections.emptyMap());
+        RunTransportResources resources = new RunTransportResourcePlanner().evaluate(twoSpellStops(), staff);
+        assertEquals(com.farmingnavigator.routing.requirement.InfiniteRuneSource.STAFF_OF_AIR, resources.getRunePreparation().getSource());
+        assertTrue(resources.getBankItems().contains(ItemID.STAFF_OF_AIR));
+        RequirementContext pouch = context(Collections.emptyMap(), Collections.emptyMap(), Map.of(ItemID.BH_RUNE_POUCH, 1L),
+                Map.of(ItemID.AIRRUNE, 6, ItemID.WATERRUNE, 2, ItemID.LAWRUNE, 2));
+        pouch = new RequirementContext(pouch.getAccountState(), null, new TravelCapabilitySnapshot(true, SpellbookType.STANDARD,
+                null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
+                Map.of(ItemID.AIRRUNE, 6, ItemID.WATERRUNE, 2, ItemID.LAWRUNE, 2), false), pouch.getStorageSnapshot());
+        RunTransportResources pouchResources = new RunTransportResourcePlanner().evaluate(twoSpellStops(), pouch);
+        assertTrue(pouchResources.getRunePreparation().isWithdrawPouch());
+        assertTrue(pouchResources.getBankItems().contains(ItemID.BH_RUNE_POUCH));
+    }
+
     private List<HerbRunStop> twoSpellStops()
     {
         return Arrays.asList(new HerbRunStop(HerbPatchDefinition.FALADOR, "Inspect", spell(), null, true),

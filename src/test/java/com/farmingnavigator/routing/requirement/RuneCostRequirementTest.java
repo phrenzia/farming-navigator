@@ -699,6 +699,52 @@ public class RuneCostRequirementTest
         );
     }
 
+    @Test
+    public void structuredPreparationReportsEquippedCarriedAndBankedSources()
+    {
+        for (int location = 0; location < 3; location++)
+        {
+            Map<Integer, Integer> inventory = new LinkedHashMap<>();
+            inventory.put(ItemID.WATERRUNE, 1);
+            inventory.put(ItemID.LAWRUNE, 1);
+            if (location == 0) { inventory.put(ItemID.STAFF_OF_AIR, 1); }
+            RunePreparation preparation = createFaladorRuneRequirement().evaluatePreparation(createContext(99, 99, inventory,
+                    location == 1 ? Collections.singletonMap(ItemID.STAFF_OF_AIR, 1) : Collections.emptyMap(),
+                    Collections.emptyMap(), Collections.emptyMap(), false,
+                    location == 2 ? Collections.singletonMap(ItemID.STAFF_OF_AIR, 1L) : Collections.emptyMap(), true));
+            assertEquals(InfiniteRuneSource.STAFF_OF_AIR, preparation.getSource());
+            assertEquals(location == 2, preparation.isBankedSource());
+            assertEquals(location == 2, preparation.getResult().requiresBankWithdrawal());
+            assertFalse(preparation.isWithdrawPouch());
+        }
+    }
+
+    @Test
+    public void structuredPreparationDoesNotSelectUnneededOrUnusableEquipment()
+    {
+        RunePreparation loose = createFaladorRuneRequirement().evaluatePreparation(createContext(99, 99,
+                Map.of(ItemID.AIRRUNE, 3, ItemID.WATERRUNE, 1, ItemID.LAWRUNE, 1),
+                Map.of(ItemID.STAFF_OF_AIR, 1), Collections.emptyMap(), Collections.emptyMap(), false, Collections.emptyMap(), true));
+        assertEquals(null, loose.getSource());
+        RunePreparation missing = createFaladorRuneRequirement().evaluatePreparation(createContext(1, 99,
+                Map.of(ItemID.WATERRUNE, 1, ItemID.LAWRUNE, 1, ItemID.AIR_BATTLESTAFF, 1), Collections.emptyMap(),
+                Collections.emptyMap(), Collections.emptyMap(), false, Collections.emptyMap(), true));
+        assertEquals(null, missing.getSource());
+        assertFalse(missing.getResult().isSatisfied());
+    }
+
+    @Test
+    public void structuredPreparationIdentifiesRequiredBankedPouch()
+    {
+        RunePreparation preparation = createFaladorRuneRequirement().evaluatePreparation(createContext(99, 99,
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
+                Map.of(ItemID.AIRRUNE, 3, ItemID.WATERRUNE, 1, ItemID.LAWRUNE, 1), false,
+                Collections.singletonMap(ItemID.BH_RUNE_POUCH, 1L), true));
+        assertTrue(preparation.getResult().requiresBankWithdrawal());
+        assertTrue(preparation.isWithdrawPouch());
+        assertEquals(null, preparation.getSource());
+    }
+
     private RequirementContext createContext(
             int realMagicLevel,
             int boostedMagicLevel,

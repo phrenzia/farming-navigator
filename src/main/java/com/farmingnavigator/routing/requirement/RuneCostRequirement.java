@@ -42,6 +42,11 @@ public class RuneCostRequirement
             RequirementContext context
     )
     {
+        return evaluatePreparation(context).getResult();
+    }
+
+    public RunePreparation evaluatePreparation(RequirementContext context)
+    {
         if (
                 context == null
                         || context.getAccountState() == null
@@ -56,18 +61,18 @@ public class RuneCostRequirement
                         .isLoggedIn()
         )
         {
-            return RequirementResult.dataRequired(
+            return new RunePreparation(RequirementResult.dataRequired(
                     displayName,
                     "Log in so Farming Navigator can verify rune availability."
-            );
+            ));
         }
 
         if (runeCost.isEmpty())
         {
-            return RequirementResult.satisfied(
+            return new RunePreparation(RequirementResult.satisfied(
                     displayName,
                     "This spell has no rune cost."
-            );
+            ));
         }
 
         AccountState accountState =
@@ -94,12 +99,12 @@ public class RuneCostRequirement
 
         if (currentPlan != null)
         {
-            return RequirementResult.satisfied(
+            return new RunePreparation(RequirementResult.satisfied(
                     displayName,
                     describeCurrentPlan(
                             currentPlan
                     )
-            );
+            ), currentPlan.source, false, false);
         }
 
         StorageSnapshot storageSnapshot =
@@ -111,12 +116,12 @@ public class RuneCostRequirement
                         .isBankVerified()
         )
         {
-            return RequirementResult.dataRequired(
+            return new RunePreparation(RequirementResult.dataRequired(
                     displayName,
                     "Current carried rune resources cannot satisfy "
                             + runeCost.describe()
                             + ". Open any normal bank once so Farming Navigator can verify banked runes, staves, and rune-pouch access."
-            );
+            ));
         }
 
         /*
@@ -142,14 +147,14 @@ public class RuneCostRequirement
 
         if (preparedPlan != null)
         {
-            return RequirementResult.availableFromBank(
+            return new RunePreparation(RequirementResult.availableFromBank(
                     displayName,
                     describePreparedPlan(
                             preparedPlan,
                             false,
                             null
                     )
-            );
+            ), preparedPlan.source, preparedPlan.location == SourceLocation.BANK, false);
         }
 
         /*
@@ -188,30 +193,30 @@ public class RuneCostRequirement
 
             if (pouchPlan != null)
             {
-                return RequirementResult.availableFromBank(
+                return new RunePreparation(RequirementResult.availableFromBank(
                         displayName,
                         describePreparedPlan(
                                 pouchPlan,
                                 true,
                                 bankedRunePouchName
                         )
-                );
+                ), pouchPlan.source, pouchPlan.location == SourceLocation.BANK, true);
             }
 
-            return createMissingResult(
+            return new RunePreparation(createMissingResult(
                     accountState,
                     liveSnapshot,
                     storageSnapshot,
                     preparedWithBankedPouch
-            );
+            ));
         }
 
-        return createMissingResult(
+        return new RunePreparation(createMissingResult(
                 accountState,
                 liveSnapshot,
                 storageSnapshot,
                 preparedConsumables
-        );
+        ));
     }
 
     private Map<RuneSupply, Long>

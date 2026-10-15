@@ -9,6 +9,7 @@ import com.farmingnavigator.routing.requirement.RequirementResult;
 import com.farmingnavigator.routing.requirement.RuneCost;
 import com.farmingnavigator.routing.requirement.RuneCostRequirement;
 import com.farmingnavigator.routing.requirement.RuneSupply;
+import com.farmingnavigator.routing.requirement.RunePreparation;
 import com.farmingnavigator.transport.TransportOption;
 import com.farmingnavigator.transport.TransportVerificationKind;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
@@ -87,13 +88,27 @@ public final class RunTransportResourcePlanner
             }
         }
         RuneCost totalRunes = runes.build();
+        RunePreparation runePreparation = null;
         if (!totalRunes.isEmpty())
         {
-            RequirementResult runeCheck = new RuneCostRequirement(
-                    "All recommended spell runes (travel, house entry and farming)", totalRunes).evaluate(context);
+            runePreparation = new RuneCostRequirement(
+                    "All recommended spell runes (travel, house entry and farming)", totalRunes).evaluatePreparation(context);
+            RequirementResult runeCheck = runePreparation.getResult();
             checks.add(runeCheck);
             if (runeCheck.requiresBankWithdrawal() && context != null && context.getStorageSnapshot() != null)
             {
+                if (runePreparation.isBankedSource())
+                {
+                    bankItems.add(runePreparation.getSource().getItemId());
+                }
+                if (runePreparation.isWithdrawPouch())
+                {
+                    for (int pouchId : new int[]{ItemID.BH_RUNE_POUCH, ItemID.BH_RUNE_POUCH_TROUVER,
+                            ItemID.DIVINE_RUNE_POUCH, ItemID.DIVINE_RUNE_POUCH_TROUVER})
+                    {
+                        if (context.getStorageSnapshot().getVerifiedBankQuantity(pouchId) > 0) { bankItems.add(pouchId); }
+                    }
+                }
                 for (RuneSupply supply : RuneSupply.values())
                 {
                     if (supply.getSuppliedKinds().stream().anyMatch(kind -> totalRunes.getQuantity(kind) > 0)
@@ -128,7 +143,8 @@ public final class RunTransportResourcePlanner
         consumables.forEach((item, quantity) -> supplies.add(new SupplyRequirement(item.itemId, item.name, quantity,
                 false, "One consumed per recommended teleport; fallback routes are excluded.")));
         return new RunTransportResources(checks, notes,
-                new LoadoutService().evaluate(supplies, context == null ? null : context.getStorageSnapshot()), houseEntryMode, bankItems);
+                new LoadoutService().evaluate(supplies, context == null ? null : context.getStorageSnapshot()), houseEntryMode, bankItems,
+                runePreparation);
     }
 
     private enum Consumable

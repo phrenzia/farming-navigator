@@ -9,6 +9,8 @@ import com.farmingnavigator.routing.run.HerbHouseEntryMode;
 import com.farmingnavigator.routing.run.HerbRunCure;
 import com.farmingnavigator.routing.run.HerbRunCareResources;
 import com.farmingnavigator.routing.requirement.RuneCost;
+import com.farmingnavigator.routing.requirement.RunePreparation;
+import com.farmingnavigator.routing.run.HerbRunCompost;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 import com.farmingnavigator.transport.TransportCategory;
 import com.farmingnavigator.transport.TransportOption;
@@ -111,7 +113,7 @@ public final class GuidedRunTargets
                 if (session.getCompost().isSpell())
                 {
                     addRunes(inventory, HerbRunCareResources.FERTILE_SOIL_COST, travel);
-                    if (session.getCompost() == com.farmingnavigator.routing.run.HerbRunCompost.FERTILE_SOIL_ULTRA)
+                    if (session.getCompost() == HerbRunCompost.FERTILE_SOIL_ULTRA)
                     {
                         inventory.add(ItemID.FOSSIL_VOLCANIC_ASH);
                     }
@@ -139,10 +141,46 @@ public final class GuidedRunTargets
                 break;
             default: break;
         }
+        addSelectedRuneSource(inventory, session, plan, houseEntryMode);
         HerbPatchDefinition scenePatch = session.getStep() == GuidedRunStep.PREPARE || session.getStep() == GuidedRunStep.WAIT
                 ? null : session.getStop().getPatch();
         return new GuidedRunTargets(inventory, bank, destination, name, scenePatch,
                 session.getStep() == GuidedRunStep.NOTE_PRODUCE);
+    }
+
+    private static void addSelectedRuneSource(Set<Integer> items, GuidedRunSnapshot session, HerbRunPlan plan,
+            HerbHouseEntryMode houseEntryMode)
+    {
+        RunePreparation preparation = plan == null || plan.getTransportResources() == null
+                ? null : plan.getTransportResources().getRunePreparation();
+        if (preparation == null || preparation.getSource() == null) { return; }
+        RuneCost cost = RuneCost.builder().build();
+        switch (session.getStep())
+        {
+            case PREPARE:
+                items.add(preparation.getSource().getItemId());
+                return;
+            case CURE:
+                if (session.getCure() == HerbRunCure.CURE_PLANT) { cost = HerbRunCareResources.CURE_PLANT_COST; }
+                break;
+            case COMPOST:
+                if (session.getCompost().isSpell()) { cost = HerbRunCareResources.FERTILE_SOIL_COST; }
+                break;
+            case TRAVEL:
+                if (session.getStop().getRecommended() == null) { return; }
+                TransportOption route = session.getStop().getRecommended().getOption();
+                if (route.getTeleportSpellDefinition() != null) { cost = route.getTeleportSpellDefinition().getRuneCost(); }
+                else if (route.getCategory() == TransportCategory.PLAYER_OWNED_HOUSE && houseEntryMode == HerbHouseEntryMode.SPELL)
+                {
+                    cost = TeleportSpellDefinition.TELEPORT_TO_HOUSE.getRuneCost();
+                }
+                break;
+            default: return;
+        }
+        for (com.farmingnavigator.routing.requirement.RuneKind kind : preparation.getSource().getSuppliedKinds())
+        {
+            if (cost.getQuantity(kind) > 0) { items.add(preparation.getSource().getItemId()); return; }
+        }
     }
 
     private static void addTransport(Set<Integer> inventory, Set<Integer> bank, VerifiedTransportResult route,
