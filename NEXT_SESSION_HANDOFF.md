@@ -34,6 +34,7 @@ Commits through this checkpoint are individually pushed to master:
 | `1a83e15` | Reusable transport preference shared by suggested and guided runs |
 | `8409cc5` | Aggregate POH entry tablet/cast budgets and matching highlights |
 | `74c0598` | Guided elapsed time including preparation/waiting, frozen on completion |
+| `fc75c80` | Shared rune/jewellery bank candidates highlighted during preparation |
 
 Reusable preference preserves the default ready-before-bank catalogue order unless selected. Reusable mode ranks a conservative verified-unlimited subset first, including banked items; POH entries, charged items and limited daily uses are outside that subset. POH entry supplies are explicitly selected as tablets (default) or spells. The resource budget reserves one per recommended visit; house casts share runes with direct teleports and retain the existing Magic/spellbook/house requirement check. Mixed entry allocation is not optimized. Existing transport-card readiness still accepts either entry method, so inspect the selected run-wide supply budget as well.
 
@@ -41,7 +42,7 @@ Reusable preference preserves the default ready-before-bank catalogue order unle
 
 - `farming/state`: decoder, region mapping, observation sampler/store/service, growth timer, profile persistence and alert tracker. The store exposes cached immutable snapshots. Profiles use RuneLite `ConfigManager` RS-profile keys and versioned per-patch records, not custom disk files. Saved records keep raw value, timestamp and growth rate; future/corrupt/over-30-day records are ignored.
 - `routing/run`: herb crop/compost definitions, run planner, immutable plan/stops and aggregate transport resources. This includes selected house-entry budgeting and a shared reusable transport selector. Fixed patch order is not a shortest-path or measured-time optimizer.
-- `loadout`: reusable quantity-aware checks against inventory, equipment and verified bank. Partial withdrawals and known shortfalls are distinct from unknown bank contents.
+- `loadout`: reusable quantity-aware checks against inventory, equipment and verified bank. Partial withdrawals and known shortfalls are distinct from unknown bank contents. Shared rune/jewellery pools also expose banked candidate items when the combined budget needs withdrawal, even if each route alone is ready. Candidates are not a minimal withdrawal solution and do not include all banked infinite-rune equipment or pouch alternatives.
 - `guided`: checklist commands/state machine and cached semantic highlight targets. Compost confirmation remains manual; no compost state is invented. Arrival needs the correct area/floor and action progression needs fresh matching observations. Full inventory returns to harvesting after space is freed without claiming a leprechaun interaction was observed.
 - `overlay`: lightweight item rendering, map-point lifecycle, cached herb objects/NPCs, event-driven scene tracker. Nearby initialization scans at most 25x25 tiles once per relevant map load/enable, not each tick/frame. No automated actions or clickable gameplay shortcuts.
 - `ui`: compact plan, loadout, observation/timer text and guided panels. Offline screenshots are generated under ignored `build/verification` by tests.
@@ -82,4 +83,4 @@ All items below remain **UNVERIFIED IN GAME**. No game client was launched durin
 
 ## Validation checkpoint
 
-`gradlew.bat clean build` and `gradlew.bat test` passed after the final elapsed-time feature; 894 synthetic tests passed with zero failures/errors. The updated narrow guided panel was rendered and visually checked offline. Known build messages are the existing unchecked test-harness warning and Gradle 9 deprecation notice. Automated success does not prove live correctness. All feature commits above were pushed; check `git status` and `git rev-parse HEAD origin/master` before continuing.
+`gradlew.bat clean build` and `gradlew.bat test` passed after the shared-bank-highlight correction; 897 synthetic tests passed with zero failures/errors. The updated narrow guided panel was rendered and visually checked offline. Known build messages are the existing unchecked test-harness warning and Gradle 9 deprecation notice. Automated success does not prove live correctness. All feature commits above were pushed; check `git status` and `git rev-parse HEAD origin/master` before continuing.
