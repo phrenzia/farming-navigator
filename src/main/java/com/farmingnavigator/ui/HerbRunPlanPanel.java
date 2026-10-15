@@ -4,6 +4,8 @@ import com.farmingnavigator.loadout.SupplyCheck;
 import com.farmingnavigator.loadout.SupplyState;
 import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.routing.run.HerbRunStop;
+import com.farmingnavigator.routing.run.RunTransportResources;
+import com.farmingnavigator.routing.requirement.RequirementResult;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -56,7 +58,7 @@ public final class HerbRunPlanPanel extends JPanel
         add(Box.createVerticalStrut(7));
         add(toggle);
         add(details);
-        details.add(text("Suggested order; travel times are not optimized. Bring enough runes and charges for every stop.", MUTED));
+        details.add(text("Suggested order; travel times are not optimized. Check travel supplies for the whole run.", MUTED));
         if (plan.getStops().isEmpty())
         {
             details.add(text("No selected patches need a stop right now.", MUTED));
@@ -88,6 +90,25 @@ public final class HerbRunPlanPanel extends JPanel
             details.add(Box.createVerticalStrut(7));
             details.add(text("Excluded patches", Color.WHITE));
             plan.getExcluded().forEach((patch, reason) -> details.add(text(patch.getDisplayName() + ": " + reason, MUTED)));
+        }
+        RunTransportResources resources = plan.getTransportResources();
+        if (resources != null)
+        {
+            details.add(Box.createVerticalStrut(7));
+            details.add(text("Shared travel supplies", Color.WHITE));
+            for (RequirementResult check : resources.getChecks())
+            {
+                details.add(text(check.getRequirement(), Color.WHITE));
+                details.add(text(check.getDetail(), check.isSatisfied() ? MUTED : WARNING));
+            }
+            for (String note : resources.getNotes())
+            {
+                details.add(text(note, WARNING));
+            }
+            if (resources.getChecks().isEmpty() && resources.getNotes().isEmpty())
+            {
+                details.add(text("No direct-spell or charged-jewellery pool is shared by these legs.", MUTED));
+            }
         }
         if (!plan.getSupplies().isEmpty())
         {

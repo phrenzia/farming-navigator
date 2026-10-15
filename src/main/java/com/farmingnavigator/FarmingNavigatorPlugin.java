@@ -12,6 +12,8 @@ import com.farmingnavigator.routing.capability.TravelCapabilityService;
 import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.routing.run.HerbRunPlanner;
+import com.farmingnavigator.routing.run.RunTransportResourcePlanner;
+import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.storage.StorageSnapshot;
 import com.farmingnavigator.storage.StorageStateService;
 import com.farmingnavigator.transport.HerbPatchTransportService;
@@ -442,9 +444,12 @@ public class FarmingNavigatorPlugin
         Map<HerbPatchDefinition, HerbPatchObservation> observations =
                 herbPatchObservationService.snapshot();
 
-        HerbRunPlan runPlan = new HerbRunPlanner().plan(accountState, patchStatuses,
+        HerbRunPlan suggested = new HerbRunPlanner().plan(accountState, patchStatuses,
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
                 observations, verifiedTransportResults, storageSnapshot, Instant.now());
+        HerbRunPlan runPlan = suggested.withTransportResources(new RunTransportResourcePlanner()
+                .evaluate(suggested.getStops(), new RequirementContext(accountState, config,
+                        travelCapabilitySnapshot, storageSnapshot)));
 
         SwingUtilities.invokeLater(
                 () -> {
