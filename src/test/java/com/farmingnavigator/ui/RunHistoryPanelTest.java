@@ -2,6 +2,9 @@ package com.farmingnavigator.ui;
 
 import com.farmingnavigator.analytics.RunMetricsSnapshot;
 import com.farmingnavigator.analytics.RunMetricsTracker;
+import com.farmingnavigator.analytics.RunHistoryPeriod;
+import com.farmingnavigator.analytics.RunHistoryStore;
+import javax.swing.JComboBox;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics2D;
@@ -40,6 +43,31 @@ public class RunHistoryPanelTest
             JButton clear=button(panel,"Clear history"); clear.doClick(); assertTrue(cleared.get()); assertFalse(clear.isEnabled());
             button(panel,"Hide recent runs").doClick(); assertFalse(expanded.get());
         });
+    }
+    @Test public void rollingWindowAndRunTypeFiltersUpdateWithoutClearingSavedHistory() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            Instant now=Instant.parse("2026-10-16T12:00:00Z");
+            RunMetricsTracker recent=new RunMetricsTracker(); recent.start("Herb run",100,now.minusSeconds(3600)); recent.sample(200,now.minusSeconds(3540)); recent.finish(200,now.minusSeconds(3540),true);
+            RunMetricsTracker older=new RunMetricsTracker(); older.start("Tree run",100,now.minusSeconds(172860)); older.sample(300,now.minusSeconds(172800)); older.finish(300,now.minusSeconds(172800),false);
+            AtomicBoolean cleared=new AtomicBoolean(); RunHistoryPanel panel=new RunHistoryPanel(List.of(recent.snapshot(now),older.snapshot(now)),true,value -> {},() -> cleared.set(true),now,RunHistoryPeriod.ALL,null,(period,kind) -> {});
+            assertTrue(labels(panel).contains("Showing 2 saved checklists"));
+            JComboBox<?> period=selector(panel,RunHistoryPeriod.ALL); period.setSelectedItem(RunHistoryPeriod.LAST_24_HOURS);
+            assertTrue(labels(panel).contains("Showing 1 saved checklists")); assertFalse(labels(panel).contains("Tree run - stopped"));
+            JComboBox<?> kind=selector(panel,"All run types"); kind.setSelectedItem(RunHistoryStore.Kind.TREE.toString());
+            assertTrue(labels(panel).contains("No saved checklists match")); assertFalse(cleared.get());
+            kind.setSelectedItem("All run types"); panel.refreshTime(now.plusSeconds(86400)); assertTrue(labels(panel).contains("Showing 0 saved checklists"));
+            assertNotNull(button(panel,"Clear history")); assertTrue(labels(panel).contains("including those hidden by filters"));
+        });
+    }
+    private JComboBox<?> selector(Container parent,Object selected)
+    {
+        for(Component child:parent.getComponents())
+        {
+            if(child instanceof JComboBox && selected.equals(((JComboBox<?>)child).getSelectedItem())) { return (JComboBox<?>)child; }
+            if(child instanceof Container) { JComboBox<?> found=selector((Container)child,selected); if(found!=null) { return found; } }
+        }
+        return null;
     }
     @Test public void emptyHistoryExplainsWhichInterruptionsAreNotSaved() throws Exception
     {

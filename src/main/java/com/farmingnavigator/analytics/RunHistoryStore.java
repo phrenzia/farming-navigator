@@ -19,12 +19,13 @@ public final class RunHistoryStore
     private final List<RunMetricsSnapshot> entries = new ArrayList<>();
     private String profile, lastSeen;
     public RunHistoryStore(ObservationPersistenceBackend backend) { this.backend = backend; }
-    private enum Kind
+    public enum Kind
     {
         HERB("Herb run"), TREE("Tree run"), GARDEN("Bush/cactus run"), FIELD("Field run");
         private final String label;
         Kind(String label) { this.label = label; }
-        static Kind fromLabel(String label)
+        @Override public String toString() { return label; }
+        public static Kind fromLabel(String label)
         {
             for (Kind kind : values()) { if (kind.label.equals(label)) { return kind; } }
             return null;
@@ -70,7 +71,7 @@ public final class RunHistoryStore
         if (entries.size() > LIMIT) { entries.subList(LIMIT, entries.size()).clear(); }
     }
     private String identity(RunMetricsSnapshot value) { return Kind.fromLabel(value.getRunName()).name() + "|" + value.getStartedAt(); }
-    private boolean valid(RunMetricsSnapshot value, Instant now)
+    static boolean valid(RunMetricsSnapshot value, Instant now)
     {
         return value != null && !value.isRecording() && Kind.fromLabel(value.getRunName()) != null
                 && value.getStartedAt() != null && value.getFinishedAt() != null
