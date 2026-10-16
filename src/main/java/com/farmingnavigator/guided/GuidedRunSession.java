@@ -213,7 +213,7 @@ public final class GuidedRunSession
         Duration elapsed = startedAt == null || end.isBefore(startedAt)
                 ? Duration.ZERO : Duration.between(startedAt, end);
         return new GuidedRunSnapshot(step, crop, index < stops.size() ? stops.get(index) : null,
-                stops.size(), completed, skipped, manuallyCompleted, compost, elapsed, cure, revision);
+                stops.size(), completed, skipped, manuallyCompleted, compost, elapsed, cure, revision, index + 1 < stops.size() ? stops.get(index + 1) : null);
     }
 
     public void cancel()

@@ -13,6 +13,8 @@ public final class GuidedRunSnapshot
     private final GuidedRunStep step;
     private final HerbRunCrop crop;
     private final HerbRunStop stop;
+    private final HerbRunStop nextStop;
+    public HerbRunStop getNextStop() { return nextStop; }
     private final int total;
     private final int completed;
     private final int skipped;
@@ -41,6 +43,12 @@ public final class GuidedRunSnapshot
     GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
             int completed, int skipped, int manuallyCompleted, HerbRunCompost compost, Duration elapsed, HerbRunCure cure, long revision)
     {
+        this(step,crop,stop,total,completed,skipped,manuallyCompleted,compost,elapsed,cure,revision,null);
+    }
+    GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
+            int completed, int skipped, int manuallyCompleted, HerbRunCompost compost, Duration elapsed, HerbRunCure cure, long revision, HerbRunStop nextStop)
+    {
+        this.nextStop = nextStop;
         this.revision = revision;
         this.step = step;
         this.crop = crop;

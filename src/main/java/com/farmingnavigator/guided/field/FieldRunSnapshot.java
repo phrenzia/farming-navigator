@@ -15,6 +15,8 @@ public final class FieldRunSnapshot
     private final FieldRunCrop crop;
     private final FieldRunMode mode;
     private final FieldRunStop stop;
+    private final FieldRunStop nextStop;
+    public FieldRunStop getNextStop() { return nextStop; }
     private final com.farmingnavigator.routing.run.FieldRunCompost compost;
     private final int total, completed, manual, skipped, protectionConfirmed;
     private final Duration elapsed;
@@ -49,6 +51,14 @@ public final class FieldRunSnapshot
             com.farmingnavigator.routing.run.FieldRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure,
             com.farmingnavigator.routing.run.FieldRunWatering watering, long revision)
     {
+        this(step,crop,mode,stop,total,completed,manual,skipped,protectionConfirmed,elapsed,compost,cure,watering,revision,null);
+    }
+    FieldRunSnapshot(FieldRunStep step, FieldRunCrop crop, FieldRunMode mode, FieldRunStop stop,
+            int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
+            com.farmingnavigator.routing.run.FieldRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure,
+            com.farmingnavigator.routing.run.FieldRunWatering watering, long revision, FieldRunStop nextStop)
+    {
+        this.nextStop = nextStop;
         this.revision = revision;
         this.watering = watering;
         this.cure = cure;

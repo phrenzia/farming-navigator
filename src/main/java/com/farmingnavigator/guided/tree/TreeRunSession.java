@@ -196,7 +196,7 @@ public final class TreeRunSession
         Instant end = finishedAt == null ? now : finishedAt;
         Duration elapsed = startedAt == null || end.isBefore(startedAt) ? Duration.ZERO : Duration.between(startedAt, end);
         return new TreeRunSnapshot(step, plan == null ? null : plan.getCrop(), active() ? plan.getStops().get(index) : null,
-                plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? TreeRunCompost.NONE : plan.getCompost(), plan == null ? TreeRunCure.PRUNE : plan.getCure(), revision);
+                plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? TreeRunCompost.NONE : plan.getCompost(), plan == null ? TreeRunCure.PRUNE : plan.getCure(), revision, active() && index + 1 < plan.getStops().size() ? plan.getStops().get(index + 1) : null);
     }
     public void cancel()
     {

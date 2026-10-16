@@ -48,6 +48,8 @@ public final class GardenGuidedRunPanel extends JPanel
                 else { add(text("No verified transport is usable. Review travel supplies or travel manually.", new Color(255, 190, 80))); }
             }
         }
+        add(new GuidedRunPreviewPanel(run.getStop(),run.getNextStop(),run.getStep() == GardenRunStep.PREPARE,
+                run.getTotal() == run.getCompleted() + run.getSkipped() + 1));
         if (run.getStep() == GardenRunStep.PREPARE) { add(button("Ready for travel", GardenRunCommand.CONFIRM, commands)); }
         else
         {

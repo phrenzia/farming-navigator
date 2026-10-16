@@ -49,6 +49,8 @@ public final class FieldGuidedRunPanel extends JPanel
                 else { add(text("No verified transport is usable. Review travel supplies or travel manually.", new Color(255, 190, 80))); }
             }
         }
+        add(new GuidedRunPreviewPanel(run.getStop(),run.getNextStop(),run.getStep() == FieldRunStep.PREPARE,
+                run.getTotal() == run.getCompleted() + run.getSkipped() + 1));
         if (run.getStep() == FieldRunStep.PREPARE) { add(button("Ready for travel", FieldRunCommand.CONFIRM, commands)); }
         else
         {

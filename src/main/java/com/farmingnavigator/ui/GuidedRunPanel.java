@@ -68,6 +68,8 @@ public final class GuidedRunPanel extends JPanel
                 }
             }
         }
+        add(new GuidedRunPreviewPanel(session.getStop(),session.getNextStop(),session.getStep() == GuidedRunStep.PREPARE,
+                session.getTotal() == session.getCompleted() + session.getSkipped() + 1));
         if (session.getStep() == GuidedRunStep.PREPARE)
         {
             add(button("Ready to travel", GuidedRunCommand.CONFIRM, commands));

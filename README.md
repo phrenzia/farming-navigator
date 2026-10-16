@@ -96,3 +96,5 @@ Tests use synthetic account/storage/game-state data and offline Swing rendering.
 Farming Navigator is intended to provide information, overlays, highlighting, routing, and recommendations.
 
 It will not automate player input, click objects, click NPCs, move the player, or otherwise perform gameplay actions on behalf of the user.
+
+Guided checklists preview the first and next planned destination, including an existing nearby-walk leg, and label the final stop. The preview follows checklist order and does not perform travel or advance a stop.

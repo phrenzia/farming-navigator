@@ -16,6 +16,8 @@ public final class GardenRunSnapshot
     private final GardenRunMode mode;
     private final GardenRunCompost compost;
     private final GardenRunStop stop;
+    private final GardenRunStop nextStop;
+    public GardenRunStop getNextStop() { return nextStop; }
     private final int total, completed, manual, skipped, protectionConfirmed;
     private final Duration elapsed;
     GardenRunSnapshot(GardenRunStep step, GardenRunCrop crop, GardenRunMode mode, GardenRunStop stop,
@@ -39,6 +41,13 @@ public final class GardenRunSnapshot
             int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
             GardenRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure, long revision)
     {
+        this(step,crop,mode,stop,total,completed,manual,skipped,protectionConfirmed,elapsed,compost,cure,revision,null);
+    }
+    GardenRunSnapshot(GardenRunStep step, GardenRunCrop crop, GardenRunMode mode, GardenRunStop stop,
+            int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
+            GardenRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure, long revision, GardenRunStop nextStop)
+    {
+        this.nextStop = nextStop;
         this.revision = revision;
         this.cure = cure;
         this.compost = compost;

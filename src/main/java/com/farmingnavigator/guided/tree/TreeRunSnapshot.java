@@ -13,6 +13,8 @@ public final class TreeRunSnapshot
     private final com.farmingnavigator.routing.run.TreeRunCure cure;
     private final TreeRunCrop crop;
     private final TreeRunStop stop;
+    private final TreeRunStop nextStop;
+    public TreeRunStop getNextStop() { return nextStop; }
     private final int total;
     private final int completed;
     private final int manual;
@@ -34,6 +36,13 @@ public final class TreeRunSnapshot
             int manual, int skipped, int protectionConfirmed, Duration elapsed,
             com.farmingnavigator.routing.run.TreeRunCompost compost, com.farmingnavigator.routing.run.TreeRunCure cure, long revision)
     {
+        this(step,crop,stop,total,completed,manual,skipped,protectionConfirmed,elapsed,compost,cure,revision,null);
+    }
+    TreeRunSnapshot(TreeRunStep step, TreeRunCrop crop, TreeRunStop stop, int total, int completed,
+            int manual, int skipped, int protectionConfirmed, Duration elapsed,
+            com.farmingnavigator.routing.run.TreeRunCompost compost, com.farmingnavigator.routing.run.TreeRunCure cure, long revision, TreeRunStop nextStop)
+    {
+        this.nextStop = nextStop;
         this.compost = compost; this.cure = cure;
         this.revision = revision;
         this.step = step; this.crop = crop; this.stop = stop; this.total = total; this.completed = completed;
