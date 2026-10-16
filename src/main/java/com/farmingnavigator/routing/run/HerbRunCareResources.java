@@ -34,8 +34,16 @@ public final class HerbRunCareResources
     public static HerbRunCareResources evaluate(HerbRunPlan plan, HerbRunCure cure, HerbRunCompost compost,
             RequirementContext context)
     {
+        return evaluateCounts(plan.getStops().stream().filter(HerbRunStop::isReplant).count(),
+                (int) plan.getStops().stream().filter(stop -> !stop.isReplant()).count(), cure, compost,
+                context != null && context.getConfig() != null && context.getConfig().herbAshTomeRead(), context);
+    }
+
+    /** Shared spell requirements for a caller's exact planned planting and disease counts. */
+    public static HerbRunCareResources evaluateCounts(long replants, int cures, HerbRunCure cure, HerbRunCompost compost,
+            boolean ashTomeRead, RequirementContext context)
+    {
         if (cure == null) { cure = HerbRunCure.PLANT_CURE; }
-        int cures = (int) plan.getStops().stream().filter(stop -> !stop.isReplant()).count();
         RuneCost.Builder runes = RuneCost.builder();
         List<RequirementResult> checks = new ArrayList<>();
         if (cure == HerbRunCure.CURE_PLANT && cures > 0)
@@ -45,7 +53,6 @@ public final class HerbRunCareResources
                 new SkillRequirement(AccountSkill.MAGIC, 66, true),
                 new SpellbookRequirement(SpellbookType.LUNAR), new QuestRequirement(Quest.LUNAR_DIPLOMACY)).evaluate(context));
         }
-        long replants = plan.getStops().stream().filter(HerbRunStop::isReplant).count();
         if (compost != null && compost.isBottomless() && replants > 0)
         {
             // Filled buckets share an item ID for every compost type. Leprechaun storage varbits
@@ -61,7 +68,7 @@ public final class HerbRunCareResources
                     new QuestRequirement(Quest.LUNAR_DIPLOMACY)).evaluate(context));
             if (compost == HerbRunCompost.FERTILE_SOIL_ULTRA)
             {
-                checks.add(context != null && context.getConfig() != null && context.getConfig().herbAshTomeRead()
+                checks.add(ashTomeRead
                         ? RequirementResult.satisfied("Ash-covered tome", "Manually declared as read; this unlock is not automatically verified.")
                         : RequirementResult.configurationRequired("Ash-covered tome",
                                 "Ultracompost requires reading the ash-covered tome. Confirm this unlock in plugin settings; it is not automatically verified."));

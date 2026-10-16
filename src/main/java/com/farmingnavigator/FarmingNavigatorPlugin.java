@@ -739,7 +739,7 @@ public class FarmingNavigatorPlugin
         Map<com.farmingnavigator.farming.field.FieldPatchDefinition, List<VerifiedTransportResult>> fieldTransports = transportVerificationService.evaluateAll(accountState,
                 config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.FieldPatchTransportService().getAllOptions());
         com.farmingnavigator.routing.run.FieldRunPlan fieldRunPlan = new com.farmingnavigator.routing.run.FieldRunPlanner().plan(accountState,
-                config.fieldRunPatches(), config.fieldRunCrop(), config.fieldRunMode(), config.fieldRunProtection(), config.fieldRunCompost(), fieldObservations, storageSnapshot, Instant.now())
+                config.fieldRunPatches(), config.fieldRunCrop(), config.fieldRunMode(), config.fieldRunProtection(), config.fieldRunCompost(), config.fieldRunCure(), fieldObservations, storageSnapshot, Instant.now())
                 .withTransports(fieldTransports, config.fieldTransportPreference(), runContext);
         Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, List<VerifiedTransportResult>> gardenTransports = transportVerificationService.evaluateAll(accountState,
                 config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.GardenPatchTransportService().getAllOptions());
@@ -942,7 +942,7 @@ public class FarmingNavigatorPlugin
     static boolean isFieldRunSetupKey(String key)
     {
         return "fieldRunCrop".equals(key) || "fieldRunPatches".equals(key) || "fieldRunMode".equals(key)
-                || "fieldRunProtection".equals(key) || "fieldTransportPreference".equals(key) || "fieldRunCompost".equals(key);
+                || "fieldRunProtection".equals(key) || "fieldTransportPreference".equals(key) || "fieldRunCompost".equals(key) || "fieldRunCure".equals(key) || "fieldAshTomeRead".equals(key);
     }
 
     static boolean isGardenRunSetupKey(String key)

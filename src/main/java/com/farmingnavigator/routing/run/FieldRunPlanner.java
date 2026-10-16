@@ -25,11 +25,16 @@ public final class FieldRunPlanner
     public FieldRunPlan plan(AccountState account, Set<FieldPatchDefinition> selected, FieldRunCrop crop, FieldRunMode mode,
             boolean protect, FieldRunCompost compost, Map<FieldPatchDefinition, FieldPatchObservation> observations, StorageSnapshot storage, Instant now)
     {
+        return plan(account, selected, crop, mode, protect, compost, HerbRunCure.PLANT_CURE, observations, storage, now);
+    }
+    public FieldRunPlan plan(AccountState account, Set<FieldPatchDefinition> selected, FieldRunCrop crop, FieldRunMode mode,
+            boolean protect, FieldRunCompost compost, HerbRunCure cure, Map<FieldPatchDefinition, FieldPatchObservation> observations, StorageSnapshot storage, Instant now)
+    {
         List<FieldRunStop> stops = new ArrayList<>(); List<SupplyRequirement> supplies = new ArrayList<>();
         Map<FieldPatchDefinition, String> excluded = new EnumMap<>(FieldPatchDefinition.class); List<String> warnings = new ArrayList<>();
         String blocker = account == null || !account.isLoggedIn() ? "Log in to plan a field run."
                 : account.getBoostedFarmingLevel() < crop.getRequiredLevel() ? crop + " requires " + crop.getRequiredLevel() + " Farming (boostable)." : "";
-        if (!blocker.isEmpty()) { return new FieldRunPlan(crop, mode, stops, List.of(), excluded, warnings, blocker, compost); }
+        if (!blocker.isEmpty()) { return new FieldRunPlan(crop, mode, stops, List.of(), excluded, warnings, blocker, compost, cure); }
         int replants = 0, payments = 0, disease = 0;
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
@@ -64,6 +69,11 @@ public final class FieldRunPlanner
             if (condition == FieldPatchCondition.DISEASED) { disease++; }
             stops.add(new FieldRunStop(patch, action(condition, keep), replant));
         }
+        if (crop.getCrop().getFamily() == FieldFamily.SEAWEED && (compost.isSpell() && replants > 0 || cure == HerbRunCure.CURE_PLANT && disease > 0))
+        {
+            return new FieldRunPlan(crop, mode, List.of(), List.of(), excluded, warnings,
+                    "Underwater spell care is unverified. Choose bucket compost and plant cure for this seaweed plan.", compost, cure);
+        }
         if (!stops.isEmpty())
         {
             warnings.add("Order follows the patch catalogue. Travel is manual until a verified transport is selected.");
@@ -90,7 +100,7 @@ public final class FieldRunPlanner
                         crop.getSeedsPerPatch() + " seeds/spores per possible planting; seed-saving equipment is not assumed."));
                 supplies.add(new SupplyRequirement(ItemID.DIBBER, "Seed dibber", 1, false, "Planting tool; Barbarian Training is not checked."));
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true, "For weeds; auto-weed is not checked."));
-                if (compost != FieldRunCompost.NONE)
+                if (compost != FieldRunCompost.NONE && !compost.isSpell())
                 {
                     supplies.add(new SupplyRequirement(compost.getItemId(), compost + " (apply to plots)", compost.isBottomless() ? 1 : replants, false,
                             compost.isBottomless()
@@ -98,14 +108,19 @@ public final class FieldRunPlanner
                                             + " uses. Item presence does not verify contents; it cannot replace farmer payments."
                                     : "One unnoted filled bucket per possible new planting, separate from farmer payments. Application is confirmed manually."));
                 }
-                else { warnings.add("No compost application supplies are reserved."); }
+                else if (compost == FieldRunCompost.NONE) { warnings.add("No compost application supplies are reserved."); }
+                if (compost == FieldRunCompost.FERTILE_SOIL_ULTRA)
+                {
+                    supplies.add(new SupplyRequirement(ItemID.FOSSIL_VOLCANIC_ASH, "Volcanic ash", 2L * replants, false,
+                            "Two per potential Fertile Soil ultracompost cast; the ash-covered tome unlock must be confirmed."));
+                }
                 if (protect && crop.hasFarmerProtection()) { crop.protectionPayment(payments).ifPresent(supplies::add); }
                 else if (crop.hasFarmerProtection()) { warnings.add("Farmer protection is disabled. No payment is reserved."); }
                 else { warnings.add(crop.getCrop().getFamily().getLabel() + " have no farmer protection payment."); }
             }
             if (disease > 0) { supplies.add(new SupplyRequirement(ItemID.PLANT_CURE, "Plant cure", disease, false, "Cure diseased field crops; no replacement seed/payment is reserved for those stops.")); }
         }
-        return new FieldRunPlan(crop, mode, stops, new LoadoutService().evaluateInOrder(supplies, storage), excluded, warnings, "", compost);
+        return new FieldRunPlan(crop, mode, stops, new LoadoutService().evaluateInOrder(supplies, storage), excluded, warnings, "", compost, cure);
     }
     private String action(FieldPatchCondition condition, boolean keep)
     {

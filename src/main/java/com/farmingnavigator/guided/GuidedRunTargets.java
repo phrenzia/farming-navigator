@@ -326,6 +326,7 @@ public final class GuidedRunTargets
                     });
                     plan.getStops().forEach(stop -> addTransport(inventory, bank, stop.getRecommended(), travel, houseEntryMode));
                     if (plan.getTransportResources() != null) { bank.addAll(plan.getTransportResources().getBankItems()); }
+                    if (plan.getCareResources() != null) { addRunes(inventory, plan.getCareResources().getRunes(), travel); }
                 }
                 break;
             case TRAVEL:
@@ -359,8 +360,21 @@ public final class GuidedRunTargets
                     session.getCrop().protectionPayment(1).ifPresent(payment -> inventory.addAll(payment.getAcceptedItemIds()));
                 }
                 break;
-            case CURE: inventory.add(ItemID.PLANT_CURE); break;
-            case COMPOST: if (session.getCompost().getItemId() > 0) { inventory.add(session.getCompost().getItemId()); } break;
+            case CURE:
+                if (session.getCure() == HerbRunCure.CURE_PLANT)
+                {
+                    spellCost = HerbRunCareResources.CURE_PLANT_COST; addRunes(inventory, spellCost, travel);
+                }
+                else { inventory.add(ItemID.PLANT_CURE); }
+                break;
+            case COMPOST:
+                if (session.getCompost().isSpell())
+                {
+                    spellCost = HerbRunCareResources.FERTILE_SOIL_COST; addRunes(inventory, spellCost, travel);
+                    if (session.getCompost() == com.farmingnavigator.routing.run.FieldRunCompost.FERTILE_SOIL_ULTRA) { inventory.add(ItemID.FOSSIL_VOLCANIC_ASH); }
+                }
+                else if (session.getCompost().getItemId() > 0) { inventory.add(session.getCompost().getItemId()); }
+                break;
             default: break;
         }
         RunePreparation preparation = plan == null || plan.getTransportResources() == null ? null : plan.getTransportResources().getRunePreparation();

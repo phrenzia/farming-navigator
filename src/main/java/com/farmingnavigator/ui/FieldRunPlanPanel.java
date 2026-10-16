@@ -37,6 +37,7 @@ public final class FieldRunPlanPanel extends JPanel
         add(text(plan.getCrop() + " - " + plan.getStops().size() + " stops", Color.WHITE));
         add(text(plan.getMode().toString(), MUTED));
         add(text("Compost: " + plan.getCompost(), MUTED));
+        add(text("Disease treatment: " + plan.getCure(), MUTED));
         add(text("Choose field crop, patches, mature flower mode, compost and protection in plugin settings.", MUTED));
         if (!plan.getBlocker().isEmpty()) { add(text(plan.getBlocker(), WARNING)); return; }
         JPanel details = new JPanel();
@@ -82,9 +83,16 @@ public final class FieldRunPlanPanel extends JPanel
             }
             details.add(text(stop.getAction(), MUTED));
         }
+        if (plan.getCareResources() != null)
+        {
+            details.add(Box.createVerticalStrut(7)); details.add(text("Field care access", Color.WHITE));
+            plan.getCareResources().getChecks().forEach(check -> {
+                details.add(text(check.getRequirement() + ": " + check.getDetail(), check.isReadyNow() ? MUTED : WARNING));
+            });
+        }
         if (plan.getTransportResources() != null)
         {
-            details.add(Box.createVerticalStrut(7)); details.add(text("Shared field travel supplies", Color.WHITE));
+            details.add(Box.createVerticalStrut(7)); details.add(text("Shared field travel and care supplies", Color.WHITE));
             plan.getTransportResources().getChecks().forEach(check -> {
                 details.add(text(check.getRequirement() + ": " + (check.isReadyNow() ? "Ready now"
                         : check.requiresBankWithdrawal() ? "Available from bank"

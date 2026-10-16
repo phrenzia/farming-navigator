@@ -15,6 +15,9 @@ public final class FieldRunPlan
     private final FieldRunCrop crop;
     private final FieldRunMode mode;
     private final FieldRunCompost compost;
+    private final HerbRunCure cure;
+    private final HerbRunCareResources careResources;
+    private final List<SupplyCheck> plannedSupplies;
     private final List<FieldRunStop> stops;
     private final List<SupplyCheck> supplies;
     private final Map<FieldPatchDefinition, String> excluded;
@@ -29,18 +32,28 @@ public final class FieldRunPlan
     FieldRunPlan(FieldRunCrop crop, FieldRunMode mode, List<FieldRunStop> stops, List<SupplyCheck> supplies,
             Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost)
     {
-        this(crop, mode, stops, supplies, excluded, warnings, blocker, compost, null);
+        this(crop, mode, stops, supplies, excluded, warnings, blocker, compost, HerbRunCure.PLANT_CURE);
+    }
+    FieldRunPlan(FieldRunCrop crop, FieldRunMode mode, List<FieldRunStop> stops, List<SupplyCheck> supplies,
+            Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost, HerbRunCure cure)
+    {
+        this(crop, mode, stops, supplies, excluded, warnings, blocker, compost, cure, null, null);
     }
     private FieldRunPlan(FieldRunCrop crop, FieldRunMode mode, List<FieldRunStop> stops, List<SupplyCheck> supplies,
-            Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost, RunTransportResources resources)
+            Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost, HerbRunCure cure, RunTransportResources resources, HerbRunCareResources careResources)
     {
-        this.crop = crop; this.mode = mode; this.compost = compost; this.stops = List.copyOf(stops); this.supplies = List.copyOf(supplies);
+        this.crop = crop; this.mode = mode; this.compost = compost; this.stops = List.copyOf(stops); this.plannedSupplies = List.copyOf(supplies);
+        this.cure = cure; this.careResources = careResources;
+        this.supplies = List.copyOf(supplies.stream().filter(check -> cure != HerbRunCure.CURE_PLANT
+                || check.getRequirement().getItemId() != net.runelite.api.gameval.ItemID.PLANT_CURE).collect(java.util.stream.Collectors.toList()));
         EnumMap<FieldPatchDefinition, String> copy = new EnumMap<>(FieldPatchDefinition.class); copy.putAll(excluded);
         this.excluded = Collections.unmodifiableMap(copy); this.warnings = List.copyOf(warnings); this.blocker = blocker; this.transportResources = resources;
     }
     public FieldRunCrop getCrop() { return crop; }
     public FieldRunMode getMode() { return mode; }
     public FieldRunCompost getCompost() { return compost; }
+    public HerbRunCure getCure() { return cure; }
+    public HerbRunCareResources getCareResources() { return careResources; }
     public List<FieldRunStop> getStops() { return stops; }
     public List<SupplyCheck> getSupplies() { return supplies; }
     public Map<FieldPatchDefinition, String> getExcluded() { return excluded; }
@@ -60,6 +73,12 @@ public final class FieldRunPlan
                     : stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
             previousRegion = region;
         }
-        return new FieldRunPlan(crop, mode, routed, supplies, excluded, warnings, blocker, compost, new RunTransportResourcePlanner().evaluate(routed, context));
+        int diseaseCount = (int) plannedSupplies.stream().filter(check -> check.getRequirement().getItemId() == net.runelite.api.gameval.ItemID.PLANT_CURE)
+                .mapToLong(check -> check.getRequirement().getQuantity()).sum();
+        HerbRunCareResources care = HerbRunCareResources.evaluateCounts(stops.stream().filter(FieldRunStop::isReplant).count(),
+                diseaseCount, cure, HerbRunCompost.valueOf(compost.name()),
+                context != null && context.getConfig() != null && context.getConfig().fieldAshTomeRead(), context);
+        return new FieldRunPlan(crop, mode, routed, plannedSupplies, excluded, warnings, blocker, compost, cure,
+                new RunTransportResourcePlanner().evaluate(routed, context, care.getRunes()), care);
     }
 }

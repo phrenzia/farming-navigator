@@ -320,6 +320,14 @@ public interface FarmingNavigatorConfig
             description = "Summarize selected accessible patches across all supported crop families with conditional future windows", position = 39, section = GENERAL_SECTION)
     default boolean showReadinessDashboard() { return true; }
 
+    @ConfigItem(keyName = "fieldRunCure", name = "Field disease treatment",
+            description = "Use plant cure or Lunar Cure Plant; spell runes share the travel budget", position = 40, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.HerbRunCure fieldRunCure() { return com.farmingnavigator.routing.run.HerbRunCure.PLANT_CURE; }
+
+    @ConfigItem(keyName = "fieldAshTomeRead", name = "Field ash-covered tome read",
+            description = "Manually declare the tome unlock for field Fertile Soil ultracompost; this is not automatically verified", position = 41, section = GENERAL_SECTION)
+    default boolean fieldAshTomeRead() { return false; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

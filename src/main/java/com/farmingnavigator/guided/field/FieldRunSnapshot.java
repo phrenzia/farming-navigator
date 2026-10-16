@@ -8,6 +8,7 @@ import java.time.Duration;
 public final class FieldRunSnapshot
 {
     private final FieldRunStep step;
+    private final com.farmingnavigator.routing.run.HerbRunCure cure;
     private final FieldRunCrop crop;
     private final FieldRunMode mode;
     private final FieldRunStop stop;
@@ -23,10 +24,19 @@ public final class FieldRunSnapshot
             int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
             com.farmingnavigator.routing.run.FieldRunCompost compost)
     {
+        this(step, crop, mode, stop, total, completed, manual, skipped, protectionConfirmed, elapsed, compost,
+                com.farmingnavigator.routing.run.HerbRunCure.PLANT_CURE);
+    }
+    FieldRunSnapshot(FieldRunStep step, FieldRunCrop crop, FieldRunMode mode, FieldRunStop stop,
+            int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
+            com.farmingnavigator.routing.run.FieldRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure)
+    {
+        this.cure = cure;
         this.compost = compost;
         this.step = step; this.crop = crop; this.mode = mode; this.stop = stop; this.total = total;
         this.completed = completed; this.manual = manual; this.skipped = skipped; this.protectionConfirmed = protectionConfirmed; this.elapsed = elapsed;
     }
+    public com.farmingnavigator.routing.run.HerbRunCure getCure() { return cure; }
     public FieldRunStep getStep() { return step; }
     public FieldRunCrop getCrop() { return crop; }
     public FieldRunMode getMode() { return mode; }
@@ -53,11 +63,15 @@ public final class FieldRunSnapshot
             case CLEAR: return "Clear the dead crop with a spade. Wait for a fresh empty-patch observation.";
             case RAKE: return "Rake until the plot is empty.";
             case COMPOST:
+                if (compost.isSpell()) { return "Cast Fertile Soil on this plot, then confirm manually. Compost application is not automatically verified."
+                        + (compost == com.farmingnavigator.routing.run.FieldRunCompost.FERTILE_SOIL_ULTRA
+                                ? " The ash-covered tome and two volcanic ash per cast are required." : " Without ash, the spell applies supercompost; carried ash may upgrade it if the tome is read."); }
                 if (compost.isBottomless()) { return "Check your selected bottomless bucket's compost type and remaining uses, apply it to this plot, then confirm manually. Contents and application are not automatically verified; farmer payments are separate."; }
                 return "Apply one unnoted bucket of " + compost + " to this plot, then confirm manually. Current compost state and application are not automatically verified; farmer payments are separate.";
             case PLANT: return "Use a seed dibber to plant " + crop.getSeedsPerPatch() + " " + crop + " seed/spore(s). Seed saving and Barbarian Training are not assumed. Watering is not guided yet.";
             case PROTECT: return "Pay the gardener for protection, then confirm manually. The checklist does not verify the payment.";
-            case CURE: return "Use plant cure on this diseased crop. Wait for healthy growth or harvestable state of the same crop.";
+            case CURE: return (cure == com.farmingnavigator.routing.run.HerbRunCure.CURE_PLANT ? "Cast Lunar Cure Plant" : "Use plant cure")
+                    + " on this diseased crop. Wait for healthy growth or harvestable state of the same crop.";
             case SCARECROW: return "Scarecrow present. Keep it or remove it manually and prepare a new plan; this checklist does not assume removal or flower planting.";
             case WAIT: return "The crop is growing. Wait or skip; time alone does not prove harvest readiness.";
             case COMPLETE: return "Field run complete: " + completed + " completed, " + manual + " completed manually, " + skipped
