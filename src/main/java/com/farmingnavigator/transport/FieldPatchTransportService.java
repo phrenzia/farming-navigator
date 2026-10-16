@@ -21,6 +21,7 @@ public final class FieldPatchTransportService
         List<TransportOption> guild = new GardenPatchTransportService().getAllOptions().get(GardenPatchDefinition.FARMING_GUILD_BUSH);
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
+            if (patch.getFamily()==com.farmingnavigator.farming.field.FieldFamily.ANIMA) { continue; }
             FieldPatchRegion region = FieldPatchRegion.forLocation(patch.getLocation());
             List<TransportOption> arrivals;
             switch (region)

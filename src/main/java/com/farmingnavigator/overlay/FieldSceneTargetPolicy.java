@@ -49,7 +49,8 @@ public final class FieldSceneTargetPolicy
     }
     public static boolean isFarmerFor(FieldPatchDefinition patch, int id, WorldPoint location)
     {
-        if (patch == null || patch.getFamily() == FieldFamily.FLOWER) { return false; }
+        if (patch == null || patch.getFamily() == FieldFamily.FLOWER || patch.getFamily() == FieldFamily.GRAPES
+                || patch.getFamily() == FieldFamily.CORAL || patch.getFamily() == FieldFamily.ANIMA) { return false; }
         FieldPatchRegion region = FieldPatchRegion.forLocation(location);
         if (region == null || !region.getPatches().contains(patch) || patch.getLocation().distanceTo2D(location) > 25) { return false; }
         switch (region)

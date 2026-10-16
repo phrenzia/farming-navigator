@@ -28,7 +28,7 @@ public class FieldPatchStateDecoderTest
                         fields[2] + "|" + fields[3] + "|" + fields[4] + "|" + fields[5]});
             }
         }
-        assertEquals(2080, cases.size());
+        assertEquals(2340, cases.size());
         return cases;
     }
 

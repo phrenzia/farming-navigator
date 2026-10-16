@@ -16,7 +16,7 @@ public class FieldObservationTest
     private final Instant now = Instant.parse("2026-10-15T12:00:00Z");
     private final FieldPatchObservationStore store = new FieldPatchObservationStore();
     private final FieldPatchObservationSampler sampler = new FieldPatchObservationSampler(store);
-    @Test public void allFiftyPatchAnchorsBelongToOneRegionAndGuildChannelsAreDistinct()
+    @Test public void allFiftyOnePatchAnchorsBelongToOneRegionAndGuildChannelsAreDistinct()
     {
         Set<FieldPatchDefinition> found = EnumSet.noneOf(FieldPatchDefinition.class);
         for (FieldPatchRegion region : FieldPatchRegion.values())
@@ -29,7 +29,7 @@ public class FieldObservationTest
                 assertNull(FieldPatchRegion.forLocation(new WorldPoint(patch.getLocation().getX(), patch.getLocation().getY(), 1)));
             }
         }
-        assertEquals(50, found.size()); assertEquals(EnumSet.allOf(FieldPatchDefinition.class), found);
+        assertEquals(51, found.size()); assertEquals(EnumSet.allOf(FieldPatchDefinition.class), found);
         assertNull(FieldPatchRegion.forLocation(null)); assertNull(FieldPatchRegion.forLocation(new WorldPoint(0, 0, 0)));
     }
     @Test public void threeDistinctTicksReadOnlyTheCurrentRegionChannels()
@@ -39,11 +39,11 @@ public class FieldObservationTest
         {
             assertEquals(tick == 3, sampler.sample(FieldPatchDefinition.FARMING_GUILD_NORTH.getLocation(), true, false, false, tick, id -> {
                 reads.incrementAndGet();
-                assertTrue(id == VarbitID.FARMING_TRANSMIT_C || id == VarbitID.FARMING_TRANSMIT_D || id == VarbitID.FARMING_TRANSMIT_H);
+                assertTrue(id == VarbitID.FARMING_TRANSMIT_C || id == VarbitID.FARMING_TRANSMIT_D || id == VarbitID.FARMING_TRANSMIT_H || id == VarbitID.FARMING_TRANSMIT_M);
                 return id == VarbitID.FARMING_TRANSMIT_H ? 41 : id == VarbitID.FARMING_TRANSMIT_D ? 17 : 10;
             }, now.plusSeconds(tick), FarmingGrowthRate.NORMAL));
         }
-        assertEquals(3, reads.get()); assertEquals(3, store.snapshot().size());
+        assertEquals(4, reads.get()); assertEquals(4, store.snapshot().size());
         assertEquals(FieldCrop.POTATO, store.snapshot().get(FieldPatchDefinition.FARMING_GUILD_NORTH).getState().getCrop());
         assertEquals(FieldCrop.WHITE_LILY, store.snapshot().get(FieldPatchDefinition.FARMING_GUILD_FLOWER).getState().getCrop());
         assertEquals(FieldCrop.ONION, store.snapshot().get(FieldPatchDefinition.FARMING_GUILD_SOUTH).getState().getCrop());

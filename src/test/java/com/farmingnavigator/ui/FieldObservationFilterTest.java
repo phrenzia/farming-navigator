@@ -36,7 +36,7 @@ public class FieldObservationFilterTest
             assertTrue(labels(panel).contains("Last observed harvestable: 1")); assertFalse(labels(panel).contains("Falador - North west"));
             assertTrue(labels(panel).contains("No grape planting checklist"));
             JComboBox<?> filter=filter(panel); assertNotNull(filter); filter.setSelectedIndex(0); assertNull(changed.get());
-            assertTrue(labels(panel).contains("Observed patches: 3 / 50")); assertTrue(labels(panel).contains("Falador - North west"));
+            assertTrue(labels(panel).contains("Observed patches: 3 / 51")); assertTrue(labels(panel).contains("Falador - North west"));
             filter.setSelectedItem(FieldFamily.GRAPES.getLabel()); assertEquals(FieldFamily.GRAPES,changed.get());
             panel.setSize(225,panel.getPreferredSize().height); layout(panel);
             BufferedImage image=new BufferedImage(225,panel.getHeight(),BufferedImage.TYPE_INT_RGB); Graphics2D graphics=image.createGraphics(); panel.printAll(graphics); graphics.dispose();
@@ -60,6 +60,23 @@ public class FieldObservationFilterTest
             BufferedImage image=new BufferedImage(225,panel.getHeight(),BufferedImage.TYPE_INT_RGB); Graphics2D graphics=image.createGraphics(); panel.printAll(graphics); graphics.dispose();
             File dir=new File("build/verification"); dir.mkdirs();
             try { ImageIO.write(image,"png",new File(dir,"coral-observations.png")); } catch(Exception ex) { throw new AssertionError(ex); }
+        });
+    }
+    @Test public void animaWitheringIsNotShownAsHarvestReadinessOrOrdinaryDisease() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            Instant now=Instant.parse("2026-10-16T12:00:00Z");
+            FieldObservationsPanel panel=new FieldObservationsPanel(Map.of(FieldPatchDefinition.FARMING_GUILD_ANIMA,
+                    observation(FieldFamily.ANIMA,33,now)),now,true,value -> {},FieldFamily.ANIMA,value -> {});
+            assertTrue(labels(panel).contains("Observed patches: 1 / 1"));
+            assertTrue(labels(panel).contains("Last observed harvestable: 0; diseased or dead: 0"));
+            assertTrue(labels(panel).contains("Last observed living anima: 0; withering: 1"));
+            assertTrue(labels(panel).contains("Kronos - Withering anima"));
+            assertTrue(labels(panel).contains("expiry times are not calculated")); assertFalse(labels(panel).contains("Estimated harvest in"));
+            panel.setSize(225,Math.max(650,panel.getPreferredSize().height)); layout(panel);
+            BufferedImage image=new BufferedImage(225,panel.getHeight(),BufferedImage.TYPE_INT_RGB); Graphics2D graphics=image.createGraphics(); panel.printAll(graphics); graphics.dispose();
+            File dir=new File("build/verification"); dir.mkdirs();
+            try { ImageIO.write(image,"png",new File(dir,"anima-observations.png")); } catch(Exception ex) { throw new AssertionError(ex); }
         });
     }
     @Test public void rootSidebarRetainsFamilyFilterWhenObservationsRefresh() throws Exception

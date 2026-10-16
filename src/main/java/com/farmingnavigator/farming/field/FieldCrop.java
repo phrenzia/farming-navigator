@@ -59,7 +59,10 @@ public enum FieldCrop
     GRAPE("Grape", FieldFamily.GRAPES, 5, 8),
     ELKHORN_CORAL("Elkhorn coral", FieldFamily.CORAL, 40, 5),
     PILLAR_CORAL("Pillar coral", FieldFamily.CORAL, 40, 5),
-    UMBRAL_CORAL("Umbral coral", FieldFamily.CORAL, 40, 5);
+    UMBRAL_CORAL("Umbral coral", FieldFamily.CORAL, 40, 5),
+    ATTAS("Attas", FieldFamily.ANIMA, 640, 9),
+    IASOR("Iasor", FieldFamily.ANIMA, 640, 9),
+    KRONOS("Kronos", FieldFamily.ANIMA, 640, 9);
     private final String label;
     private final FieldFamily family;
     private final int growthCycleMinutes;

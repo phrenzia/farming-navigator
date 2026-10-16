@@ -68,6 +68,14 @@ public final class FieldPatchStateDecoder
     public FieldPatchState decode(FieldFamily family, int raw)
     {
         if (family == null || raw < 0 || raw > 255) { return state(raw, FieldCrop.UNKNOWN, FieldPatchCondition.UNKNOWN, -1); }
+        // Anima stages describe a lifecycle, not growth toward a harvest. Cache comments identify withering/dead forms.
+        if (family == FieldFamily.ANIMA && raw>=4)
+        {
+            if (raw<=7 || raw>=35) { return state(raw,FieldCrop.UNKNOWN,FieldPatchCondition.EMPTY,3); }
+            int kind=(raw-8)/9,stage=(raw-8)%9;
+            FieldCrop crop=kind==0?FieldCrop.ATTAS:kind==1?FieldCrop.IASOR:FieldCrop.KRONOS;
+            return state(raw,crop,stage==8?FieldPatchCondition.DEAD:stage==7?FieldPatchCondition.WITHERING_ANIMA:FieldPatchCondition.LIVING_ANIMA,stage);
+        }
         // The vineyard uses separate four-bit channels. Raw 1 includes fertiliser, not ordinary compost/watering proof.
         if (family == FieldFamily.GRAPES)
         {

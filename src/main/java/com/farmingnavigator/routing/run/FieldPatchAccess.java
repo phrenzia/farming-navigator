@@ -10,6 +10,8 @@ public final class FieldPatchAccess
     public String missingRequirement(FieldPatchDefinition patch, AccountState account)
     {
         if (account == null || !account.isLoggedIn()) { return "Log in to check patch access."; }
+        if (patch.getFamily()==com.farmingnavigator.farming.field.FieldFamily.ANIMA)
+        { return "Data required: anima patch entry and planting conditions have not been verified; observations remain available."; }
         FieldPatchRegion region = FieldPatchRegion.forLocation(patch.getLocation());
         switch (region)
         {

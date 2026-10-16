@@ -39,7 +39,7 @@ public enum FieldPatchRegion
     FALADOR(new int[]{12083}, FieldPatchDefinition.FALADOR_NORTH, FieldPatchDefinition.FALADOR_SOUTH, FieldPatchDefinition.FALADOR_FLOWER),
     HOSIDIUS(new int[]{6967, 6711}, FieldPatchDefinition.HOSIDIUS_NORTH, FieldPatchDefinition.HOSIDIUS_SOUTH, FieldPatchDefinition.HOSIDIUS_FLOWER),
     MORYTANIA(new int[]{14391, 14390}, FieldPatchDefinition.MORYTANIA_NORTH, FieldPatchDefinition.MORYTANIA_SOUTH, FieldPatchDefinition.MORYTANIA_FLOWER),
-    FARMING_GUILD(new int[]{4922, 5177, 5178, 5179, 4921, 4923, 4665, 4666, 4667}, FieldPatchDefinition.FARMING_GUILD_NORTH, FieldPatchDefinition.FARMING_GUILD_SOUTH, FieldPatchDefinition.FARMING_GUILD_FLOWER),
+    FARMING_GUILD(new int[]{4922, 5177, 5178, 5179, 4921, 4923, 4665, 4666, 4667}, FieldPatchDefinition.FARMING_GUILD_NORTH, FieldPatchDefinition.FARMING_GUILD_SOUTH, FieldPatchDefinition.FARMING_GUILD_FLOWER, FieldPatchDefinition.FARMING_GUILD_ANIMA),
     PRIFDDINAS(new int[]{13151, 12895, 12894, 13150, 12994, 12993, 12737, 12738, 12126, 12127, 13250}, FieldPatchDefinition.PRIFDDINAS_NORTH, FieldPatchDefinition.PRIFDDINAS_SOUTH, FieldPatchDefinition.PRIFDDINAS_FLOWER),
     HARMONY_ISLAND(new int[]{15148}, FieldPatchDefinition.HARMONY_ISLAND_ALLOTMENT),
     KASTORI(new int[]{5423, 5167, 5424}, FieldPatchDefinition.KASTORI_FLOWER),

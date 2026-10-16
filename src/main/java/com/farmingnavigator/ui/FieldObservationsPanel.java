@@ -61,6 +61,11 @@ public final class FieldObservationsPanel extends JPanel
         long collectable=valid.entrySet().stream().filter(entry -> selected==null || entry.getKey().getFamily()==selected)
                 .filter(entry -> entry.getValue().getState().getCondition()==FieldPatchCondition.COLLECTABLE).count();
         if(collectable>0) { summary.add(text("Last observed collect option: " + collectable + "; quantity unknown.",ColorScheme.LIGHT_GRAY_COLOR)); }
+        long living=valid.entrySet().stream().filter(entry -> selected==null || entry.getKey().getFamily()==selected)
+                .filter(entry -> entry.getValue().getState().getCondition()==FieldPatchCondition.LIVING_ANIMA).count();
+        long withering=valid.entrySet().stream().filter(entry -> selected==null || entry.getKey().getFamily()==selected)
+                .filter(entry -> entry.getValue().getState().getCondition()==FieldPatchCondition.WITHERING_ANIMA).count();
+        if(selected==FieldFamily.ANIMA || living+withering>0) { summary.add(text("Last observed living anima: " + living + "; withering: " + withering + ".",ColorScheme.LIGHT_GRAY_COLOR)); }
         for(FieldFamily family:FieldFamily.values())
         {
             if(selected!=null && selected!=family) { continue; }
@@ -72,6 +77,8 @@ public final class FieldObservationsPanel extends JPanel
             }
             if(family==FieldFamily.CORAL)
             { plots.add(text("Coral nursery observations only. Entry, planting, pruning, protection and travel are unverified; no planting checklist is offered.",ColorScheme.LIGHT_GRAY_COLOR)); }
+            if(family==FieldFamily.ANIMA)
+            { plots.add(text("Anima observations only. Effects, Kronos growth skips and expiry times are not calculated. Withering is separate from ordinary crop disease. Entry and planting conditions are unverified; no planting checklist is offered.",ColorScheme.LIGHT_GRAY_COLOR)); }
             for(FieldPatchDefinition patch:FieldPatchDefinition.values())
             {
                 if(patch.getFamily()!=family) { continue; }

@@ -14,10 +14,10 @@ public class FieldSceneTargetPolicyTest
     {
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
-            if ((patch.getFamily() == FieldFamily.GRAPES || patch.getFamily() == FieldFamily.CORAL))
+            if ((patch.getFamily() == FieldFamily.GRAPES || patch.getFamily() == FieldFamily.CORAL || patch.getFamily() == FieldFamily.ANIMA))
             {
                 assertNull(FieldSceneTargetPolicy.fieldPatch(ObjectID.FARMING_BELLADONNA_PATCH,patch.getVarbit(),patch.getLocation()));
-                continue; // Vineyard guidance/object bases are not implemented.
+                continue; // Observation-only families have no guided object bases.
             }
             int base = patch.getFamily() == FieldFamily.ALLOTMENT ? ObjectID.FARMING_VEG_PATCH_1 : patch.getFamily() == FieldFamily.FLOWER ? ObjectID.FARMING_FLOWER_PATCH_1 : patch.getFamily() == FieldFamily.HOPS ? ObjectID.FARMING_HOPS_PATCH_1
                     : patch.getFamily() == FieldFamily.SEAWEED ? ObjectID.FARMING_SEAWEED_PATCH_1
