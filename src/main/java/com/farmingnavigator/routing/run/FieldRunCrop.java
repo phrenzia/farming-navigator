@@ -5,7 +5,11 @@ import com.farmingnavigator.loadout.SupplyRequirement;
 import java.util.Optional;
 import net.runelite.api.gameval.ItemID;
 
-/** Three seeds per allotment, one per flower, four per hops plot except three for jute. Farmer payments use the exact full container or produce requested. */
+/** Verified seed/spore counts and protection. Seaweed: one spore and 200 numulites; mushroom/belladonna: one, no farmer.
+ * https://oldschoolrunescape.fandom.com/wiki/Seaweed_spore
+ * https://oldschoolrunescape.fandom.com/wiki/Mushroom_patch
+ * https://oldschoolrunescape.fandom.com/wiki/Farming
+ */
 public enum FieldRunCrop
 {
     POTATO(FieldCrop.POTATO, 1, ItemID.POTATO_SEED, ItemID.BUCKET_COMPOST, ItemID.Cert.BUCKET_COMPOST, 2, "Compost (farmer payment)"),
@@ -28,7 +32,10 @@ public enum FieldRunCrop
     JUTE(FieldCrop.JUTE, 13, ItemID.JUTE_SEED, ItemID.BARLEY_MALT, ItemID.Cert.BARLEY_MALT, 6, "Barley malt"),
     YANILLIAN(FieldCrop.YANILLIAN, 16, ItemID.YANILLIAN_HOP_SEED, ItemID.BASKET_TOMATO_5, ItemID.Cert.BASKET_TOMATO_5, 1, "Tomatoes (full basket of 5)"),
     KRANDORIAN(FieldCrop.KRANDORIAN, 21, ItemID.KRANDORIAN_HOP_SEED, ItemID.SACK_CABBAGE_10, ItemID.Cert.SACK_CABBAGE_10, 3, "Cabbages (full sack of 10)"),
-    WILDBLOOD(FieldCrop.WILDBLOOD, 28, ItemID.WILDBLOOD_HOP_SEED, ItemID.NASTURTIUM, ItemID.Cert.NASTURTIUM, 1, "Nasturtium");
+    WILDBLOOD(FieldCrop.WILDBLOOD, 28, ItemID.WILDBLOOD_HOP_SEED, ItemID.NASTURTIUM, ItemID.Cert.NASTURTIUM, 1, "Nasturtium"),
+    SEAWEED(FieldCrop.SEAWEED, 23, ItemID.SEAWEED_SEED, ItemID.FOSSIL_NUMULITE, 0, 200, "Numulite (Mernia protection)"),
+    MUSHROOM(FieldCrop.MUSHROOM, 53, ItemID.MUSHROOM_SEED, 0, 0, 0, ""),
+    BELLADONNA(FieldCrop.BELLADONNA, 63, ItemID.BELLADONNA_SEED, 0, 0, 0, "");
     private final FieldCrop crop;
     private final int level, seedId, paymentId, notedPaymentId, paymentQuantity;
     private final String paymentName;
@@ -54,7 +61,9 @@ public enum FieldRunCrop
     {
         if (!hasFarmerProtection() || replants <= 0) { return Optional.empty(); }
         return Optional.of(new SupplyRequirement(paymentId, paymentName, (long) paymentQuantity * replants, false,
-                "Farmer protection for potential replants; noted or unnoted payment accepted. Pay after planting.", notedPaymentId));
+                notedPaymentId == 0 ? "Protection for potential replants; bring the unnoted payment. Pay after planting."
+                        : "Farmer protection for potential replants; noted or unnoted payment accepted. Pay after planting.",
+                notedPaymentId == 0 ? new int[0] : new int[]{notedPaymentId}));
     }
     @Override public String toString() { return crop.getLabel(); }
 }

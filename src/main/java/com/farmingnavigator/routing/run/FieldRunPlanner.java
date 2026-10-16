@@ -72,11 +72,22 @@ public final class FieldRunPlanner
             {
                 warnings.add("Keep mature flowers, including a different observed flower crop. No replacement seed is reserved; reprepare if you harvest them.");
             }
+            if (crop.getCrop().getFamily() == FieldFamily.SEAWEED)
+            {
+                warnings.add("Underwater visit: check air supply, diving equipment and current item restrictions yourself. Equipment is optional here, not verified as safe to dive.");
+                supplies.add(new SupplyRequirement(ItemID.HUNDRED_PIRATE_DIVING_HELMET, "Fishbowl helmet", 1, true, "Recommended together with diving apparatus; equip and check air supply manually."));
+                supplies.add(new SupplyRequirement(ItemID.HUNDRED_PIRATE_DIVING_BACKPACK, "Diving apparatus", 1, true, "Recommended together with fishbowl helmet; diving restrictions are not checked."));
+            }
+            if (crop.getCrop().getFamily() == FieldFamily.BELLADONNA)
+            {
+                warnings.add("Equip suitable gloves before picking belladonna to avoid poison damage. Leather gloves are suggested; other glove variants are not checked.");
+                supplies.add(new SupplyRequirement(ItemID.LEATHER_GLOVES, "Leather gloves (or check your gloves)", 1, true, "Equip suitable gloves before harvesting belladonna; alternative glove types are not automatically checked."));
+            }
             supplies.add(new SupplyRequirement(ItemID.SPADE, "Spade", 1, false, "Harvest allotments or clear dead crops."));
             if (replants > 0)
             {
-                supplies.add(new SupplyRequirement(crop.getSeedId(), crop + " seed", (long) replants * crop.getSeedsPerPatch(), false,
-                        crop.getSeedsPerPatch() + " seeds per possible planting; seed-saving equipment is not assumed."));
+                supplies.add(new SupplyRequirement(crop.getSeedId(), crop + " seed/spore", (long) replants * crop.getSeedsPerPatch(), false,
+                        crop.getSeedsPerPatch() + " seeds/spores per possible planting; seed-saving equipment is not assumed."));
                 supplies.add(new SupplyRequirement(ItemID.DIBBER, "Seed dibber", 1, false, "Planting tool; Barbarian Training is not checked."));
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true, "For weeds; auto-weed is not checked."));
                 if (compost != FieldRunCompost.NONE)
@@ -90,7 +101,7 @@ public final class FieldRunPlanner
                 else { warnings.add("No compost application supplies are reserved."); }
                 if (protect && crop.hasFarmerProtection()) { crop.protectionPayment(payments).ifPresent(supplies::add); }
                 else if (crop.hasFarmerProtection()) { warnings.add("Farmer protection is disabled. No payment is reserved."); }
-                else { warnings.add("Flowers have no farmer protection payment."); }
+                else { warnings.add(crop.getCrop().getFamily().getLabel() + " have no farmer protection payment."); }
             }
             if (disease > 0) { supplies.add(new SupplyRequirement(ItemID.PLANT_CURE, "Plant cure", disease, false, "Cure diseased field crops; no replacement seed/payment is reserved for those stops.")); }
         }

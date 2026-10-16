@@ -329,6 +329,10 @@ public final class GuidedRunTargets
                 }
                 break;
             case TRAVEL:
+                if (session.getCrop() == com.farmingnavigator.routing.run.FieldRunCrop.SEAWEED)
+                {
+                    inventory.add(ItemID.HUNDRED_PIRATE_DIVING_HELMET); inventory.add(ItemID.HUNDRED_PIRATE_DIVING_BACKPACK);
+                }
                 addTransport(inventory, bank, session.getStop().getRecommended(), travel, houseEntryMode);
                 destination = session.getStop().getPatch().getLocation(); name = session.getStop().getPatch().getLabel() + " farming area";
                 if (session.getStop().getRecommended() != null && session.getStop().getRecommended().getOption().getTeleportSpellDefinition() != null)
@@ -344,6 +348,7 @@ public final class GuidedRunTargets
                 break;
             case RAKE: inventory.add(ItemID.RAKE); break;
             case HARVEST:
+                if (session.getCrop() == com.farmingnavigator.routing.run.FieldRunCrop.BELLADONNA) { inventory.add(ItemID.LEATHER_GLOVES); }
                 if (session.getStop().getPatch().getFamily() != com.farmingnavigator.farming.field.FieldFamily.FLOWER) { inventory.add(ItemID.SPADE); }
                 break;
             case CLEAR: inventory.add(ItemID.SPADE); break;

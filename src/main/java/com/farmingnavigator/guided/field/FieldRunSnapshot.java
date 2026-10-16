@@ -44,16 +44,18 @@ public final class FieldRunSnapshot
         switch (step)
         {
             case PREPARE: return "Review seeds, tools, protection and shared travel supplies, then confirm readiness.";
-            case TRAVEL: return (stop.isLocalWalk() ? "Walk within the farming area to " : "Travel to ") + stop.getPatch().getLabel() + " and approach the labelled plot.";
+            case TRAVEL: return (stop.isLocalWalk() ? "Walk within the farming area to " : "Travel to ") + stop.getPatch().getLabel() + " and approach the labelled plot."
+                    + (crop == FieldRunCrop.SEAWEED ? " Check your diving equipment, air supply and underwater item restrictions manually." : "");
             case INSPECT: return "Inspect the labelled plot. A fresh nearby observation is required before choosing an action.";
-            case HARVEST: return "Harvest this plot manually until empty. Harvest stages do not prove produce quantity; the checklist waits for a fresh empty-patch observation.";
+            case HARVEST: return (crop == FieldRunCrop.BELLADONNA ? "Equip suitable gloves before picking belladonna to avoid poison damage. " : "")
+                    + "Harvest this plot manually until empty. Harvest stages do not prove produce quantity; the checklist waits for a fresh empty-patch observation.";
             case KEEP_FLOWER: return "Inspect and keep this mature flower. Harvesting it may remove nearby allotment protection. Confirm when finished.";
             case CLEAR: return "Clear the dead crop with a spade. Wait for a fresh empty-patch observation.";
             case RAKE: return "Rake until the plot is empty.";
             case COMPOST:
                 if (compost.isBottomless()) { return "Check your selected bottomless bucket's compost type and remaining uses, apply it to this plot, then confirm manually. Contents and application are not automatically verified; farmer payments are separate."; }
                 return "Apply one unnoted bucket of " + compost + " to this plot, then confirm manually. Current compost state and application are not automatically verified; farmer payments are separate.";
-            case PLANT: return "Use a seed dibber to plant " + crop.getSeedsPerPatch() + " " + crop + " seed(s). Seed saving and Barbarian Training are not assumed. Watering is not guided yet.";
+            case PLANT: return "Use a seed dibber to plant " + crop.getSeedsPerPatch() + " " + crop + " seed/spore(s). Seed saving and Barbarian Training are not assumed. Watering is not guided yet.";
             case PROTECT: return "Pay the gardener for protection, then confirm manually. The checklist does not verify the payment.";
             case CURE: return "Use plant cure on this diseased crop. Wait for healthy growth or harvestable state of the same crop.";
             case SCARECROW: return "Scarecrow present. Keep it or remove it manually and prepare a new plan; this checklist does not assume removal or flower planting.";

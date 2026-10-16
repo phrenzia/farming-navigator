@@ -45,10 +45,12 @@ public class FieldRunPlannerTest
     {
         for (FieldRunCrop crop : FieldRunCrop.values())
         {
-            FieldPatchDefinition patch = crop.getCrop().getFamily() == FieldFamily.ALLOTMENT ? FieldPatchDefinition.FALADOR_NORTH
-                    : crop.getCrop().getFamily() == FieldFamily.HOPS ? FieldPatchDefinition.LUMBRIDGE_HOPS : FieldPatchDefinition.FALADOR_FLOWER;
+            FieldPatchDefinition patch = Map.of(FieldFamily.ALLOTMENT, FieldPatchDefinition.FALADOR_NORTH,
+                    FieldFamily.FLOWER, FieldPatchDefinition.FALADOR_FLOWER, FieldFamily.HOPS, FieldPatchDefinition.LUMBRIDGE_HOPS,
+                    FieldFamily.SEAWEED, FieldPatchDefinition.FOSSIL_ISLAND_SEAWEED_NORTH, FieldFamily.MUSHROOM, FieldPatchDefinition.MORYTANIA_MUSHROOM,
+                    FieldFamily.BELLADONNA, FieldPatchDefinition.DRAYNOR_MANOR_BELLADONNA).get(crop.getCrop().getFamily());
             assertTrue(planner.plan(account(crop.getRequiredLevel()-1), EnumSet.of(patch), crop, FieldRunMode.HARVEST_ALL, true, Map.of(), null, now).getStops().isEmpty());
-            FieldRunPlan result = planner.plan(account(crop.getRequiredLevel()), EnumSet.of(patch), crop, FieldRunMode.HARVEST_ALL, true, Map.of(), null, now);
+            FieldRunPlan result = planner.plan(new AccountState(true, 1, crop.getRequiredLevel(), EnumSet.of(Quest.BONE_VOYAGE, Quest.PRIEST_IN_PERIL), false), EnumSet.of(patch), crop, FieldRunMode.HARVEST_ALL, true, Map.of(), null, now);
             assertEquals(1, result.getStops().size()); assertEquals(crop.getSeedsPerPatch(), supply(result, crop.getSeedId()).getRequirement().getQuantity());
         }
         assertFalse(planner.plan(AccountState.loggedOut(), EnumSet.allOf(FieldPatchDefinition.class), FieldRunCrop.POTATO, FieldRunMode.HARVEST_ALL, true, Map.of(), null, now).getBlocker().isEmpty());

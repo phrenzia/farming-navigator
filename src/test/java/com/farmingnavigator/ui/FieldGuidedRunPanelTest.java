@@ -48,6 +48,30 @@ public class FieldGuidedRunPanelTest
             catch (Exception ex) { throw new AssertionError(ex); }
         });
     }
+    @Test public void belladonnaHarvestExplainsGlovesAndWaitsForObservedEmpty() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            Instant now = Instant.parse("2026-10-15T12:00:00Z"); FieldPatchDefinition patch = FieldPatchDefinition.DRAYNOR_MANOR_BELLADONNA;
+            FieldRunPlan plan = new FieldRunPlanner().plan(new AccountState(true, 99, 99, EnumSet.noneOf(net.runelite.api.Quest.class), false),
+                    EnumSet.of(patch), FieldRunCrop.BELLADONNA, FieldRunMode.KEEP_MATURE_FLOWERS, true, Map.of(), null, now);
+            FieldRunSession session = new FieldRunSession(); session.start(plan, true, now); session.command(FieldRunCommand.CONFIRM, now.plusSeconds(1));
+            session.observe(patch.getLocation(), Map.of(patch, new FieldPatchObservation(new FieldPatchStateDecoder().decode(FieldFamily.BELLADONNA, 8),
+                    now.plusSeconds(2), FarmingGrowthRate.NORMAL)), now.plusSeconds(2));
+            AtomicReference<FieldRunCommand> command = new AtomicReference<>();
+            FieldGuidedRunPanel panel = new FieldGuidedRunPanel(session.snapshot(now.plusSeconds(3)), false, command::set);
+            assertTrue(labels(panel).contains("Equip suitable gloves"));
+            JButton button = (JButton) Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton
+                    && ((JButton) c).getText().equals("Complete stop manually")).findFirst().get();
+            button.doClick(); assertEquals(FieldRunCommand.MARK_COMPLETE, command.get()); assertFalse(button.isEnabled());
+            assertEquals(FieldRunStep.HARVEST, session.snapshot(now).getStep());
+            panel.setSize(225, 800); layout(panel);
+            BufferedImage image = new BufferedImage(225, 800, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = image.createGraphics(); panel.printAll(graphics); graphics.dispose();
+            File directory = new File("build/verification"); directory.mkdirs();
+            try { ImageIO.write(image, "png", new File(directory, "guided-belladonna.png")); }
+            catch (Exception ex) { throw new AssertionError(ex); }
+        });
+    }
     @Test public void unavailablePlanDisablesStartButton() throws Exception
     {
         SwingUtilities.invokeAndWait(() -> {
