@@ -225,6 +225,15 @@ public class TransportVerificationService
                         option
                 );
 
+            case ARDOUGNE_CLOAK_MONASTERY:
+                if(!accountState.hasCompletedDiaryTier(com.farmingnavigator.account.DiaryArea.ARDOUGNE,com.farmingnavigator.account.DiaryTier.EASY))
+                {return new VerifiedTransportResult(option,VerifiedTransportState.LOCKED,"Complete the Easy Ardougne Diary and obtain its cloak for the monastery destination.");}
+                RequirementResult monastery=com.farmingnavigator.routing.item.ArdougneMonasteryItems.evaluate(
+                        new RequirementContext(accountState,config,travelCapabilitySnapshot,storageSnapshot));
+                VerifiedTransportState monasteryState=monastery.isReadyNow()?VerifiedTransportState.READY_NOW
+                        :monastery.requiresBankWithdrawal()?VerifiedTransportState.AVAILABLE_FROM_BANK
+                        :monastery.getState()==RequirementState.DATA_REQUIRED?VerifiedTransportState.DATA_REQUIRED:VerifiedTransportState.MISSING;
+                return new VerifiedTransportResult(option,monasteryState,monastery.getDetail()+" Choose Monastery; this destination has unlimited uses.");
             case ARDOUGNE_CLOAK_UNLIMITED:
                 return evaluateArdougneCloakUnlimited(
                         accountState,

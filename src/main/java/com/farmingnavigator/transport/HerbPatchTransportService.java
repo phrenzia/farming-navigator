@@ -478,6 +478,11 @@ public class HerbPatchTransportService
                 )
         );
 
+        java.util.List<TransportOption> ardougneArrivals=new java.util.ArrayList<>(options.get(HerbPatchDefinition.ARDOUGNE));
+        ardougneArrivals.add(new TransportOption(90,"Ardougne cloak monastery and northern farm",
+                "Choose Monastery on an Ardougne cloak, then travel north through the East Ardougne area to the northern herb patch.",
+                TransportCategory.ITEM,TransportVerificationKind.ARDOUGNE_CLOAK_MONASTERY));
+        options.put(HerbPatchDefinition.ARDOUGNE,java.util.List.copyOf(ardougneArrivals));
         PlantedSpiritTransportOptions.append(options,HerbPatchDefinition.FALADOR,com.farmingnavigator.routing.spirit.PlantedSpiritTree.PORT_SARIM,"Travel north to the Falador farming area.");
         PlantedSpiritTransportOptions.append(options,HerbPatchDefinition.HOSIDIUS,com.farmingnavigator.routing.spirit.PlantedSpiritTree.HOSIDIUS,"Travel east to the Hosidius farming area.");
         PlantedSpiritTransportOptions.append(options,HerbPatchDefinition.FARMING_GUILD,com.farmingnavigator.routing.spirit.PlantedSpiritTree.FARMING_GUILD,"Approach the selected Guild patch; its entry tier is checked separately.");

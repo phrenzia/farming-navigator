@@ -497,6 +497,8 @@ public final class GuidedRunTargets
             case EXPLORER_RING_UNLIMITED:
                 Collections.addAll(items, ItemID.LUMBRIDGE_RING_HARD, ItemID.LUMBRIDGE_RING_ELITE); break;
             case EXPLORER_RING_2_DAILY: items.add(ItemID.LUMBRIDGE_RING_MEDIUM); break;
+            case ARDOUGNE_CLOAK_MONASTERY:
+                items.addAll(com.farmingnavigator.routing.item.ArdougneMonasteryItems.getItemIds()); break;
             case ARDOUGNE_CLOAK_UNLIMITED:
                 Collections.addAll(items, ItemID.ARDY_CAPE_ELITE, ItemID.SKILLCAPE_MAX_ARDY); break;
             case KANDARIN_HEADGEAR_UNLIMITED: items.add(ItemID.SEERS_HEADBAND_ELITE); break;

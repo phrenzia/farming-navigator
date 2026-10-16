@@ -31,7 +31,9 @@ public final class GardenPatchTransportService
         options.put(GardenPatchDefinition.ARDOUGNE_BUSH, List.of(spell(1, TeleportSpellDefinition.ARDOUGNE_TELEPORT,
                 "Teleport to Ardougne, then travel south-west to the bush north of the monastery."),
                 new TransportOption(2, "Fairy ring DJP to Ardougne bush", "Travel to an accessible fairy ring, use DJP, then run west to the bush near Ardougne Monastery.",
-                        TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_ACCESS)));
+                        TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_ACCESS),
+                new TransportOption(90,"Ardougne cloak to monastery","Choose Monastery on an Ardougne cloak, then walk north-east to the bush just north of the monastery.",
+                        TransportCategory.ITEM,TransportVerificationKind.ARDOUGNE_CLOAK_MONASTERY)));
         for(GardenPatchDefinition patch:List.of(GardenPatchDefinition.FARMING_GUILD_BUSH,GardenPatchDefinition.FARMING_GUILD_CACTUS))
         { PlantedSpiritTransportOptions.append(options,patch,com.farmingnavigator.routing.spirit.PlantedSpiritTree.FARMING_GUILD,"Approach the selected Guild patch; its entry tier is checked separately."); }
         return Collections.unmodifiableMap(options);

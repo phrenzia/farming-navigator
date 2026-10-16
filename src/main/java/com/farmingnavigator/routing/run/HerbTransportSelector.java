@@ -58,6 +58,7 @@ public final class HerbTransportSelector
         {
             case EXPLORER_RING_UNLIMITED:
             case ARDOUGNE_CLOAK_UNLIMITED:
+            case ARDOUGNE_CLOAK_MONASTERY:
             case KANDARIN_HEADGEAR_UNLIMITED:
             case ECTOPHIAL:
             case ECTOPHIAL_HARMONY:
