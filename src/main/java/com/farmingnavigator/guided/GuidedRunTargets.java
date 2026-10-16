@@ -258,7 +258,8 @@ public final class GuidedRunTargets
             if (needed) { inventory.add(preparation.getSource().getItemId()); }
         }
         boolean scene = session.getStep() != com.farmingnavigator.guided.tree.TreeRunStep.PREPARE
-                && session.getStep() != com.farmingnavigator.guided.tree.TreeRunStep.WAIT;
+                && session.getStep() != com.farmingnavigator.guided.tree.TreeRunStep.WAIT
+                && session.getStep() != com.farmingnavigator.guided.tree.TreeRunStep.MAKE_SPACE;
         return new GuidedRunTargets(inventory, bank, destination, name, null, false,
                 scene ? session.getStop().getPatch() : null,
                 session.getStep() == com.farmingnavigator.guided.tree.TreeRunStep.PROTECT

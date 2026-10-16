@@ -437,6 +437,8 @@ public class FarmingNavigatorPlugin
         {
             changed |= treeRunSession.observe(herbPatchObservationService.currentLocation(),
                     treePatchObservationService.snapshot(), Instant.now());
+            changed |= treeRunSession.observeInventory(storageStateService.getFreeInventorySlots(),
+                    herbPatchObservationService.currentLocation(),Instant.now());
         }
         if (guidedRunSession.snapshot().isActive())
         {

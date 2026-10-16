@@ -20,6 +20,7 @@ public final class TreeRunSession
     private Instant enteredAt = Instant.EPOCH;
     private Instant startedAt;
     private Instant finishedAt;
+    private Instant interruptedHarvestAt;
     private TreeCrop pruningCrop = TreeCrop.UNKNOWN;
     private boolean protect, compostConfirmed;
     private int index;
@@ -71,7 +72,7 @@ public final class TreeRunSession
     }
     public boolean observe(WorldPoint player, Map<TreePatchDefinition, TreePatchObservation> observations, Instant now)
     {
-        if (!active() || step == TreeRunStep.PREPARE || step == TreeRunStep.PROTECT) { return false; }
+        if (!active() || step == TreeRunStep.PREPARE || step == TreeRunStep.PROTECT || step == TreeRunStep.MAKE_SPACE) { return false; }
         TreeRunStop stop = plan.getStops().get(index);
         if (!TreePatchDestination.isNear(stop.getPatch(), player)) { return false; }
         TreePatchObservation observation = observations.get(stop.getPatch());
@@ -135,6 +136,18 @@ public final class TreeRunSession
         if (step == before && !expectedCondition(condition)) { inspect(state, now); }
         return step != before;
     }
+    public boolean observeInventory(int freeSlots,WorldPoint player,Instant now)
+    {
+        if(!active() || freeSlots<0 || freeSlots>28 || now.isBefore(enteredAt)
+                || !TreePatchDestination.isNear(plan.getStops().get(index).getPatch(),player)) { return false; }
+        if(step==TreeRunStep.HARVEST_BARK && freeSlots==0)
+        { interruptedHarvestAt=enteredAt; enter(TreeRunStep.MAKE_SPACE,now); return true; }
+        if(step==TreeRunStep.MAKE_SPACE && freeSlots>0)
+        {
+            revision++; step=TreeRunStep.HARVEST_BARK; enteredAt=interruptedHarvestAt; interruptedHarvestAt=null; return true;
+        }
+        return false;
+    }
     private boolean expectedCondition(TreePatchCondition condition)
     {
         switch (step)
@@ -183,6 +196,7 @@ public final class TreeRunSession
     {
         revision++;
         if (skip) { skipped++; } else { completed++; if (manually) { manual++; } }
+        interruptedHarvestAt=null;
         pruningCrop = TreeCrop.UNKNOWN;
         compostConfirmed = false;
         index++;
@@ -201,7 +215,7 @@ public final class TreeRunSession
     public void cancel()
     {
         revision++;
-        compostConfirmed = false;
+        compostConfirmed = false; interruptedHarvestAt=null;
         plan = null; step = TreeRunStep.INACTIVE; enteredAt = Instant.EPOCH; startedAt = null; finishedAt = null;
         index = completed = manual = skipped = protectionConfirmed = 0; pruningCrop = TreeCrop.UNKNOWN;
     }

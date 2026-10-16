@@ -68,6 +68,7 @@ public final class TreeRunSnapshot
             case TRAVEL: return "Travel to " + stop.getPatch().getLabel() + " and approach the patch.";
             case INSPECT: return "Inspect the tree patch. A fresh nearby observation is required to choose an action.";
             case CHECK_HEALTH: return "Check the tree's health. The checklist waits for a fresh health-checked state.";
+            case MAKE_SPACE: return "Inventory full. Make space manually, then return to this tree with a free slot to resume bark harvesting. Freeing space does not prove bark depletion or permit tree removal; a fresh depleted-bark observation is still required.";
             case HARVEST_BARK: return "Use a suitable axe to harvest available celastrus bark. The checklist waits for an observed depleted-bark state before offering removal.";
             case KEEP_OR_REMOVE:
                 if (crop == TreeRunCrop.CRYSTAL) { return "The crystal tree is health-checked. Keep it, or choose to chop it for crystal shards and replant. Shard yield is not predicted."; }
