@@ -267,11 +267,11 @@ public interface FarmingNavigatorConfig
             position = 27, section = GENERAL_SECTION)
     default boolean showFieldObservations() { return true; }
 
-    @ConfigItem(keyName = "fieldRunCrop", name = "Allotment/flower run crop",
-            description = "Seed crop for allotment/flower preparation", position = 28, section = GENERAL_SECTION)
+    @ConfigItem(keyName = "fieldRunCrop", name = "Field run crop",
+            description = "Allotment, flower or traditional hops crop for preparation", position = 28, section = GENERAL_SECTION)
     default com.farmingnavigator.routing.run.FieldRunCrop fieldRunCrop() { return com.farmingnavigator.routing.run.FieldRunCrop.POTATO; }
 
-    @ConfigItem(keyName = "fieldRunPatches", name = "Allotment/flower run patches",
+    @ConfigItem(keyName = "fieldRunPatches", name = "Field run plots",
             description = "Only plots matching the selected crop family are considered", position = 29, section = GENERAL_SECTION)
     default Set<com.farmingnavigator.farming.field.FieldPatchDefinition> fieldRunPatches()
     {
@@ -282,25 +282,25 @@ public interface FarmingNavigatorConfig
             description = "Keep mature flowers by default; harvesting them may remove nearby allotment protection", position = 30, section = GENERAL_SECTION)
     default com.farmingnavigator.routing.run.FieldRunMode fieldRunMode() { return com.farmingnavigator.routing.run.FieldRunMode.KEEP_MATURE_FLOWERS; }
 
-    @ConfigItem(keyName = "fieldRunProtection", name = "Reserve allotment protection",
-            description = "Reserve exact farmer payments for possible new allotments; flowers and Harmony have no farmer payment", position = 31, section = GENERAL_SECTION)
+    @ConfigItem(keyName = "fieldRunProtection", name = "Reserve field protection",
+            description = "Reserve exact farmer payments for possible new allotments/hops; flowers and Harmony have no farmer payment", position = 31, section = GENERAL_SECTION)
     default boolean fieldRunProtection() { return true; }
 
-    @ConfigItem(keyName = "fieldTransportPreference", name = "Allotment/flower transport preference",
+    @ConfigItem(keyName = "fieldTransportPreference", name = "Field transport preference",
             description = "Rank verified arrival suggestions; adjacent plots share one arrival teleport", position = 32, section = GENERAL_SECTION)
     default HerbTransportPreference fieldTransportPreference() { return HerbTransportPreference.CATALOGUE; }
 
-    @ConfigItem(keyName = "fieldObservedAlerts", name = "Allotment/flower state alerts",
+    @ConfigItem(keyName = "fieldObservedAlerts", name = "Field state alerts",
             description = "Notify on fresh harvestable, diseased or dead states for selected plots matching the crop family; quantity is not predicted",
             position = 33, section = GENERAL_SECTION)
     default boolean fieldObservedAlerts() { return false; }
 
-    @ConfigItem(keyName = "fieldEstimatedAlerts", name = "Allotment/flower estimate alerts",
+    @ConfigItem(keyName = "fieldEstimatedAlerts", name = "Field estimate alerts",
             description = "Notify once at the end of a selected crop's conditional growth window; visit to confirm health and harvestability",
             position = 34, section = GENERAL_SECTION)
     default boolean fieldEstimatedAlerts() { return false; }
 
-    @ConfigItem(keyName = "fieldRunCompost", name = "Allotment/flower compost",
+    @ConfigItem(keyName = "fieldRunCompost", name = "Field compost",
             description = "Reserve filled buckets separately from protection payments; application remains manual", position = 35, section = GENERAL_SECTION)
     default com.farmingnavigator.routing.run.FieldRunCompost fieldRunCompost() { return com.farmingnavigator.routing.run.FieldRunCompost.ULTRACOMPOST; }
 

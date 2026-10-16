@@ -145,6 +145,14 @@ public class FieldRunTargetsTest
         FieldRunSnapshot snapshot = new FieldRunSnapshot(FieldRunStep.COMPOST, plan.getCrop(), plan.getMode(), plan.getStops().get(0), 1, 0, 0, 0, 0, Duration.ZERO, plan.getCompost());
         assertEquals(Set.of(ItemID.BUCKET_ULTRACOMPOST), GuidedRunTargets.fromField(snapshot, plan, null).getInventoryItems());
     }
+
+    @Test public void hopsHarvestHighlightsSpadeAndPlantingHighlightsItsOwnSeed()
+    {
+        FieldRunPlan plan=new FieldRunPlanner().plan(account,EnumSet.of(FieldPatchDefinition.LUMBRIDGE_HOPS),FieldRunCrop.JUTE,FieldRunMode.HARVEST_ALL,true,Map.of(),null,Instant.now());
+        assertEquals(Set.of(ItemID.SPADE),GuidedRunTargets.fromField(snapshot(FieldRunStep.HARVEST,plan),plan,null).getInventoryItems());
+        assertEquals(Set.of(ItemID.DIBBER,ItemID.JUTE_SEED),GuidedRunTargets.fromField(snapshot(FieldRunStep.PLANT,plan),plan,null).getInventoryItems());
+        assertEquals(Set.of(ItemID.BARLEY_MALT,ItemID.Cert.BARLEY_MALT),GuidedRunTargets.fromField(snapshot(FieldRunStep.PROTECT,plan),plan,null).getInventoryItems());
+    }
     private static final class RecordingManager extends WorldMapPointManager
     {
         private final List<WorldMapPoint> points = new ArrayList<>();

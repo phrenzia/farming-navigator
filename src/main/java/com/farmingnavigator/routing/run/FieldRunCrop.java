@@ -5,7 +5,7 @@ import com.farmingnavigator.loadout.SupplyRequirement;
 import java.util.Optional;
 import net.runelite.api.gameval.ItemID;
 
-/** Three seeds per allotment and one per flower. Farmer payments use the exact full container or produce requested. */
+/** Three seeds per allotment, one per flower, four per hops plot except three for jute. Farmer payments use the exact full container or produce requested. */
 public enum FieldRunCrop
 {
     POTATO(FieldCrop.POTATO, 1, ItemID.POTATO_SEED, ItemID.BUCKET_COMPOST, ItemID.Cert.BUCKET_COMPOST, 2, "Compost (farmer payment)"),
@@ -21,7 +21,14 @@ public enum FieldRunCrop
     NASTURTIUM(FieldCrop.NASTURTIUM, 24, ItemID.NASTURTIUM_SEED, 0, 0, 0, ""),
     WOAD(FieldCrop.WOAD, 25, ItemID.WOAD_SEED, 0, 0, 0, ""),
     LIMPWURT(FieldCrop.LIMPWURT, 26, ItemID.LIMPWURT_SEED, 0, 0, 0, ""),
-    WHITE_LILY(FieldCrop.WHITE_LILY, 58, ItemID.WHITE_LILY_SEED, 0, 0, 0, "");
+    WHITE_LILY(FieldCrop.WHITE_LILY, 58, ItemID.WHITE_LILY_SEED, 0, 0, 0, ""),
+    BARLEY(FieldCrop.BARLEY, 3, ItemID.BARLEY_SEED, ItemID.BUCKET_COMPOST, ItemID.Cert.BUCKET_COMPOST, 3, "Compost (farmer payment)"),
+    HAMMERSTONE(FieldCrop.HAMMERSTONE, 4, ItemID.HAMMERSTONE_HOP_SEED, ItemID.MARIGOLD, ItemID.Cert.MARIGOLD, 1, "Marigold"),
+    ASGARNIAN(FieldCrop.ASGARNIAN, 8, ItemID.ASGARNIAN_HOP_SEED, ItemID.SACK_ONION_10, ItemID.Cert.SACK_ONION_10, 1, "Onions (full sack of 10)"),
+    JUTE(FieldCrop.JUTE, 13, ItemID.JUTE_SEED, ItemID.BARLEY_MALT, ItemID.Cert.BARLEY_MALT, 6, "Barley malt"),
+    YANILLIAN(FieldCrop.YANILLIAN, 16, ItemID.YANILLIAN_HOP_SEED, ItemID.BASKET_TOMATO_5, ItemID.Cert.BASKET_TOMATO_5, 1, "Tomatoes (full basket of 5)"),
+    KRANDORIAN(FieldCrop.KRANDORIAN, 21, ItemID.KRANDORIAN_HOP_SEED, ItemID.SACK_CABBAGE_10, ItemID.Cert.SACK_CABBAGE_10, 3, "Cabbages (full sack of 10)"),
+    WILDBLOOD(FieldCrop.WILDBLOOD, 28, ItemID.WILDBLOOD_HOP_SEED, ItemID.NASTURTIUM, ItemID.Cert.NASTURTIUM, 1, "Nasturtium");
     private final FieldCrop crop;
     private final int level, seedId, paymentId, notedPaymentId, paymentQuantity;
     private final String paymentName;
@@ -33,7 +40,15 @@ public enum FieldRunCrop
     public FieldCrop getCrop() { return crop; }
     public int getRequiredLevel() { return level; }
     public int getSeedId() { return seedId; }
-    public int getSeedsPerPatch() { return crop.getFamily() == com.farmingnavigator.farming.field.FieldFamily.ALLOTMENT ? 3 : 1; }
+    public int getSeedsPerPatch()
+    {
+        switch (crop.getFamily())
+        {
+            case ALLOTMENT: return 3;
+            case HOPS: return this == JUTE ? 3 : 4;
+            default: return 1;
+        }
+    }
     public boolean hasFarmerProtection() { return paymentId != 0; }
     public Optional<SupplyRequirement> protectionPayment(int replants)
     {

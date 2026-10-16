@@ -56,9 +56,9 @@ public final class FieldRunSnapshot
             case CURE: return "Use plant cure on this diseased crop. Wait for healthy growth or harvestable state of the same crop.";
             case SCARECROW: return "Scarecrow present. Keep it or remove it manually and prepare a new plan; this checklist does not assume removal or flower planting.";
             case WAIT: return "The crop is growing. Wait or skip; time alone does not prove harvest readiness.";
-            case COMPLETE: return "Allotment/flower run complete: " + completed + " completed, " + manual + " completed manually, " + skipped
+            case COMPLETE: return "Field run complete: " + completed + " completed, " + manual + " completed manually, " + skipped
                     + " skipped. Protection payments confirmed manually: " + protectionConfirmed + ".";
-            default: return "Start guidance for the prepared allotment/flower run. It never performs a game action.";
+            default: return "Start guidance for the prepared field run. It never performs a game action.";
         }
     }
 }

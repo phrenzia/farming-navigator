@@ -27,7 +27,7 @@ public final class FieldRunPlanner
     {
         List<FieldRunStop> stops = new ArrayList<>(); List<SupplyRequirement> supplies = new ArrayList<>();
         Map<FieldPatchDefinition, String> excluded = new EnumMap<>(FieldPatchDefinition.class); List<String> warnings = new ArrayList<>();
-        String blocker = account == null || !account.isLoggedIn() ? "Log in to plan an allotment/flower run."
+        String blocker = account == null || !account.isLoggedIn() ? "Log in to plan a field run."
                 : account.getBoostedFarmingLevel() < crop.getRequiredLevel() ? crop + " requires " + crop.getRequiredLevel() + " Farming (boostable)." : "";
         if (!blocker.isEmpty()) { return new FieldRunPlan(crop, mode, stops, List.of(), excluded, warnings, blocker, compost); }
         int replants = 0, payments = 0, disease = 0;
@@ -89,7 +89,7 @@ public final class FieldRunPlanner
                 else if (crop.hasFarmerProtection()) { warnings.add("Farmer protection is disabled. No payment is reserved."); }
                 else { warnings.add("Flowers have no farmer protection payment."); }
             }
-            if (disease > 0) { supplies.add(new SupplyRequirement(ItemID.PLANT_CURE, "Plant cure", disease, false, "Cure diseased allotments/flowers; no replacement seed/payment is reserved for those stops.")); }
+            if (disease > 0) { supplies.add(new SupplyRequirement(ItemID.PLANT_CURE, "Plant cure", disease, false, "Cure diseased field crops; no replacement seed/payment is reserved for those stops.")); }
         }
         return new FieldRunPlan(crop, mode, stops, new LoadoutService().evaluateInOrder(supplies, storage), excluded, warnings, "", compost);
     }

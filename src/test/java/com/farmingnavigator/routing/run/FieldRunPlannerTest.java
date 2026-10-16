@@ -45,7 +45,8 @@ public class FieldRunPlannerTest
     {
         for (FieldRunCrop crop : FieldRunCrop.values())
         {
-            FieldPatchDefinition patch = crop.getCrop().getFamily() == FieldFamily.ALLOTMENT ? FieldPatchDefinition.FALADOR_NORTH : FieldPatchDefinition.FALADOR_FLOWER;
+            FieldPatchDefinition patch = crop.getCrop().getFamily() == FieldFamily.ALLOTMENT ? FieldPatchDefinition.FALADOR_NORTH
+                    : crop.getCrop().getFamily() == FieldFamily.HOPS ? FieldPatchDefinition.LUMBRIDGE_HOPS : FieldPatchDefinition.FALADOR_FLOWER;
             assertTrue(planner.plan(account(crop.getRequiredLevel()-1), EnumSet.of(patch), crop, FieldRunMode.HARVEST_ALL, true, Map.of(), null, now).getStops().isEmpty());
             FieldRunPlan result = planner.plan(account(crop.getRequiredLevel()), EnumSet.of(patch), crop, FieldRunMode.HARVEST_ALL, true, Map.of(), null, now);
             assertEquals(1, result.getStops().size()); assertEquals(crop.getSeedsPerPatch(), supply(result, crop.getSeedId()).getRequirement().getQuantity());

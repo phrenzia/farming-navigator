@@ -329,7 +329,7 @@ public final class GuidedRunTargets
                 break;
             case TRAVEL:
                 addTransport(inventory, bank, session.getStop().getRecommended(), travel, houseEntryMode);
-                destination = session.getStop().getPatch().getLocation(); name = session.getStop().getPatch().getLabel() + " allotment/flower farming area";
+                destination = session.getStop().getPatch().getLocation(); name = session.getStop().getPatch().getLabel() + " farming area";
                 if (session.getStop().getRecommended() != null && session.getStop().getRecommended().getOption().getTeleportSpellDefinition() != null)
                 {
                     spellCost = session.getStop().getRecommended().getOption().getTeleportSpellDefinition().getRuneCost();
@@ -343,7 +343,7 @@ public final class GuidedRunTargets
                 break;
             case RAKE: inventory.add(ItemID.RAKE); break;
             case HARVEST:
-                if (session.getStop().getPatch().getFamily() == com.farmingnavigator.farming.field.FieldFamily.ALLOTMENT) { inventory.add(ItemID.SPADE); }
+                if (session.getStop().getPatch().getFamily() != com.farmingnavigator.farming.field.FieldFamily.FLOWER) { inventory.add(ItemID.SPADE); }
                 break;
             case CLEAR: inventory.add(ItemID.SPADE); break;
             case PLANT: inventory.add(ItemID.DIBBER); inventory.add(session.getCrop().getSeedId()); break;

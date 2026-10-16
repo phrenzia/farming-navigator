@@ -21,8 +21,8 @@ public final class FieldGuidedRunPanel extends JPanel
         setBorder(BorderFactory.createEmptyBorder(9, 8, 12, 8));
         setAlignmentX(Component.LEFT_ALIGNMENT);
         setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        add(text("Guided allotment/flower run", Color.WHITE));
-        add(text(run == null ? "Prepare a allotment/flower run below, then start guidance." : run.getInstruction(), ColorScheme.LIGHT_GRAY_COLOR));
+        add(text("Guided field run", Color.WHITE));
+        add(text(run == null ? "Prepare a field run below, then start guidance." : run.getInstruction(), ColorScheme.LIGHT_GRAY_COLOR));
         if (run != null && run.getStep() != FieldRunStep.INACTIVE)
         {
             add(text("Elapsed: " + run.getElapsed().toMinutes() + " min, including preparation and waiting.", ColorScheme.LIGHT_GRAY_COLOR));

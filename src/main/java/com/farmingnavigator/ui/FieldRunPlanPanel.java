@@ -33,11 +33,11 @@ public final class FieldRunPlanPanel extends JPanel
         setBorder(BorderFactory.createEmptyBorder(9, 8, 12, 8));
         setAlignmentX(Component.LEFT_ALIGNMENT);
         setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        add(text("Allotment/flower run preparation", Color.WHITE));
+        add(text("Field run preparation", Color.WHITE));
         add(text(plan.getCrop() + " - " + plan.getStops().size() + " stops", Color.WHITE));
         add(text(plan.getMode().toString(), MUTED));
         add(text("Compost: " + plan.getCompost(), MUTED));
-        add(text("Choose allotment/flower crop, patches, mature flower mode, compost and protection in plugin settings.", MUTED));
+        add(text("Choose field crop, patches, mature flower mode, compost and protection in plugin settings.", MUTED));
         if (!plan.getBlocker().isEmpty()) { add(text(plan.getBlocker(), WARNING)); return; }
         JPanel details = new JPanel();
         details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
@@ -84,7 +84,7 @@ public final class FieldRunPlanPanel extends JPanel
         }
         if (plan.getTransportResources() != null)
         {
-            details.add(Box.createVerticalStrut(7)); details.add(text("Shared allotment/flower travel supplies", Color.WHITE));
+            details.add(Box.createVerticalStrut(7)); details.add(text("Shared field travel supplies", Color.WHITE));
             plan.getTransportResources().getChecks().forEach(check -> {
                 details.add(text(check.getRequirement() + ": " + (check.isReadyNow() ? "Ready now"
                         : check.requiresBankWithdrawal() ? "Available from bank"

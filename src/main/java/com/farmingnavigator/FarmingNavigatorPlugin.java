@@ -906,7 +906,7 @@ public class FarmingNavigatorPlugin
             if (fieldRunSession.start(latestFieldRun, config.fieldRunProtection(), now))
             {
                 guidedRunSession.cancel(); treeRunSession.cancel(); gardenRunSession.cancel(); guidedRunOverlayController.clear();
-                runMetrics.start("Allotment/flower run", accountStateService.currentFarmingExperience(), now);
+                runMetrics.start("Field run", accountStateService.currentFarmingExperience(), now);
             }
         }
         else { fieldRunSession.command(command, now); }

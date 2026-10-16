@@ -138,4 +138,19 @@ public class FieldRunSessionTest
         observe(6,7); assertEquals(FieldRunStep.PROTECT, step());
     }
 
+    @Test public void hopsHarvestCountersDoNotCompleteBeforeEmptyAndFourSeedPlanting()
+    {
+        patch=FieldPatchDefinition.LUMBRIDGE_HOPS; start(FieldRunCrop.BARLEY,FieldRunMode.KEEP_MATURE_FLOWERS);
+        observe(78,2); assertEquals(FieldRunStep.HARVEST,step()); observe(80,3); assertEquals(FieldRunStep.HARVEST,step());
+        observe(0,4); assertEquals(FieldRunStep.PLANT,step()); assertTrue(session.snapshot(now).getInstruction().contains("4 Barley seed"));
+        observe(74,5); assertEquals(FieldRunStep.PROTECT,step());
+        session.command(FieldRunCommand.CONFIRM,now.plusSeconds(6)); assertEquals(FieldRunStep.COMPLETE,step());
+    }
+    @Test public void juteRequiresThreeSeedsAndWrongHopsCropNeverProvesPlanting()
+    {
+        patch=FieldPatchDefinition.YANILLE_HOPS; start(FieldRunCrop.JUTE,FieldRunMode.HARVEST_ALL); observe(0,2);
+        assertTrue(session.snapshot(now).getInstruction().contains("3 Jute seed")); observe(74,3); assertEquals(FieldRunStep.WAIT,step());
+        assertEquals(0,session.snapshot(now).getCompleted());
+    }
+
 }
