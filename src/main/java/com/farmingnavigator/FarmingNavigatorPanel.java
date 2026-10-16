@@ -139,6 +139,7 @@ public class FarmingNavigatorPanel
     private boolean fieldObservationsOpen;
     private boolean fieldRunDetailsOpen;
     private boolean fieldOverviewOpen;
+    private boolean readinessDashboardOpen;
     private com.farmingnavigator.economics.FarmingMaterialEstimate fieldMaterials;
     public void setFieldMaterials(com.farmingnavigator.economics.FarmingMaterialEstimate materials) { fieldMaterials = materials; }
     private com.farmingnavigator.guided.field.FieldRunSnapshot fieldGuidedRun;
@@ -736,6 +737,19 @@ public class FarmingNavigatorPanel
                 Box.createVerticalStrut(8)
         );
 
+        java.time.Instant overviewTime = java.time.Instant.now();
+        if (accountState.isLoggedIn() && config.showReadinessDashboard())
+        {
+            com.farmingnavigator.farming.state.ReadinessDashboard readiness = com.farmingnavigator.farming.state.ReadinessDashboard.at(overviewTime)
+                    .herbs(patchStatuses, config.herbRunPatches(), observations)
+                    .trees(accountState, config.treeRunPatches(), treeObservations)
+                    .gardens(accountState, config.gardenRunPatches(), gardenObservations)
+                    .fields(accountState, config.fieldRunPatches(), fieldObservations).build();
+            patchListPanel.add(new com.farmingnavigator.ui.ReadinessDashboardPanel(readiness, overviewTime,
+                    readinessDashboardOpen, expanded -> readinessDashboardOpen = expanded));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
+
         if (herbRunPlan != null)
         {
             patchListPanel.add(new GuidedRunPanel(guidedRun,
@@ -746,7 +760,6 @@ public class FarmingNavigatorPanel
             patchListPanel.add(Box.createVerticalStrut(8));
         }
 
-        java.time.Instant overviewTime = java.time.Instant.now();
         if (config.showFarmingContract() && farmingContract != null && (accountState.getBoostedFarmingLevel() >= 45
                 || farmingContract.getState() != com.farmingnavigator.contracts.FarmingContractSnapshot.State.NONE))
         {

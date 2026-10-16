@@ -316,6 +316,10 @@ public interface FarmingNavigatorConfig
             description = "Reserve application buckets or a manually checked bottomless type; application is confirmed manually", position = 38, section = GENERAL_SECTION)
     default com.farmingnavigator.routing.run.GardenRunCompost gardenRunCompost() { return com.farmingnavigator.routing.run.GardenRunCompost.ULTRACOMPOST; }
 
+    @ConfigItem(keyName = "showReadinessDashboard", name = "Show farming readiness",
+            description = "Summarize selected accessible patches across all supported crop families with conditional future windows", position = 39, section = GENERAL_SECTION)
+    default boolean showReadinessDashboard() { return true; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

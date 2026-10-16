@@ -88,4 +88,3 @@ public class FarmingNavigatorStateRefreshTest
         assertFalse(FarmingNavigatorPlugin.isRelevantStateVarbit(Integer.MAX_VALUE));
     }
 }
-
