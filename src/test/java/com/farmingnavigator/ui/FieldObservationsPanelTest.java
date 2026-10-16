@@ -26,6 +26,11 @@ public class FieldObservationsPanelTest
     {
         return new FieldPatchObservation(new FieldPatchStateDecoder().decode(family, raw), at, FarmingGrowthRate.NORMAL);
     }
+    @Test public void wateredHistoryExplainsThatTheObservedCycleDoesNotProtectLaterCycles()
+    {
+        assertTrue(FieldObservationText.describe(observation(FieldFamily.ALLOTMENT,70,now),ZoneId.of("UTC")).contains("Watered during the observed growth cycle"));
+        assertFalse(FieldObservationText.describe(observation(FieldFamily.ALLOTMENT,6,now),ZoneId.of("UTC")).contains("Watered during"));
+    }
     @Test public void textSeparatesObservedHarvestFromConditionalGrowth()
     {
         FieldPatchObservation growing = observation(FieldFamily.ALLOTMENT, 6, now);

@@ -36,7 +36,7 @@ public final class FieldPatchStateDecoder
         new Row(FieldCrop.SWEETCORN, 34, 98, 40, 163, 5, 227, 5),
         new Row(FieldCrop.STRAWBERRY, 43, 107, 49, 172, 5, 236, 5),
         new Row(FieldCrop.WATERMELON, 52, 116, 60, 181, 7, 245, 7),
-        new Row(FieldCrop.SNAPE_GRASS, 63, 128, 138, 196, 3, 193, 3)};
+        new Row(FieldCrop.SNAPE_GRASS, 63, 128, 138, 196, 3, 193, 3, false)};
     private static final Row[] FLOWERS = {
         new Row(FieldCrop.MARIGOLD, 8, 72, 12, 137, 3, 201, 4),
         new Row(FieldCrop.ROSEMARY, 13, 77, 17, 142, 3, 206, 4),
@@ -87,8 +87,9 @@ public final class FieldPatchStateDecoder
         }
         for (Row row : rows)
         {
-            if (in(raw, row.growing, row.crop.getStages() - 1)) { return state(raw, row.crop, FieldPatchCondition.GROWING, raw - row.growing); }
-            if (in(raw, row.alternate, row.crop.getStages() - 1)) { return state(raw, row.crop, FieldPatchCondition.GROWING, raw - row.alternate); }
+            if (in(raw, row.growing, row.crop.getStages() - 1)) { return new FieldPatchState(raw, row.crop, FieldPatchCondition.GROWING, raw - row.growing, !row.alternateWatered); }
+            // Most alternate rows map to *_WATERED gamevals; snape grass reverses the two ranges.
+            if (in(raw, row.alternate, row.crop.getStages() - 1)) { return new FieldPatchState(raw, row.crop, FieldPatchCondition.GROWING, raw - row.alternate, row.alternateWatered); }
             if (in(raw, row.harvest, family == FieldFamily.MUSHROOM ? 6 : family == FieldFamily.FLOWER || family == FieldFamily.BELLADONNA ? 1 : 3)) { return state(raw, row.crop, FieldPatchCondition.HARVESTABLE, family == FieldFamily.HOPS ? row.harvest + 2 - raw : raw - row.harvest); }
             if (in(raw, row.disease, row.diseaseCount)) { return state(raw, row.crop, FieldPatchCondition.DISEASED, raw - row.disease + 1); }
             if (in(raw, row.dead, row.deadCount)) { return state(raw, row.crop, FieldPatchCondition.DEAD, raw - row.dead + 1); }
@@ -103,9 +104,15 @@ public final class FieldPatchStateDecoder
     private static final class Row
     {
         private final FieldCrop crop;
+        private final boolean alternateWatered;
         private final int growing, alternate, harvest, disease, diseaseCount, dead, deadCount;
         private Row(FieldCrop crop, int growing, int alternate, int harvest, int disease, int diseaseCount, int dead, int deadCount)
         {
+            this(crop, growing, alternate, harvest, disease, diseaseCount, dead, deadCount, true);
+        }
+        private Row(FieldCrop crop, int growing, int alternate, int harvest, int disease, int diseaseCount, int dead, int deadCount, boolean alternateWatered)
+        {
+            this.alternateWatered = alternateWatered;
             this.crop = crop; this.growing = growing; this.alternate = alternate; this.harvest = harvest;
             this.disease = disease; this.diseaseCount = diseaseCount; this.dead = dead; this.deadCount = deadCount;
         }

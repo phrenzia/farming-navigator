@@ -20,12 +20,13 @@ public class FieldWateringSessionTest
     private final Instant now=Instant.parse("2026-10-16T12:00:00Z");
     private final FieldRunSession session=new FieldRunSession();
     private final FieldPatchDefinition north=FieldPatchDefinition.FALADOR_NORTH,south=FieldPatchDefinition.FALADOR_SOUTH;
-    private FieldRunPlan start(boolean protect)
+    private FieldRunPlan start(boolean protect) { return start(protect, FieldRunCrop.POTATO); }
+    private FieldRunPlan start(boolean protect, FieldRunCrop crop)
     {
         AccountState account=new AccountState(true,99,99,EnumSet.noneOf(Quest.class),false);
         StorageSnapshot storage=new StorageSnapshot(Map.of(ItemID.WATERING_CAN_1,1L),Map.of(),Map.of(ItemID.WATERING_CAN_1,1L),true,now);
         RequirementContext context=new RequirementContext(account,new FarmingNavigatorConfig(){},null,storage);
-        FieldRunPlan plan=new FieldRunPlanner().plan(account,Set.of(north,south),FieldRunCrop.POTATO,FieldRunMode.HARVEST_ALL,protect,FieldRunCompost.NONE,HerbRunCure.PLANT_CURE,
+        FieldRunPlan plan=new FieldRunPlanner().plan(account,Set.of(north,south),crop,FieldRunMode.HARVEST_ALL,protect,FieldRunCompost.NONE,HerbRunCure.PLANT_CURE,
                 FieldRunWatering.AFTER_PLANTING,Map.of(),storage,now).withTransports(Map.of(),HerbTransportPreference.CATALOGUE,context);
         assertEquals(2,plan.getWateringApplications()); assertTrue(plan.getWateringBudget().getCheck().requiresBankWithdrawal());
         session.start(plan,protect,now); session.command(FieldRunCommand.CONFIRM,now.plusSeconds(1)); return plan;
@@ -39,8 +40,8 @@ public class FieldWateringSessionTest
         FieldRunPlan plan=start(true); observe(north,0,2); observe(north,6,3); assertEquals(FieldRunStep.WATER,session.snapshot(now).getStep());
         assertTrue(session.snapshot(now).getInstruction().contains("only covers this growth cycle"));
         assertEquals(WateringCanBudget.getFilledCanIds(),GuidedRunTargets.fromField(session.snapshot(now),plan,null).getInventoryItems());
-        observe(north,70,4); assertEquals(FieldRunStep.WATER,session.snapshot(now).getStep()); // Even a watered byte does not substitute for manual confirmation here.
-        session.command(FieldRunCommand.CONFIRM,now.plusSeconds(5)); assertEquals(FieldRunStep.PROTECT,session.snapshot(now).getStep());
+        observe(north,70,4); assertEquals(FieldRunStep.PROTECT,session.snapshot(now).getStep());
+        assertFalse(session.command(FieldRunCommand.CONFIRM_WATERING,now.plusSeconds(5))); assertEquals(0,session.snapshot(now).getProtectionConfirmed());
         session.command(FieldRunCommand.CONFIRM,now.plusSeconds(6)); observe(south,0,7); observe(south,6,8); assertEquals(FieldRunStep.WATER,session.snapshot(now).getStep());
     }
     @Test public void unknownEvidenceDoesNotErasePlantingOrManualWaterRequirement()
@@ -87,6 +88,25 @@ public class FieldWateringSessionTest
         start(true); observe(north,0,2); observe(north,6,3);
         assertTrue(session.command(FieldRunCommand.CONFIRM_WATERING,now.plusSeconds(4))); assertEquals(FieldRunStep.PROTECT,session.snapshot(now).getStep());
         assertFalse(session.command(FieldRunCommand.CONFIRM_WATERING,now.plusSeconds(5))); assertEquals(0,session.snapshot(now).getProtectionConfirmed());
+    }
+
+    @Test public void snapeGrassWateredAndDryRangesAreReversedAndCannotBeConfused()
+    {
+        start(true,FieldRunCrop.SNAPE_GRASS); observe(north,0,2); observe(north,128,3); assertEquals(FieldRunStep.WATER,session.snapshot(now).getStep());
+        observe(north,63,4); assertEquals(FieldRunStep.PROTECT,session.snapshot(now).getStep());
+    }
+    @Test public void wateredPlantingStateCanProvePlantingAndWateringTogether()
+    {
+        start(false); observe(north,0,2); observe(north,70,3); assertEquals(1,session.snapshot(now).getCompleted());
+    }
+    @Test public void staleFutureAndDifferentCropWateredStatesCannotProveWatering()
+    {
+        start(true); observe(north,0,2); observe(north,6,3);
+        FieldPatchObservation stale=new FieldPatchObservation(new FieldPatchStateDecoder().decode(FieldFamily.ALLOTMENT,70),now.plusSeconds(4),FarmingGrowthRate.NORMAL);
+        assertFalse(session.observe(north.getLocation(),Map.of(north,stale),now.plusSeconds(35))); assertEquals(FieldRunStep.WATER,session.snapshot(now).getStep());
+        FieldPatchObservation future=new FieldPatchObservation(stale.getState(),now.plusSeconds(40),FarmingGrowthRate.NORMAL);
+        assertFalse(session.observe(north.getLocation(),Map.of(north,future),now.plusSeconds(36)));
+        observe(north,77,37); assertEquals(FieldRunStep.WAIT,session.snapshot(now).getStep()); assertEquals(0,session.snapshot(now).getProtectionConfirmed());
     }
 
 }

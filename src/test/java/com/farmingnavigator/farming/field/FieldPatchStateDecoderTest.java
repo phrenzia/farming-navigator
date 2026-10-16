@@ -25,7 +25,7 @@ public class FieldPatchStateDecoderTest
                 if (line.startsWith("#") || line.isEmpty()) { continue; }
                 String[] fields = line.split("\t");
                 cases.add(new Object[]{FieldFamily.valueOf(fields[0]), Integer.parseInt(fields[1]),
-                        fields[2] + "|" + fields[3] + "|" + fields[4]});
+                        fields[2] + "|" + fields[3] + "|" + fields[4] + "|" + fields[5]});
             }
         }
         assertEquals(1560, cases.size());
@@ -46,6 +46,6 @@ public class FieldPatchStateDecoderTest
     {
         FieldPatchState state = new FieldPatchStateDecoder().decode(family, raw);
         assertEquals(raw, state.getRawValue());
-        assertEquals(expected, state.getCrop().name() + "|" + state.getCondition().name() + "|" + state.getStage());
+        assertEquals(expected, state.getCrop().name() + "|" + state.getCondition().name() + "|" + state.getStage() + "|" + state.isWatered());
     }
 }

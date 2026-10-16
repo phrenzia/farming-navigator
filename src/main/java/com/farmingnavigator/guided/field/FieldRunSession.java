@@ -81,19 +81,21 @@ public final class FieldRunSession
                 if (condition == FieldPatchCondition.GROWING && state.getCrop() == plan.getCrop().getCrop())
                 {
                     plantedConfirmed = true;
-                    if (plan.getWatering().appliesTo(stop.getPatch().getFamily()) && !wateringConfirmed) { enter(FieldRunStep.WATER, now); }
-                    else { completePlanting(now); }
+                    completePlantedCare(state, now);
                 }
                 break;
             case WATER:
-                if (condition != FieldPatchCondition.GROWING || state.getCrop() != plan.getCrop().getCrop()) { inspect(state, now); }
+                if (condition == FieldPatchCondition.GROWING && state.getCrop() == plan.getCrop().getCrop())
+                {
+                    if (state.isWatered()) { wateringConfirmed = true; completePlanting(now); }
+                }
+                else { inspect(state, now); }
                 break;
             case CURE:
                 if ((condition == FieldPatchCondition.GROWING || condition == FieldPatchCondition.HARVESTABLE)
                         && state.getCrop() == curingCrop && curingCrop != FieldCrop.UNKNOWN)
                 {
-                    if (plantedConfirmed && plan.getWatering().appliesTo(stop.getPatch().getFamily()) && !wateringConfirmed) { enter(FieldRunStep.WATER, now); }
-                    else if (plantedConfirmed) { completePlanting(now); }
+                    if (plantedConfirmed) { completePlantedCare(state, now); }
                     else { finish(false, false, now); }
                 }
                 break;
@@ -132,8 +134,7 @@ public final class FieldRunSession
             case GROWING:
                 if (plantedConfirmed && state.getCrop() == plan.getCrop().getCrop())
                 {
-                    if (plan.getWatering().appliesTo(plan.getCrop().getCrop().getFamily()) && !wateringConfirmed) { enter(FieldRunStep.WATER, now); }
-                    else { completePlanting(now); }
+                    completePlantedCare(state, now);
                 }
                 else if (step != FieldRunStep.WAIT) { enter(FieldRunStep.WAIT, now); }
                 break;
@@ -144,6 +145,15 @@ public final class FieldRunSession
     {
         if (plantedConfirmed) { enter(FieldRunStep.REPREPARE, now); return; }
         enter(plan.getCompost() == FieldRunCompost.NONE || compostConfirmed ? FieldRunStep.PLANT : FieldRunStep.COMPOST, now);
+    }
+    private void completePlantedCare(FieldPatchState state, Instant now)
+    {
+        if (plan.getWatering().appliesTo(plan.getCrop().getCrop().getFamily()) && !wateringConfirmed)
+        {
+            if (state.isWatered()) { wateringConfirmed = true; }
+            else { enter(FieldRunStep.WATER, now); return; }
+        }
+        completePlanting(now);
     }
     private void completePlanting(Instant now)
     {

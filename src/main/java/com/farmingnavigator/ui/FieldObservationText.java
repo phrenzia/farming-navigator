@@ -16,7 +16,8 @@ public final class FieldObservationText
         FieldPatchState state = observation.getState();
         String crop = state.getCrop() == FieldCrop.UNKNOWN ? "" : state.getCrop().getLabel() + " - ";
         String time = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(zone).format(observation.getObservedAt());
-        return "Last observed " + time + ": " + crop + state.getCondition().getLabel() + ".";
+        return "Last observed " + time + ": " + crop + state.getCondition().getLabel() + "."
+                + (state.isWatered() ? " Watered during the observed growth cycle; later cycles need watering again." : "");
     }
 
     public static String timer(FieldPatchObservation observation, Instant now)
