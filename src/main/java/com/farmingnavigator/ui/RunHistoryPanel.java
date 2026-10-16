@@ -21,6 +21,7 @@ public final class RunHistoryPanel extends JPanel
     private final JPanel results=new JPanel();
     private final JComboBox<RunHistoryPeriod> period=new JComboBox<>(RunHistoryPeriod.values());
     private final JComboBox<String> kind=new JComboBox<>();
+    private final JComboBox<RunHistoryOutcome> outcome=new JComboBox<>(RunHistoryOutcome.values());
     private List<RunMetricsSnapshot> displayed;
     private Instant now;
     private boolean comparisonOpen;
@@ -30,6 +31,10 @@ public final class RunHistoryPanel extends JPanel
     }
     public RunHistoryPanel(List<RunMetricsSnapshot> entries,boolean expanded,Consumer<Boolean> expansionChanged,Runnable clear,
             Instant now,RunHistoryPeriod initialPeriod,RunHistoryStore.Kind initialKind,BiConsumer<RunHistoryPeriod,RunHistoryStore.Kind> filterChanged)
+    { this(entries,expanded,expansionChanged,clear,now,initialPeriod,initialKind,filterChanged,RunHistoryOutcome.ALL,value -> {}); }
+    public RunHistoryPanel(List<RunMetricsSnapshot> entries,boolean expanded,Consumer<Boolean> expansionChanged,Runnable clear,
+            Instant now,RunHistoryPeriod initialPeriod,RunHistoryStore.Kind initialKind,BiConsumer<RunHistoryPeriod,RunHistoryStore.Kind> filterChanged,
+            RunHistoryOutcome initialOutcome,Consumer<RunHistoryOutcome> outcomeChanged)
     {
         this.entries=List.copyOf(entries); this.now=now;
         setLayout(new BoxLayout(this,BoxLayout.Y_AXIS)); setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -46,11 +51,12 @@ public final class RunHistoryPanel extends JPanel
         add(toggle); add(details);
         kind.addItem("All run types"); for(RunHistoryStore.Kind type:RunHistoryStore.Kind.values()) { kind.addItem(type.toString()); }
         period.setSelectedItem(initialPeriod); kind.setSelectedIndex(initialKind==null?0:initialKind.ordinal()+1);
-        for(JComboBox<?> selector:new JComboBox<?>[]{period,kind})
+        outcome.setSelectedItem(initialOutcome==null?RunHistoryOutcome.ALL:initialOutcome);
+        for(JComboBox<?> selector:new JComboBox<?>[]{period,kind,outcome})
         { selector.setAlignmentX(Component.LEFT_ALIGNMENT); selector.setMaximumSize(new Dimension(190,25)); details.add(Box.createVerticalStrut(4)); details.add(selector); }
         results.setLayout(new BoxLayout(results,BoxLayout.Y_AXIS)); results.setOpaque(false); results.setAlignmentX(Component.LEFT_ALIGNMENT); details.add(results);
-        java.awt.event.ActionListener change=event -> { displayed=null; render(); filterChanged.accept(selectedPeriod(),selectedKind()); };
-        period.addActionListener(change); kind.addActionListener(change);
+        java.awt.event.ActionListener change=event -> { displayed=null; render(); filterChanged.accept(selectedPeriod(),selectedKind()); outcomeChanged.accept(selectedOutcome()); };
+        period.addActionListener(change); kind.addActionListener(change); outcome.addActionListener(change);
         details.add(text("Includes preparation, waiting and other Farming actions during each checklist. No crop attribution or predicted harvest XP. Filters cover only the saved last 20, not all account activity.",ColorScheme.LIGHT_GRAY_COLOR));
         details.add(text("Clear history removes all saved checklists, including those hidden by filters.",ColorScheme.LIGHT_GRAY_COLOR));
         JButton clearButton=new JButton("Clear history"); clearButton.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -59,11 +65,12 @@ public final class RunHistoryPanel extends JPanel
     }
     private RunHistoryPeriod selectedPeriod() { return (RunHistoryPeriod)period.getSelectedItem(); }
     private RunHistoryStore.Kind selectedKind() { return kind.getSelectedIndex()==0?null:RunHistoryStore.Kind.values()[kind.getSelectedIndex()-1]; }
+    private RunHistoryOutcome selectedOutcome() { return (RunHistoryOutcome)outcome.getSelectedItem(); }
     /** Recheck rolling-window boundaries without rebuilding unchanged history on ordinary XP refreshes. */
     public void refreshTime(Instant now) { this.now=now; if(!entries.isEmpty()) { render(); } }
     private void render()
     {
-        RunHistorySummary summary=RunHistorySummary.create(entries,selectedPeriod(),selectedKind(),now);
+        RunHistorySummary summary=RunHistorySummary.create(entries,selectedPeriod(),selectedKind(),now,selectedOutcome());
         if(summary.getEntries().equals(displayed)) { return; } displayed=summary.getEntries(); results.removeAll();
         NumberFormat numbers=NumberFormat.getIntegerInstance(Locale.getDefault());
         results.add(Box.createVerticalStrut(7)); results.add(text("Showing "+displayed.size()+" saved checklists: "+summary.getCompletedCount()+" completed; "+summary.getStoppedCount()+" stopped.",Color.WHITE));

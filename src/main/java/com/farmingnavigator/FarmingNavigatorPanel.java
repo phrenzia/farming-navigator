@@ -203,6 +203,7 @@ public class FarmingNavigatorPanel
     private boolean runHistoryOpen;
     private com.farmingnavigator.analytics.RunHistoryPeriod historyPeriod = com.farmingnavigator.analytics.RunHistoryPeriod.ALL;
     private com.farmingnavigator.analytics.RunHistoryStore.Kind historyKind;
+    private com.farmingnavigator.analytics.RunHistoryOutcome historyOutcome = com.farmingnavigator.analytics.RunHistoryOutcome.ALL;
     private com.farmingnavigator.ui.RunHistoryPanel runHistoryPanel;
     private java.util.List<com.farmingnavigator.analytics.RunMetricsSnapshot> runHistory = java.util.List.of();
     private Runnable clearRunHistory = () -> {};
@@ -834,7 +835,7 @@ public class FarmingNavigatorPanel
             {
                 runHistoryPanel = new com.farmingnavigator.ui.RunHistoryPanel(runHistory,runHistoryOpen,
                         expanded -> runHistoryOpen = expanded,clearRunHistory,overviewTime,historyPeriod,historyKind,
-                        (period,kind) -> { historyPeriod = period; historyKind = kind; });
+                        (period,kind) -> { historyPeriod = period; historyKind = kind; },historyOutcome,outcome -> historyOutcome=outcome);
             }
             runHistoryPanel.refreshTime(overviewTime);
             patchListPanel.add(runHistoryPanel);

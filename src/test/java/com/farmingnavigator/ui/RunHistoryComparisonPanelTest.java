@@ -25,7 +25,7 @@ public class RunHistoryComparisonPanelTest
             AtomicBoolean expanded=new AtomicBoolean(); RunHistoryComparisonPanel panel=new RunHistoryComparisonPanel(comparison,false,expanded::set);
             assertTrue(labels(panel).contains("mean 1 min 0 sec")); assertTrue(labels(panel).contains("mean 2 min 30 sec"));
             assertTrue(labels(panel).contains("no positive-duration completed checklists")); assertTrue(labels(panel).contains("subtotal data required"));
-            assertTrue(labels(panel).contains("including stopped runs")); assertTrue(labels(panel).contains("not a ranking or a forecast"));
+            assertTrue(labels(panel).contains("timed known entries in this filtered sample")); assertTrue(labels(panel).contains("not a ranking or a forecast"));
             JButton toggle=(JButton)panel.getComponent(0); toggle.doClick(); assertTrue(expanded.get());
             panel.setSize(225,panel.getPreferredSize().height); layout(panel);
             BufferedImage image=new BufferedImage(225,panel.getHeight(),BufferedImage.TYPE_INT_RGB); Graphics2D graphics=image.createGraphics(); panel.printAll(graphics); graphics.dispose();

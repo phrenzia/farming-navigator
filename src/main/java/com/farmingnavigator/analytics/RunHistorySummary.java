@@ -29,6 +29,8 @@ public final class RunHistorySummary
         xpPerHour=seconds>0?OptionalDouble.of(timedXp*3600d/seconds):OptionalDouble.empty();
     }
     public static RunHistorySummary create(List<RunMetricsSnapshot> history,RunHistoryPeriod period,RunHistoryStore.Kind kind,Instant now)
+    { return create(history,period,kind,now,RunHistoryOutcome.ALL); }
+    public static RunHistorySummary create(List<RunMetricsSnapshot> history,RunHistoryPeriod period,RunHistoryStore.Kind kind,Instant now,RunHistoryOutcome outcome)
     {
         Map<String,RunMetricsSnapshot> unique=new LinkedHashMap<>();
         for(RunMetricsSnapshot entry:history)
@@ -40,7 +42,8 @@ public final class RunHistorySummary
         List<RunMetricsSnapshot> bounded=new ArrayList<>(unique.values());
         bounded.sort(Comparator.comparing(RunMetricsSnapshot::getFinishedAt).reversed().thenComparing(RunMetricsSnapshot::getRunName));
         if(bounded.size()>RunHistoryStore.LIMIT) { bounded.subList(RunHistoryStore.LIMIT,bounded.size()).clear(); }
-        bounded.removeIf(entry -> !period.includes(entry.getFinishedAt(),now) || kind!=null && RunHistoryStore.Kind.fromLabel(entry.getRunName())!=kind);
+        bounded.removeIf(entry -> !period.includes(entry.getFinishedAt(),now) || kind!=null && RunHistoryStore.Kind.fromLabel(entry.getRunName())!=kind
+                || outcome!=null && !outcome.includes(entry));
         return new RunHistorySummary(bounded);
     }
     public List<RunMetricsSnapshot> getEntries() { return entries; }

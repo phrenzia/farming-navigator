@@ -29,7 +29,7 @@ public final class RunHistoryComparisonPanel extends JPanel
             RunHistorySummary summary=row.getSummary(); details.add(Box.createVerticalStrut(6)); details.add(text(row.getKind().toString(),Color.WHITE));
             details.add(text(summary.getCompletedCount()+" completed; "+summary.getStoppedCount()+" stopped.",ColorScheme.LIGHT_GRAY_COLOR));
             details.add(text("XP known for "+summary.getKnownXpCount()+" / "+summary.getEntries().size()+"; subtotal "+(summary.getKnownXpCount()>0?numbers.format(summary.getKnownXp()):"data required")+".",ColorScheme.LIGHT_GRAY_COLOR));
-            details.add(text("Recorded XP/hour: "+(summary.getXpPerHour().isPresent()?numbers.format(Math.round(summary.getXpPerHour().getAsDouble())):"data required")+" (timed known entries, including stopped runs).",ColorScheme.LIGHT_GRAY_COLOR));
+            details.add(text("Recorded XP/hour: "+(summary.getXpPerHour().isPresent()?numbers.format(Math.round(summary.getXpPerHour().getAsDouble())):"data required")+" (timed known entries in this filtered sample).",ColorScheme.LIGHT_GRAY_COLOR));
             if(row.getMeanCompletedTime().isPresent())
             {
                 details.add(text("Completed time: mean "+duration(row.getMeanCompletedTime().get())+"; range "+duration(row.getMinimumCompletedTime().get())+" to "+duration(row.getMaximumCompletedTime().get())+" ("+row.getTimedCompletedCount()+" timed).",ColorScheme.LIGHT_GRAY_COLOR));
