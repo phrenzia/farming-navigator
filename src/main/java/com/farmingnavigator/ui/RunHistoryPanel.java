@@ -23,6 +23,7 @@ public final class RunHistoryPanel extends JPanel
     private final JComboBox<String> kind=new JComboBox<>();
     private List<RunMetricsSnapshot> displayed;
     private Instant now;
+    private boolean comparisonOpen;
     public RunHistoryPanel(List<RunMetricsSnapshot> entries,boolean expanded,Consumer<Boolean> expansionChanged,Runnable clear)
     {
         this(entries,expanded,expansionChanged,clear,Instant.now(),RunHistoryPeriod.ALL,null,(window,type) -> {});
@@ -73,6 +74,11 @@ public final class RunHistoryPanel extends JPanel
             results.add(text("XP known for "+summary.getKnownXpCount()+" / "+displayed.size()+"; total elapsed "+summary.getElapsed().toMinutes()+" min.",ColorScheme.LIGHT_GRAY_COLOR));
             if(summary.getXpPerHour().isPresent()) { results.add(text("Recorded XP/hour (timed known entries): "+numbers.format(Math.round(summary.getXpPerHour().getAsDouble())),ColorScheme.LIGHT_GRAY_COLOR)); }
             results.add(text("Unknown XP and zero-duration entries are excluded from the rate.",ColorScheme.LIGHT_GRAY_COLOR));
+        }
+        if(!displayed.isEmpty())
+        {
+            results.add(Box.createVerticalStrut(7));
+            results.add(new RunHistoryComparisonPanel(RunHistoryComparison.create(displayed,RunHistoryPeriod.ALL,now),comparisonOpen,open -> comparisonOpen=open));
         }
         DateTimeFormatter time=DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
         for(RunMetricsSnapshot entry:displayed)
