@@ -20,6 +20,8 @@ public final class FieldSceneTargetPolicy
             ObjectID.FARMING_FLOWER_PATCH_3, ObjectID.FARMING_FLOWER_PATCH_4, ObjectID.FARMING_FLOWER_PATCH_5,
             ObjectID.FARMING_FLOWER_PATCH_6, ObjectID.FARMING_FLOWER_PATCH_7, ObjectID.FARMING_FLOWER_PATCH_8,
             ObjectID.FARMING_FLOWER_PATCH_9);
+    private static final Set<Integer> HOPS = Set.of(ObjectID.FARMING_HOPS_PATCH_1, ObjectID.FARMING_HOPS_PATCH_2,
+            ObjectID.FARMING_HOPS_PATCH_3, ObjectID.FARMING_HOPS_PATCH_4, ObjectID.FARMING_HOPS_PATCH_5);
     private FieldSceneTargetPolicy() { }
     public static FieldPatchDefinition fieldPatch(int baseId, int varbit, WorldPoint location)
     {
@@ -29,7 +31,8 @@ public final class FieldSceneTargetPolicy
         {
             if (patch.getVarbit() != varbit || !patch.isNear(location)) { continue; }
             if (patch.getFamily() == FieldFamily.ALLOTMENT && ALLOTMENT.contains(baseId)
-                    || patch.getFamily() == FieldFamily.FLOWER && FLOWER.contains(baseId)) { return patch; }
+                    || patch.getFamily() == FieldFamily.FLOWER && FLOWER.contains(baseId)
+                    || patch.getFamily() == FieldFamily.HOPS && HOPS.contains(baseId)) { return patch; }
         }
         return null;
     }
@@ -37,11 +40,13 @@ public final class FieldSceneTargetPolicy
     {
         return id == NpcID.KRAGEN || id == NpcID.DANTAERA || id == NpcID.FORTIS_GARDENER || id == NpcID.ELSTAN
                 || id == NpcID.HOSIDIUS_ALLOTMENT_GARDENER || id == NpcID.LYRA
-                || id == NpcID.FARMING_GARDENER_FARMGUILD_T1 || id == NpcID.PRIF_GARDENER;
+                || id == NpcID.FARMING_GARDENER_FARMGUILD_T1 || id == NpcID.PRIF_GARDENER
+                || id == NpcID.FARMING_GARDENER_HOPS_1 || id == NpcID.FARMING_GARDENER_HOPS_3
+                || id == NpcID.FARMING_GARDENER_HOPS_4 || id == NpcID.FARMING_GARDENER_HOPS_5 || id == NpcID.FRANCIS;
     }
     public static boolean isFarmerFor(FieldPatchDefinition patch, int id, WorldPoint location)
     {
-        if (patch == null || patch.getFamily() != FieldFamily.ALLOTMENT) { return false; }
+        if (patch == null || patch.getFamily() == FieldFamily.FLOWER) { return false; }
         FieldPatchRegion region = FieldPatchRegion.forLocation(location);
         if (region == null || !region.getPatches().contains(patch) || patch.getLocation().distanceTo2D(location) > 25) { return false; }
         switch (region)
@@ -54,6 +59,11 @@ public final class FieldSceneTargetPolicy
             case MORYTANIA: return id == NpcID.LYRA;
             case FARMING_GUILD: return id == NpcID.FARMING_GARDENER_FARMGUILD_T1;
             case PRIFDDINAS: return id == NpcID.PRIF_GARDENER;
+            case YANILLE: return id == NpcID.FARMING_GARDENER_HOPS_1;
+            case LUMBRIDGE: return id == NpcID.FARMING_GARDENER_HOPS_3;
+            case SEERS_VILLAGE: return id == NpcID.FARMING_GARDENER_HOPS_4;
+            case ENTRANA: return id == NpcID.FRANCIS;
+            case ALDARIN: return id == NpcID.FARMING_GARDENER_HOPS_5;
             default: return false;
         }
     }

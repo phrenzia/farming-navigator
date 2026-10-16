@@ -24,6 +24,10 @@ public final class FieldPatchAccess
             case HARMONY_ISLAND:
                 return account.hasCompletedQuest(Quest.THE_GREAT_BRAIN_ROBBERY) ? ""
                         : "Data required: partial Great Brain Robbery access has not been verified; completed quest access is supported.";
+            case ENTRANA:
+                return "Data required: Entrana equipment and item restrictions are not checked for this plan.";
+            case ALDARIN:
+                return "Data required: Aldarin entry requirements have not been verified.";
             case KASTORI:
                 return "Data required: Kastori entry requirements have not been verified.";
             default: return "";

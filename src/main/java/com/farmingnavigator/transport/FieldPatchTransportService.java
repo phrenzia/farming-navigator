@@ -25,6 +25,11 @@ public final class FieldPatchTransportService
             switch (region)
             {
                 case KASTORI: continue;
+                case YANILLE:
+                case SEERS_VILLAGE:
+                case LUMBRIDGE:
+                case ENTRANA:
+                case ALDARIN: arrivals = List.of(); break;
                 case FARMING_GUILD: arrivals = guild; break;
                 case PRIFDDINAS:
                     arrivals = List.of(new TransportOption(1, "Teleport crystal to Prifddinas",

@@ -10,11 +10,11 @@ import static org.junit.Assert.*;
 
 public class FieldSceneTargetPolicyTest
 {
-    @Test public void allTwentySixPlotsRequireMatchingFamilyChannelAndArea()
+    @Test public void allThirtyOnePlotsRequireMatchingFamilyChannelAndArea()
     {
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
-            int base = patch.getFamily() == FieldFamily.ALLOTMENT ? ObjectID.FARMING_VEG_PATCH_1 : ObjectID.FARMING_FLOWER_PATCH_1;
+            int base = patch.getFamily() == FieldFamily.ALLOTMENT ? ObjectID.FARMING_VEG_PATCH_1 : patch.getFamily() == FieldFamily.FLOWER ? ObjectID.FARMING_FLOWER_PATCH_1 : ObjectID.FARMING_HOPS_PATCH_1;
             assertEquals(patch, FieldSceneTargetPolicy.fieldPatch(base, patch.getVarbit(), patch.getLocation()));
             assertNull(FieldSceneTargetPolicy.fieldPatch(base, VarbitID.FARMING_TRANSMIT_N, patch.getLocation()));
             assertNull(FieldSceneTargetPolicy.fieldPatch(ObjectID.VEG_PATCH_WEEDED, patch.getVarbit(), patch.getLocation()));
@@ -63,4 +63,17 @@ public class FieldSceneTargetPolicyTest
         assertFalse(FieldSceneTargetPolicy.isFarmerFor(FieldPatchDefinition.FALADOR_NORTH, NpcID.ELSTAN, new WorldPoint(point.getX()+26, point.getY(), 0)));
         assertFalse(FieldSceneTargetPolicy.isFarmerFor(FieldPatchDefinition.FALADOR_NORTH, NpcID.ELSTAN, new WorldPoint(point.getX(), point.getY(), 1)));
     }
+    @Test public void fiveHopsGardenersAreBoundToTheirActualRegion()
+    {
+        FieldPatchDefinition[] patches={FieldPatchDefinition.YANILLE_HOPS,FieldPatchDefinition.LUMBRIDGE_HOPS,FieldPatchDefinition.SEERS_VILLAGE_HOPS,FieldPatchDefinition.ENTRANA_HOPS,FieldPatchDefinition.ALDARIN_HOPS};
+        int[] ids={NpcID.FARMING_GARDENER_HOPS_1,NpcID.FARMING_GARDENER_HOPS_3,NpcID.FARMING_GARDENER_HOPS_4,NpcID.FRANCIS,NpcID.FARMING_GARDENER_HOPS_5};
+        for(int i=0;i<patches.length;i++)
+        {
+            assertTrue(FieldSceneTargetPolicy.isKnownFarmer(ids[i]));
+            assertTrue(FieldSceneTargetPolicy.isFarmerFor(patches[i],ids[i],patches[i].getLocation()));
+            assertFalse(FieldSceneTargetPolicy.isFarmerFor(patches[i],ids[(i+1)%ids.length],patches[i].getLocation()));
+        }
+        assertNull(FieldSceneTargetPolicy.fieldPatch(ObjectID.FARMING_HOPS_PATCH_KELDAGRIM,VarbitID.FARMING_TRANSMIT_A,patches[0].getLocation()));
+    }
+
 }

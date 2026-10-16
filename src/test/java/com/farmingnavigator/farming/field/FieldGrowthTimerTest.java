@@ -14,7 +14,7 @@ public class FieldGrowthTimerTest
     {
         return new FieldPatchObservation(new FieldPatchStateDecoder().decode(family, raw), now, rate);
     }
-    @Test public void allFourteenCropsMatchPublicRuneLiteMetadata()
+    @Test public void allTwentyFourCropsMatchPublicRuneLiteMetadata()
     {
         int count = 0;
         for (FieldCrop crop : FieldCrop.values())
@@ -25,7 +25,7 @@ public class FieldGrowthTimerTest
             assertEquals(source.getStages(), crop.getStages()); assertEquals(source.getTickrate(), crop.getGrowthCycleMinutes());
             count++;
         }
-        assertEquals(14, count);
+        assertEquals(24, count);
     }
     @Test public void cropsUseDifferentWindowsAndLeaguesScaling()
     {
@@ -76,4 +76,19 @@ public class FieldGrowthTimerTest
             assertEquals(FieldCrop.SNAPE_GRASS, snape.getCrop()); assertEquals(FieldPatchCondition.HARVESTABLE, snape.getCondition());
         }
     }
+    @Test public void hopsAndFibreGrowthUsePinnedRatesAndReversedHarvestStages()
+    {
+        assertEquals(now.plusSeconds(2400), timer.estimate(observation(FieldFamily.HOPS,4,FarmingGrowthRate.NORMAL),now).get().getLatest());
+        assertEquals(now.plusSeconds(3600), timer.estimate(observation(FieldFamily.HOPS,96,FarmingGrowthRate.NORMAL),now).get().getLatest());
+        assertEquals(now.plusSeconds(720), timer.estimate(observation(FieldFamily.HOPS,96,FarmingGrowthRate.LEAGUES),now).get().getLatest());
+        for(int raw=8;raw<=10;raw++)
+        {
+            FieldPatchState state = new FieldPatchStateDecoder().decode(FieldFamily.HOPS,raw);
+            assertEquals(FieldCrop.HAMMERSTONE,state.getCrop()); assertEquals(10-raw,state.getStage());
+            assertEquals(FieldPatchCondition.HARVESTABLE,state.getCondition());
+        }
+        assertEquals(FieldCrop.HEMP,new FieldPatchStateDecoder().decode(FieldFamily.HOPS,241).getCrop());
+        assertEquals(FieldPatchCondition.DEAD,new FieldPatchStateDecoder().decode(FieldFamily.HOPS,241).getCondition());
+    }
+
 }

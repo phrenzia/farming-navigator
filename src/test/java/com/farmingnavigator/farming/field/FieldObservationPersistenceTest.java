@@ -52,4 +52,13 @@ public class FieldObservationPersistenceTest
         store.observe(FieldPatchDefinition.FARMING_GUILD_FLOWER, 41, now, FarmingGrowthRate.NORMAL);
         persistence.save(store.snapshot()); assertEquals(4, records.size());
     }
+    @Test public void hopsFibreHistoryRestoresWithoutInventingAccess()
+    {
+        persistence.loadProfile("A",store,now);
+        store.observe(FieldPatchDefinition.ALDARIN_HOPS,119,now,FarmingGrowthRate.NORMAL);
+        persistence.save(store.snapshot()); persistence.detach(); store.clear(); persistence.loadProfile("A",store,now.plusSeconds(10));
+        assertEquals(FieldCrop.COTTON,store.snapshot().get(FieldPatchDefinition.ALDARIN_HOPS).getState().getCrop());
+        assertEquals(now,store.snapshot().get(FieldPatchDefinition.ALDARIN_HOPS).getObservedAt());
+    }
+
 }

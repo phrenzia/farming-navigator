@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2019 Abex
+ * Copyright (c) 2018 Abex
+ * Copyright (c) 2018, NotFoxtrot <https://github.com/NotFoxtrot>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +42,17 @@ public enum FieldCrop
     NASTURTIUM("Nasturtium", FieldFamily.FLOWER, 5, 5),
     WOAD("Woad", FieldFamily.FLOWER, 5, 5),
     LIMPWURT("Limpwurt", FieldFamily.FLOWER, 5, 5),
-    WHITE_LILY("White lily", FieldFamily.FLOWER, 5, 5);
+    WHITE_LILY("White lily", FieldFamily.FLOWER, 5, 5),
+    BARLEY("Barley", FieldFamily.HOPS, 10, 5),
+    HAMMERSTONE("Hammerstone", FieldFamily.HOPS, 10, 5),
+    ASGARNIAN("Asgarnian", FieldFamily.HOPS, 10, 6),
+    JUTE("Jute", FieldFamily.HOPS, 10, 6),
+    YANILLIAN("Yanillian", FieldFamily.HOPS, 10, 7),
+    KRANDORIAN("Krandorian", FieldFamily.HOPS, 10, 8),
+    WILDBLOOD("Wildblood", FieldFamily.HOPS, 10, 9),
+    FLAX("Flax", FieldFamily.HOPS, 20, 4),
+    HEMP("Hemp", FieldFamily.HOPS, 20, 5),
+    COTTON("Cotton", FieldFamily.HOPS, 20, 6);
     private final String label;
     private final FieldFamily family;
     private final int growthCycleMinutes;

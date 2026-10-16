@@ -46,7 +46,7 @@ public class FieldObservationsPanelTest
                     FieldPatchDefinition.PRIFDDINAS_FLOWER, observation(FieldFamily.FLOWER, 37, now)), now, false, expanded::set);
             JButton toggle = (JButton) Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton).findFirst().get();
             toggle.doClick(); assertTrue(expanded.get());
-            assertTrue(labels(panel).contains("Observed patches: 3 / 26"));
+            assertTrue(labels(panel).contains("Observed patches: 3 / 31"));
             assertTrue(labels(panel).contains("harvestable: 1; diseased or dead: 1"));
             assertTrue(labels(panel).contains("Allotments")); assertTrue(labels(panel).contains("Flowers"));
             panel.setSize(225, 6800); layout(panel);
@@ -63,7 +63,7 @@ public class FieldObservationsPanelTest
         SwingUtilities.invokeAndWait(() -> {
             FieldObservationsPanel panel = new FieldObservationsPanel(Map.of(FieldPatchDefinition.FARMING_GUILD_FLOWER,
                     observation(FieldFamily.FLOWER, 41, now.plusSeconds(1))), now, true, value -> {});
-            assertTrue(labels(panel).contains("Observed patches: 0 / 26"));
+            assertTrue(labels(panel).contains("Observed patches: 0 / 31"));
             assertFalse(labels(panel).contains("harvestable: 1"));
         });
     }

@@ -57,7 +57,12 @@ public enum FieldPatchDefinition
     PRIFDDINAS_SOUTH("Prifddinas - South", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_B, 3289, 6100),
     PRIFDDINAS_FLOWER("Prifddinas - Flower", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 3289, 6100),
     HARMONY_ISLAND_ALLOTMENT("Harmony Island", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_A, 3793, 2836),
-    KASTORI_FLOWER("Kastori", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 1352, 3025);
+    KASTORI_FLOWER("Kastori", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 1352, 3025),
+    YANILLE_HOPS("Yanille", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 2572, 3102),
+    SEERS_VILLAGE_HOPS("Seers' Village", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 2661, 3523),
+    LUMBRIDGE_HOPS("Lumbridge", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 3224, 3313),
+    ENTRANA_HOPS("Entrana", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 2812, 3334),
+    ALDARIN_HOPS("Aldarin", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 1367, 2938);
     private final String label;
     private final FieldFamily family;
     private final int varbit;

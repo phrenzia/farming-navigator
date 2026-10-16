@@ -262,8 +262,8 @@ public interface FarmingNavigatorConfig
             position = 26, section = GENERAL_SECTION)
     default boolean gardenEstimatedAlerts() { return false; }
 
-    @ConfigItem(keyName = "showFieldObservations", name = "Show allotment/flower observations",
-            description = "Display observed allotment and flower history, scarecrows and conditional growth windows",
+    @ConfigItem(keyName = "showFieldObservations", name = "Show field observations",
+            description = "Display observed allotment, flower and hops/fibre history, scarecrows and conditional growth windows",
             position = 27, section = GENERAL_SECTION)
     default boolean showFieldObservations() { return true; }
 

@@ -16,7 +16,7 @@ public class FieldObservationTest
     private final Instant now = Instant.parse("2026-10-15T12:00:00Z");
     private final FieldPatchObservationStore store = new FieldPatchObservationStore();
     private final FieldPatchObservationSampler sampler = new FieldPatchObservationSampler(store);
-    @Test public void allTwentySixPatchAnchorsBelongToOneRegionAndGuildChannelsAreDistinct()
+    @Test public void allThirtyOnePatchAnchorsBelongToOneRegionAndGuildChannelsAreDistinct()
     {
         Set<FieldPatchDefinition> found = EnumSet.noneOf(FieldPatchDefinition.class);
         for (FieldPatchRegion region : FieldPatchRegion.values())
@@ -29,7 +29,7 @@ public class FieldObservationTest
                 assertNull(FieldPatchRegion.forLocation(new WorldPoint(patch.getLocation().getX(), patch.getLocation().getY(), 1)));
             }
         }
-        assertEquals(26, found.size()); assertEquals(EnumSet.allOf(FieldPatchDefinition.class), found);
+        assertEquals(31, found.size()); assertEquals(EnumSet.allOf(FieldPatchDefinition.class), found);
         assertNull(FieldPatchRegion.forLocation(null)); assertNull(FieldPatchRegion.forLocation(new WorldPoint(0, 0, 0)));
     }
     @Test public void threeDistinctTicksReadOnlyTheCurrentRegionChannels()
@@ -91,6 +91,16 @@ public class FieldObservationTest
         assertNull(FieldPatchRegion.forLocation(new WorldPoint(2840, 3440, 0)));
         assertEquals(FieldPatchRegion.CATHERBY, FieldPatchRegion.forLocation(new WorldPoint(2839, 3440, 0)));
         assertNull(FieldPatchRegion.forLocation(new WorldPoint(2839, 3439, 0)));
+    }
+    @Test public void hopsChannelARequiresResettlingWhenMovingBetweenRegions()
+    {
+        for(int tick=1;tick<=3;tick++) { sample(FieldPatchDefinition.YANILLE_HOPS.getLocation(),false,false,tick,4); }
+        assertEquals(FieldCrop.HAMMERSTONE,store.snapshot().get(FieldPatchDefinition.YANILLE_HOPS).getState().getCrop());
+        assertFalse(sample(FieldPatchDefinition.LUMBRIDGE_HOPS.getLocation(),false,false,4,74));
+        assertFalse(sample(FieldPatchDefinition.LUMBRIDGE_HOPS.getLocation(),false,false,5,74));
+        assertTrue(sample(FieldPatchDefinition.LUMBRIDGE_HOPS.getLocation(),false,false,6,74));
+        assertEquals(FieldCrop.BARLEY,store.snapshot().get(FieldPatchDefinition.LUMBRIDGE_HOPS).getState().getCrop());
+        assertEquals(2,store.snapshot().size());
     }
     private boolean sample(WorldPoint point, boolean modal, boolean instance, int tick, int raw)
     {

@@ -42,7 +42,12 @@ public enum FieldPatchRegion
     FARMING_GUILD(new int[]{4922, 5177, 5178, 5179, 4921, 4923, 4665, 4666, 4667}, FieldPatchDefinition.FARMING_GUILD_NORTH, FieldPatchDefinition.FARMING_GUILD_SOUTH, FieldPatchDefinition.FARMING_GUILD_FLOWER),
     PRIFDDINAS(new int[]{13151, 12895, 12894, 13150, 12994, 12993, 12737, 12738, 12126, 12127, 13250}, FieldPatchDefinition.PRIFDDINAS_NORTH, FieldPatchDefinition.PRIFDDINAS_SOUTH, FieldPatchDefinition.PRIFDDINAS_FLOWER),
     HARMONY_ISLAND(new int[]{15148}, FieldPatchDefinition.HARMONY_ISLAND_ALLOTMENT),
-    KASTORI(new int[]{5423, 5167, 5424}, FieldPatchDefinition.KASTORI_FLOWER);
+    KASTORI(new int[]{5423, 5167, 5424}, FieldPatchDefinition.KASTORI_FLOWER),
+    YANILLE(new int[]{10288}, FieldPatchDefinition.YANILLE_HOPS),
+    SEERS_VILLAGE(new int[]{10551, 10550}, FieldPatchDefinition.SEERS_VILLAGE_HOPS),
+    LUMBRIDGE(new int[]{12851}, FieldPatchDefinition.LUMBRIDGE_HOPS),
+    ENTRANA(new int[]{11060, 11316}, FieldPatchDefinition.ENTRANA_HOPS),
+    ALDARIN(new int[]{5421, 5165, 5166, 5422, 5677, 5678}, FieldPatchDefinition.ALDARIN_HOPS);
     private final int[] regions;
     private final List<FieldPatchDefinition> patches;
     FieldPatchRegion(int[] regions, FieldPatchDefinition... patches)

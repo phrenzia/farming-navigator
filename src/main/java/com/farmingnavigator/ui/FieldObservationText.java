@@ -12,7 +12,7 @@ public final class FieldObservationText
     private FieldObservationText() { }
     public static String describe(FieldPatchObservation observation, ZoneId zone)
     {
-        if (observation == null) { return "Data required - visit this allotment/flower patch."; }
+        if (observation == null) { return "Data required - visit this field plot."; }
         FieldPatchState state = observation.getState();
         String crop = state.getCrop() == FieldCrop.UNKNOWN ? "" : state.getCrop().getLabel() + " - ";
         String time = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(zone).format(observation.getObservedAt());
