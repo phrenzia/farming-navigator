@@ -138,6 +138,10 @@ public class FarmingNavigatorPanel
     private boolean gardenObservationsOpen;
     private boolean fieldObservationsOpen;
     private boolean fieldRunDetailsOpen;
+    private com.farmingnavigator.guided.field.FieldRunSnapshot fieldGuidedRun;
+    private Consumer<com.farmingnavigator.guided.field.FieldRunCommand> fieldCommands = command -> {};
+    public void setFieldGuidedRun(com.farmingnavigator.guided.field.FieldRunSnapshot snapshot) { fieldGuidedRun = snapshot; }
+    public void setFieldCommands(Consumer<com.farmingnavigator.guided.field.FieldRunCommand> commands) { fieldCommands = commands; }
     private com.farmingnavigator.routing.run.FieldRunPlan fieldRunPlan;
     public void setFieldRunPlan(com.farmingnavigator.routing.run.FieldRunPlan plan) { fieldRunPlan = plan; }
     private boolean gardenRunDetailsOpen;
@@ -738,7 +742,8 @@ public class FarmingNavigatorPanel
             patchListPanel.add(new com.farmingnavigator.ui.FarmingContractPanel(farmingContract,
                     config.herbRunCrop(), config.treeRunCrop(), config.herbRunPatches().contains(HerbPatchDefinition.FARMING_GUILD), treeGuildSelected,
                     guidedRun != null && guidedRun.isActive() || treeGuidedRun != null && treeGuidedRun.isActive()
-                            || gardenGuidedRun != null && gardenGuidedRun.isActive(), contractPreparation, config.gardenRunCrop(),
+                            || gardenGuidedRun != null && gardenGuidedRun.isActive()
+                            || fieldGuidedRun != null && fieldGuidedRun.isActive(), contractPreparation, config.gardenRunCrop(),
                     com.farmingnavigator.contracts.ContractRunPreparation.isGuildSelected(config.gardenRunCrop(), config.gardenRunPatches())));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
@@ -788,6 +793,9 @@ public class FarmingNavigatorPanel
 
         if (accountState.isLoggedIn() && fieldRunPlan != null)
         {
+            patchListPanel.add(new com.farmingnavigator.ui.FieldGuidedRunPanel(fieldGuidedRun,
+                    fieldRunPlan.getBlocker().isEmpty() && !fieldRunPlan.getStops().isEmpty(), fieldCommands));
+            patchListPanel.add(Box.createVerticalStrut(8));
             patchListPanel.add(new com.farmingnavigator.ui.FieldRunPlanPanel(fieldRunPlan,
                     fieldRunDetailsOpen, expanded -> fieldRunDetailsOpen = expanded));
             patchListPanel.add(Box.createVerticalStrut(8));
