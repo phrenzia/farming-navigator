@@ -35,6 +35,7 @@ public final class GuidedRunSession
     private Instant startedAt;
     private Instant interruptedHarvestAt = Instant.EPOCH;
     private HerbCrop curingCrop = HerbCrop.UNKNOWN;
+    private boolean compostConfirmed;
     private int index;
     private int completed;
     private int skipped;
@@ -65,6 +66,7 @@ public final class GuidedRunSession
         }
         if (step == GuidedRunStep.COMPOST)
         {
+            compostConfirmed = true;
             enter(GuidedRunStep.PLANT, now);
             return true;
         }
@@ -83,7 +85,8 @@ public final class GuidedRunSession
             return false;
         }
         HerbPatchObservation observation = observations.get(stop.getPatch());
-        if (observation == null || observation.getObservedAt().isAfter(now))
+        if (observation == null || observation.getObservedAt().isAfter(now)
+                || Duration.between(observation.getObservedAt(), now).compareTo(Duration.ofSeconds(30)) > 0)
         {
             return false;
         }
@@ -94,6 +97,12 @@ public final class GuidedRunSession
             return false;
         }
         HerbPatchState state = observation.getState();
+        // A cure-only stop reserved no seed or application. Do not silently turn it into a replant.
+        if (!stop.isReplant() && (state.getCondition() == PatchCondition.EMPTY || state.getCondition() == PatchCondition.WEEDS))
+        {
+            finishStop(false, false, now);
+            return true;
+        }
         if (!state.isKnown() && step != GuidedRunStep.INSPECT)
         {
             enter(GuidedRunStep.INSPECT, now);
@@ -114,7 +123,7 @@ public final class GuidedRunSession
                 || step == GuidedRunStep.NOTE_PRODUCE)
                 && state.getCondition() == PatchCondition.EMPTY)
         {
-            enter(compost == HerbRunCompost.NONE ? GuidedRunStep.PLANT : GuidedRunStep.COMPOST, now);
+            enter(plantingStep(), now);
             return true;
         }
         if ((step == GuidedRunStep.PLANT || step == GuidedRunStep.COMPOST || step == GuidedRunStep.HARVEST
@@ -124,7 +133,8 @@ public final class GuidedRunSession
             finishStop(false, false, now);
             return true;
         }
-        if (step == GuidedRunStep.CURE && state.getCondition() == PatchCondition.GROWING && state.getCrop() == curingCrop)
+        if (step == GuidedRunStep.CURE && (state.getCondition() == PatchCondition.GROWING
+                || state.getCondition() == PatchCondition.HARVESTABLE) && state.getCrop() == curingCrop)
         {
             finishStop(false, false, now);
             return true;
@@ -157,6 +167,7 @@ public final class GuidedRunSession
         if (step == GuidedRunStep.NOTE_PRODUCE && freeSlots > 0)
         {
             // This resumes the same harvest action, so preserve its evidence cutoff.
+            revision++;
             step = GuidedRunStep.HARVEST;
             enteredAt = interruptedHarvestAt;
             return true;
@@ -212,6 +223,8 @@ public final class GuidedRunSession
         crop = null;
         startedAt = null;
         cure = HerbRunCure.PLANT_CURE;
+        compostConfirmed = false;
+        curingCrop = HerbCrop.UNKNOWN;
         step = GuidedRunStep.INACTIVE;
         index = completed = skipped = manuallyCompleted = 0;
     }
@@ -221,6 +234,8 @@ public final class GuidedRunSession
         revision++;
         if (skip) { skipped++; } else { completed++; }
         if (manual) { manuallyCompleted++; }
+        compostConfirmed = false;
+        curingCrop = HerbCrop.UNKNOWN;
         index++;
         enter(index == stops.size() ? GuidedRunStep.COMPLETE : GuidedRunStep.TRAVEL, now);
     }
@@ -241,8 +256,12 @@ public final class GuidedRunSession
             case DEAD: return GuidedRunStep.CLEAR;
             case DISEASED: return GuidedRunStep.CURE;
             case GROWING: return GuidedRunStep.WAIT;
-            case EMPTY: return compost == HerbRunCompost.NONE ? GuidedRunStep.PLANT : GuidedRunStep.COMPOST;
+            case EMPTY: return plantingStep();
             default: return GuidedRunStep.INSPECT;
         }
+    }
+    private GuidedRunStep plantingStep()
+    {
+        return compost == HerbRunCompost.NONE || compostConfirmed ? GuidedRunStep.PLANT : GuidedRunStep.COMPOST;
     }
 }

@@ -261,7 +261,60 @@ public class GuidedRunSessionTest
         }
     }
 
+    @Test public void confirmedCompostSurvivesUnknownEvidenceButDoesNotCarryToNextStop()
+    {
+        GuidedRunSession session=start(HerbRunCompost.ULTRACOMPOST,true);
+        session.confirm(now.plusSeconds(1)); observe(session,0,2); session.confirm(now.plusSeconds(3));
+        observe(session,220,4); assertEquals(GuidedRunStep.INSPECT,session.snapshot().getStep());
+        observe(session,0,5); assertEquals(GuidedRunStep.PLANT,session.snapshot().getStep());
+        session.skip(now.plusSeconds(6));
+        HerbPatchObservation next=new HerbPatchObservation(new HerbPatchStateDecoder().decode(0),now.plusSeconds(7),FarmingGrowthRate.NORMAL);
+        session.observe(HerbPatchDestination.CATHERBY.getLocation(),Collections.singletonMap(HerbPatchDefinition.CATHERBY,next),now.plusSeconds(7));
+        assertEquals(GuidedRunStep.COMPOST,session.snapshot().getStep());
+    }
+    @Test public void cureOnlyStopBecomingEmptyOrWeedyCannotRequestUnreservedReplant()
+    {
+        for(int raw:new int[]{0,3})
+        {
+            GuidedRunSession session=start(HerbRunCompost.ULTRACOMPOST,false,observation(140,now));
+            assertFalse(session.snapshot().getStop().isReplant()); session.confirm(now.plusSeconds(1));
+            observe(session,140,2); assertEquals(GuidedRunStep.CURE,session.snapshot().getStep());
+            observe(session,220,3); observe(session,raw,4);
+            assertEquals(GuidedRunStep.COMPLETE,session.snapshot().getStep());
+            assertEquals(0,session.snapshot().getManuallyCompleted());
+        }
+    }
+    @Test public void cureCanFinishOnSameCropObservedHealthyAndHarvestable()
+    {
+        GuidedRunSession session=start(HerbRunCompost.NONE,false,observation(140,now));
+        session.confirm(now.plusSeconds(1)); observe(session,140,2);
+        assertTrue(observe(session,36,3)); assertEquals(GuidedRunStep.COMPLETE,session.snapshot().getStep());
+    }
+    @Test public void observationAgeHasInclusiveThirtySecondLimitDuringActions()
+    {
+        GuidedRunSession session=start(HerbRunCompost.NONE,false);
+        session.confirm(now.plusSeconds(1)); observe(session,0,2);
+        assertFalse(session.observe(falador,observation(32,now.plusSeconds(3)),now.plusSeconds(34)));
+        assertEquals(GuidedRunStep.PLANT,session.snapshot().getStep());
+        assertTrue(session.observe(falador,observation(32,now.plusSeconds(4)),now.plusSeconds(34)));
+        assertEquals(GuidedRunStep.COMPLETE,session.snapshot().getStep());
+    }
+    @Test public void resumedHarvestRejectsCommandsFromInventoryInterruptionRevision()
+    {
+        GuidedRunSession session=start(HerbRunCompost.NONE,false); session.confirm(now.plusSeconds(1)); observe(session,36,2);
+        session.observeInventory(0,falador,now.plusSeconds(3)); long paused=session.getRevision();
+        session.observeInventory(1,falador,now.plusSeconds(4));
+        assertTrue(session.getRevision()>paused);
+        assertFalse(ChecklistCommandGuard.dispatch(paused,session.getRevision(),() -> session.skip(now.plusSeconds(5))));
+        assertEquals(GuidedRunStep.HARVEST,session.snapshot().getStep());
+    }
+
     private GuidedRunSession start(HerbRunCompost compost, boolean twoStops)
+    {
+        return start(compost,twoStops,Collections.emptyMap());
+    }
+    private GuidedRunSession start(HerbRunCompost compost, boolean twoStops,
+            java.util.Map<HerbPatchDefinition,HerbPatchObservation> observations)
     {
         AccountState account = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
                 Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), false);
@@ -269,7 +322,7 @@ public class GuidedRunSessionTest
                 new HerbPatchStatus(HerbPatchDefinition.FALADOR, Collections.emptyList()),
                 new HerbPatchStatus(HerbPatchDefinition.CATHERBY, Collections.emptyList())),
                 twoStops ? EnumSet.of(HerbPatchDefinition.FALADOR, HerbPatchDefinition.CATHERBY) : EnumSet.of(HerbPatchDefinition.FALADOR),
-                HerbRunCrop.RANARR, compost, Collections.emptyMap(), Collections.emptyMap(), null, now);
+                HerbRunCrop.RANARR, compost, observations, Collections.emptyMap(), null, now);
         GuidedRunSession session = new GuidedRunSession();
         assertTrue(session.start(plan, compost, now));
         return session;

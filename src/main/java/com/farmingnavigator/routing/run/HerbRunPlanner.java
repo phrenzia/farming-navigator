@@ -67,6 +67,7 @@ public final class HerbRunPlanner
                 continue;
             }
             HerbPatchObservation observation = observations.get(patch);
+            if (observation != null && observation.getObservedAt().isAfter(now)) { observation = null; }
             PatchCondition condition = observation == null ? PatchCondition.UNKNOWN : observation.getState().getCondition();
             if (condition == PatchCondition.GROWING)
             {

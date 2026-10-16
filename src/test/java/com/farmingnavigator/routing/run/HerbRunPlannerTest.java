@@ -229,6 +229,18 @@ public class HerbRunPlannerTest
         }
     }
 
+    @Test public void futureDiseaseOrGrowingEvidenceCannotAlterSupplyReservationsOrExcludeStops()
+    {
+        for(int raw:new int[]{140,32})
+        {
+            HerbPatchObservation future=new HerbPatchObservation(new HerbPatchStateDecoder().decode(raw),now.plusSeconds(1),FarmingGrowthRate.NORMAL);
+            HerbRunPlan result=plan(Collections.singletonMap(HerbPatchDefinition.FALADOR,future),Collections.emptyMap(),now);
+            assertEquals(2,result.getStops().size()); assertEquals(2,supply(result,ItemID.RANARR_SEED).getRequirement().getQuantity());
+            assertTrue(result.getStops().get(0).isReplant()); assertTrue(result.getStops().get(0).getAction().contains("Inspect"));
+            assertFalse(result.getSupplies().stream().anyMatch(check -> check.getRequirement().getItemId()==ItemID.PLANT_CURE));
+        }
+    }
+
     private HerbRunPlan plan(Map<HerbPatchDefinition, HerbPatchObservation> observations,
             Map<HerbPatchDefinition, List<VerifiedTransportResult>> transports, Instant time)
     {
