@@ -124,4 +124,18 @@ public class FieldRunSessionTest
         FieldRunSnapshot result = session.snapshot(now.plusSeconds(100)); assertEquals(1, result.getCompleted()); assertEquals(1, result.getManual()); assertEquals(1, result.getSkipped());
         assertEquals(Duration.ofSeconds(3), result.getElapsed()); session.cancel(); assertEquals(Duration.ZERO, session.snapshot(now).getElapsed()); assertNull(session.snapshot(now).getCrop());
     }
+    @Test public void compostApplicationRequiresManualConfirmationBeforePlanting()
+    {
+        FieldRunPlan plan = new FieldRunPlanner().plan(new AccountState(true,99,99,EnumSet.noneOf(Quest.class),false), EnumSet.of(patch),
+                FieldRunCrop.POTATO, FieldRunMode.HARVEST_ALL, true, FieldRunCompost.ULTRACOMPOST, Map.of(), null, now);
+        session.start(plan, true, now); session.command(FieldRunCommand.CONFIRM, now.plusSeconds(1));
+        observe(0,2); assertEquals(FieldRunStep.COMPOST, step()); assertTrue(session.snapshot(now).getInstruction().contains("Ultracompost"));
+        assertEquals(FieldRunCompost.ULTRACOMPOST, session.snapshot(now).getCompost());
+        observe(0,3); assertEquals(FieldRunStep.COMPOST, step());
+        session.command(FieldRunCommand.CONFIRM, now.plusSeconds(4)); assertEquals(FieldRunStep.PLANT, step());
+        observe(-1,5); assertEquals(FieldRunStep.INSPECT, step());
+        observe(0,6); assertEquals(FieldRunStep.PLANT, step());
+        observe(6,7); assertEquals(FieldRunStep.PROTECT, step());
+    }
+
 }

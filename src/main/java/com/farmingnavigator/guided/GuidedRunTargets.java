@@ -354,6 +354,7 @@ public final class GuidedRunTargets
                 }
                 break;
             case CURE: inventory.add(ItemID.PLANT_CURE); break;
+            case COMPOST: if (session.getCompost().getItemId() > 0) { inventory.add(session.getCompost().getItemId()); } break;
             default: break;
         }
         RunePreparation preparation = plan == null || plan.getTransportResources() == null ? null : plan.getTransportResources().getRunePreparation();

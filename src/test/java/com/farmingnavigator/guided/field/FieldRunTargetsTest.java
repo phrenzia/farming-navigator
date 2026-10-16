@@ -137,6 +137,14 @@ public class FieldRunTargetsTest
             assertNull(targets(step, FieldRunCrop.MARIGOLD).getFieldScenePatch());
         }
     }
+
+    @Test public void compostHighlightsOnlyTheSelectedUnnotedBucket()
+    {
+        FieldRunPlan plan = new FieldRunPlanner().plan(account, EnumSet.of(FieldPatchDefinition.FALADOR_NORTH), FieldRunCrop.POTATO,
+                FieldRunMode.HARVEST_ALL, true, FieldRunCompost.ULTRACOMPOST, Map.of(), null, Instant.now());
+        FieldRunSnapshot snapshot = new FieldRunSnapshot(FieldRunStep.COMPOST, plan.getCrop(), plan.getMode(), plan.getStops().get(0), 1, 0, 0, 0, 0, Duration.ZERO, plan.getCompost());
+        assertEquals(Set.of(ItemID.BUCKET_ULTRACOMPOST), GuidedRunTargets.fromField(snapshot, plan, null).getInventoryItems());
+    }
     private static final class RecordingManager extends WorldMapPointManager
     {
         private final List<WorldMapPoint> points = new ArrayList<>();

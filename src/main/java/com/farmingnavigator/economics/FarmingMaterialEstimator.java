@@ -65,7 +65,7 @@ public final class FarmingMaterialEstimator
         for (com.farmingnavigator.loadout.SupplyCheck check : plan.getSupplies())
         {
             SupplyRequirement requirement = check.getRequirement(); int id = requirement.getItemId();
-            if (id == plan.getCrop().getSeedId() || id == ItemID.PLANT_CURE || id == paymentId) { lines.add(line(requirement, price)); }
+            if (id == plan.getCrop().getSeedId() || id == ItemID.PLANT_CURE || id == paymentId || id == plan.getCompost().getItemId()) { lines.add(line(requirement, price)); }
         }
         return new FarmingMaterialEstimate(lines, notes());
     }

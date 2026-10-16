@@ -148,4 +148,24 @@ public class FieldRunPlannerTest
         assertEquals(4, result.getSupplies().size()); assertEquals(3, supply(result, ItemID.ONION_SEED).getRequirement().getQuantity());
     }
 
+    @Test public void compostApplicationAndPotatoPaymentDoNotReuseBuckets()
+    {
+        FieldRunPlan result = planner.plan(account(99), EnumSet.of(FieldPatchDefinition.FALADOR_NORTH), FieldRunCrop.POTATO, FieldRunMode.HARVEST_ALL,
+                true, FieldRunCompost.COMPOST, Map.of(), new StorageSnapshot(Map.of(ItemID.BUCKET_COMPOST, 2L), Map.of(), Map.of(), true, now), now);
+        List<SupplyCheck> compost = new java.util.ArrayList<>();
+        result.getSupplies().stream().filter(c -> c.getRequirement().getItemId() == ItemID.BUCKET_COMPOST).forEach(compost::add);
+        assertEquals(2, compost.size()); assertEquals(1, compost.get(0).getRequirement().getQuantity());
+        assertEquals(SupplyState.ALREADY_CARRIED, compost.get(0).getState()); assertEquals(SupplyState.MISSING, compost.get(1).getState());
+        assertEquals(1, compost.get(1).getMissingQuantity()); assertEquals(FieldRunCompost.COMPOST, result.getCompost());
+    }
+    @Test public void keptFlowersAndDiseaseStopsDoNotReserveCompost()
+    {
+        for (int raw : new int[]{41,166})
+        {
+            FieldRunPlan result = planner.plan(account(99), EnumSet.of(FieldPatchDefinition.FALADOR_FLOWER), FieldRunCrop.WHITE_LILY, FieldRunMode.KEEP_MATURE_FLOWERS,
+                    true, FieldRunCompost.ULTRACOMPOST, Map.of(FieldPatchDefinition.FALADOR_FLOWER, observation(FieldFamily.FLOWER, raw)), null, now);
+            assertFalse(result.getSupplies().stream().anyMatch(c -> c.getRequirement().getItemId() == ItemID.BUCKET_ULTRACOMPOST));
+        }
+    }
+
 }

@@ -92,4 +92,12 @@ public class FieldRunTransportTest
         }
         assertTrue(sawPortal); assertTrue(sawSpell);
     }
+    @Test public void travelRefreshPreservesSelectedCompost()
+    {
+        RequirementContext context = context(Map.of(), Map.of());
+        FieldRunPlan plan = new FieldRunPlanner().plan(context.getAccountState(), EnumSet.of(FieldPatchDefinition.FALADOR_NORTH), FieldRunCrop.POTATO,
+                FieldRunMode.HARVEST_ALL, true, FieldRunCompost.SUPERCOMPOST, Map.of(), null, Instant.now()).withTransports(routes(context), HerbTransportPreference.CATALOGUE, context);
+        assertEquals(FieldRunCompost.SUPERCOMPOST, plan.getCompost());
+    }
+
 }

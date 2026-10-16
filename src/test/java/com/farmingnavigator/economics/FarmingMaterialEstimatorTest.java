@@ -186,4 +186,12 @@ public class FarmingMaterialEstimatorTest
         assertEquals(1, result.getUnknownPriceCount()); assertEquals(1, result.getLines().size());
     }
 
+    @Test public void potatoCompostValueCountsApplicationSeparatelyFromFarmerPayment()
+    {
+        FieldRunPlan plan = new FieldRunPlanner().plan(account(), EnumSet.of(com.farmingnavigator.farming.field.FieldPatchDefinition.FALADOR_NORTH),
+                FieldRunCrop.POTATO, FieldRunMode.HARVEST_ALL, true, FieldRunCompost.COMPOST, Map.of(), null, now);
+        FarmingMaterialEstimate estimate = estimator.fields(plan, id -> { assertTrue(id == ItemID.POTATO_SEED || id == ItemID.BUCKET_COMPOST); return id == ItemID.POTATO_SEED ? 5 : 100; });
+        assertEquals(3, estimate.getLines().size()); assertEquals(315, estimate.getKnownSubtotal().getAsLong());
+    }
+
 }

@@ -300,6 +300,10 @@ public interface FarmingNavigatorConfig
             position = 34, section = GENERAL_SECTION)
     default boolean fieldEstimatedAlerts() { return false; }
 
+    @ConfigItem(keyName = "fieldRunCompost", name = "Allotment/flower compost",
+            description = "Reserve filled buckets separately from protection payments; application remains manual", position = 35, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.FieldRunCompost fieldRunCompost() { return com.farmingnavigator.routing.run.FieldRunCompost.ULTRACOMPOST; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

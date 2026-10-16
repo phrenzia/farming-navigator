@@ -52,6 +52,7 @@ public final class FieldGuidedRunPanel extends JPanel
         if (run.getStep() == FieldRunStep.PREPARE) { add(button("Ready for travel", FieldRunCommand.CONFIRM, commands)); }
         else
         {
+            if (run.getStep() == FieldRunStep.COMPOST) { add(button("Compost applied (manual)", FieldRunCommand.CONFIRM, commands)); }
             if (run.getStep() == FieldRunStep.PROTECT) { add(button("Protection paid (manual)", FieldRunCommand.CONFIRM, commands)); }
             if (run.getStep() == FieldRunStep.KEEP_FLOWER) { add(button("Flower kept / finish stop", FieldRunCommand.CONFIRM, commands)); }
             add(button("Complete stop manually", FieldRunCommand.MARK_COMPLETE, commands));

@@ -39,6 +39,37 @@ public final class LoadoutService
         return Collections.unmodifiableList(checks);
     }
 
+    /** Reserve each item once, in caller priority order. Put restricted forms before flexible alternatives.
+     * This is ordered allocation, not an optimal matching solver. Existing independent checks stay unchanged.
+     */
+    public List<SupplyCheck> evaluateInOrder(List<SupplyRequirement> requirements, StorageSnapshot storage)
+    {
+        if (storage == null) { return evaluate(requirements, null); }
+        java.util.Map<Integer, Long> inventory = new java.util.HashMap<>(storage.getInventoryItems());
+        java.util.Map<Integer, Long> equipment = new java.util.HashMap<>(storage.getEquipmentItems());
+        java.util.Map<Integer, Long> bank = new java.util.HashMap<>(storage.getBankItems());
+        List<SupplyCheck> checks = new ArrayList<>();
+        for (SupplyRequirement requirement : requirements)
+        {
+            checks.add(evaluate(Collections.singletonList(requirement), new StorageSnapshot(inventory, equipment, bank,
+                    storage.isBankVerified(), storage.getBankSyncedAt())).get(0));
+            long remaining = reserve(requirement, inventory, requirement.getQuantity());
+            remaining = reserve(requirement, equipment, remaining);
+            if (storage.isBankVerified()) { reserve(requirement, bank, remaining); }
+        }
+        return Collections.unmodifiableList(checks);
+    }
+    private long reserve(SupplyRequirement requirement, java.util.Map<Integer, Long> available, long remaining)
+    {
+        for (int id : requirement.getAcceptedItemIds())
+        {
+            long quantity = Math.max(0, available.getOrDefault(id, 0L));
+            long used = Math.min(quantity, remaining);
+            if (used > 0) { available.put(id, quantity - used); remaining -= used; }
+        }
+        return remaining;
+    }
+
     private long quantity(SupplyRequirement requirement, StorageSnapshot storage, int location)
     {
         if (storage == null) { return 0; }

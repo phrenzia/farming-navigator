@@ -20,11 +20,16 @@ public final class FieldRunPlanner
     public FieldRunPlan plan(AccountState account, Set<FieldPatchDefinition> selected, FieldRunCrop crop, FieldRunMode mode,
             boolean protect, Map<FieldPatchDefinition, FieldPatchObservation> observations, StorageSnapshot storage, Instant now)
     {
+        return plan(account, selected, crop, mode, protect, FieldRunCompost.NONE, observations, storage, now);
+    }
+    public FieldRunPlan plan(AccountState account, Set<FieldPatchDefinition> selected, FieldRunCrop crop, FieldRunMode mode,
+            boolean protect, FieldRunCompost compost, Map<FieldPatchDefinition, FieldPatchObservation> observations, StorageSnapshot storage, Instant now)
+    {
         List<FieldRunStop> stops = new ArrayList<>(); List<SupplyRequirement> supplies = new ArrayList<>();
         Map<FieldPatchDefinition, String> excluded = new EnumMap<>(FieldPatchDefinition.class); List<String> warnings = new ArrayList<>();
         String blocker = account == null || !account.isLoggedIn() ? "Log in to plan an allotment/flower run."
                 : account.getBoostedFarmingLevel() < crop.getRequiredLevel() ? crop + " requires " + crop.getRequiredLevel() + " Farming (boostable)." : "";
-        if (!blocker.isEmpty()) { return new FieldRunPlan(crop, mode, stops, List.of(), excluded, warnings, blocker); }
+        if (!blocker.isEmpty()) { return new FieldRunPlan(crop, mode, stops, List.of(), excluded, warnings, blocker, compost); }
         int replants = 0, payments = 0, disease = 0;
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
@@ -62,7 +67,7 @@ public final class FieldRunPlanner
         if (!stops.isEmpty())
         {
             warnings.add("Order follows the patch catalogue. Travel is manual until a verified transport is selected.");
-            warnings.add("Inspect old observations. Yield, compost, watering, flower/scarecrow protection and leprechaun storage are not checked.");
+            warnings.add("Inspect old observations. Yield, current compost state, watering, flower/scarecrow protection and leprechaun storage are not checked.");
             if (mode == FieldRunMode.KEEP_MATURE_FLOWERS && crop.getCrop().getFamily() == FieldFamily.FLOWER)
             {
                 warnings.add("Keep mature flowers, including a different observed flower crop. No replacement seed is reserved; reprepare if you harvest them.");
@@ -74,13 +79,19 @@ public final class FieldRunPlanner
                         crop.getSeedsPerPatch() + " seeds per possible planting; seed-saving equipment is not assumed."));
                 supplies.add(new SupplyRequirement(ItemID.DIBBER, "Seed dibber", 1, false, "Planting tool; Barbarian Training is not checked."));
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true, "For weeds; auto-weed is not checked."));
+                if (compost != FieldRunCompost.NONE)
+                {
+                    supplies.add(new SupplyRequirement(compost.getItemId(), compost + " (apply to plots)", replants, false,
+                            "One unnoted filled bucket per possible new planting, separate from farmer payments. Application is confirmed manually."));
+                }
+                else { warnings.add("No compost application supplies are reserved."); }
                 if (protect && crop.hasFarmerProtection()) { crop.protectionPayment(payments).ifPresent(supplies::add); }
                 else if (crop.hasFarmerProtection()) { warnings.add("Farmer protection is disabled. No payment is reserved."); }
                 else { warnings.add("Flowers have no farmer protection payment."); }
             }
             if (disease > 0) { supplies.add(new SupplyRequirement(ItemID.PLANT_CURE, "Plant cure", disease, false, "Cure diseased allotments/flowers; no replacement seed/payment is reserved for those stops.")); }
         }
-        return new FieldRunPlan(crop, mode, stops, new LoadoutService().evaluate(supplies, storage), excluded, warnings, "");
+        return new FieldRunPlan(crop, mode, stops, new LoadoutService().evaluateInOrder(supplies, storage), excluded, warnings, "", compost);
     }
     private String action(FieldPatchCondition condition, boolean keep)
     {

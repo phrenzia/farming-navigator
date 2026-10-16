@@ -14,6 +14,7 @@ public final class FieldRunPlan
 {
     private final FieldRunCrop crop;
     private final FieldRunMode mode;
+    private final FieldRunCompost compost;
     private final List<FieldRunStop> stops;
     private final List<SupplyCheck> supplies;
     private final Map<FieldPatchDefinition, String> excluded;
@@ -23,17 +24,23 @@ public final class FieldRunPlan
     FieldRunPlan(FieldRunCrop crop, FieldRunMode mode, List<FieldRunStop> stops, List<SupplyCheck> supplies,
             Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker)
     {
-        this(crop, mode, stops, supplies, excluded, warnings, blocker, null);
+        this(crop, mode, stops, supplies, excluded, warnings, blocker, FieldRunCompost.NONE);
+    }
+    FieldRunPlan(FieldRunCrop crop, FieldRunMode mode, List<FieldRunStop> stops, List<SupplyCheck> supplies,
+            Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost)
+    {
+        this(crop, mode, stops, supplies, excluded, warnings, blocker, compost, null);
     }
     private FieldRunPlan(FieldRunCrop crop, FieldRunMode mode, List<FieldRunStop> stops, List<SupplyCheck> supplies,
-            Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, RunTransportResources resources)
+            Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost, RunTransportResources resources)
     {
-        this.crop = crop; this.mode = mode; this.stops = List.copyOf(stops); this.supplies = List.copyOf(supplies);
+        this.crop = crop; this.mode = mode; this.compost = compost; this.stops = List.copyOf(stops); this.supplies = List.copyOf(supplies);
         EnumMap<FieldPatchDefinition, String> copy = new EnumMap<>(FieldPatchDefinition.class); copy.putAll(excluded);
         this.excluded = Collections.unmodifiableMap(copy); this.warnings = List.copyOf(warnings); this.blocker = blocker; this.transportResources = resources;
     }
     public FieldRunCrop getCrop() { return crop; }
     public FieldRunMode getMode() { return mode; }
+    public FieldRunCompost getCompost() { return compost; }
     public List<FieldRunStop> getStops() { return stops; }
     public List<SupplyCheck> getSupplies() { return supplies; }
     public Map<FieldPatchDefinition, String> getExcluded() { return excluded; }
@@ -53,6 +60,6 @@ public final class FieldRunPlan
                     : stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
             previousRegion = region;
         }
-        return new FieldRunPlan(crop, mode, routed, supplies, excluded, warnings, blocker, new RunTransportResourcePlanner().evaluate(routed, context));
+        return new FieldRunPlan(crop, mode, routed, supplies, excluded, warnings, blocker, compost, new RunTransportResourcePlanner().evaluate(routed, context));
     }
 }

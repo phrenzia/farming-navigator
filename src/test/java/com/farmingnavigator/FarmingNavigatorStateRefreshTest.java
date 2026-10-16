@@ -10,7 +10,7 @@ public class FarmingNavigatorStateRefreshTest
 {
     @Test public void fieldSetupOnlyCancelsFieldGuidance()
     {
-        for (String key : new String[]{"fieldRunCrop", "fieldRunPatches", "fieldRunMode", "fieldRunProtection", "fieldTransportPreference"})
+        for (String key : new String[]{"fieldRunCrop", "fieldRunPatches", "fieldRunMode", "fieldRunProtection", "fieldTransportPreference", "fieldRunCompost"})
         {
             assertTrue(FarmingNavigatorPlugin.isFieldRunSetupKey(key));
             assertFalse(FarmingNavigatorPlugin.isGardenRunSetupKey(key)); assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey(key)); assertFalse(FarmingNavigatorPlugin.isRunSetupKey(key));

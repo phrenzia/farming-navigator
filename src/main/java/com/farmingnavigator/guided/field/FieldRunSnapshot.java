@@ -11,11 +11,19 @@ public final class FieldRunSnapshot
     private final FieldRunCrop crop;
     private final FieldRunMode mode;
     private final FieldRunStop stop;
+    private final com.farmingnavigator.routing.run.FieldRunCompost compost;
     private final int total, completed, manual, skipped, protectionConfirmed;
     private final Duration elapsed;
     FieldRunSnapshot(FieldRunStep step, FieldRunCrop crop, FieldRunMode mode, FieldRunStop stop,
             int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed)
     {
+        this(step, crop, mode, stop, total, completed, manual, skipped, protectionConfirmed, elapsed, com.farmingnavigator.routing.run.FieldRunCompost.NONE);
+    }
+    FieldRunSnapshot(FieldRunStep step, FieldRunCrop crop, FieldRunMode mode, FieldRunStop stop,
+            int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
+            com.farmingnavigator.routing.run.FieldRunCompost compost)
+    {
+        this.compost = compost;
         this.step = step; this.crop = crop; this.mode = mode; this.stop = stop; this.total = total;
         this.completed = completed; this.manual = manual; this.skipped = skipped; this.protectionConfirmed = protectionConfirmed; this.elapsed = elapsed;
     }
@@ -23,6 +31,7 @@ public final class FieldRunSnapshot
     public FieldRunCrop getCrop() { return crop; }
     public FieldRunMode getMode() { return mode; }
     public FieldRunStop getStop() { return stop; }
+    public com.farmingnavigator.routing.run.FieldRunCompost getCompost() { return compost; }
     public int getTotal() { return total; }
     public int getCompleted() { return completed; }
     public int getManual() { return manual; }
@@ -41,7 +50,8 @@ public final class FieldRunSnapshot
             case KEEP_FLOWER: return "Inspect and keep this mature flower. Harvesting it may remove nearby allotment protection. Confirm when finished.";
             case CLEAR: return "Clear the dead crop with a spade. Wait for a fresh empty-patch observation.";
             case RAKE: return "Rake until the plot is empty.";
-            case PLANT: return "Use a seed dibber to plant " + crop.getSeedsPerPatch() + " " + crop + " seed(s). Seed saving and Barbarian Training are not assumed. Compost and watering are not guided yet.";
+            case COMPOST: return "Apply one unnoted bucket of " + compost + " to this plot, then confirm manually. Current compost state and application are not automatically verified; farmer payments are separate.";
+            case PLANT: return "Use a seed dibber to plant " + crop.getSeedsPerPatch() + " " + crop + " seed(s). Seed saving and Barbarian Training are not assumed. Watering is not guided yet.";
             case PROTECT: return "Pay the gardener for protection, then confirm manually. The checklist does not verify the payment.";
             case CURE: return "Use plant cure on this diseased crop. Wait for healthy growth or harvestable state of the same crop.";
             case SCARECROW: return "Scarecrow present. Keep it or remove it manually and prepare a new plan; this checklist does not assume removal or flower planting.";
