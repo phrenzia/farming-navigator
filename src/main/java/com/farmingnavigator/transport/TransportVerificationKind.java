@@ -3,6 +3,7 @@ package com.farmingnavigator.transport;
 public enum TransportVerificationKind
 {
     WEALTH_SPIRIT_TREE,
+    WEALTH_PLANTED_SPIRIT_TREE,
     DIGSITE_BARGE,
     LLETYA_CRYSTAL,
     PRIFDDINAS_CRYSTAL,

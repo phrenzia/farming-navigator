@@ -352,6 +352,10 @@ public interface FarmingNavigatorConfig
             description = "Prune with secateurs or use Lunar Cure Plant; spell runes share the travel budget", position = 47, section = GENERAL_SECTION)
     default com.farmingnavigator.routing.run.TreeRunCure treeRunCure() { return com.farmingnavigator.routing.run.TreeRunCure.PRUNE; }
 
+    @ConfigItem(keyName = "allowDeclaredSpiritAccess", name = "Session planted-tree access",
+            description = "Enable manual declarations of planted spirit trees you can currently use; clears on logout, hopping, character change or disabling", position = 49, section = GENERAL_SECTION)
+    default boolean allowDeclaredSpiritAccess() { return false; }
+
     @ConfigItem(keyName = "treeAshTomeRead", name = "Tree ash-covered tome read",
             description = "Manually declare the tome unlock for tree Fertile Soil ultracompost", position = 48, section = GENERAL_SECTION)
     default boolean treeAshTomeRead() { return false; }

@@ -5,6 +5,8 @@ import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
 
 public class TransportOption
 {
+    private final com.farmingnavigator.routing.spirit.PlantedSpiritTree plantedSpiritTree;
+    public com.farmingnavigator.routing.spirit.PlantedSpiritTree getPlantedSpiritTree() { return plantedSpiritTree; }
     private final int baselineRank;
     private final String displayName;
     private final String instructions;
@@ -66,6 +68,15 @@ public class TransportOption
             PohPortalDestination pohPortalDestination
     )
     {
+        this(baselineRank,displayName,instructions,category,verificationKind,teleportSpellDefinition,pohPortalDestination,null);
+    }
+    private TransportOption(int baselineRank,String displayName,String instructions,TransportCategory category,
+            TransportVerificationKind verificationKind,TeleportSpellDefinition teleportSpellDefinition,PohPortalDestination pohPortalDestination,
+            com.farmingnavigator.routing.spirit.PlantedSpiritTree plantedSpiritTree)
+    {
+        if ((verificationKind==TransportVerificationKind.WEALTH_PLANTED_SPIRIT_TREE)!=(plantedSpiritTree!=null))
+        { throw new IllegalArgumentException("Planted spirit-tree transport requires exactly one destination."); }
+        this.plantedSpiritTree=plantedSpiritTree;
         if (
                 verificationKind
                         == TransportVerificationKind.TELEPORT_SPELL
@@ -155,6 +166,13 @@ public class TransportOption
                 null,
                 destination
         );
+    }
+
+    public static TransportOption wealthToPlantedSpiritTree(int rank,String name,String instructions,
+            com.farmingnavigator.routing.spirit.PlantedSpiritTree destination)
+    {
+        if (destination==null) { throw new IllegalArgumentException("Planted spirit-tree destination is required."); }
+        return new TransportOption(rank,name,instructions,TransportCategory.ITEM,TransportVerificationKind.WEALTH_PLANTED_SPIRIT_TREE,null,null,destination);
     }
 
     public int getBaselineRank()

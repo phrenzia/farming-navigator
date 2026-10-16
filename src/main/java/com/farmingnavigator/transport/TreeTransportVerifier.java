@@ -21,9 +21,12 @@ final class TreeTransportVerifier
         switch (option.getVerificationKind())
         {
             case WEALTH_SPIRIT_TREE:
+            case WEALTH_PLANTED_SPIRIT_TREE:
                 family = ChargedTeleportItemDefinition.RING_OF_WEALTH;
                 access = context.getAccountState().hasCompletedQuest(Quest.TREE_GNOME_VILLAGE);
-                missing = "Complete Tree Gnome Village to travel from the Grand Exchange spirit tree. Incoming travel to Gnome Stronghold does not require The Grand Tree.";
+                missing = option.getVerificationKind()==TransportVerificationKind.WEALTH_PLANTED_SPIRIT_TREE
+                        ? "Complete Tree Gnome Village to enter the spirit-tree network from the Grand Exchange."
+                        : "Complete Tree Gnome Village to travel from the Grand Exchange spirit tree. Incoming travel to Gnome Stronghold does not require The Grand Tree.";
                 break;
             case DIGSITE_BARGE:
                 family = ChargedTeleportItemDefinition.DIGSITE_PENDANT;

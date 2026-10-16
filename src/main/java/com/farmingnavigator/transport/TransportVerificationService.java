@@ -105,6 +105,11 @@ public class TransportVerificationService
                     List<TransportOption>
                     > optionsByPatch
     )
+    { return evaluateAll(accountState,config,travelCapabilitySnapshot,storageSnapshot,optionsByPatch,java.util.Set.of()); }
+
+    public <P> Map<P,List<VerifiedTransportResult>> evaluateAll(AccountState accountState,FarmingNavigatorConfig config,
+            TravelCapabilitySnapshot travelCapabilitySnapshot,StorageSnapshot storageSnapshot,Map<P,List<TransportOption>> optionsByPatch,
+            java.util.Set<com.farmingnavigator.routing.spirit.PlantedSpiritTree> declaredSpiritTrees)
     {
         if (
                 accountState == null
@@ -143,7 +148,7 @@ public class TransportVerificationService
                                 config,
                                 travelCapabilitySnapshot,
                                 storageSnapshot,
-                                option
+                                option,declaredSpiritTrees
                         );
 
                 if (result != null)
@@ -183,13 +188,24 @@ public class TransportVerificationService
             FarmingNavigatorConfig config,
             TravelCapabilitySnapshot travelCapabilitySnapshot,
             StorageSnapshot storageSnapshot,
-            TransportOption option
+            TransportOption option,
+            java.util.Set<com.farmingnavigator.routing.spirit.PlantedSpiritTree> declaredSpiritTrees
     )
     {
         switch (
                 option.getVerificationKind()
         )
         {
+            case WEALTH_PLANTED_SPIRIT_TREE:
+                VerifiedTransportResult base=new TreeTransportVerifier().evaluate(option,new RequirementContext(accountState,config,travelCapabilitySnapshot,storageSnapshot));
+                if (base.getState()==VerifiedTransportState.LOCKED) { return base; }
+                if (config==null || !config.allowDeclaredSpiritAccess())
+                { return new VerifiedTransportResult(option,VerifiedTransportState.CONFIGURATION_REQUIRED,
+                        "Enable Session planted-tree access in plugin settings, then declare current access in the sidebar."); }
+                if (declaredSpiritTrees==null || !declaredSpiritTrees.contains(option.getPlantedSpiritTree()))
+                { return new VerifiedTransportResult(option,VerifiedTransportState.CONFIGURATION_REQUIRED,
+                        "Declare current access to the " + option.getPlantedSpiritTree() + " planted spirit tree for this login session. Historical growth is not used as an unlock."); }
+                return new VerifiedTransportResult(option,base.getState(),base.getDetail() + " User-declared current planted-tree access; check it before travel.");
             case WEALTH_SPIRIT_TREE:
             case DIGSITE_BARGE:
             case LLETYA_CRYSTAL:

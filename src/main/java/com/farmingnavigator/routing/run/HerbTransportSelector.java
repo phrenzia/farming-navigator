@@ -47,7 +47,7 @@ public final class HerbTransportSelector
     {
         if (first==null || second==null) { return first==second; }
         com.farmingnavigator.transport.TransportOption a=first.getOption(),b=second.getOption();
-        return a.getVerificationKind()==b.getVerificationKind() && a.getCategory()==b.getCategory()
+        return a.getPlantedSpiritTree()==b.getPlantedSpiritTree() && a.getVerificationKind()==b.getVerificationKind() && a.getCategory()==b.getCategory()
                 && a.getTeleportSpellDefinition()==b.getTeleportSpellDefinition() && a.getPohPortalDestination()==b.getPohPortalDestination()
                 && a.getDisplayName().equals(b.getDisplayName()) && a.getInstructions().equals(b.getInstructions());
     }

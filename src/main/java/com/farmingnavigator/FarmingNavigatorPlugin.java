@@ -139,6 +139,7 @@ public class FarmingNavigatorPlugin
 
     private NavigationButton navigationButton;
     private long lastPatchTimerRefreshMinute = -1;
+    private final com.farmingnavigator.routing.spirit.SpiritTreeDeclarations sessionSpiritAccess = new com.farmingnavigator.routing.spirit.SpiritTreeDeclarations();
     private final GuidedRunSession guidedRunSession = new GuidedRunSession();
     private HerbRunPlan latestSuggestedRun;
     private final com.farmingnavigator.guided.tree.TreeRunSession treeRunSession = new com.farmingnavigator.guided.tree.TreeRunSession();
@@ -171,6 +172,7 @@ public class FarmingNavigatorPlugin
     @Override
     protected void startUp()
     {
+        sessionSpiritAccess.clear();
         lastPatchTimerRefreshMinute = -1;
         latestSuggestedRun = null;
         latestTreeRun = null;
@@ -248,6 +250,7 @@ public class FarmingNavigatorPlugin
     @Override
     protected void shutDown()
     {
+        sessionSpiritAccess.clear();
         herbAlertTracker.reset();
         treeAlertTracker.reset();
         gardenAlertTracker.reset();
@@ -319,6 +322,7 @@ public class FarmingNavigatorPlugin
                         || state == GameState.CONNECTION_LOST
         )
         {
+            sessionSpiritAccess.clear();
             guidedRunSession.cancel();
             treeRunSession.cancel();
             gardenRunSession.cancel();
@@ -354,6 +358,7 @@ public class FarmingNavigatorPlugin
     @Subscribe
     public void onRuneScapeProfileChanged(RuneScapeProfileChanged event)
     {
+        sessionSpiritAccess.clear();
         herbAlertTracker.reset();
         treeAlertTracker.reset();
         gardenAlertTracker.reset();
@@ -540,6 +545,7 @@ public class FarmingNavigatorPlugin
         }
 
         clientThread.invokeLater(() -> {
+            if ("allowDeclaredSpiritAccess".equals(event.getKey())) { sessionSpiritAccess.clear(); cancelGuidanceForSpiritAccess(); }
             if (isTreeRunSetupKey(event.getKey())) { treeRunSession.cancel(); }
             if (isGardenRunSetupKey(event.getKey())) { gardenRunSession.cancel(); }
             if (isFieldRunSetupKey(event.getKey())) { fieldRunSession.cancel(); }
@@ -712,6 +718,13 @@ public class FarmingNavigatorPlugin
                 storageStateService
                         .createSnapshot();
 
+        long previousSpiritRevision=sessionSpiritAccess.snapshot().getRevision();
+        // Loading a region does not end a login session. Logout/hop/profile events clear declarations explicitly.
+        com.farmingnavigator.routing.spirit.SpiritTreeDeclarations.Snapshot spiritAccessSnapshot=!config.allowDeclaredSpiritAccess()
+                ? sessionSpiritAccess.synchronize(null,false) : accountState.isLoggedIn()
+                ? sessionSpiritAccess.synchronize(configManager.getRSProfileKey(),true) : sessionSpiritAccess.snapshot();
+        if (previousSpiritRevision!=spiritAccessSnapshot.getRevision()) { cancelGuidanceForSpiritAccess(); }
+
         List<HerbPatchStatus> patchStatuses =
                 herbPatchService.evaluate(
                         accountState
@@ -734,7 +747,7 @@ public class FarmingNavigatorPlugin
                                 config,
                                 travelCapabilitySnapshot,
                                 storageSnapshot,
-                                transportOptions
+                                transportOptions,spiritAccessSnapshot.getTrees()
                         );
 
         Map<HerbPatchDefinition, HerbPatchObservation> observations =
@@ -748,17 +761,17 @@ public class FarmingNavigatorPlugin
                 observations, verifiedTransportResults, storageSnapshot, Instant.now(), config.herbTransportPreference());
         RequirementContext runContext = new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot);
         Map<com.farmingnavigator.farming.field.FieldPatchDefinition, List<VerifiedTransportResult>> fieldTransports = transportVerificationService.evaluateAll(accountState,
-                config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.FieldPatchTransportService().getAllOptions());
+                config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.FieldPatchTransportService().getAllOptions(),spiritAccessSnapshot.getTrees());
         com.farmingnavigator.routing.run.FieldRunPlan fieldRunPlan = new com.farmingnavigator.routing.run.FieldRunPlanner().plan(accountState,
                 config.fieldRunPatches(), config.fieldRunCrop(), config.fieldRunMode(), config.fieldRunProtection(), config.fieldRunCompost(), config.fieldRunCure(), config.fieldRunWatering(), fieldObservations, storageSnapshot, Instant.now())
                 .withTransports(fieldTransports, config.fieldTransportPreference(), runContext);
         Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, List<VerifiedTransportResult>> gardenTransports = transportVerificationService.evaluateAll(accountState,
-                config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.GardenPatchTransportService().getAllOptions());
+                config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.GardenPatchTransportService().getAllOptions(),spiritAccessSnapshot.getTrees());
         com.farmingnavigator.routing.run.GardenRunPlan gardenRunPlan = new com.farmingnavigator.routing.run.GardenRunPlanner().plan(accountState,
                 config.gardenRunPatches(), config.gardenRunCrop(), config.gardenRunMode(), config.gardenRunProtection(), config.gardenRunCompost(), config.gardenRunCure(), gardenObservations, storageSnapshot, Instant.now())
                 .withTransports(gardenTransports, config.gardenTransportPreference(), runContext);
         Map<TreePatchDefinition, List<VerifiedTransportResult>> treeTransports = transportVerificationService.evaluateAll(accountState,
-                config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.TreePatchTransportService().getAllOptions());
+                config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.TreePatchTransportService().getAllOptions(),spiritAccessSnapshot.getTrees());
         com.farmingnavigator.routing.run.TreeRunPlan treeRunPlan = new com.farmingnavigator.routing.run.TreeRunPlanner()
                 .plan(accountState, config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(), config.treeRunCompost(), config.treeRunCure(),
                         treeObservations, storageSnapshot, Instant.now())
@@ -824,6 +837,9 @@ public class FarmingNavigatorPlugin
 
         SwingUtilities.invokeLater(
                 () -> {
+                        targetPanel.setSpiritDeclarations(spiritAccessSnapshot,selected -> clientThread.invokeLater(() -> {
+                            applySpiritDeclarations(spiritAccessSnapshot.getProfile(),spiritAccessSnapshot.getRevision(),selected);
+                        }));
                         targetPanel.setGuidedRun(guidedRun);
                         targetPanel.setTreeObservations(treeObservations);
                         targetPanel.setGardenObservations(gardenObservations);
@@ -852,6 +868,23 @@ public class FarmingNavigatorPlugin
                         );
                 }
         );
+    }
+
+    private void cancelGuidanceForSpiritAccess()
+    {
+        guidedRunSession.cancel(); treeRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel();
+        guidedRunOverlayController.clear();
+    }
+    private void applySpiritDeclarations(String expectedProfile,long expectedRevision,
+            java.util.Set<com.farmingnavigator.routing.spirit.PlantedSpiritTree> selected)
+    {
+        if (config.allowDeclaredSpiritAccess() && accountStateService.createSnapshot().isLoggedIn() && expectedProfile!=null
+                && java.util.Objects.equals(expectedProfile,configManager.getRSProfileKey()))
+        {
+            java.util.Set<com.farmingnavigator.routing.spirit.PlantedSpiritTree> before=sessionSpiritAccess.snapshot().getTrees();
+            if (sessionSpiritAccess.apply(expectedProfile,expectedRevision,selected) && !before.equals(selected)) { cancelGuidanceForSpiritAccess(); }
+        }
+        updateAccountState();
     }
 
     private void startRunMetrics(String name, Instant now)

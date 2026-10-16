@@ -62,6 +62,9 @@ public final class TreePatchTransportService
         options.put(TreePatchDefinition.AVIUM_SAVANNAH_HARDWOOD, List.of(new TransportOption(1,
                 "Fairy ring AJP to Avium Savannah", "Travel to an accessible fairy ring, use AJP, then run south-east to the hardwood patch at Locus Oasis.",
                 TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_AJP)));
+        PlantedSpiritTransportOptions.append(options,TreePatchDefinition.BRIMHAVEN_FRUIT,com.farmingnavigator.routing.spirit.PlantedSpiritTree.BRIMHAVEN,"Travel west to the Brimhaven fruit-tree patch.");
+        for(TreePatchDefinition patch:List.of(TreePatchDefinition.FARMING_GUILD_TREE,TreePatchDefinition.FARMING_GUILD_FRUIT,TreePatchDefinition.FARMING_GUILD_CELASTRUS,TreePatchDefinition.FARMING_GUILD_REDWOOD))
+        { PlantedSpiritTransportOptions.append(options,patch,com.farmingnavigator.routing.spirit.PlantedSpiritTree.FARMING_GUILD,"Approach the selected Guild patch; its entry tier is checked separately."); }
         return Collections.unmodifiableMap(options);
     }
     private TransportOption spell(int rank, TeleportSpellDefinition spell, String instructions)

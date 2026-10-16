@@ -69,7 +69,9 @@ public final class FieldPatchTransportService
             {
                 String instructions = arrival.getInstructions().replace("herb patch", "allotment/flower area")
                         + " Use the labelled plot: " + patch.getLabel() + ".";
-                rewritten.add(arrival.getPohPortalDestination() == null
+                rewritten.add(arrival.getPlantedSpiritTree()!=null
+                        ? TransportOption.wealthToPlantedSpiritTree(arrival.getBaselineRank(),arrival.getDisplayName(),instructions,arrival.getPlantedSpiritTree())
+                        : arrival.getPohPortalDestination() == null
                         ? new TransportOption(arrival.getBaselineRank(), arrival.getDisplayName(), instructions,
                                 arrival.getCategory(), arrival.getVerificationKind(), arrival.getTeleportSpellDefinition())
                         : TransportOption.pohPortal(arrival.getBaselineRank(), arrival.getDisplayName(), instructions,

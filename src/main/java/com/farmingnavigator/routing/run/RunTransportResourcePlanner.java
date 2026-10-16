@@ -222,7 +222,8 @@ public final class RunTransportResourcePlanner
             case SKILLS_NECKLACE: return ChargedTeleportItemDefinition.SKILLS_NECKLACE;
             case AMULET_OF_GLORY: return ChargedTeleportItemDefinition.AMULET_OF_GLORY;
             case RING_OF_WEALTH: return ChargedTeleportItemDefinition.RING_OF_WEALTH;
-            case WEALTH_SPIRIT_TREE: return ChargedTeleportItemDefinition.RING_OF_WEALTH;
+            case WEALTH_SPIRIT_TREE:
+            case WEALTH_PLANTED_SPIRIT_TREE: return ChargedTeleportItemDefinition.RING_OF_WEALTH;
             case DIGSITE_BARGE: return ChargedTeleportItemDefinition.DIGSITE_PENDANT;
             case LLETYA_CRYSTAL: return ChargedTeleportItemDefinition.TELEPORT_CRYSTAL;
             case PRIFDDINAS_CRYSTAL: return ChargedTeleportItemDefinition.TELEPORT_CRYSTAL;

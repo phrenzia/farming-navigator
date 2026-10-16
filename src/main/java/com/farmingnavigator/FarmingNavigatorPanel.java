@@ -134,6 +134,17 @@ public class FarmingNavigatorPanel
     private HerbRunPlan herbRunPlan;
     private boolean herbRunDetailsOpen;
     private boolean herbOverviewOpen;
+    private com.farmingnavigator.routing.spirit.SpiritTreeDeclarations.Snapshot spiritDeclarations;
+    private com.farmingnavigator.ui.PlantedSpiritAccessPanel spiritAccessPanel;
+    private boolean spiritAccessOpen;
+    private java.util.function.Consumer<java.util.Set<com.farmingnavigator.routing.spirit.PlantedSpiritTree>> applySpiritAccess = trees -> {};
+    public void setSpiritDeclarations(com.farmingnavigator.routing.spirit.SpiritTreeDeclarations.Snapshot snapshot,
+            java.util.function.Consumer<java.util.Set<com.farmingnavigator.routing.spirit.PlantedSpiritTree>> apply)
+    {
+        if(spiritDeclarations==null || snapshot.getRevision()!=spiritDeclarations.getRevision()
+                || !java.util.Objects.equals(snapshot.getProfile(),spiritDeclarations.getProfile())) { spiritAccessPanel=null; }
+        spiritDeclarations=snapshot; applySpiritAccess=apply;
+    }
     private boolean treeObservationsOpen;
     private com.farmingnavigator.farming.tree.TreeFamily treeObservationFamily;
     private boolean gardenObservationsOpen;
@@ -798,6 +809,16 @@ public class FarmingNavigatorPanel
                     com.farmingnavigator.contracts.ContractRunPreparation.isGuildSelected(config.gardenRunCrop(), config.gardenRunPatches()), config.fieldRunCrop(),
                     com.farmingnavigator.contracts.ContractRunPreparation.isGuildSelected(config.fieldRunCrop(), config.fieldRunPatches())));
             patchListPanel.add(Box.createVerticalStrut(8));
+        }
+        if(accountState.isLoggedIn() && config.allowDeclaredSpiritAccess() && spiritDeclarations!=null)
+        {
+            if(spiritAccessPanel==null)
+            {
+                java.util.function.Consumer<java.util.Set<com.farmingnavigator.routing.spirit.PlantedSpiritTree>> boundApply=applySpiritAccess;
+                spiritAccessPanel=new com.farmingnavigator.ui.PlantedSpiritAccessPanel(spiritDeclarations,spiritAccessOpen,
+                        expanded -> spiritAccessOpen=expanded,selected -> { spiritAccessPanel=null; boundApply.accept(selected); });
+            }
+            patchListPanel.add(spiritAccessPanel); patchListPanel.add(Box.createVerticalStrut(8));
         }
         if (runMetrics != null)
         {

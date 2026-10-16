@@ -496,7 +496,8 @@ public final class GuidedRunTargets
             case SKILLS_NECKLACE: addJewellery(items, ChargedTeleportItemDefinition.SKILLS_NECKLACE); break;
             case AMULET_OF_GLORY: addJewellery(items, ChargedTeleportItemDefinition.AMULET_OF_GLORY); break;
             case RING_OF_WEALTH: addJewellery(items, ChargedTeleportItemDefinition.RING_OF_WEALTH); break;
-            case WEALTH_SPIRIT_TREE: addJewellery(items, ChargedTeleportItemDefinition.RING_OF_WEALTH); break;
+            case WEALTH_SPIRIT_TREE:
+            case WEALTH_PLANTED_SPIRIT_TREE: addJewellery(items, ChargedTeleportItemDefinition.RING_OF_WEALTH); break;
             case DIGSITE_BARGE: addJewellery(items, ChargedTeleportItemDefinition.DIGSITE_PENDANT); break;
             case LLETYA_CRYSTAL: addJewellery(items, ChargedTeleportItemDefinition.TELEPORT_CRYSTAL); break;
             case PRIFDDINAS_CRYSTAL: addJewellery(items, ChargedTeleportItemDefinition.TELEPORT_CRYSTAL); break;
