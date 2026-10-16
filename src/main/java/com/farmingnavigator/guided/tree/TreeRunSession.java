@@ -177,7 +177,7 @@ public final class TreeRunSession
     public void refreshTransports(Map<TreePatchDefinition, List<VerifiedTransportResult>> transports,
             HerbTransportPreference preference, RequirementContext context)
     {
-        if (active()) { plan = plan.withTransports(transports, preference, context); }
+        if (active()) { plan = plan.refreshTransports(transports, preference, context); }
     }
     private void finish(boolean manually, boolean skip, Instant now)
     {

@@ -196,8 +196,8 @@ public final class GuidedRunSession
         for (int i = index; i < stops.size(); i++)
         {
             HerbRunStop stop = stops.get(i);
-            List<VerifiedTransportResult> usable = HerbTransportSelector.select(
-                    results.getOrDefault(stop.getPatch(), Collections.emptyList()), preference);
+            List<VerifiedTransportResult> usable = HerbTransportSelector.selectForRefresh(
+                    results.getOrDefault(stop.getPatch(), Collections.emptyList()), preference,stop.getRecommended());
             stops.set(i, stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
         }
     }

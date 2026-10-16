@@ -128,7 +128,7 @@ public interface FarmingNavigatorConfig
     @ConfigItem(
             keyName = "herbTransportPreference",
             name = "Herb transport preference",
-            description = "Reusable preference favors verified unlimited methods, even if bank withdrawal is needed; travel time is not optimized",
+            description = "Rank verified travel, prefer reusable methods, or try one alternate arrival against the shared budget; no travel-time optimization",
             position = 6,
             section = GENERAL_SECTION
     )
@@ -201,7 +201,7 @@ public interface FarmingNavigatorConfig
     default boolean treeRunProtection() { return true; }
 
     @ConfigItem(keyName = "treeTransportPreference", name = "Tree transport preference",
-            description = "Rank verified tree travel options; this is not measured travel-time optimization", position = 14, section = GENERAL_SECTION)
+            description = "Rank verified travel, prefer reusable methods, or try one alternate arrival against the shared budget; no travel-time optimization", position = 14, section = GENERAL_SECTION)
     default HerbTransportPreference treeTransportPreference() { return HerbTransportPreference.CATALOGUE; }
 
     @ConfigItem(keyName = "treeObservedAlerts", name = "Tree state alerts",
@@ -249,7 +249,7 @@ public interface FarmingNavigatorConfig
     default boolean gardenRunProtection() { return true; }
 
     @ConfigItem(keyName = "gardenTransportPreference", name = "Bush/cactus transport preference",
-            description = "Rank verified arrival suggestions; this is not measured travel-time optimization", position = 24, section = GENERAL_SECTION)
+            description = "Rank verified travel, prefer reusable methods, or try one alternate arrival against the shared budget; no travel-time optimization", position = 24, section = GENERAL_SECTION)
     default HerbTransportPreference gardenTransportPreference() { return HerbTransportPreference.CATALOGUE; }
 
     @ConfigItem(keyName = "gardenObservedAlerts", name = "Bush/cactus state alerts",
@@ -287,7 +287,7 @@ public interface FarmingNavigatorConfig
     default boolean fieldRunProtection() { return true; }
 
     @ConfigItem(keyName = "fieldTransportPreference", name = "Field transport preference",
-            description = "Rank verified arrival suggestions; adjacent plots share one arrival teleport", position = 32, section = GENERAL_SECTION)
+            description = "Rank verified travel or try one alternate arrival against the shared budget; adjacent plots share one arrival", position = 32, section = GENERAL_SECTION)
     default HerbTransportPreference fieldTransportPreference() { return HerbTransportPreference.CATALOGUE; }
 
     @ConfigItem(keyName = "fieldObservedAlerts", name = "Field state alerts",

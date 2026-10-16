@@ -57,6 +57,7 @@ public final class CombinedRunPlanner
         private final Map<String, Integer> bottomlessUses = new LinkedHashMap<>();
         private final List<RequirementResult> careChecks = new ArrayList<>();
         private final RuneCost.Builder runes = RuneCost.builder();
+        private boolean knownPoolsRequired;
         private void add(CombinedRunKind kind, String label, List<? extends RunTravelStop> sequence, List<SupplyCheck> checks, HerbRunCareResources care,
                 String blocker, RunTransportResources resources, int excludedCount, List<String> componentWarnings, String compost, int replants)
         {
@@ -67,6 +68,7 @@ public final class CombinedRunPlanner
             {
                 blockers.add(label + ": refresh its individual preparation before combining."); return;
             }
+            knownPoolsRequired |= resources.isKnownPoolsRequired();
             stops.addAll(sequence);
             if (care != null)
             {
@@ -102,7 +104,10 @@ public final class CombinedRunPlanner
             LoadoutService service = new LoadoutService();
             List<SupplyCheck> checks = new ArrayList<>(service.evaluateInOrder(consumable, context.getStorageSnapshot()));
             checks.addAll(service.evaluate(reusable, context.getStorageSnapshot()));
-            return new CombinedRunPlan(components, stops, checks, careChecks, new RunTransportResourcePlanner().evaluate(stops, context, runes.build()), warnings, blockers);
+            RunTransportResourcePlanner planner=new RunTransportResourcePlanner();
+            RunTransportResources resources=knownPoolsRequired ? planner.evaluateKnownPools(stops,context,runes.build())
+                    : planner.evaluate(stops,context,runes.build());
+            return new CombinedRunPlan(components, stops, checks, careChecks, resources, warnings, blockers);
         }
     }
 }

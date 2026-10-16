@@ -141,7 +141,7 @@ public final class GardenRunSession
     }
     public void refreshTransports(Map<GardenPatchDefinition, List<VerifiedTransportResult>> routes, HerbTransportPreference preference, RequirementContext context)
     {
-        if (active()) { plan = plan.withTransports(routes, preference, context); }
+        if (active()) { plan = plan.refreshTransports(routes, preference, context); }
     }
     private void finish(boolean manually, boolean skip, Instant now)
     {

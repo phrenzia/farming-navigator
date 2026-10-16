@@ -59,6 +59,30 @@ public final class HerbRunPlan
         return new HerbRunPlan(crop, stops, plannedSupplies, excluded, blocker, transportResources, resources);
     }
 
+    /** Bind complete care context before choosing a bounded shared-budget alternative. */
+    public HerbRunPlan withTransports(Map<HerbPatchDefinition,List<com.farmingnavigator.transport.VerifiedTransportResult>> transports,
+            HerbTransportPreference preference, com.farmingnavigator.routing.requirement.RequirementContext context)
+    {
+        List<HerbRunStop> routed=new ArrayList<>();
+        for (HerbRunStop stop:stops)
+        {
+            List<com.farmingnavigator.transport.VerifiedTransportResult> usable=HerbTransportSelector.select(transports.getOrDefault(stop.getPatch(),List.of()),preference);
+            routed.add(stop.withTransports(usable.isEmpty()?null:usable.get(0),usable.size()<2?null:usable.get(1)));
+        }
+        com.farmingnavigator.routing.requirement.RuneCost runes=careResources==null
+                ? com.farmingnavigator.routing.requirement.RuneCost.builder().build():careResources.getRunes();
+        RunTransportResources resources;
+        if (preference==HerbTransportPreference.SHARED_BUDGET)
+        {
+            SharedTransportRepair.Result<HerbRunStop> repaired=new SharedTransportRepair().repair(routed,
+                    stop -> transports.getOrDefault(stop.getPatch(),List.of()),
+                    (stop,primary) -> stop.withTransports(primary,HerbTransportSelector.fallback(transports.getOrDefault(stop.getPatch(),List.of()),primary)),context,runes);
+            routed=repaired.getStops(); resources=repaired.getResources();
+        }
+        else { resources=new RunTransportResourcePlanner().evaluate(routed,context,runes); }
+        return new HerbRunPlan(crop,routed,plannedSupplies,excluded,blocker,resources,careResources);
+    }
+
     public HerbRunPlan withTransportResources(RunTransportResources resources)
     {
         return new HerbRunPlan(crop, stops, plannedSupplies, excluded, blocker, resources, careResources);

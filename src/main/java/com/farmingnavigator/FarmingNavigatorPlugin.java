@@ -19,7 +19,6 @@ import com.farmingnavigator.routing.capability.TravelCapabilitySnapshot;
 import com.farmingnavigator.routing.run.HerbRunPlan;
 import com.farmingnavigator.routing.run.HerbRunPlanner;
 import com.farmingnavigator.routing.run.HerbRunCareResources;
-import com.farmingnavigator.routing.run.RunTransportResourcePlanner;
 import com.farmingnavigator.routing.requirement.RequirementContext;
 import com.farmingnavigator.guided.GuidedRunCommand;
 import com.farmingnavigator.guided.GuidedRunSession;
@@ -774,8 +773,8 @@ public class FarmingNavigatorPlugin
         treeRunSession.refreshTransports(treeTransports, config.treeTransportPreference(), runContext);
         com.farmingnavigator.guided.tree.TreeRunSnapshot treeGuidedRun = treeRunSession.snapshot(Instant.now());
         HerbRunCareResources care = HerbRunCareResources.evaluate(suggested, config.herbRunCure(), config.herbRunCompost(), runContext);
-        HerbRunPlan runPlan = suggested.withCareResources(care).withTransportResources(new RunTransportResourcePlanner()
-                .evaluate(suggested.getStops(), runContext, care.getRunes()));
+        HerbRunPlan runPlan = suggested.withCareResources(care)
+                .withTransports(verifiedTransportResults,config.herbTransportPreference(),runContext);
 
         com.farmingnavigator.routing.run.CombinedRunPlan combinedRunPlan = accountState.isLoggedIn() && !config.combinedRunTypes().isEmpty()
                 ? new com.farmingnavigator.routing.run.CombinedRunPlanner().plan(config.combinedRunTypes(), runPlan, treeRunPlan, gardenRunPlan, fieldRunPlan, runContext) : null;

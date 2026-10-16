@@ -25,6 +25,24 @@ import net.runelite.api.gameval.ItemID;
 /** Aggregates the recommended legs only; fallbacks are alternatives, not extra travel. */
 public final class RunTransportResourcePlanner
 {
+    /** Repair search cannot treat an unmodelled charge/daily pool as free. */
+    boolean hasKnownBudget(RunTravelStop stop)
+    {
+        if (stop.isLocalWalk()) { return true; }
+        if (stop.getRecommended()==null) { return false; }
+        TransportOption option=stop.getRecommended().getOption();
+        return HerbTransportSelector.isReusable(option.getVerificationKind()) || consumable(option.getVerificationKind())!=null
+                || jewelleryFamily(option.getVerificationKind())!=null
+                || option.getVerificationKind()==TransportVerificationKind.TELEPORT_SPELL && option.getTeleportSpellDefinition()!=null
+                || option.getCategory()==com.farmingnavigator.transport.TransportCategory.PLAYER_OWNED_HOUSE;
+    }
+    RunTransportResources evaluateKnownPools(List<? extends RunTravelStop> stops,RequirementContext context,RuneCost farmingRunes)
+    {
+        RunTransportResources resources=evaluate(stops,context,farmingRunes).requiringKnownPools();
+        return stops.stream().allMatch(this::hasKnownBudget) ? resources : resources.withCheck(
+                RequirementResult.dataRequired("Whole-run transport pools",
+                        "At least one arrival has an unmodelled daily/charge pool or needs manual transport. Its whole-run availability is unverified."));
+    }
     public RunTransportResources evaluate(List<? extends RunTravelStop> stops, RequirementContext context)
     {
         return evaluate(stops, context, RuneCost.builder().build());

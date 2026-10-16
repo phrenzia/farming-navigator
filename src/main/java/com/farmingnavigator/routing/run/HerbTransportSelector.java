@@ -24,7 +24,35 @@ public final class HerbTransportSelector
                 .sorted(order).collect(Collectors.toList());
     }
 
-    private static boolean isReusable(TransportVerificationKind kind)
+    /** Active repair-mode guidance retains the selected route while it remains individually verified usable. */
+    public static List<VerifiedTransportResult> selectForRefresh(List<VerifiedTransportResult> options,
+            HerbTransportPreference preference, VerifiedTransportResult current)
+    {
+        List<VerifiedTransportResult> selected=select(options,preference);
+        if (preference==HerbTransportPreference.SHARED_BUDGET && current!=null)
+        {
+            for (int i=0;i<selected.size();i++)
+            {
+                if (sameOption(selected.get(i),current))
+                { VerifiedTransportResult retained=selected.remove(i); selected.add(0,retained); break; }
+            }
+        }
+        return selected;
+    }
+    public static VerifiedTransportResult fallback(List<VerifiedTransportResult> options,VerifiedTransportResult primary)
+    {
+        return select(options,HerbTransportPreference.CATALOGUE).stream().filter(option -> !sameOption(option,primary)).findFirst().orElse(null);
+    }
+    static boolean sameOption(VerifiedTransportResult first,VerifiedTransportResult second)
+    {
+        if (first==null || second==null) { return first==second; }
+        com.farmingnavigator.transport.TransportOption a=first.getOption(),b=second.getOption();
+        return a.getVerificationKind()==b.getVerificationKind() && a.getCategory()==b.getCategory()
+                && a.getTeleportSpellDefinition()==b.getTeleportSpellDefinition() && a.getPohPortalDestination()==b.getPohPortalDestination()
+                && a.getDisplayName().equals(b.getDisplayName()) && a.getInstructions().equals(b.getInstructions());
+    }
+
+    static boolean isReusable(TransportVerificationKind kind)
     {
         switch (kind)
         {

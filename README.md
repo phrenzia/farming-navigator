@@ -98,3 +98,5 @@ Farming Navigator is intended to provide information, overlays, highlighting, ro
 It will not automate player input, click objects, click NPCs, move the player, or otherwise perform gameplay actions on behalf of the user.
 
 Guided checklists preview the first and next planned destination, including an existing nearby-walk leg, and label the final stop. The preview follows checklist order and does not perform travel or advance a stop.
+
+Transport preference can optionally repair a shared resource shortage by testing a bounded set of single-arrival substitutions. Farming spells, travel, POH entry and known charged/consumable pools stay in the same budget. The first covered alternative preserves patch order and existing nearby walks; otherwise the original suggestions and blockers remain. Bank withdrawals still need attention. Unmodelled daily/charge pools remain DATA REQUIRED in this mode. It does not search multi-leg combinations or optimize speed or profit. Active guidance keeps the selected alternative while it remains individually verified usable; changing resources may require a new preparation plan.

@@ -60,17 +60,36 @@ public final class GardenRunPlan
     public RunTransportResources getTransportResources() { return transportResources; }
     public GardenRunPlan withTransports(Map<GardenPatchDefinition, List<VerifiedTransportResult>> transports,
             HerbTransportPreference preference, RequirementContext context)
+    { return route(transports,preference,context,true); }
+    /** Active guidance refreshes verification without searching against already-consumed whole-run supplies. */
+    public GardenRunPlan refreshTransports(Map<GardenPatchDefinition, List<VerifiedTransportResult>> transports,
+            HerbTransportPreference preference, RequirementContext context)
+    { return route(transports,preference,context,false); }
+    private GardenRunPlan route(Map<GardenPatchDefinition, List<VerifiedTransportResult>> transports,
+            HerbTransportPreference preference, RequirementContext context, boolean repair)
     {
         List<GardenRunStop> routed = new ArrayList<>();
         for (GardenRunStop stop : stops)
         {
-            List<VerifiedTransportResult> usable = HerbTransportSelector.select(transports.getOrDefault(stop.getPatch(), List.of()), preference);
+            List<VerifiedTransportResult> usable = repair
+                    ? HerbTransportSelector.select(transports.getOrDefault(stop.getPatch(), List.of()), preference)
+                    : HerbTransportSelector.selectForRefresh(transports.getOrDefault(stop.getPatch(), List.of()), preference,stop.getRecommended());
             routed.add(stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
         }
         HerbRunCareResources care = HerbRunCareResources.evaluateCounts(stops.stream().filter(GardenRunStop::isReplant).count(),
                 potentialCures, cure, HerbRunCompost.valueOf(compost.name()),
                 context != null && context.getConfig() != null && context.getConfig().gardenAshTomeRead(), context);
+        RunTransportResources resources;
+        if (repair && preference==HerbTransportPreference.SHARED_BUDGET)
+        {
+            SharedTransportRepair.Result<GardenRunStop> repaired=new SharedTransportRepair().repair(routed,
+                    stop -> transports.getOrDefault(stop.getPatch(),List.of()),
+                    (stop,primary) -> stop.withTransports(primary,HerbTransportSelector.fallback(transports.getOrDefault(stop.getPatch(),List.of()),primary)),
+                    context,care.getRunes());
+            routed=repaired.getStops(); resources=repaired.getResources();
+        }
+        else { resources=new RunTransportResourcePlanner().evaluate(routed,context,care.getRunes()); }
         return new GardenRunPlan(crop, mode, routed, supplies, excluded, warnings, blocker, compost, cure, potentialCures,
-                new RunTransportResourcePlanner().evaluate(routed, context, care.getRunes()), care);
+                resources, care);
     }
 }

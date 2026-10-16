@@ -17,6 +17,8 @@ public final class RunTransportResources
     private final HerbHouseEntryMode houseEntryMode;
     private final Set<Integer> bankItems;
     private final RunePreparation runePreparation;
+    private final boolean knownPoolsRequired;
+    public boolean isKnownPoolsRequired() { return knownPoolsRequired; }
 
     RunTransportResources(List<RequirementResult> checks, List<String> notes)
     {
@@ -43,6 +45,12 @@ public final class RunTransportResources
     RunTransportResources(List<RequirementResult> checks, List<String> notes, List<SupplyCheck> consumables,
             HerbHouseEntryMode houseEntryMode, Set<Integer> bankItems, RunePreparation runePreparation)
     {
+        this(checks,notes,consumables,houseEntryMode,bankItems,runePreparation,false);
+    }
+    private RunTransportResources(List<RequirementResult> checks, List<String> notes, List<SupplyCheck> consumables,
+            HerbHouseEntryMode houseEntryMode, Set<Integer> bankItems, RunePreparation runePreparation, boolean knownPoolsRequired)
+    {
+        this.knownPoolsRequired=knownPoolsRequired;
         this.checks = Collections.unmodifiableList(new ArrayList<>(checks));
         this.notes = Collections.unmodifiableList(new ArrayList<>(notes));
         this.consumables = Collections.unmodifiableList(new ArrayList<>(consumables));
@@ -51,6 +59,18 @@ public final class RunTransportResources
         this.runePreparation = runePreparation;
     }
 
+    RunTransportResources withNote(String note)
+    {
+        List<String> combined=new ArrayList<>(notes); combined.add(note);
+        return new RunTransportResources(checks,combined,consumables,houseEntryMode,bankItems,runePreparation,knownPoolsRequired);
+    }
+    RunTransportResources withCheck(RequirementResult check)
+    {
+        List<RequirementResult> combined=new ArrayList<>(checks); combined.add(check);
+        return new RunTransportResources(combined,notes,consumables,houseEntryMode,bankItems,runePreparation,knownPoolsRequired);
+    }
+    RunTransportResources requiringKnownPools()
+    { return new RunTransportResources(checks,notes,consumables,houseEntryMode,bankItems,runePreparation,true); }
     public List<RequirementResult> getChecks() { return checks; }
     public List<String> getNotes() { return notes; }
     public List<SupplyCheck> getConsumables() { return consumables; }

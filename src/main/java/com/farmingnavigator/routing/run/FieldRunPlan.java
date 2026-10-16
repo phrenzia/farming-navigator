@@ -72,12 +72,21 @@ public final class FieldRunPlan
     public RunTransportResources getTransportResources() { return transportResources; }
     public FieldRunPlan withTransports(Map<FieldPatchDefinition, List<VerifiedTransportResult>> transports,
             HerbTransportPreference preference, RequirementContext context)
+    { return route(transports,preference,context,true); }
+    /** Active guidance refreshes verification without searching against already-consumed whole-run supplies. */
+    public FieldRunPlan refreshTransports(Map<FieldPatchDefinition, List<VerifiedTransportResult>> transports,
+            HerbTransportPreference preference, RequirementContext context)
+    { return route(transports,preference,context,false); }
+    private FieldRunPlan route(Map<FieldPatchDefinition, List<VerifiedTransportResult>> transports,
+            HerbTransportPreference preference, RequirementContext context, boolean repair)
     {
         List<FieldRunStop> routed = new ArrayList<>();
         com.farmingnavigator.farming.field.FieldPatchRegion previousRegion = null;
         for (FieldRunStop stop : stops)
         {
-            List<VerifiedTransportResult> usable = HerbTransportSelector.select(transports.getOrDefault(stop.getPatch(), List.of()), preference);
+            List<VerifiedTransportResult> usable = repair
+                    ? HerbTransportSelector.select(transports.getOrDefault(stop.getPatch(), List.of()), preference)
+                    : HerbTransportSelector.selectForRefresh(transports.getOrDefault(stop.getPatch(), List.of()), preference,stop.getRecommended());
             com.farmingnavigator.farming.field.FieldPatchRegion region = com.farmingnavigator.farming.field.FieldPatchRegion.forLocation(stop.getPatch().getLocation());
             routed.add(region != null && region == previousRegion ? stop.withLocalWalk()
                     : stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
@@ -88,8 +97,18 @@ public final class FieldRunPlan
         HerbRunCareResources care = HerbRunCareResources.evaluateCounts(stops.stream().filter(FieldRunStop::isReplant).count(),
                 diseaseCount, cure, HerbRunCompost.valueOf(compost.name()),
                 context != null && context.getConfig() != null && context.getConfig().fieldAshTomeRead(), context);
+        RunTransportResources resources;
+        if (repair && preference==HerbTransportPreference.SHARED_BUDGET)
+        {
+            SharedTransportRepair.Result<FieldRunStop> repaired=new SharedTransportRepair().repair(routed,
+                    stop -> transports.getOrDefault(stop.getPatch(),List.of()),
+                    (stop,primary) -> stop.withTransports(primary,HerbTransportSelector.fallback(transports.getOrDefault(stop.getPatch(),List.of()),primary)),
+                    context,care.getRunes());
+            routed=repaired.getStops(); resources=repaired.getResources();
+        }
+        else { resources=new RunTransportResourcePlanner().evaluate(routed,context,care.getRunes()); }
         return new FieldRunPlan(crop, mode, routed, plannedSupplies, excluded, warnings, blocker, compost, cure, watering,
-                new RunTransportResourcePlanner().evaluate(routed, context, care.getRunes()), care,
+                resources, care,
                 WateringCanBudget.evaluate(getWateringApplications(), context == null ? null : context.getStorageSnapshot()));
     }
 }

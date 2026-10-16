@@ -59,6 +59,13 @@ public final class TreeRunPlan
     public RunTransportResources getTransportResources() { return transportResources; }
     public TreeRunPlan withTransports(Map<TreePatchDefinition, List<VerifiedTransportResult>> transports,
             HerbTransportPreference preference, RequirementContext context)
+    { return route(transports,preference,context,true); }
+    /** Active guidance refreshes verification without searching against already-consumed whole-run supplies. */
+    public TreeRunPlan refreshTransports(Map<TreePatchDefinition, List<VerifiedTransportResult>> transports,
+            HerbTransportPreference preference, RequirementContext context)
+    { return route(transports,preference,context,false); }
+    private TreeRunPlan route(Map<TreePatchDefinition, List<VerifiedTransportResult>> transports,
+            HerbTransportPreference preference, RequirementContext context, boolean repair)
     {
         List<TreeRunStop> routed = new ArrayList<>();
         boolean previousFossil = false;
@@ -67,8 +74,9 @@ public final class TreeRunPlan
             boolean fossil = stop.getPatch() == TreePatchDefinition.FOSSIL_ISLAND_EAST
                     || stop.getPatch() == TreePatchDefinition.FOSSIL_ISLAND_MIDDLE
                     || stop.getPatch() == TreePatchDefinition.FOSSIL_ISLAND_WEST;
-            List<VerifiedTransportResult> usable = HerbTransportSelector.select(
-                    transports.getOrDefault(stop.getPatch(), List.of()), preference);
+            List<VerifiedTransportResult> usable = repair
+                    ? HerbTransportSelector.select(transports.getOrDefault(stop.getPatch(), List.of()), preference)
+                    : HerbTransportSelector.selectForRefresh(transports.getOrDefault(stop.getPatch(), List.of()), preference,stop.getRecommended());
             routed.add(fossil && previousFossil ? stop.withLocalWalk()
                     : stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
             previousFossil = fossil;
@@ -76,7 +84,17 @@ public final class TreeRunPlan
         HerbRunCareResources care = HerbRunCareResources.evaluateCounts(stops.stream().filter(TreeRunStop::isReplant).count(),
                 potentialCures, cure.asHerbCure(), HerbRunCompost.valueOf(compost.name()),
                 context != null && context.getConfig() != null && context.getConfig().treeAshTomeRead(), context);
+        RunTransportResources resources;
+        if (repair && preference==HerbTransportPreference.SHARED_BUDGET)
+        {
+            SharedTransportRepair.Result<TreeRunStop> repaired=new SharedTransportRepair().repair(routed,
+                    stop -> transports.getOrDefault(stop.getPatch(),List.of()),
+                    (stop,primary) -> stop.withTransports(primary,HerbTransportSelector.fallback(transports.getOrDefault(stop.getPatch(),List.of()),primary)),
+                    context,care.getRunes());
+            routed=repaired.getStops(); resources=repaired.getResources();
+        }
+        else { resources=new RunTransportResourcePlanner().evaluate(routed,context,care.getRunes()); }
         return new TreeRunPlan(crop, routed, supplies, excluded, warnings, blocker, compost, cure, potentialCures,
-                new RunTransportResourcePlanner().evaluate(routed, context, care.getRunes()), care);
+                resources, care);
     }
 }

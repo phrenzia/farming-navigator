@@ -3,7 +3,8 @@ package com.farmingnavigator.routing.run;
 public enum HerbTransportPreference
 {
     CATALOGUE("Catalogue ranking"),
-    REUSABLE_FIRST("Prefer reusable transport");
+    REUSABLE_FIRST("Prefer reusable transport"),
+    SHARED_BUDGET("Repair shared budget (one arrival)");
 
     private final String label;
 
