@@ -48,6 +48,12 @@ public final class GuidedRunOverlayController
         applyTargets(enabled ? GuidedRunTargets.fromGarden(session, plan, travel) : GuidedRunTargets.empty());
     }
 
+    public void updateField(com.farmingnavigator.guided.field.FieldRunSnapshot session,
+            com.farmingnavigator.routing.run.FieldRunPlan plan, TravelCapabilitySnapshot travel, boolean enabled)
+    {
+        applyTargets(enabled ? GuidedRunTargets.fromField(session, plan, travel) : GuidedRunTargets.empty());
+    }
+
     private void applyTargets(GuidedRunTargets next)
     {
         targets = next;
@@ -59,12 +65,12 @@ public final class GuidedRunOverlayController
         if (marker == null && targets.getDestination() != null)
         {
             marker = new WorldMapPoint(targets.getDestination(), markerImage);
-            marker.setTooltip("Guided farming run: " + targets.getDestinationName());
             marker.setName("Farming Navigator destination");
             marker.setSnapToEdge(true);
             marker.setJumpOnClick(false);
             worldMap.add(marker);
         }
+        if (marker != null) { marker.setTooltip("Guided farming run: " + targets.getDestinationName()); }
     }
 
     public void clear()

@@ -761,7 +761,10 @@ public class FarmingNavigatorPlugin
         }
         com.farmingnavigator.analytics.RunMetricsSnapshot metricsSnapshot = runMetrics.snapshot(Instant.now());
         com.farmingnavigator.contracts.FarmingContractSnapshot farmingContract = farmingContractService.snapshot();
-        if (fieldGuidedRun.isActive()) { guidedRunOverlayController.clear(); }
+        if (fieldGuidedRun.isActive())
+        {
+            guidedRunOverlayController.updateField(fieldGuidedRun, fieldRunPlan, travelCapabilitySnapshot, config.guidedRunOverlays());
+        }
         else if (gardenGuidedRun.isActive())
         {
             guidedRunOverlayController.updateGarden(gardenGuidedRun, gardenRunPlan, travelCapabilitySnapshot, config.guidedRunOverlays());
