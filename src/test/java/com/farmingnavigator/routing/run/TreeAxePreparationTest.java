@@ -70,4 +70,18 @@ public class TreeAxePreparationTest
         }
         assertEquals(-1, new AccountState(true, 99, 99, EnumSet.noneOf(Quest.class), false).getBoostedWoodcuttingLevel());
     }
+    @Test public void thirdAgeAxeUsesBoostedWoodcuttingAndDoesNotNeedWieldingAttackInInventory()
+    {
+        assertEquals(SupplyState.ALREADY_CARRIED,TreeAxePreparation.evaluate(account(61).withRealAttackLevel(1),storage(Map.of(ItemID._3A_AXE,1L),Map.of(),Map.of(),true)).getState());
+        assertEquals(SupplyState.MISSING,TreeAxePreparation.evaluate(account(60),storage(Map.of(ItemID._3A_AXE,1L),Map.of(),Map.of(),true)).getState());
+        assertEquals(SupplyState.AVAILABLE_FROM_BANK,TreeAxePreparation.evaluate(account(61),storage(Map.of(),Map.of(),Map.of(ItemID._3A_AXE,1L),true)).getState());
+        assertEquals(SupplyState.DATA_REQUIRED,TreeAxePreparation.evaluate(account(61),storage(Map.of(),Map.of(),Map.of(ItemID._3A_AXE,1L),false)).getState());
+    }
+    @Test public void notedThirdAgeAndBlessedUndeadOnlyAxeCannotCountAsFarmingAxes()
+    {
+        SupplyCheck result=TreeAxePreparation.evaluate(account(99),storage(Map.of(ItemID.Cert._3A_AXE,1L,ItemID.ANMA_AXE,1L),Map.of(),Map.of(),true));
+        assertEquals(SupplyState.MISSING,result.getState()); assertFalse(result.getRequirement().getAcceptedItemIds().contains(ItemID.ANMA_AXE));
+        assertTrue(result.getRequirement().getNote().contains("undead trees"));
+    }
+
 }
