@@ -75,6 +75,7 @@ public final class GardenRunSnapshot
             case TRAVEL: return "Travel to " + stop.getPatch().getLabel() + " and approach the bush/cactus patch.";
             case INSPECT: return "Inspect the patch. A fresh nearby observation is required before choosing an action.";
             case CHECK_HEALTH: return "Check health. The checklist waits for a fresh health-checked state.";
+            case MAKE_SPACE: return "Inventory full. Make space manually by banking or using compatible produce-noting where available. Return to this patch with a free slot to resume harvesting. Freeing space does not verify produce quantity or harvest completion.";
             case HARVEST: return "Pick any available produce, or inspect and leave it if desired. Confirm when finished; produce quantity and harvest completion are not automatically verified.";
             case KEEP_OR_REPLACE: return stop.isReplant() ? "Keep the mature plant, or explicitly choose to clear it and plant the reserved seed."
                     : "No replacement was reserved for this plant. Keep it and prepare a new plan if replacement is needed.";

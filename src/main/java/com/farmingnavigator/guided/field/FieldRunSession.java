@@ -18,6 +18,7 @@ public final class FieldRunSession
     private FieldRunPlan plan;
     private FieldRunStep step = FieldRunStep.INACTIVE;
     private Instant enteredAt = Instant.EPOCH, startedAt, finishedAt;
+    private Instant interruptedHarvestAt;
     private FieldCrop curingCrop = FieldCrop.UNKNOWN;
     private boolean protect, compostConfirmed, plantedConfirmed, wateringConfirmed;
     private int index, completed, manual, skipped, protectionConfirmed;
@@ -50,7 +51,7 @@ public final class FieldRunSession
     }
     public boolean observe(WorldPoint player, Map<FieldPatchDefinition, FieldPatchObservation> observations, Instant now)
     {
-        if (!active() || step == FieldRunStep.PREPARE || step == FieldRunStep.PROTECT || step == FieldRunStep.REPREPARE) { return false; }
+        if (!active() || step == FieldRunStep.PREPARE || step == FieldRunStep.PROTECT || step == FieldRunStep.MAKE_SPACE || step == FieldRunStep.REPREPARE) { return false; }
         FieldRunStop stop = plan.getStops().get(index);
         if (!stop.getPatch().isNear(player)) { return false; }
         FieldPatchObservation observation = observations.get(stop.getPatch());
@@ -105,6 +106,22 @@ public final class FieldRunSession
         }
         if (step == before && !expected(condition)) { inspect(state, now); }
         return step != before;
+    }
+    /** Inventory space pauses a harvest; it never proves produce quantity or harvest completion. */
+    public boolean observeInventory(int freeSlots,WorldPoint player,Instant now)
+    {
+        if(!active() || freeSlots<0 || freeSlots>28 || now.isBefore(enteredAt)
+                || !plan.getStops().get(index).getPatch().isNear(player)) { return false; }
+        if(step==FieldRunStep.HARVEST && freeSlots==0)
+        {
+            interruptedHarvestAt=enteredAt; enter(FieldRunStep.MAKE_SPACE,now); return true;
+        }
+        if(step==FieldRunStep.MAKE_SPACE && freeSlots>0)
+        {
+            // Resume the same action with its original evidence cutoff. The next fresh patch observation decides progress.
+            revision++; step=FieldRunStep.HARVEST; enteredAt=interruptedHarvestAt; interruptedHarvestAt=null; return true;
+        }
+        return false;
     }
     private boolean expected(FieldPatchCondition condition)
     {
@@ -170,6 +187,7 @@ public final class FieldRunSession
     {
         revision++;
         if (skip) { skipped++; } else { completed++; if (manually) { manual++; } }
+        interruptedHarvestAt=null;
         curingCrop = FieldCrop.UNKNOWN; compostConfirmed = plantedConfirmed = wateringConfirmed = false; index++;
         if (index >= plan.getStops().size()) { finishedAt = now; enter(FieldRunStep.COMPLETE, now); } else { enter(FieldRunStep.TRAVEL, now); }
     }
@@ -186,6 +204,7 @@ public final class FieldRunSession
     {
         revision++;
         plan = null; step = FieldRunStep.INACTIVE; enteredAt = Instant.EPOCH; startedAt = null; finishedAt = null;
+        interruptedHarvestAt=null;
         curingCrop = FieldCrop.UNKNOWN; compostConfirmed = plantedConfirmed = wateringConfirmed = false; index = completed = manual = skipped = protectionConfirmed = 0;
     }
 }

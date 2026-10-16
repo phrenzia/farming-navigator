@@ -18,6 +18,7 @@ public final class GardenRunSession
     private GardenRunPlan plan;
     private GardenRunStep step = GardenRunStep.INACTIVE;
     private Instant enteredAt = Instant.EPOCH, startedAt, finishedAt;
+    private Instant interruptedHarvestAt;
     private GardenCrop curingCrop = GardenCrop.UNKNOWN;
     private boolean protect, compostConfirmed;
     private int index, completed, manual, skipped, protectionConfirmed;
@@ -57,7 +58,7 @@ public final class GardenRunSession
     }
     public boolean observe(WorldPoint player, Map<GardenPatchDefinition, GardenPatchObservation> observations, Instant now)
     {
-        if (!active() || step == GardenRunStep.PREPARE || step == GardenRunStep.PROTECT) { return false; }
+        if (!active() || step == GardenRunStep.PREPARE || step == GardenRunStep.PROTECT || step == GardenRunStep.MAKE_SPACE) { return false; }
         GardenRunStop stop = plan.getStops().get(index);
         if (!stop.getPatch().isNear(player)) { return false; }
         GardenPatchObservation observation = observations.get(stop.getPatch());
@@ -101,6 +102,22 @@ public final class GardenRunSession
         }
         if (step == before && !expected(condition)) { inspect(state, now); }
         return step != before;
+    }
+    /** Inventory space pauses a harvest; it never proves produce quantity or harvest completion. */
+    public boolean observeInventory(int freeSlots,WorldPoint player,Instant now)
+    {
+        if(!active() || freeSlots<0 || freeSlots>28 || now.isBefore(enteredAt)
+                || !plan.getStops().get(index).getPatch().isNear(player)) { return false; }
+        if(step==GardenRunStep.HARVEST && freeSlots==0)
+        {
+            interruptedHarvestAt=enteredAt; enter(GardenRunStep.MAKE_SPACE,now); return true;
+        }
+        if(step==GardenRunStep.MAKE_SPACE && freeSlots>0)
+        {
+            // Resume the same action with its original evidence cutoff. The next fresh patch observation decides progress.
+            revision++; step=GardenRunStep.HARVEST; enteredAt=interruptedHarvestAt; interruptedHarvestAt=null; return true;
+        }
+        return false;
     }
     private boolean expected(GardenPatchCondition condition)
     {
@@ -147,6 +164,7 @@ public final class GardenRunSession
     {
         revision++;
         if (skip) { skipped++; } else { completed++; if (manually) { manual++; } }
+        interruptedHarvestAt=null;
         curingCrop = GardenCrop.UNKNOWN; compostConfirmed = false; index++;
         if (index >= plan.getStops().size()) { finishedAt = now; enter(GardenRunStep.COMPLETE, now); } else { enter(GardenRunStep.TRAVEL, now); }
     }
@@ -163,6 +181,7 @@ public final class GardenRunSession
     {
         revision++;
         plan = null; step = GardenRunStep.INACTIVE; enteredAt = Instant.EPOCH; startedAt = null; finishedAt = null;
+        interruptedHarvestAt=null;
         curingCrop = GardenCrop.UNKNOWN; compostConfirmed = false; index = completed = manual = skipped = protectionConfirmed = 0;
     }
 }

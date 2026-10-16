@@ -326,7 +326,8 @@ public final class GuidedRunTargets
             if (needed) { inventory.add(preparation.getSource().getItemId()); }
         }
         boolean scene = session.getStep() != com.farmingnavigator.guided.garden.GardenRunStep.PREPARE
-                && session.getStep() != com.farmingnavigator.guided.garden.GardenRunStep.WAIT;
+                && session.getStep() != com.farmingnavigator.guided.garden.GardenRunStep.WAIT
+                && session.getStep() != com.farmingnavigator.guided.garden.GardenRunStep.MAKE_SPACE;
         return new GuidedRunTargets(inventory, bank, destination, name, null, false, null, false,
                 scene ? session.getStop().getPatch() : null, session.getStep() == com.farmingnavigator.guided.garden.GardenRunStep.PROTECT);
     }
@@ -417,7 +418,8 @@ public final class GuidedRunTargets
         boolean scene = session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.PREPARE
                 && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.WAIT
                 && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.SCARECROW
-                && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.REPREPARE;
+                && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.REPREPARE
+                && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.MAKE_SPACE;
         return new GuidedRunTargets(inventory, bank, destination, name, null, false, null, false, null, false,
                 scene ? session.getStop().getPatch() : null, session.getStep() == com.farmingnavigator.guided.field.FieldRunStep.PROTECT);
     }

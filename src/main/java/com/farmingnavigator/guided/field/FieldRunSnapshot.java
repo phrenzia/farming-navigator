@@ -88,6 +88,7 @@ public final class FieldRunSnapshot
             case TRAVEL: return (stop.isLocalWalk() ? "Walk within the farming area to " : "Travel to ") + stop.getPatch().getLabel() + " and approach the labelled plot."
                     + (crop == FieldRunCrop.SEAWEED ? " Check your diving equipment, air supply and underwater item restrictions manually." : "");
             case INSPECT: return "Inspect the labelled plot. A fresh nearby observation is required before choosing an action.";
+            case MAKE_SPACE: return "Inventory full. Make space manually by banking or using compatible produce-noting where available. Return to this patch with a free slot to resume harvesting. Freeing space does not verify produce quantity or harvest completion.";
             case HARVEST: return (crop == FieldRunCrop.BELLADONNA ? "Equip suitable gloves before picking belladonna to avoid poison damage. " : "")
                     + "Harvest this plot manually until empty. Harvest stages do not prove produce quantity; the checklist waits for a fresh empty-patch observation.";
             case KEEP_FLOWER: return "Inspect and keep this mature flower. Harvesting it may remove nearby allotment protection. Confirm when finished.";

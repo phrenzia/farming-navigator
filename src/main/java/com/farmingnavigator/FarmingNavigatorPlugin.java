@@ -424,10 +424,14 @@ public class FarmingNavigatorPlugin
         if (fieldRunSession.snapshot(Instant.now()).isActive())
         {
             changed |= fieldRunSession.observe(herbPatchObservationService.currentLocation(), fieldPatchObservationService.snapshot(), Instant.now());
+            changed |= fieldRunSession.observeInventory(storageStateService.getFreeInventorySlots(),
+                    herbPatchObservationService.currentLocation(),Instant.now());
         }
         if (gardenRunSession.snapshot(Instant.now()).isActive())
         {
             changed |= gardenRunSession.observe(herbPatchObservationService.currentLocation(), gardenPatchObservationService.snapshot(), Instant.now());
+            changed |= gardenRunSession.observeInventory(storageStateService.getFreeInventorySlots(),
+                    herbPatchObservationService.currentLocation(),Instant.now());
         }
         if (treeRunSession.snapshot(Instant.now()).isActive())
         {
