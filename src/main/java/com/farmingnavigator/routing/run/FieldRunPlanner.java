@@ -111,7 +111,9 @@ public final class FieldRunPlanner
             {
                 supplies.add(new SupplyRequirement(crop.getSeedId(), crop + " seed/spore", (long) replants * crop.getSeedsPerPatch(), false,
                         crop.getSeedsPerPatch() + " seeds/spores per possible planting; seed-saving equipment is not assumed."));
-                supplies.add(new SupplyRequirement(ItemID.DIBBER, "Seed dibber", 1, false, "Planting tool; Barbarian Training is not checked."));
+                if(com.farmingnavigator.loadout.PlantingToolPolicy.fieldDibberRequired(account,crop.getCrop().getFamily()))
+                { supplies.add(new SupplyRequirement(ItemID.DIBBER,"Seed dibber",1,false,com.farmingnavigator.loadout.PlantingToolPolicy.retainedNote(account))); }
+                else { warnings.add(com.farmingnavigator.loadout.PlantingToolPolicy.omittedNote()); }
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true, "For weeds; auto-weed is not checked."));
                 if (compost != FieldRunCompost.NONE && !compost.isSpell())
                 {

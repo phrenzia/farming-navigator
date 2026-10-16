@@ -9,6 +9,7 @@ import net.runelite.api.QuestState;
 public class AccountState
 {
     private final boolean loggedIn;
+    private final BarbarianPlantingState barbarianPlanting;
 
     private final int realFarmingLevel;
     private final int boostedFarmingLevel;
@@ -83,6 +84,17 @@ public class AccountState
             boolean fireOfNourishmentBuilt, boolean fairyRingAccessUnlocked, boolean varlamoreVisited,
             int realAttackLevel, int boostedWoodcuttingLevel)
     {
+        this(loggedIn,realFarmingLevel,boostedFarmingLevel,realMagicLevel,boostedMagicLevel,realAgilityLevel,boostedAgilityLevel,
+                realHunterLevel,boostedHunterLevel,questStates,completedDiaryTiers,claimedDiaryTiers,fireOfNourishmentBuilt,
+                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,BarbarianPlantingState.UNKNOWN);
+    }
+    private AccountState(boolean loggedIn,int realFarmingLevel,int boostedFarmingLevel,int realMagicLevel,int boostedMagicLevel,
+            int realAgilityLevel,int boostedAgilityLevel,int realHunterLevel,int boostedHunterLevel,Map<Quest,QuestState> questStates,
+            Map<DiaryArea,DiaryTier> completedDiaryTiers,Map<DiaryArea,DiaryTier> claimedDiaryTiers,boolean fireOfNourishmentBuilt,
+            boolean fairyRingAccessUnlocked,boolean varlamoreVisited,int realAttackLevel,int boostedWoodcuttingLevel,
+            BarbarianPlantingState barbarianPlanting)
+    {
+        this.barbarianPlanting=loggedIn && barbarianPlanting!=null?barbarianPlanting:BarbarianPlantingState.UNKNOWN;
         this.boostedWoodcuttingLevel = Math.max(-1, boostedWoodcuttingLevel);
         this.realAttackLevel = realAttackLevel >= 1 ? realAttackLevel : -1;
         this.loggedIn =
@@ -359,7 +371,7 @@ public class AccountState
     {
         return new AccountState(loggedIn, realFarmingLevel, boostedFarmingLevel, realMagicLevel, boostedMagicLevel,
                 realAgilityLevel, boostedAgilityLevel, realHunterLevel, boostedHunterLevel, questStates,
-                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, level, boostedWoodcuttingLevel);
+                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, level, boostedWoodcuttingLevel,barbarianPlanting);
     }
 
     /** -1 means an older/synthetic caller has not supplied this skill. Zero is a known drained level. */
@@ -368,7 +380,16 @@ public class AccountState
     {
         return new AccountState(loggedIn, realFarmingLevel, boostedFarmingLevel, realMagicLevel, boostedMagicLevel,
                 realAgilityLevel, boostedAgilityLevel, realHunterLevel, boostedHunterLevel, questStates,
-                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, realAttackLevel, level);
+                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, realAttackLevel, level,barbarianPlanting);
+    }
+
+    public BarbarianPlantingState getBarbarianPlanting() { return barbarianPlanting; }
+    public boolean hasCompletedBarbarianPlanting() { return loggedIn && barbarianPlanting==BarbarianPlantingState.COMPLETED; }
+    public AccountState withBarbarianPlanting(BarbarianPlantingState state)
+    {
+        return new AccountState(loggedIn,realFarmingLevel,boostedFarmingLevel,realMagicLevel,boostedMagicLevel,realAgilityLevel,boostedAgilityLevel,
+                realHunterLevel,boostedHunterLevel,questStates,completedDiaryTiers,claimedDiaryTiers,fireOfNourishmentBuilt,
+                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,state);
     }
 
     public int getBoostedMagicLevel()

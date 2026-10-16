@@ -215,7 +215,8 @@ public class AccountStateService
                 fairyRingAccessUnlocked,
                 varlamoreVisited,
                 client.getRealSkillLevel(Skill.ATTACK)
-        ).withBoostedWoodcuttingLevel(client.getBoostedSkillLevel(Skill.WOODCUTTING));
+        ).withBoostedWoodcuttingLevel(client.getBoostedSkillLevel(Skill.WOODCUTTING))
+                .withBarbarianPlanting(BarbarianPlantingState.decode(client.getVarbitValue(VarbitID.BRUT_FARMING_PLANTING)));
     }
 
     private EnumMap<Quest, QuestState>

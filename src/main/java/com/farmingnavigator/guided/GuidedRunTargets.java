@@ -145,7 +145,7 @@ public final class GuidedRunTargets
             case CLEAR: inventory.add(ItemID.SPADE); break;
             case PLANT:
                 inventory.add(session.getCrop().getSeedId());
-                inventory.add(ItemID.DIBBER);
+                if(needsDibber(plan==null?null:plan.getSupplies())) { inventory.add(ItemID.DIBBER); }
                 break;
             case COMPOST:
                 if (session.getCompost().isSpell())
@@ -298,7 +298,7 @@ public final class GuidedRunTargets
                 break;
             case RAKE: inventory.add(ItemID.RAKE); break;
             case CLEAR: inventory.add(ItemID.SPADE); break;
-            case PLANT: inventory.add(ItemID.DIBBER); inventory.add(session.getCrop().getSeedId()); break;
+            case PLANT: if(needsDibber(plan==null?null:plan.getSupplies())) { inventory.add(ItemID.DIBBER); } inventory.add(session.getCrop().getSeedId()); break;
             case PROTECT: session.getCrop().protectionPayment(1).ifPresent(payment -> inventory.addAll(payment.getAcceptedItemIds())); break;
             case PRUNE: inventory.add(ItemID.SECATEURS); inventory.add(ItemID.FAIRY_ENCHANTED_SECATEURS); break;
             case CURE:
@@ -383,7 +383,7 @@ public final class GuidedRunTargets
                 if (session.getStop().getPatch().getFamily() != com.farmingnavigator.farming.field.FieldFamily.FLOWER) { inventory.add(ItemID.SPADE); }
                 break;
             case CLEAR: inventory.add(ItemID.SPADE); break;
-            case PLANT: inventory.add(ItemID.DIBBER); inventory.add(session.getCrop().getSeedId()); break;
+            case PLANT: if(needsDibber(plan==null?null:plan.getSupplies())) { inventory.add(ItemID.DIBBER); } inventory.add(session.getCrop().getSeedId()); break;
             case PROTECT:
                 if (session.getStop().getPatch() != com.farmingnavigator.farming.field.FieldPatchDefinition.HARMONY_ISLAND_ALLOTMENT)
                 {
@@ -422,6 +422,11 @@ public final class GuidedRunTargets
                 && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.MAKE_SPACE;
         return new GuidedRunTargets(inventory, bank, destination, name, null, false, null, false, null, false,
                 scene ? session.getStop().getPatch() : null, session.getStep() == com.farmingnavigator.guided.field.FieldRunStep.PROTECT);
+    }
+
+    private static boolean needsDibber(java.util.List<com.farmingnavigator.loadout.SupplyCheck> supplies)
+    {
+        return supplies==null || supplies.stream().anyMatch(check -> check.getRequirement().getItemId()==ItemID.DIBBER);
     }
 
     private static void addTreeAxes(Set<Integer> items, com.farmingnavigator.routing.run.TreeRunPlan plan)

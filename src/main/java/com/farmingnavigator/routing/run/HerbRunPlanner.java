@@ -93,9 +93,10 @@ public final class HerbRunPlanner
             if (replantCount > 0)
             {
                 supplies.add(new SupplyRequirement(crop.getSeedId(), crop.getDisplayName() + " seed", replantCount,
-                        false, "One seed per potential replant stop; inspect unknown patches first."));
-                supplies.add(new SupplyRequirement(ItemID.DIBBER, "Seed dibber", 1, true,
-                        "Bring unless barbarian seed planting is unlocked."));
+                        false, "One seed per potential replant stop; inspect unknown patches first."
+                                + (com.farmingnavigator.loadout.PlantingToolPolicy.herbDibberRequired(account)?"":" " + com.farmingnavigator.loadout.PlantingToolPolicy.omittedNote())));
+                if(com.farmingnavigator.loadout.PlantingToolPolicy.herbDibberRequired(account))
+                { supplies.add(new SupplyRequirement(ItemID.DIBBER,"Seed dibber",1,true,com.farmingnavigator.loadout.PlantingToolPolicy.retainedNote(account))); }
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true,
                         "Useful if weeds are present; tool leprechaun storage is not checked."));
                 if (compost.getItemId() > 0)

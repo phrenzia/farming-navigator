@@ -87,7 +87,7 @@ public final class GardenRunSnapshot
                                 : " Without ash the spell applies supercompost; carried ash may upgrade it if the tome is read."); }
                 return "Apply " + compost + " to this patch, then confirm manually. Current compost state and application are not observed."
                     + (compost.isBottomless() ? " Check the bucket type and remaining uses yourself." : "");
-            case PLANT: return "Use a seed dibber to plant one " + crop + " seed. Barbarian Training is not checked.";
+            case PLANT: return "Plant one " + crop + " seed using the planting tools listed in preparation.";
             case PROTECT: return "Pay the gardener for protection, then confirm manually. The checklist does not verify the payment.";
             case PRUNE: return "Use secateurs to prune the diseased bush. Keep the living plant; wait for healthy growth of the same crop.";
             case CURE: return (cure == com.farmingnavigator.routing.run.HerbRunCure.CURE_PLANT ? "Cast Lunar Cure Plant on this diseased plant." : "Use plant cure on the diseased cactus.")

@@ -100,7 +100,7 @@ public final class FieldRunSnapshot
                                 ? " The ash-covered tome and two volcanic ash per cast are required." : " Without ash, the spell applies supercompost; carried ash may upgrade it if the tome is read."); }
                 if (compost.isBottomless()) { return "Check your selected bottomless bucket's compost type and remaining uses, apply it to this plot, then confirm manually. Contents and application are not automatically verified; farmer payments are separate."; }
                 return "Apply one unnoted bucket of " + compost + " to this plot, then confirm manually. Current compost state and application are not automatically verified; farmer payments are separate.";
-            case PLANT: return "Use a seed dibber to plant " + crop.getSeedsPerPatch() + " " + crop + " seed/spore(s). Seed saving and Barbarian Training are not assumed.";
+            case PLANT: return "Plant " + crop.getSeedsPerPatch() + " " + crop + " seed/spore(s) using the planting tools listed in preparation. Seed saving is not assumed.";
             case WATER: return "Water the planted crop once using a filled standard can, then confirm manually. A fresh nearby watered state of the same crop advances this step, or confirm manually. Watering only covers this growth cycle; later cycles need watering again.";
             case REPREPARE: return "A planting was already observed at this stop, but the plot is empty again. No second seed or care application is reserved. Prepare a new plan before replanting.";
             case PROTECT: return "Pay the gardener for protection, then confirm manually. The checklist does not verify the payment.";

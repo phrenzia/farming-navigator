@@ -72,7 +72,9 @@ public final class GardenRunPlanner
             if (replants > 0)
             {
                 supplies.add(new SupplyRequirement(crop.getSeedId(), crop + " seed", replants, false, "One seed per possible new plant; kept mature and diseased plants are excluded."));
-                supplies.add(new SupplyRequirement(ItemID.DIBBER, "Seed dibber", 1, false, "Planting tool; Barbarian Training is not checked."));
+                if(com.farmingnavigator.loadout.PlantingToolPolicy.gardenDibberRequired(account,crop.getCrop().getFamily()))
+                { supplies.add(new SupplyRequirement(ItemID.DIBBER,"Seed dibber",1,false,com.farmingnavigator.loadout.PlantingToolPolicy.retainedNote(account))); }
+                else { warnings.add(com.farmingnavigator.loadout.PlantingToolPolicy.omittedNote()); }
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true, "For weeds; auto-weed is not checked."));
                 if (compost != GardenRunCompost.NONE && !compost.isSpell())
                 {
