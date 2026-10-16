@@ -146,4 +146,53 @@ public class CombinedRunPlannerTest
         assertEquals(RequirementState.BLOCKED,result.getResources().getChecks().get(0).getState());
     }
 
+    @Test public void combinedMaterialValueKeepsEveryApplicationAndPaymentButNoReusableTools()
+    {
+        RequirementContext context=context(Map.of(),Map.of(),SpellbookType.STANDARD);
+        GardenRunPlan garden=garden(context,GardenRunCompost.COMPOST); FieldRunPlan field=field(context,FieldRunCompost.COMPOST);
+        CombinedRunPlan worksheet=new CombinedRunPlanner().plan(selected,null,null,garden,field,context);
+        com.farmingnavigator.economics.FarmingMaterialEstimator estimator=new com.farmingnavigator.economics.FarmingMaterialEstimator();
+        com.farmingnavigator.economics.FarmingMaterialEstimate g=estimator.gardens(garden,id -> 100),f=estimator.fields(field,id -> 100);
+        com.farmingnavigator.economics.FarmingMaterialEstimate value=estimator.combined(worksheet,selected,Map.of(CombinedRunKind.GARDEN,g,CombinedRunKind.FIELD,f)).get();
+        assertEquals(g.getKnownSubtotal().getAsLong()+f.getKnownSubtotal().getAsLong(),value.getKnownSubtotal().getAsLong());
+        assertEquals(4,value.getLines().stream().filter(line -> line.getItemId()==ItemID.BUCKET_COMPOST).mapToLong(line -> line.getQuantity()).sum());
+        assertTrue(value.getLines().stream().noneMatch(line -> line.getItemId()==ItemID.SPADE || line.getItemId()==ItemID.SECATEURS));
+        assertTrue(value.getLines().stream().anyMatch(line -> line.getName().startsWith("Bush/cactus - ")));
+        assertTrue(value.getLines().stream().anyMatch(line -> line.getName().startsWith("Field/special - ")));
+        assertTrue(value.getNotes().stream().anyMatch(note -> note.contains("Repeated consumables remain counted")));
+        assertEquals(1,value.getNotes().stream().filter(note -> note.startsWith("RuneLite cached")).count());
+        try { value.getLines().clear(); fail("Mutable combined value"); } catch(UnsupportedOperationException expected) { }
+    }
+    @Test public void combinedMaterialValuePreservesUnknownQuotesOverflowAndBottomlessUseExclusions()
+    {
+        RequirementContext context=context(Map.of(),Map.of(),SpellbookType.STANDARD);
+        GardenRunPlan garden=garden(context,GardenRunCompost.BOTTOMLESS_ULTRACOMPOST); FieldRunPlan field=field(context,FieldRunCompost.BOTTOMLESS_ULTRACOMPOST);
+        CombinedRunPlan worksheet=new CombinedRunPlanner().plan(selected,null,null,garden,field,context);
+        com.farmingnavigator.economics.FarmingMaterialEstimator estimator=new com.farmingnavigator.economics.FarmingMaterialEstimator();
+        for(long quote:new long[]{0,-1,Long.MAX_VALUE,Long.MAX_VALUE/4,100})
+        {
+            com.farmingnavigator.economics.FarmingMaterialEstimate g=estimator.gardens(garden,id -> quote),f=estimator.fields(field,id -> quote);
+            com.farmingnavigator.economics.FarmingMaterialEstimate value=estimator.combined(worksheet,selected,Map.of(CombinedRunKind.GARDEN,g,CombinedRunKind.FIELD,f)).get();
+            assertEquals(g.getLines().size()+f.getLines().size(),value.getLines().size());
+            assertEquals(g.getUnknownPriceCount()+f.getUnknownPriceCount(),value.getUnknownPriceCount());
+            assertTrue(value.getLines().stream().noneMatch(line -> line.getItemId()==ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED));
+            assertEquals(2,value.getNotes().stream().filter(note -> note.contains("Bottomless compost use value is unknown")).count());
+            if(quote==Long.MAX_VALUE) { assertEquals(Long.MAX_VALUE,value.getKnownSubtotal().getAsLong()); assertTrue(value.getUnknownPriceCount()>0); }
+            if(quote==Long.MAX_VALUE/4) { assertFalse(value.getKnownSubtotal().isPresent()); }
+            if(quote<=0) { assertEquals(0,value.getKnownSubtotal().getAsLong()); assertTrue(value.getUnknownPriceCount()>0); }
+        }
+    }
+    @Test public void incompleteCombinedMaterialInputsCannotBecomeAPartialSubtotal()
+    {
+        RequirementContext context=context(Map.of(),Map.of(),SpellbookType.STANDARD);
+        CombinedRunPlan worksheet=combined(context,GardenRunCompost.NONE,FieldRunCompost.NONE);
+        com.farmingnavigator.economics.FarmingMaterialEstimator estimator=new com.farmingnavigator.economics.FarmingMaterialEstimator();
+        com.farmingnavigator.economics.FarmingMaterialEstimate g=estimator.gardens(garden(context,GardenRunCompost.NONE),id -> 100);
+        assertFalse(estimator.combined(worksheet,selected,Map.of(CombinedRunKind.GARDEN,g)).isPresent());
+        assertFalse(estimator.combined(null,selected,Map.of(CombinedRunKind.GARDEN,g)).isPresent());
+        CombinedRunPlan blocked=new CombinedRunPlanner().plan(selected,null,null,null,null,context);
+        assertFalse(estimator.combined(blocked,selected,Map.of(CombinedRunKind.GARDEN,g,CombinedRunKind.FIELD,g)).isPresent());
+        assertFalse(estimator.combined(worksheet,Set.of(CombinedRunKind.GARDEN),Map.of(CombinedRunKind.GARDEN,g)).isPresent());
+    }
+
 }

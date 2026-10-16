@@ -44,6 +44,11 @@ public final class FarmingMaterialEstimate
             }
             value = total;
         }
+        // Preserve an unknown/overflowed quote exactly when presenting a component within a combined worksheet.
+        Line(Line source,String name)
+        {
+            this.itemId=source.itemId; this.name=name; this.quantity=source.quantity; this.value=source.value;
+        }
         public int getItemId() { return itemId; }
         public String getName() { return name; }
         public long getQuantity() { return quantity; }

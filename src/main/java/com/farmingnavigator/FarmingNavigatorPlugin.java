@@ -801,6 +801,12 @@ public class FarmingNavigatorPlugin
                 ? materialEstimator.gardens(gardenRunPlan, itemManager::getItemPrice) : null;
         com.farmingnavigator.economics.FarmingMaterialEstimate fieldMaterials = config.showFarmingMaterialValues() && accountState.isLoggedIn()
                 ? materialEstimator.fields(fieldRunPlan, itemManager::getItemPrice) : null;
+        com.farmingnavigator.economics.FarmingMaterialEstimate combinedMaterials = config.showFarmingMaterialValues() && accountState.isLoggedIn()
+                ? materialEstimator.combined(combinedRunPlan,config.combinedRunTypes(),java.util.Map.of(
+                        com.farmingnavigator.routing.run.CombinedRunKind.HERB,herbMaterials,
+                        com.farmingnavigator.routing.run.CombinedRunKind.TREE,treeMaterials,
+                        com.farmingnavigator.routing.run.CombinedRunKind.GARDEN,gardenMaterials,
+                        com.farmingnavigator.routing.run.CombinedRunKind.FIELD,fieldMaterials)).orElse(null) : null;
         guidedRunSession.refreshTransports(verifiedTransportResults, config.herbTransportPreference());
         GuidedRunSnapshot guidedRun = guidedRunSession.snapshot();
         if (runMetrics.isRecording())
@@ -848,6 +854,7 @@ public class FarmingNavigatorPlugin
                         targetPanel.setFieldMaterials(fieldMaterials);
                         targetPanel.setFieldGuidedRun(fieldGuidedRun);
                         targetPanel.setCombinedRunPlan(combinedRunPlan);
+                        targetPanel.setCombinedMaterials(combinedMaterials);
                         targetPanel.setGardenRunPlan(gardenRunPlan);
                         targetPanel.setGardenMaterials(gardenMaterials);
                         targetPanel.setGardenGuidedRun(gardenGuidedRun);

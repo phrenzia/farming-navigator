@@ -31,7 +31,13 @@ public class CombinedRunPlanPanelTest
             FieldRunPlan field=new FieldRunPlanner().plan(account,Set.of(FieldPatchDefinition.FALADOR_NORTH),FieldRunCrop.POTATO,FieldRunMode.HARVEST_ALL,true,Map.of(),null,now)
                     .withTransports(Map.of(),HerbTransportPreference.CATALOGUE,context);
             CombinedRunPlan plan=new CombinedRunPlanner().plan(Set.of(CombinedRunKind.GARDEN,CombinedRunKind.FIELD),null,null,garden,field,context);
-            AtomicBoolean expanded=new AtomicBoolean(); CombinedRunPlanPanel panel=new CombinedRunPlanPanel(plan,false,expanded::set);
+            com.farmingnavigator.economics.FarmingMaterialEstimator estimator=new com.farmingnavigator.economics.FarmingMaterialEstimator();
+            com.farmingnavigator.economics.FarmingMaterialEstimate materials=estimator.combined(plan,Set.of(CombinedRunKind.GARDEN,CombinedRunKind.FIELD),Map.of(
+                    CombinedRunKind.GARDEN,estimator.gardens(garden,id -> 100),CombinedRunKind.FIELD,estimator.fields(field,id -> 0))).get();
+            assertFalse(labels(new CombinedRunPlanPanel(plan,false,value -> {})).contains("Potential materials value"));
+            AtomicBoolean expanded=new AtomicBoolean(); CombinedRunPlanPanel panel=new CombinedRunPlanPanel(plan,false,expanded::set,materials);
+            assertTrue(labels(panel).contains("Potential materials value")); assertTrue(labels(panel).contains("Unpriced material lines"));
+            assertTrue(labels(panel).contains("not additional stock to buy"));
             assertTrue(labels(panel).contains("2 total stops")); assertTrue(labels(panel).contains("Availability unknown"));
             JButton toggle=(JButton)Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton).findFirst().get();
             toggle.doClick(); assertTrue(expanded.get()); assertEquals(1,Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton).count());

@@ -167,6 +167,8 @@ public class FarmingNavigatorPanel
     }
     private boolean combinedPreparationOpen;
     private com.farmingnavigator.routing.run.CombinedRunPlan combinedRunPlan;
+    private com.farmingnavigator.economics.FarmingMaterialEstimate combinedMaterials;
+    public void setCombinedMaterials(com.farmingnavigator.economics.FarmingMaterialEstimate materials) { combinedMaterials=materials; }
     public void setCombinedRunPlan(com.farmingnavigator.routing.run.CombinedRunPlan plan) { combinedRunPlan = plan; }
     private com.farmingnavigator.economics.FarmingMaterialEstimate fieldMaterials;
     public void setFieldMaterials(com.farmingnavigator.economics.FarmingMaterialEstimate materials) { fieldMaterials = materials; }
@@ -783,7 +785,7 @@ public class FarmingNavigatorPanel
         if (accountState.isLoggedIn() && combinedRunPlan != null)
         {
             patchListPanel.add(new com.farmingnavigator.ui.CombinedRunPlanPanel(combinedRunPlan, combinedPreparationOpen,
-                    expanded -> combinedPreparationOpen = expanded));
+                    expanded -> combinedPreparationOpen = expanded,combinedMaterials));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
 

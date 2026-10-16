@@ -89,6 +89,25 @@ public final class FarmingMaterialEstimator
         return new FarmingMaterialEstimate(lines, notes);
     }
 
+    /** Reuse the current component quotes; never price reusable combined stock as consumption. */
+    public Optional<FarmingMaterialEstimate> combined(CombinedRunPlan worksheet,java.util.Set<CombinedRunKind> selected,
+            java.util.Map<CombinedRunKind,FarmingMaterialEstimate> estimates)
+    {
+        if(worksheet==null || !worksheet.getBlockers().isEmpty() || selected==null || selected.size()<2 || estimates==null)
+        { return Optional.empty(); }
+        List<FarmingMaterialEstimate.Line> lines=new ArrayList<>(); List<String> common=notes(),combinedNotes=notes();
+        for(CombinedRunKind kind:CombinedRunKind.values())
+        {
+            if(!selected.contains(kind)) { continue; }
+            FarmingMaterialEstimate estimate=estimates.get(kind); if(estimate==null) { return Optional.empty(); }
+            for(FarmingMaterialEstimate.Line line:estimate.getLines())
+            { lines.add(new FarmingMaterialEstimate.Line(line,kind+" - "+line.getName())); }
+            for(String note:estimate.getNotes()) { if(!common.contains(note)) { combinedNotes.add(kind+": "+note); } }
+        }
+        combinedNotes.add("Adds potential material consumption for the selected component checklists. Repeated consumables remain counted for every use; this is not additional stock to buy or a combined profit estimate.");
+        return Optional.of(new FarmingMaterialEstimate(lines,combinedNotes));
+    }
+
     private FarmingMaterialEstimate.Line line(SupplyRequirement requirement, IntToLongFunction price)
     {
         return new FarmingMaterialEstimate.Line(requirement.getItemId(), requirement.getName(), requirement.getQuantity(),

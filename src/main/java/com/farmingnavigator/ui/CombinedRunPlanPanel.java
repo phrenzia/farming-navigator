@@ -13,6 +13,9 @@ import net.runelite.client.ui.ColorScheme;
 public final class CombinedRunPlanPanel extends JPanel
 {
     public CombinedRunPlanPanel(CombinedRunPlan plan, boolean expanded, Consumer<Boolean> expansionChanged)
+    { this(plan,expanded,expansionChanged,null); }
+    public CombinedRunPlanPanel(CombinedRunPlan plan,boolean expanded,Consumer<Boolean> expansionChanged,
+            com.farmingnavigator.economics.FarmingMaterialEstimate materials)
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); setBackground(ColorScheme.DARKER_GRAY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(9,8,12,8)); setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -50,6 +53,7 @@ public final class CombinedRunPlanPanel extends JPanel
                     + "; " + supplyState(check),ColorScheme.LIGHT_GRAY_COLOR)));
             plan.getResources().getNotes().forEach(note -> details.add(text(note,ColorScheme.LIGHT_GRAY_COLOR)));
         }
+        if(materials!=null) { details.add(new FarmingMaterialsPanel(materials)); }
         details.add(Box.createVerticalStrut(7)); details.add(text("Planning notes",Color.WHITE));
         plan.getWarnings().forEach(warning -> details.add(text(warning,ColorScheme.LIGHT_GRAY_COLOR)));
     }
