@@ -167,6 +167,15 @@ public class FarmingNavigatorPanel
     }
     private boolean treeRunDetailsOpen;
     private com.farmingnavigator.analytics.RunMetricsSnapshot runMetrics;
+    private boolean runHistoryOpen;
+    private com.farmingnavigator.ui.RunHistoryPanel runHistoryPanel;
+    private java.util.List<com.farmingnavigator.analytics.RunMetricsSnapshot> runHistory = java.util.List.of();
+    private Runnable clearRunHistory = () -> {};
+    public void setRunHistory(java.util.List<com.farmingnavigator.analytics.RunMetricsSnapshot> entries, Runnable clear)
+    {
+        if (!runHistory.equals(entries)) { runHistoryPanel = null; }
+        runHistory = java.util.List.copyOf(entries); clearRunHistory = clear;
+    }
     private com.farmingnavigator.economics.FarmingMaterialEstimate herbMaterials;
     private com.farmingnavigator.economics.FarmingMaterialEstimate treeMaterials;
     private com.farmingnavigator.contracts.FarmingContractSnapshot farmingContract;
@@ -753,6 +762,16 @@ public class FarmingNavigatorPanel
         if (runMetrics != null)
         {
             patchListPanel.add(new com.farmingnavigator.ui.RunMetricsPanel(runMetrics));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
+        if (accountState.isLoggedIn() && config.saveRunHistory())
+        {
+            if (runHistoryPanel == null)
+            {
+                runHistoryPanel = new com.farmingnavigator.ui.RunHistoryPanel(runHistory,runHistoryOpen,
+                        expanded -> runHistoryOpen = expanded,clearRunHistory);
+            }
+            patchListPanel.add(runHistoryPanel);
             patchListPanel.add(Box.createVerticalStrut(8));
         }
         if (treeRunPlan != null)

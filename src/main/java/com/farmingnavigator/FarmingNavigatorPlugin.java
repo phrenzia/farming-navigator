@@ -149,6 +149,7 @@ public class FarmingNavigatorPlugin
     private final com.farmingnavigator.guided.field.FieldRunSession fieldRunSession = new com.farmingnavigator.guided.field.FieldRunSession();
     private com.farmingnavigator.routing.run.FieldRunPlan latestFieldRun;
     private final com.farmingnavigator.analytics.RunMetricsTracker runMetrics = new com.farmingnavigator.analytics.RunMetricsTracker();
+    @Inject private com.farmingnavigator.analytics.RunHistoryService runHistoryService;
     private final HerbAlertTracker herbAlertTracker = new HerbAlertTracker();
     private final com.farmingnavigator.farming.tree.TreeAlertTracker treeAlertTracker = new com.farmingnavigator.farming.tree.TreeAlertTracker();
     private final com.farmingnavigator.farming.garden.GardenAlertTracker gardenAlertTracker = new com.farmingnavigator.farming.garden.GardenAlertTracker();
@@ -177,6 +178,7 @@ public class FarmingNavigatorPlugin
         latestGardenRun = null;
         latestFieldRun = null;
         runMetrics.clear();
+        runHistoryService.reset();
         herbAlertTracker.reset();
         treeAlertTracker.reset();
         gardenAlertTracker.reset();
@@ -268,6 +270,7 @@ public class FarmingNavigatorPlugin
         navigationButton = null;
         panel = null;
         runMetrics.clear();
+        runHistoryService.reset();
         latestSuggestedRun = null;
         latestTreeRun = null;
         latestGardenRun = null;
@@ -314,6 +317,7 @@ public class FarmingNavigatorPlugin
             latestGardenRun = null;
             latestFieldRun = null;
             runMetrics.clear();
+            runHistoryService.reset();
             guidedRunOverlayController.clear();
             herbSceneTracker.clear();
             treeSceneTracker.clear();
@@ -354,6 +358,7 @@ public class FarmingNavigatorPlugin
         fieldSceneTracker.clear();
         guidedRunOverlayController.clear();
         runMetrics.clear();
+        runHistoryService.reset();
         treeRunSession.cancel();
         gardenRunSession.cancel();
         fieldRunSession.cancel();
@@ -508,9 +513,10 @@ public class FarmingNavigatorPlugin
         if (event.getKey() != null && (event.getKey().startsWith(HerbObservationPersistence.KEY_PREFIX)
                 || event.getKey().startsWith(TreeObservationPersistence.KEY_PREFIX)
                 || event.getKey().startsWith(com.farmingnavigator.farming.garden.GardenObservationPersistence.KEY_PREFIX)
-                || event.getKey().startsWith(com.farmingnavigator.farming.field.FieldObservationPersistence.KEY_PREFIX)))
+                || event.getKey().startsWith(com.farmingnavigator.farming.field.FieldObservationPersistence.KEY_PREFIX)
+                || event.getKey().equals(com.farmingnavigator.analytics.RunHistoryStore.KEY)))
         {
-            return; // Observation sampling already refreshes the panel once per changed snapshot.
+            return; // The producing update already refreshes the panel after persistence.
         }
         if (
                 !FarmingNavigatorConfig.GROUP
@@ -785,6 +791,9 @@ public class FarmingNavigatorPlugin
             }
         }
         com.farmingnavigator.analytics.RunMetricsSnapshot metricsSnapshot = runMetrics.snapshot(Instant.now());
+        java.util.List<com.farmingnavigator.analytics.RunMetricsSnapshot> runHistory = runHistoryService.synchronize(
+                accountState.isLoggedIn(), config.saveRunHistory(), metricsSnapshot, Instant.now());
+        String historyProfile = accountState.isLoggedIn() ? configManager.getRSProfileKey() : null;
         com.farmingnavigator.contracts.FarmingContractSnapshot farmingContract = farmingContractService.snapshot();
         if (fieldGuidedRun.isActive())
         {
@@ -815,6 +824,7 @@ public class FarmingNavigatorPlugin
                         targetPanel.setTreeRunPlan(treeRunPlan);
                         targetPanel.setTreeGuidedRun(treeGuidedRun);
                         targetPanel.setRunMetrics(metricsSnapshot);
+                        targetPanel.setRunHistory(runHistory, () -> clientThread.invokeLater(() -> clearRunHistory(historyProfile)));
                         targetPanel.setFarmingMaterials(herbMaterials, treeMaterials);
                         targetPanel.setFarmingContract(farmingContract);
                         targetPanel.setHerbRunPlan(runPlan);
@@ -830,6 +840,22 @@ public class FarmingNavigatorPlugin
         );
     }
 
+    private void startRunMetrics(String name, Instant now)
+    {
+        int xp = accountStateService.currentFarmingExperience();
+        if (runMetrics.isRecording())
+        {
+            runMetrics.finish(xp, now, false);
+            runHistoryService.synchronize(true, config.saveRunHistory(), runMetrics.snapshot(now), now);
+        }
+        runMetrics.start(name, xp, now);
+    }
+
+    private void clearRunHistory(String expectedProfile)
+    {
+        if (panel != null && accountStateService.createSnapshot().isLoggedIn() && runHistoryService.clear(expectedProfile)) { updateAccountState(); }
+    }
+
     private void handleGuidedRunCommand(GuidedRunCommand command)
     {
         if (panel == null || !accountStateService.createSnapshot().isLoggedIn())
@@ -842,7 +868,7 @@ public class FarmingNavigatorPlugin
             case START:
                 if (guidedRunSession.start(latestSuggestedRun, config.herbRunCompost(), now))
                 {
-                    treeRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel(); runMetrics.start("Herb run", accountStateService.currentFarmingExperience(), now);
+                    treeRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel(); startRunMetrics("Herb run", now);
                 }
                 break;
             case CONFIRM: guidedRunSession.confirm(now); break;
@@ -863,7 +889,7 @@ public class FarmingNavigatorPlugin
             if (treeRunSession.start(latestTreeRun, config.treeRunProtection(), now))
             {
                 guidedRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel(); guidedRunOverlayController.clear();
-                runMetrics.start("Tree run", accountStateService.currentFarmingExperience(), now);
+                startRunMetrics("Tree run", now);
             }
         }
         else { treeRunSession.command(command, now); }
@@ -890,7 +916,7 @@ public class FarmingNavigatorPlugin
             if (gardenRunSession.start(latestGardenRun, config.gardenRunProtection(), now))
             {
                 guidedRunSession.cancel(); treeRunSession.cancel(); fieldRunSession.cancel(); guidedRunOverlayController.clear();
-                runMetrics.start("Bush/cactus run", accountStateService.currentFarmingExperience(), now);
+                startRunMetrics("Bush/cactus run", now);
             }
         }
         else { gardenRunSession.command(command, now); }
@@ -906,7 +932,7 @@ public class FarmingNavigatorPlugin
             if (fieldRunSession.start(latestFieldRun, config.fieldRunProtection(), now))
             {
                 guidedRunSession.cancel(); treeRunSession.cancel(); gardenRunSession.cancel(); guidedRunOverlayController.clear();
-                runMetrics.start("Field run", accountStateService.currentFarmingExperience(), now);
+                startRunMetrics("Field run", now);
             }
         }
         else { fieldRunSession.command(command, now); }

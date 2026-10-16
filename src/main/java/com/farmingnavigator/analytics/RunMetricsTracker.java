@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
-/** Client-thread, session-only statistics; reset at account/world-mode boundaries. */
+/** Client-thread session statistics; history persistence is separate. Reset at account/world-mode boundaries. */
 public final class RunMetricsTracker
 {
     private String runName;
@@ -43,7 +43,7 @@ public final class RunMetricsTracker
         if (finishedAt == null && end.isBefore(lastSampleAt)) { end = lastSampleAt; }
         if (end.isBefore(startedAt)) { end = startedAt; }
         return new RunMetricsSnapshot(runName, isRecording(), completed, xpKnown,
-                xpKnown ? Math.max(0L, (long) lastXp - baselineXp) : 0, Duration.between(startedAt, end));
+                xpKnown ? Math.max(0L, (long) lastXp - baselineXp) : 0, Duration.between(startedAt, end), startedAt, finishedAt);
     }
     public void clear()
     {
