@@ -72,11 +72,11 @@ public final class HerbRunPlan
         com.farmingnavigator.routing.requirement.RuneCost runes=careResources==null
                 ? com.farmingnavigator.routing.requirement.RuneCost.builder().build():careResources.getRunes();
         RunTransportResources resources;
-        if (preference==HerbTransportPreference.SHARED_BUDGET)
+        if (HerbTransportPreference.repairsSharedBudget(preference))
         {
             SharedTransportRepair.Result<HerbRunStop> repaired=new SharedTransportRepair().repair(routed,
                     stop -> transports.getOrDefault(stop.getPatch(),List.of()),
-                    (stop,primary) -> stop.withTransports(primary,HerbTransportSelector.fallback(transports.getOrDefault(stop.getPatch(),List.of()),primary)),context,runes);
+                    (stop,primary) -> stop.withTransports(primary,HerbTransportSelector.fallback(transports.getOrDefault(stop.getPatch(),List.of()),primary)),context,runes,preference==HerbTransportPreference.SHARED_BUDGET_PAIR);
             routed=repaired.getStops(); resources=repaired.getResources();
         }
         else { resources=new RunTransportResourcePlanner().evaluate(routed,context,runes); }

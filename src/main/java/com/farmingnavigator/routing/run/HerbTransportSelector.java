@@ -29,7 +29,7 @@ public final class HerbTransportSelector
             HerbTransportPreference preference, VerifiedTransportResult current)
     {
         List<VerifiedTransportResult> selected=select(options,preference);
-        if (preference==HerbTransportPreference.SHARED_BUDGET && current!=null)
+        if (HerbTransportPreference.repairsSharedBudget(preference) && current!=null)
         {
             for (int i=0;i<selected.size();i++)
             {

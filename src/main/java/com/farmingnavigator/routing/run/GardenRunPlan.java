@@ -80,12 +80,12 @@ public final class GardenRunPlan
                 potentialCures, cure, HerbRunCompost.valueOf(compost.name()),
                 context != null && context.getConfig() != null && context.getConfig().gardenAshTomeRead(), context);
         RunTransportResources resources;
-        if (repair && preference==HerbTransportPreference.SHARED_BUDGET)
+        if (repair && HerbTransportPreference.repairsSharedBudget(preference))
         {
             SharedTransportRepair.Result<GardenRunStop> repaired=new SharedTransportRepair().repair(routed,
                     stop -> transports.getOrDefault(stop.getPatch(),List.of()),
                     (stop,primary) -> stop.withTransports(primary,HerbTransportSelector.fallback(transports.getOrDefault(stop.getPatch(),List.of()),primary)),
-                    context,care.getRunes());
+                    context,care.getRunes(),preference==HerbTransportPreference.SHARED_BUDGET_PAIR);
             routed=repaired.getStops(); resources=repaired.getResources();
         }
         else { resources=new RunTransportResourcePlanner().evaluate(routed,context,care.getRunes()); }
