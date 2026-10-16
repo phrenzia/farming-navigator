@@ -24,6 +24,8 @@ import net.runelite.api.coords.WorldPoint;
 /** Client-thread checklist state only. It never performs or sends a gameplay action. */
 public final class GuidedRunSession
 {
+    private long revision;
+    public long getRevision() { return revision; }
     private List<HerbRunStop> stops = Collections.emptyList();
     private HerbRunCrop crop;
     private HerbRunCompost compost;
@@ -200,11 +202,12 @@ public final class GuidedRunSession
         Duration elapsed = startedAt == null || end.isBefore(startedAt)
                 ? Duration.ZERO : Duration.between(startedAt, end);
         return new GuidedRunSnapshot(step, crop, index < stops.size() ? stops.get(index) : null,
-                stops.size(), completed, skipped, manuallyCompleted, compost, elapsed, cure);
+                stops.size(), completed, skipped, manuallyCompleted, compost, elapsed, cure, revision);
     }
 
     public void cancel()
     {
+        revision++;
         stops = Collections.emptyList();
         crop = null;
         startedAt = null;
@@ -215,6 +218,7 @@ public final class GuidedRunSession
 
     private void finishStop(boolean skip, boolean manual, Instant now)
     {
+        revision++;
         if (skip) { skipped++; } else { completed++; }
         if (manual) { manuallyCompleted++; }
         index++;
@@ -223,6 +227,7 @@ public final class GuidedRunSession
 
     private void enter(GuidedRunStep next, Instant now)
     {
+        if (step != next) { revision++; }
         step = next;
         enteredAt = now;
     }

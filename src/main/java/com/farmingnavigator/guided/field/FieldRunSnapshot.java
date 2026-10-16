@@ -7,6 +7,8 @@ import java.time.Duration;
 
 public final class FieldRunSnapshot
 {
+    private final long revision;
+    public long getRevision() { return revision; }
     private final FieldRunStep step;
     private final com.farmingnavigator.routing.run.FieldRunWatering watering;
     private final com.farmingnavigator.routing.run.HerbRunCure cure;
@@ -40,6 +42,14 @@ public final class FieldRunSnapshot
             com.farmingnavigator.routing.run.FieldRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure,
             com.farmingnavigator.routing.run.FieldRunWatering watering)
     {
+        this(step, crop, mode, stop, total, completed, manual, skipped, protectionConfirmed, elapsed, compost, cure, watering, 0L);
+    }
+    FieldRunSnapshot(FieldRunStep step, FieldRunCrop crop, FieldRunMode mode, FieldRunStop stop,
+            int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
+            com.farmingnavigator.routing.run.FieldRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure,
+            com.farmingnavigator.routing.run.FieldRunWatering watering, long revision)
+    {
+        this.revision = revision;
         this.watering = watering;
         this.cure = cure;
         this.compost = compost;

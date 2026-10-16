@@ -13,6 +13,8 @@ import net.runelite.api.coords.WorldPoint;
 /** Manual checklist; only fresh nearby plot evidence advances observed actions. */
 public final class FieldRunSession
 {
+    private long revision;
+    public long getRevision() { return revision; }
     private FieldRunPlan plan;
     private FieldRunStep step = FieldRunStep.INACTIVE;
     private Instant enteredAt = Instant.EPOCH, startedAt, finishedAt;
@@ -166,21 +168,23 @@ public final class FieldRunSession
     }
     private void finish(boolean manually, boolean skip, Instant now)
     {
+        revision++;
         if (skip) { skipped++; } else { completed++; if (manually) { manual++; } }
         curingCrop = FieldCrop.UNKNOWN; compostConfirmed = plantedConfirmed = wateringConfirmed = false; index++;
         if (index >= plan.getStops().size()) { finishedAt = now; enter(FieldRunStep.COMPLETE, now); } else { enter(FieldRunStep.TRAVEL, now); }
     }
-    private void enter(FieldRunStep next, Instant now) { step = next; enteredAt = now; }
+    private void enter(FieldRunStep next, Instant now) { if (step != next) { revision++; } step = next; enteredAt = now; }
     private boolean active() { return step != FieldRunStep.INACTIVE && step != FieldRunStep.COMPLETE; }
     public FieldRunSnapshot snapshot(Instant now)
     {
         Instant end = finishedAt == null ? now : finishedAt;
         Duration elapsed = startedAt == null || end.isBefore(startedAt) ? Duration.ZERO : Duration.between(startedAt, end);
         return new FieldRunSnapshot(step, plan == null ? null : plan.getCrop(), plan == null ? null : plan.getMode(),
-                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? FieldRunCompost.NONE : plan.getCompost(), plan == null ? HerbRunCure.PLANT_CURE : plan.getCure(), plan == null ? FieldRunWatering.NONE : plan.getWatering());
+                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? FieldRunCompost.NONE : plan.getCompost(), plan == null ? HerbRunCure.PLANT_CURE : plan.getCure(), plan == null ? FieldRunWatering.NONE : plan.getWatering(), revision);
     }
     public void cancel()
     {
+        revision++;
         plan = null; step = FieldRunStep.INACTIVE; enteredAt = Instant.EPOCH; startedAt = null; finishedAt = null;
         curingCrop = FieldCrop.UNKNOWN; compostConfirmed = plantedConfirmed = wateringConfirmed = false; index = completed = manual = skipped = protectionConfirmed = 0;
     }

@@ -211,6 +211,18 @@ public class FarmingNavigatorPlugin
         panel.setTreeCommands(command -> clientThread.invokeLater(() -> handleTreeRunCommand(command)));
         panel.setGardenCommands(command -> clientThread.invokeLater(() -> handleGardenRunCommand(command)));
         panel.setFieldCommands(command -> clientThread.invokeLater(() -> handleFieldRunCommand(command)));
+        panel.setGuardedHerbCommands((command, expected) -> clientThread.invokeLater(() -> {
+            if (!com.farmingnavigator.guided.ChecklistCommandGuard.dispatch(expected, guidedRunSession.getRevision(), () -> handleGuidedRunCommand(command))) { updateAccountState(); }
+        }));
+        panel.setGuardedTreeCommands((command, expected) -> clientThread.invokeLater(() -> {
+            if (!com.farmingnavigator.guided.ChecklistCommandGuard.dispatch(expected, treeRunSession.getRevision(), () -> handleTreeRunCommand(command))) { updateAccountState(); }
+        }));
+        panel.setGuardedGardenCommands((command, expected) -> clientThread.invokeLater(() -> {
+            if (!com.farmingnavigator.guided.ChecklistCommandGuard.dispatch(expected, gardenRunSession.getRevision(), () -> handleGardenRunCommand(command))) { updateAccountState(); }
+        }));
+        panel.setGuardedFieldCommands((command, expected) -> clientThread.invokeLater(() -> {
+            if (!com.farmingnavigator.guided.ChecklistCommandGuard.dispatch(expected, fieldRunSession.getRevision(), () -> handleFieldRunCommand(command))) { updateAccountState(); }
+        }));
         panel.setContractPreparation(crop -> clientThread.invokeLater(() -> prepareContractRun(crop)));
         navigationButton =
                 NavigationButton.builder()

@@ -140,6 +140,18 @@ public class FarmingNavigatorPanel
     private boolean fieldRunDetailsOpen;
     private boolean fieldOverviewOpen;
     private boolean readinessDashboardOpen;
+    private java.util.function.BiConsumer<com.farmingnavigator.guided.GuidedRunCommand, Long> guardedHerbCommands;
+    public void setGuardedHerbCommands(java.util.function.BiConsumer<com.farmingnavigator.guided.GuidedRunCommand, Long> commands) { guardedHerbCommands = commands; }
+    private java.util.function.BiConsumer<com.farmingnavigator.guided.tree.TreeRunCommand, Long> guardedTreeCommands;
+    public void setGuardedTreeCommands(java.util.function.BiConsumer<com.farmingnavigator.guided.tree.TreeRunCommand, Long> commands) { guardedTreeCommands = commands; }
+    private java.util.function.BiConsumer<com.farmingnavigator.guided.garden.GardenRunCommand, Long> guardedGardenCommands;
+    public void setGuardedGardenCommands(java.util.function.BiConsumer<com.farmingnavigator.guided.garden.GardenRunCommand, Long> commands) { guardedGardenCommands = commands; }
+    private java.util.function.BiConsumer<com.farmingnavigator.guided.field.FieldRunCommand, Long> guardedFieldCommands;
+    public void setGuardedFieldCommands(java.util.function.BiConsumer<com.farmingnavigator.guided.field.FieldRunCommand, Long> commands) { guardedFieldCommands = commands; }
+    private <C> Consumer<C> checklistCommands(long revision, Consumer<C> legacy, java.util.function.BiConsumer<C, Long> guarded)
+    {
+        return guarded == null ? legacy : com.farmingnavigator.guided.ChecklistCommandGuard.bind(revision, guarded);
+    }
     private boolean combinedPreparationOpen;
     private com.farmingnavigator.routing.run.CombinedRunPlan combinedRunPlan;
     public void setCombinedRunPlan(com.farmingnavigator.routing.run.CombinedRunPlan plan) { combinedRunPlan = plan; }
@@ -763,7 +775,7 @@ public class FarmingNavigatorPanel
         if (herbRunPlan != null)
         {
             patchListPanel.add(new GuidedRunPanel(guidedRun,
-                    herbRunPlan.getBlocker().isEmpty() && !herbRunPlan.getStops().isEmpty(), guidedRunCommands));
+                    herbRunPlan.getBlocker().isEmpty() && !herbRunPlan.getStops().isEmpty(), checklistCommands(guidedRun == null ? -1 : guidedRun.getRevision(), guidedRunCommands, guardedHerbCommands)));
             patchListPanel.add(Box.createVerticalStrut(8));
             patchListPanel.add(new HerbRunPlanPanel(herbRunPlan, herbRunDetailsOpen,
                     expanded -> herbRunDetailsOpen = expanded, herbMaterials));
@@ -801,7 +813,7 @@ public class FarmingNavigatorPanel
         if (treeRunPlan != null)
         {
             patchListPanel.add(new com.farmingnavigator.ui.TreeGuidedRunPanel(treeGuidedRun,
-                    treeRunPlan.getBlocker().isEmpty() && !treeRunPlan.getStops().isEmpty(), treeCommands));
+                    treeRunPlan.getBlocker().isEmpty() && !treeRunPlan.getStops().isEmpty(), checklistCommands(treeGuidedRun == null ? -1 : treeGuidedRun.getRevision(), treeCommands, guardedTreeCommands)));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
         patchListPanel.add(new com.farmingnavigator.ui.TreeRunPlanPanel(
@@ -824,7 +836,7 @@ public class FarmingNavigatorPanel
         if (accountState.isLoggedIn() && gardenRunPlan != null)
         {
             patchListPanel.add(new com.farmingnavigator.ui.GardenGuidedRunPanel(gardenGuidedRun,
-                    gardenRunPlan.getBlocker().isEmpty() && !gardenRunPlan.getStops().isEmpty(), gardenCommands));
+                    gardenRunPlan.getBlocker().isEmpty() && !gardenRunPlan.getStops().isEmpty(), checklistCommands(gardenGuidedRun == null ? -1 : gardenGuidedRun.getRevision(), gardenCommands, guardedGardenCommands)));
             patchListPanel.add(Box.createVerticalStrut(8));
             patchListPanel.add(new com.farmingnavigator.ui.GardenRunPlanPanel(gardenRunPlan,
                     gardenRunDetailsOpen, expanded -> gardenRunDetailsOpen = expanded, gardenMaterials));
@@ -847,7 +859,7 @@ public class FarmingNavigatorPanel
                 patchListPanel.add(Box.createVerticalStrut(8));
             }
             patchListPanel.add(new com.farmingnavigator.ui.FieldGuidedRunPanel(fieldGuidedRun,
-                    fieldRunPlan.getBlocker().isEmpty() && !fieldRunPlan.getStops().isEmpty(), fieldCommands));
+                    fieldRunPlan.getBlocker().isEmpty() && !fieldRunPlan.getStops().isEmpty(), checklistCommands(fieldGuidedRun == null ? -1 : fieldGuidedRun.getRevision(), fieldCommands, guardedFieldCommands)));
             patchListPanel.add(Box.createVerticalStrut(8));
             patchListPanel.add(new com.farmingnavigator.ui.FieldRunPlanPanel(fieldRunPlan,
                     fieldRunDetailsOpen, expanded -> fieldRunDetailsOpen = expanded, fieldMaterials));

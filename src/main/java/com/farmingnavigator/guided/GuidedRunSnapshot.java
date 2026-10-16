@@ -8,6 +8,8 @@ import com.farmingnavigator.routing.run.HerbRunCure;
 
 public final class GuidedRunSnapshot
 {
+    private final long revision;
+    public long getRevision() { return revision; }
     private final GuidedRunStep step;
     private final HerbRunCrop crop;
     private final HerbRunStop stop;
@@ -34,6 +36,12 @@ public final class GuidedRunSnapshot
     GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
             int completed, int skipped, int manuallyCompleted, HerbRunCompost compost, Duration elapsed, HerbRunCure cure)
     {
+        this(step, crop, stop, total, completed, skipped, manuallyCompleted, compost, elapsed, cure, 0L);
+    }
+    GuidedRunSnapshot(GuidedRunStep step, HerbRunCrop crop, HerbRunStop stop, int total,
+            int completed, int skipped, int manuallyCompleted, HerbRunCompost compost, Duration elapsed, HerbRunCure cure, long revision)
+    {
+        this.revision = revision;
         this.step = step;
         this.crop = crop;
         this.stop = stop;

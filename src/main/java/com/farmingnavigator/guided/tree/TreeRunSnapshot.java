@@ -6,6 +6,8 @@ import java.time.Duration;
 
 public final class TreeRunSnapshot
 {
+    private final long revision;
+    public long getRevision() { return revision; }
     private final TreeRunStep step;
     private final TreeRunCrop crop;
     private final TreeRunStop stop;
@@ -18,6 +20,12 @@ public final class TreeRunSnapshot
     TreeRunSnapshot(TreeRunStep step, TreeRunCrop crop, TreeRunStop stop, int total, int completed,
             int manual, int skipped, int protectionConfirmed, Duration elapsed)
     {
+        this(step, crop, stop, total, completed, manual, skipped, protectionConfirmed, elapsed, 0L);
+    }
+    TreeRunSnapshot(TreeRunStep step, TreeRunCrop crop, TreeRunStop stop, int total, int completed,
+            int manual, int skipped, int protectionConfirmed, Duration elapsed, long revision)
+    {
+        this.revision = revision;
         this.step = step; this.crop = crop; this.stop = stop; this.total = total; this.completed = completed;
         this.manual = manual; this.skipped = skipped; this.protectionConfirmed = protectionConfirmed; this.elapsed = elapsed;
     }

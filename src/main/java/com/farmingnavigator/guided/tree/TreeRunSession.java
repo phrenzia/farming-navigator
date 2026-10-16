@@ -13,6 +13,8 @@ import net.runelite.api.coords.WorldPoint;
 /** Client-thread checklist only. No menus, input, dialogue inference or game actions. */
 public final class TreeRunSession
 {
+    private long revision;
+    public long getRevision() { return revision; }
     private TreeRunPlan plan;
     private TreeRunStep step = TreeRunStep.INACTIVE;
     private Instant enteredAt = Instant.EPOCH;
@@ -165,23 +167,25 @@ public final class TreeRunSession
     }
     private void finish(boolean manually, boolean skip, Instant now)
     {
+        revision++;
         if (skip) { skipped++; } else { completed++; if (manually) { manual++; } }
         pruningCrop = TreeCrop.UNKNOWN;
         index++;
         if (index >= plan.getStops().size()) { finishedAt = now; enter(TreeRunStep.COMPLETE, now); }
         else { enter(TreeRunStep.TRAVEL, now); }
     }
-    private void enter(TreeRunStep next, Instant now) { step = next; enteredAt = now; }
+    private void enter(TreeRunStep next, Instant now) { if (step != next) { revision++; } step = next; enteredAt = now; }
     private boolean active() { return step != TreeRunStep.INACTIVE && step != TreeRunStep.COMPLETE; }
     public TreeRunSnapshot snapshot(Instant now)
     {
         Instant end = finishedAt == null ? now : finishedAt;
         Duration elapsed = startedAt == null || end.isBefore(startedAt) ? Duration.ZERO : Duration.between(startedAt, end);
         return new TreeRunSnapshot(step, plan == null ? null : plan.getCrop(), active() ? plan.getStops().get(index) : null,
-                plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed);
+                plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, revision);
     }
     public void cancel()
     {
+        revision++;
         plan = null; step = TreeRunStep.INACTIVE; enteredAt = Instant.EPOCH; startedAt = null; finishedAt = null;
         index = completed = manual = skipped = protectionConfirmed = 0; pruningCrop = TreeCrop.UNKNOWN;
     }

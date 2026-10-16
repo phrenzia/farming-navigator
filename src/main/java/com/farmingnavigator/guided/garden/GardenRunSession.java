@@ -13,6 +13,8 @@ import net.runelite.api.coords.WorldPoint;
 /** Client-thread checklist. Observations choose guidance; commands never send game actions. */
 public final class GardenRunSession
 {
+    private long revision;
+    public long getRevision() { return revision; }
     private GardenRunPlan plan;
     private GardenRunStep step = GardenRunStep.INACTIVE;
     private Instant enteredAt = Instant.EPOCH, startedAt, finishedAt;
@@ -143,21 +145,23 @@ public final class GardenRunSession
     }
     private void finish(boolean manually, boolean skip, Instant now)
     {
+        revision++;
         if (skip) { skipped++; } else { completed++; if (manually) { manual++; } }
         curingCrop = GardenCrop.UNKNOWN; compostConfirmed = false; index++;
         if (index >= plan.getStops().size()) { finishedAt = now; enter(GardenRunStep.COMPLETE, now); } else { enter(GardenRunStep.TRAVEL, now); }
     }
-    private void enter(GardenRunStep next, Instant now) { step = next; enteredAt = now; }
+    private void enter(GardenRunStep next, Instant now) { if (step != next) { revision++; } step = next; enteredAt = now; }
     private boolean active() { return step != GardenRunStep.INACTIVE && step != GardenRunStep.COMPLETE; }
     public GardenRunSnapshot snapshot(Instant now)
     {
         Instant end = finishedAt == null ? now : finishedAt;
         Duration elapsed = startedAt == null || end.isBefore(startedAt) ? Duration.ZERO : Duration.between(startedAt, end);
         return new GardenRunSnapshot(step, plan == null ? null : plan.getCrop(), plan == null ? null : plan.getMode(),
-                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? GardenRunCompost.NONE : plan.getCompost(), plan == null ? HerbRunCure.PLANT_CURE : plan.getCure());
+                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? GardenRunCompost.NONE : plan.getCompost(), plan == null ? HerbRunCure.PLANT_CURE : plan.getCure(), revision);
     }
     public void cancel()
     {
+        revision++;
         plan = null; step = GardenRunStep.INACTIVE; enteredAt = Instant.EPOCH; startedAt = null; finishedAt = null;
         curingCrop = GardenCrop.UNKNOWN; compostConfirmed = false; index = completed = manual = skipped = protectionConfirmed = 0;
     }

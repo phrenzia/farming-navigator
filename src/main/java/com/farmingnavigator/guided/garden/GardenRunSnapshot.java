@@ -8,6 +8,8 @@ import java.time.Duration;
 
 public final class GardenRunSnapshot
 {
+    private final long revision;
+    public long getRevision() { return revision; }
     private final GardenRunStep step;
     private final com.farmingnavigator.routing.run.HerbRunCure cure;
     private final GardenRunCrop crop;
@@ -31,6 +33,13 @@ public final class GardenRunSnapshot
             int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
             GardenRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure)
     {
+        this(step, crop, mode, stop, total, completed, manual, skipped, protectionConfirmed, elapsed, compost, cure, 0L);
+    }
+    GardenRunSnapshot(GardenRunStep step, GardenRunCrop crop, GardenRunMode mode, GardenRunStop stop,
+            int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
+            GardenRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure, long revision)
+    {
+        this.revision = revision;
         this.cure = cure;
         this.compost = compost;
         this.step = step; this.crop = crop; this.mode = mode; this.stop = stop; this.total = total;
