@@ -336,6 +336,10 @@ public interface FarmingNavigatorConfig
             description = "Manually declare the tome unlock for bush/cactus Fertile Soil ultracompost", position = 43, section = GENERAL_SECTION)
     default boolean gardenAshTomeRead() { return false; }
 
+    @ConfigItem(keyName = "combinedRunTypes", name = "Combined preparation run types",
+            description = "Select at least two configured run types to share one preparation budget; use individual checklists for guidance", position = 44, section = GENERAL_SECTION)
+    default Set<com.farmingnavigator.routing.run.CombinedRunKind> combinedRunTypes() { return java.util.Collections.emptySet(); }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

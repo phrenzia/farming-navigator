@@ -140,6 +140,9 @@ public class FarmingNavigatorPanel
     private boolean fieldRunDetailsOpen;
     private boolean fieldOverviewOpen;
     private boolean readinessDashboardOpen;
+    private boolean combinedPreparationOpen;
+    private com.farmingnavigator.routing.run.CombinedRunPlan combinedRunPlan;
+    public void setCombinedRunPlan(com.farmingnavigator.routing.run.CombinedRunPlan plan) { combinedRunPlan = plan; }
     private com.farmingnavigator.economics.FarmingMaterialEstimate fieldMaterials;
     public void setFieldMaterials(com.farmingnavigator.economics.FarmingMaterialEstimate materials) { fieldMaterials = materials; }
     private com.farmingnavigator.guided.field.FieldRunSnapshot fieldGuidedRun;
@@ -747,6 +750,13 @@ public class FarmingNavigatorPanel
                     .fields(accountState, config.fieldRunPatches(), fieldObservations).build();
             patchListPanel.add(new com.farmingnavigator.ui.ReadinessDashboardPanel(readiness, overviewTime,
                     readinessDashboardOpen, expanded -> readinessDashboardOpen = expanded));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
+
+        if (accountState.isLoggedIn() && combinedRunPlan != null)
+        {
+            patchListPanel.add(new com.farmingnavigator.ui.CombinedRunPlanPanel(combinedRunPlan, combinedPreparationOpen,
+                    expanded -> combinedPreparationOpen = expanded));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
 

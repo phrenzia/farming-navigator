@@ -765,6 +765,8 @@ public class FarmingNavigatorPlugin
         HerbRunPlan runPlan = suggested.withCareResources(care).withTransportResources(new RunTransportResourcePlanner()
                 .evaluate(suggested.getStops(), runContext, care.getRunes()));
 
+        com.farmingnavigator.routing.run.CombinedRunPlan combinedRunPlan = accountState.isLoggedIn() && !config.combinedRunTypes().isEmpty()
+                ? new com.farmingnavigator.routing.run.CombinedRunPlanner().plan(config.combinedRunTypes(), runPlan, treeRunPlan, gardenRunPlan, fieldRunPlan, runContext) : null;
         latestSuggestedRun = runPlan;
         com.farmingnavigator.economics.FarmingMaterialEstimator materialEstimator = new com.farmingnavigator.economics.FarmingMaterialEstimator();
         com.farmingnavigator.economics.FarmingMaterialEstimate herbMaterials = config.showFarmingMaterialValues() && accountState.isLoggedIn()
@@ -818,6 +820,7 @@ public class FarmingNavigatorPlugin
                         targetPanel.setFieldRunPlan(fieldRunPlan);
                         targetPanel.setFieldMaterials(fieldMaterials);
                         targetPanel.setFieldGuidedRun(fieldGuidedRun);
+                        targetPanel.setCombinedRunPlan(combinedRunPlan);
                         targetPanel.setGardenRunPlan(gardenRunPlan);
                         targetPanel.setGardenMaterials(gardenMaterials);
                         targetPanel.setGardenGuidedRun(gardenGuidedRun);
