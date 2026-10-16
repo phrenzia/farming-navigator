@@ -14,6 +14,7 @@ public final class GardenRunPlan
 {
     private final GardenRunCrop crop;
     private final GardenRunMode mode;
+    private final GardenRunCompost compost;
     private final List<GardenRunStop> stops;
     private final List<SupplyCheck> supplies;
     private final Map<GardenPatchDefinition, String> excluded;
@@ -23,17 +24,23 @@ public final class GardenRunPlan
     GardenRunPlan(GardenRunCrop crop, GardenRunMode mode, List<GardenRunStop> stops, List<SupplyCheck> supplies,
             Map<GardenPatchDefinition, String> excluded, List<String> warnings, String blocker)
     {
-        this(crop, mode, stops, supplies, excluded, warnings, blocker, null);
+        this(crop, mode, stops, supplies, excluded, warnings, blocker, GardenRunCompost.NONE);
+    }
+    GardenRunPlan(GardenRunCrop crop, GardenRunMode mode, List<GardenRunStop> stops, List<SupplyCheck> supplies,
+            Map<GardenPatchDefinition, String> excluded, List<String> warnings, String blocker, GardenRunCompost compost)
+    {
+        this(crop, mode, stops, supplies, excluded, warnings, blocker, compost, null);
     }
     private GardenRunPlan(GardenRunCrop crop, GardenRunMode mode, List<GardenRunStop> stops, List<SupplyCheck> supplies,
-            Map<GardenPatchDefinition, String> excluded, List<String> warnings, String blocker, RunTransportResources resources)
+            Map<GardenPatchDefinition, String> excluded, List<String> warnings, String blocker, GardenRunCompost compost, RunTransportResources resources)
     {
-        this.crop = crop; this.mode = mode; this.stops = List.copyOf(stops); this.supplies = List.copyOf(supplies);
+        this.crop = crop; this.mode = mode; this.compost = compost; this.stops = List.copyOf(stops); this.supplies = List.copyOf(supplies);
         EnumMap<GardenPatchDefinition, String> copy = new EnumMap<>(GardenPatchDefinition.class); copy.putAll(excluded);
         this.excluded = Collections.unmodifiableMap(copy); this.warnings = List.copyOf(warnings); this.blocker = blocker; this.transportResources = resources;
     }
     public GardenRunCrop getCrop() { return crop; }
     public GardenRunMode getMode() { return mode; }
+    public GardenRunCompost getCompost() { return compost; }
     public List<GardenRunStop> getStops() { return stops; }
     public List<SupplyCheck> getSupplies() { return supplies; }
     public Map<GardenPatchDefinition, String> getExcluded() { return excluded; }
@@ -49,6 +56,6 @@ public final class GardenRunPlan
             List<VerifiedTransportResult> usable = HerbTransportSelector.select(transports.getOrDefault(stop.getPatch(), List.of()), preference);
             routed.add(stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
         }
-        return new GardenRunPlan(crop, mode, routed, supplies, excluded, warnings, blocker, new RunTransportResourcePlanner().evaluate(routed, context));
+        return new GardenRunPlan(crop, mode, routed, supplies, excluded, warnings, blocker, compost, new RunTransportResourcePlanner().evaluate(routed, context));
     }
 }

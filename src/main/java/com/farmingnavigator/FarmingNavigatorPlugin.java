@@ -744,7 +744,7 @@ public class FarmingNavigatorPlugin
         Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, List<VerifiedTransportResult>> gardenTransports = transportVerificationService.evaluateAll(accountState,
                 config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.GardenPatchTransportService().getAllOptions());
         com.farmingnavigator.routing.run.GardenRunPlan gardenRunPlan = new com.farmingnavigator.routing.run.GardenRunPlanner().plan(accountState,
-                config.gardenRunPatches(), config.gardenRunCrop(), config.gardenRunMode(), config.gardenRunProtection(), gardenObservations, storageSnapshot, Instant.now())
+                config.gardenRunPatches(), config.gardenRunCrop(), config.gardenRunMode(), config.gardenRunProtection(), config.gardenRunCompost(), gardenObservations, storageSnapshot, Instant.now())
                 .withTransports(gardenTransports, config.gardenTransportPreference(), runContext);
         Map<TreePatchDefinition, List<VerifiedTransportResult>> treeTransports = transportVerificationService.evaluateAll(accountState,
                 config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.TreePatchTransportService().getAllOptions());
@@ -948,7 +948,7 @@ public class FarmingNavigatorPlugin
     static boolean isGardenRunSetupKey(String key)
     {
         return "gardenRunCrop".equals(key) || "gardenRunPatches".equals(key) || "gardenRunMode".equals(key)
-                || "gardenRunProtection".equals(key) || "gardenTransportPreference".equals(key);
+                || "gardenRunProtection".equals(key) || "gardenRunCompost".equals(key) || "gardenTransportPreference".equals(key);
     }
 
     private void initializeSceneIfActive()

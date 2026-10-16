@@ -312,6 +312,10 @@ public interface FarmingNavigatorConfig
             description = "Summarize selected accessible field plots; historical states and conditional harvest estimates stay separate", position = 37, section = GENERAL_SECTION)
     default boolean showFieldOverview() { return true; }
 
+    @ConfigItem(keyName = "gardenRunCompost", name = "Bush/cactus compost",
+            description = "Reserve application buckets or a manually checked bottomless type; application is confirmed manually", position = 38, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.GardenRunCompost gardenRunCompost() { return com.farmingnavigator.routing.run.GardenRunCompost.ULTRACOMPOST; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

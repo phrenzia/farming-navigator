@@ -53,9 +53,14 @@ public final class FarmingMaterialEstimator
         for (com.farmingnavigator.loadout.SupplyCheck check : plan.getSupplies())
         {
             SupplyRequirement requirement = check.getRequirement(); int id = requirement.getItemId();
-            if (id == plan.getCrop().getSeedId() || id == ItemID.PLANT_CURE || id == paymentId) { lines.add(line(requirement, price)); }
+            if (id == plan.getCrop().getSeedId() || id == ItemID.PLANT_CURE || id == paymentId || !plan.getCompost().isBottomless() && id == plan.getCompost().getItemId()) { lines.add(line(requirement, price)); }
         }
-        return new FarmingMaterialEstimate(lines, notes());
+        List<String> notes = notes();
+        if (plan.getCompost().isBottomless() && plan.getStops().stream().anyMatch(GardenRunStop::isReplant))
+        {
+            notes.add("Bottomless compost use value is unknown and excluded; the filled bucket is reusable.");
+        }
+        return new FarmingMaterialEstimate(lines, notes);
     }
 
     public FarmingMaterialEstimate fields(FieldRunPlan plan, IntToLongFunction price)

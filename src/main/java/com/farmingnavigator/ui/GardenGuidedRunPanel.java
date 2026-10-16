@@ -51,6 +51,7 @@ public final class GardenGuidedRunPanel extends JPanel
         if (run.getStep() == GardenRunStep.PREPARE) { add(button("Ready for travel", GardenRunCommand.CONFIRM, commands)); }
         else
         {
+            if (run.getStep() == GardenRunStep.COMPOST) { add(button("Compost applied (manual)", GardenRunCommand.CONFIRM, commands)); }
             if (run.getStep() == GardenRunStep.PROTECT) { add(button("Protection paid (manual)", GardenRunCommand.CONFIRM, commands)); }
             if (run.getStep() == GardenRunStep.HARVEST) { add(button("Produce checked (manual)", GardenRunCommand.CONFIRM, commands)); }
             if (run.getStep() == GardenRunStep.KEEP_OR_REPLACE)

@@ -20,11 +20,16 @@ public final class GardenRunPlanner
     public GardenRunPlan plan(AccountState account, Set<GardenPatchDefinition> selected, GardenRunCrop crop, GardenRunMode mode,
             boolean protect, Map<GardenPatchDefinition, GardenPatchObservation> observations, StorageSnapshot storage, Instant now)
     {
+        return plan(account, selected, crop, mode, protect, GardenRunCompost.NONE, observations, storage, now);
+    }
+    public GardenRunPlan plan(AccountState account, Set<GardenPatchDefinition> selected, GardenRunCrop crop, GardenRunMode mode,
+            boolean protect, GardenRunCompost compost, Map<GardenPatchDefinition, GardenPatchObservation> observations, StorageSnapshot storage, Instant now)
+    {
         List<GardenRunStop> stops = new ArrayList<>(); List<SupplyRequirement> supplies = new ArrayList<>();
         Map<GardenPatchDefinition, String> excluded = new EnumMap<>(GardenPatchDefinition.class); List<String> warnings = new ArrayList<>();
         String blocker = account == null || !account.isLoggedIn() ? "Log in to plan a bush/cactus run."
                 : account.getBoostedFarmingLevel() < crop.getRequiredLevel() ? crop + " requires " + crop.getRequiredLevel() + " Farming (boostable)." : "";
-        if (!blocker.isEmpty()) { return new GardenRunPlan(crop, mode, stops, List.of(), excluded, warnings, blocker); }
+        if (!blocker.isEmpty()) { return new GardenRunPlan(crop, mode, stops, List.of(), excluded, warnings, blocker, compost); }
         int replants = 0, bushDisease = 0, cactusDisease = 0;
         for (GardenPatchDefinition patch : GardenPatchDefinition.values())
         {
@@ -55,7 +60,7 @@ public final class GardenRunPlanner
         if (!stops.isEmpty())
         {
             warnings.add("Order follows the patch catalogue. Travel is manual until a verified transport is selected.");
-            warnings.add("Inspect old observations. Produce quantities and regrowth are not predicted; compost and leprechaun storage are not checked.");
+            warnings.add("Inspect old observations. Produce quantities and regrowth are not predicted; current compost state and leprechaun storage are not checked.");
             if (mode == GardenRunMode.KEEP_MATURE) { warnings.add("Keep mature plants. No replacement seed/payment is reserved for observed mature plants; prepare a new plan if they are cleared."); }
             supplies.add(new SupplyRequirement(ItemID.SPADE, "Spade", 1, false, "Clear dead plants or explicitly selected replacements."));
             if (replants > 0)
@@ -63,14 +68,23 @@ public final class GardenRunPlanner
                 supplies.add(new SupplyRequirement(crop.getSeedId(), crop + " seed", replants, false, "One seed per possible new plant; kept mature and diseased plants are excluded."));
                 supplies.add(new SupplyRequirement(ItemID.DIBBER, "Seed dibber", 1, false, "Planting tool; Barbarian Training is not checked."));
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true, "For weeds; auto-weed is not checked."));
+                if (compost != GardenRunCompost.NONE)
+                {
+                    supplies.add(new SupplyRequirement(compost.getItemId(), compost + " (apply to patches)", compost.isBottomless() ? 1 : replants, false,
+                            compost.isBottomless()
+                                    ? "Bring one filled bottomless bucket. Manually check the selected compost type and at least " + replants
+                                            + " uses. Item presence does not verify contents; it cannot replace farmer payments."
+                                    : "One unnoted filled bucket per possible new planting, separate from farmer payments. Application is confirmed manually."));
+                }
+                else { warnings.add("No compost application supplies are reserved."); }
                 if (!crop.hasFarmerProtection()) { warnings.add("Poison ivy has no farmer payment; none is reserved."); }
                 else if (protect) { crop.protectionPayment(replants).ifPresent(supplies::add); }
-                else { warnings.add("Farmer protection is disabled. Disease prevention and compost supplies are not budgeted."); }
+                else { warnings.add("Farmer protection is disabled. No payment is reserved."); }
             }
             if (bushDisease > 0) { supplies.add(new SupplyRequirement(ItemID.SECATEURS, "Secateurs", 1, false, "Prune diseased bushes; magic secateurs also work.", ItemID.FAIRY_ENCHANTED_SECATEURS)); }
             if (cactusDisease > 0) { supplies.add(new SupplyRequirement(ItemID.PLANT_CURE, "Plant cure", cactusDisease, false, "Cure diseased cacti; no replacement seed/payment is reserved.")); }
         }
-        return new GardenRunPlan(crop, mode, stops, new LoadoutService().evaluate(supplies, storage), excluded, warnings, "");
+        return new GardenRunPlan(crop, mode, stops, new LoadoutService().evaluateInOrder(supplies, storage), excluded, warnings, "", compost);
     }
     private String action(GardenPatchCondition condition, GardenRunMode mode, GardenFamily family)
     {

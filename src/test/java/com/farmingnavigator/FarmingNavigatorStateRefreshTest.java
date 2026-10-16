@@ -20,7 +20,7 @@ public class FarmingNavigatorStateRefreshTest
 
     @Test public void gardenSetupChangesInvalidateOnlyTheGardenChecklist()
     {
-        for (String key : new String[]{"gardenRunCrop", "gardenRunPatches", "gardenRunMode", "gardenRunProtection", "gardenTransportPreference"})
+        for (String key : new String[]{"gardenRunCrop", "gardenRunPatches", "gardenRunMode", "gardenRunProtection", "gardenRunCompost", "gardenTransportPreference"})
         {
             assertTrue(FarmingNavigatorPlugin.isGardenRunSetupKey(key));
             assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey(key)); assertFalse(FarmingNavigatorPlugin.isRunSetupKey(key));
@@ -88,3 +88,4 @@ public class FarmingNavigatorStateRefreshTest
         assertFalse(FarmingNavigatorPlugin.isRelevantStateVarbit(Integer.MAX_VALUE));
     }
 }
+

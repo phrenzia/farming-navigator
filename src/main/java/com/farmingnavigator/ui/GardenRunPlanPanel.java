@@ -36,7 +36,8 @@ public final class GardenRunPlanPanel extends JPanel
         add(text("Bush/cactus run preparation", Color.WHITE));
         add(text(plan.getCrop() + " - " + plan.getStops().size() + " stops", Color.WHITE));
         add(text(plan.getMode().toString(), MUTED));
-        add(text("Choose bush/cactus crop, patches, keep/replace mode and protection in plugin settings.", MUTED));
+        add(text("Compost: " + plan.getCompost(), MUTED));
+        add(text("Choose bush/cactus crop, patches, keep/replace mode, compost and protection in plugin settings.", MUTED));
         if (!plan.getBlocker().isEmpty()) { add(text(plan.getBlocker(), WARNING)); return; }
         JPanel details = new JPanel();
         details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));

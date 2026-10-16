@@ -17,7 +17,7 @@ public final class GardenRunSession
     private GardenRunStep step = GardenRunStep.INACTIVE;
     private Instant enteredAt = Instant.EPOCH, startedAt, finishedAt;
     private GardenCrop curingCrop = GardenCrop.UNKNOWN;
-    private boolean protect;
+    private boolean protect, compostConfirmed;
     private int index, completed, manual, skipped, protectionConfirmed;
     public boolean start(GardenRunPlan plan, boolean protect, Instant now)
     {
@@ -32,6 +32,7 @@ public final class GardenRunSession
         if (command == GardenRunCommand.CONFIRM)
         {
             if (step == GardenRunStep.PREPARE) { enter(GardenRunStep.TRAVEL, now); return true; }
+            if (step == GardenRunStep.COMPOST) { compostConfirmed = true; enter(GardenRunStep.PLANT, now); return true; }
             if (step == GardenRunStep.PROTECT) { protectionConfirmed++; finish(false, false, now); return true; }
             if (step == GardenRunStep.HARVEST)
             {
@@ -58,7 +59,8 @@ public final class GardenRunSession
         GardenRunStop stop = plan.getStops().get(index);
         if (!stop.getPatch().isNear(player)) { return false; }
         GardenPatchObservation observation = observations.get(stop.getPatch());
-        if (observation == null || observation.getObservedAt().isBefore(enteredAt) || observation.getObservedAt().isAfter(now)) { return false; }
+        if (observation == null || observation.getObservedAt().isBefore(enteredAt) || observation.getObservedAt().isAfter(now)
+                || Duration.between(observation.getObservedAt(), now).compareTo(Duration.ofSeconds(30)) > 0) { return false; }
         GardenPatchState state = observation.getState(); GardenPatchCondition condition = state.getCondition();
         if (state.getCrop().getFamily() != null && state.getCrop().getFamily() != stop.getPatch().getFamily()) { return false; }
         GardenRunStep before = step;
@@ -76,8 +78,11 @@ public final class GardenRunSession
                 if (condition == GardenPatchCondition.HEALTH_CHECKED) { enter(GardenRunStep.HARVEST, now); } break;
             case CLEAR:
             case RAKE:
-                if (condition == GardenPatchCondition.EMPTY) { enter(GardenRunStep.PLANT, now); }
+                if (condition == GardenPatchCondition.EMPTY) { preparePlanting(now); }
                 else if (condition == GardenPatchCondition.WEEDS && step != GardenRunStep.RAKE) { enter(GardenRunStep.RAKE, now); }
+                break;
+            case COMPOST:
+                if (condition == GardenPatchCondition.GROWING && state.getCrop() != plan.getCrop().getCrop()) { inspect(state, now); }
                 break;
             case PLANT:
                 if (condition == GardenPatchCondition.GROWING && state.getCrop() == plan.getCrop().getCrop())
@@ -99,6 +104,7 @@ public final class GardenRunSession
     {
         switch (step)
         {
+            case COMPOST: return condition == GardenPatchCondition.EMPTY || condition == GardenPatchCondition.GROWING;
             case PLANT: return condition == GardenPatchCondition.EMPTY;
             case CHECK_HEALTH: return condition == GardenPatchCondition.CHECK_HEALTH;
             case HARVEST:
@@ -114,7 +120,7 @@ public final class GardenRunSession
     {
         switch (state.getCondition())
         {
-            case EMPTY: enter(GardenRunStep.PLANT, now); break;
+            case EMPTY: preparePlanting(now); break;
             case WEEDS: enter(GardenRunStep.RAKE, now); break;
             case CHECK_HEALTH: enter(GardenRunStep.CHECK_HEALTH, now); break;
             case HEALTH_CHECKED: enter(GardenRunStep.HARVEST, now); break;
@@ -126,6 +132,10 @@ public final class GardenRunSession
             default: break;
         }
     }
+    private void preparePlanting(Instant now)
+    {
+        enter(plan.getCompost() == GardenRunCompost.NONE || compostConfirmed ? GardenRunStep.PLANT : GardenRunStep.COMPOST, now);
+    }
     public void refreshTransports(Map<GardenPatchDefinition, List<VerifiedTransportResult>> routes, HerbTransportPreference preference, RequirementContext context)
     {
         if (active()) { plan = plan.withTransports(routes, preference, context); }
@@ -133,7 +143,7 @@ public final class GardenRunSession
     private void finish(boolean manually, boolean skip, Instant now)
     {
         if (skip) { skipped++; } else { completed++; if (manually) { manual++; } }
-        curingCrop = GardenCrop.UNKNOWN; index++;
+        curingCrop = GardenCrop.UNKNOWN; compostConfirmed = false; index++;
         if (index >= plan.getStops().size()) { finishedAt = now; enter(GardenRunStep.COMPLETE, now); } else { enter(GardenRunStep.TRAVEL, now); }
     }
     private void enter(GardenRunStep next, Instant now) { step = next; enteredAt = now; }
@@ -143,11 +153,11 @@ public final class GardenRunSession
         Instant end = finishedAt == null ? now : finishedAt;
         Duration elapsed = startedAt == null || end.isBefore(startedAt) ? Duration.ZERO : Duration.between(startedAt, end);
         return new GardenRunSnapshot(step, plan == null ? null : plan.getCrop(), plan == null ? null : plan.getMode(),
-                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed);
+                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? GardenRunCompost.NONE : plan.getCompost());
     }
     public void cancel()
     {
         plan = null; step = GardenRunStep.INACTIVE; enteredAt = Instant.EPOCH; startedAt = null; finishedAt = null;
-        curingCrop = GardenCrop.UNKNOWN; index = completed = manual = skipped = protectionConfirmed = 0;
+        curingCrop = GardenCrop.UNKNOWN; compostConfirmed = false; index = completed = manual = skipped = protectionConfirmed = 0;
     }
 }
