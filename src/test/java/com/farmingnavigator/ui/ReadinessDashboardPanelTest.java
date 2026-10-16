@@ -35,8 +35,13 @@ public class ReadinessDashboardPanelTest
             AtomicBoolean expanded=new AtomicBoolean(); ReadinessDashboardPanel panel=new ReadinessDashboardPanel(overview,now,false,expanded::set);
             assertTrue(labels(panel).contains("Last observed diseased: 1")); assertTrue(labels(panel).contains("if healthy (estimate): 1"));
             JButton toggle=(JButton)Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton).findFirst().get(); toggle.doClick(); assertTrue(expanded.get());
-            assertTrue(labels(panel).contains("visit to confirm")); panel.setSize(225,900); layout(panel);
-            BufferedImage image=new BufferedImage(225,900,BufferedImage.TYPE_INT_RGB); Graphics2D graphics=image.createGraphics(); panel.printAll(graphics); graphics.dispose();
+            assertTrue(labels(panel).contains("visit to confirm"));
+            assertTrue(labels(panel).contains("Field/special patches: 2"));
+            assertTrue(labels(panel).contains("Additional possible in 10 / 30 / 60 min: 0 / 0 / 0"));
+            assertTrue(labels(panel).contains("check the individual preparation plan"));
+            assertTrue(labels(panel).contains("Individual patch evidence"));
+            panel.setSize(225,Math.max(900,panel.getPreferredSize().height)); layout(panel);
+            BufferedImage image=new BufferedImage(225,panel.getHeight(),BufferedImage.TYPE_INT_RGB); Graphics2D graphics=image.createGraphics(); panel.printAll(graphics); graphics.dispose();
             File directory=new File("build/verification"); directory.mkdirs();
             try { ImageIO.write(image,"png",new File(directory,"farming-readiness.png")); } catch(Exception ex) { throw new AssertionError(ex); }
         });

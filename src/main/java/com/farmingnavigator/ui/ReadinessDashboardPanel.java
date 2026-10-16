@@ -1,6 +1,7 @@
 package com.farmingnavigator.ui;
 
 import com.farmingnavigator.farming.state.ReadinessDashboard;
+import com.farmingnavigator.routing.run.CombinedRunKind;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -69,6 +70,28 @@ public final class ReadinessDashboardPanel extends JPanel
         add(Box.createVerticalStrut(6));
         add(toggle);
         add(details);
+        details.add(Box.createVerticalStrut(6));
+        details.add(text("Visit opportunities by run type", Color.WHITE));
+        details.add(text("Across selected accessible crop families; check the individual preparation plan for crop, supplies and travel. Counts are not XP, profit or route rankings.", ColorScheme.LIGHT_GRAY_COLOR));
+        for (CombinedRunKind kind : CombinedRunKind.values())
+        {
+            if (overview.getEntries(kind).isEmpty()) { continue; }
+            details.add(Box.createVerticalStrut(6));
+            details.add(text(kind + " patches: " + overview.getEntries(kind).size(), Color.WHITE));
+            for (ReadinessDashboard.Group group : ReadinessDashboard.Group.values())
+            {
+                long count = overview.getCount(kind,group);
+                if (count > 0) { details.add(text(group.getLabel() + ": " + count, ColorScheme.LIGHT_GRAY_COLOR)); }
+            }
+            details.add(text("Additional possible in 10 / 30 / 60 min: "
+                    + overview.getUpcomingCount(kind,Duration.ofMinutes(10)) + " / "
+                    + overview.getUpcomingCount(kind,Duration.ofMinutes(30)) + " / "
+                    + overview.getUpcomingCount(kind,Duration.ofMinutes(60))
+                    + " (earliest window, cumulative, if healthy).", ColorScheme.LIGHT_GRAY_COLOR));
+            overview.getNext(kind).ifPresent(entry -> details.add(text("Next: " + entry.getLabel() + " - " + window(entry,now), ColorScheme.LIGHT_GRAY_COLOR)));
+        }
+        details.add(Box.createVerticalStrut(8));
+        details.add(text("Individual patch evidence", Color.WHITE));
         for (ReadinessDashboard.Entry entry : overview.getEntries())
         {
             details.add(Box.createVerticalStrut(6));

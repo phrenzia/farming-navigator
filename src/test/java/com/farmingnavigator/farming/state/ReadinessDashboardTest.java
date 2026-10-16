@@ -5,6 +5,7 @@ import com.farmingnavigator.farming.*;
 import com.farmingnavigator.farming.tree.*;
 import com.farmingnavigator.farming.garden.*;
 import com.farmingnavigator.farming.field.*;
+import com.farmingnavigator.routing.run.CombinedRunKind;
 import java.time.*;
 import java.util.*;
 import net.runelite.api.Quest;
@@ -103,5 +104,42 @@ public class ReadinessDashboardTest
     {
         ReadinessDashboard.Builder builder=herbs(8,now,FarmingGrowthRate.NORMAL); ReadinessDashboard first=builder.build();
         builder.fields(account,Set.of(FieldPatchDefinition.FALADOR_NORTH),Map.of()); assertEquals(1,first.getEntries().size()); assertEquals(2,builder.build().getEntries().size());
+    }
+    @Test public void runTypesKeepCoLocatedWorkAndUnknownEvidenceSeparate()
+    {
+        ReadinessDashboard result=herbs(8,now,FarmingGrowthRate.NORMAL)
+                .trees(account,Set.of(TreePatchDefinition.FALADOR_TREE),Map.of(TreePatchDefinition.FALADOR_TREE,tree(TreeFamily.TREE,12,now)))
+                .gardens(account,Set.of(GardenPatchDefinition.RIMMINGTON_BUSH),Map.of(GardenPatchDefinition.RIMMINGTON_BUSH,garden(GardenFamily.BUSH,70,now)))
+                .fields(account,Set.of(FieldPatchDefinition.FALADOR_NORTH,FieldPatchDefinition.FALADOR_SOUTH),Map.of(FieldPatchDefinition.FALADOR_NORTH,field(FieldFamily.ALLOTMENT,10,now))).build();
+        assertEquals(1,result.getCount(CombinedRunKind.HERB,ReadinessDashboard.Group.HARVESTABLE));
+        assertEquals(1,result.getCount(CombinedRunKind.TREE,ReadinessDashboard.Group.CHECK_HEALTH));
+        assertEquals(1,result.getCount(CombinedRunKind.GARDEN,ReadinessDashboard.Group.DISEASED));
+        assertEquals(1,result.getCount(CombinedRunKind.FIELD,ReadinessDashboard.Group.HARVESTABLE));
+        assertEquals(1,result.getCount(CombinedRunKind.FIELD,ReadinessDashboard.Group.UNKNOWN));
+        for (ReadinessDashboard.Group group:ReadinessDashboard.Group.values())
+        {
+            long total=0;
+            for (CombinedRunKind kind:CombinedRunKind.values()) { total+=result.getCount(kind,group); }
+            assertEquals(result.getCount(group),total);
+        }
+        for (CombinedRunKind kind:CombinedRunKind.values())
+        { for (ReadinessDashboard.Entry entry:result.getEntries(kind)) { assertEquals(kind,entry.getRunKind()); } }
+        try { result.getEntries(CombinedRunKind.FIELD).clear(); fail("Mutable run view"); } catch(UnsupportedOperationException expected) { }
+    }
+    @Test public void perRunFutureWindowsRespectInclusiveHorizonsAndExcludeAlreadyDueEstimates()
+    {
+        ReadinessDashboard result=herbs(4,now.minusSeconds(3000),FarmingGrowthRate.NORMAL)
+                .fields(account,Set.of(FieldPatchDefinition.LUMBRIDGE_HOPS,FieldPatchDefinition.FALADOR_NORTH),Map.of(
+                        FieldPatchDefinition.LUMBRIDGE_HOPS,field(FieldFamily.HOPS,4,now.minusSeconds(1500)),
+                        FieldPatchDefinition.FALADOR_NORTH,field(FieldFamily.ALLOTMENT,6,now.minusSeconds(2400)))).build();
+        assertEquals(0,result.getUpcomingCount(CombinedRunKind.HERB,Duration.ofSeconds(599)));
+        assertEquals(1,result.getUpcomingCount(CombinedRunKind.HERB,Duration.ofSeconds(600)));
+        assertEquals(1,result.getUpcomingCount(CombinedRunKind.FIELD,Duration.ofSeconds(300)));
+        assertEquals(1,result.getCount(CombinedRunKind.FIELD,ReadinessDashboard.Group.POSSIBLY_READY));
+        assertEquals(0,result.getUpcomingCount(CombinedRunKind.FIELD,Duration.ZERO));
+        assertEquals(0,result.getUpcomingCount(CombinedRunKind.FIELD,Duration.ofSeconds(-1)));
+        assertEquals("HERB:FALADOR",result.getNext(CombinedRunKind.HERB).get().getIdentity());
+        assertEquals("FIELD:LUMBRIDGE_HOPS",result.getNext(CombinedRunKind.FIELD).get().getIdentity());
+        assertTrue(result.getEntries(CombinedRunKind.TREE).isEmpty()); assertFalse(result.getNext(CombinedRunKind.TREE).isPresent());
     }
 }

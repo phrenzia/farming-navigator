@@ -27,13 +27,15 @@ public final class ReadinessDashboard
     public static final class Entry
     {
         private final String identity, label, crop;
+        private final CombinedRunKind runKind;
         private final Group group;
         private final Instant observedAt, earliest, latest;
-        private Entry(String identity, String label, String crop, Group group, Instant observedAt, Instant earliest, Instant latest)
+        private Entry(CombinedRunKind runKind, String identity, String label, String crop, Group group, Instant observedAt, Instant earliest, Instant latest)
         {
-            this.identity = identity; this.label = label; this.crop = crop; this.group = group;
+            this.runKind = runKind; this.identity = identity; this.label = label; this.crop = crop; this.group = group;
             this.observedAt = observedAt; this.earliest = earliest; this.latest = latest;
         }
+        public CombinedRunKind getRunKind() { return runKind; }
         public String getIdentity() { return identity; }
         public String getLabel() { return label; }
         public String getCrop() { return crop; }
@@ -67,6 +69,27 @@ public final class ReadinessDashboard
         return entries.stream().filter(entry -> entry.earliest != null && entry.earliest.isAfter(now))
                 .min(Comparator.comparing(Entry::getEarliest).thenComparing(Entry::getIdentity));
     }
+    /** Selected accessible patches for this run type, across its selected crop families. Not a prepared route. */
+    public List<Entry> getEntries(CombinedRunKind kind)
+    {
+        List<Entry> selected = new ArrayList<>();
+        for (Entry entry : entries) { if (entry.runKind == kind) { selected.add(entry); } }
+        return List.copyOf(selected);
+    }
+    public long getCount(CombinedRunKind kind, Group group)
+    { return entries.stream().filter(entry -> entry.runKind == kind && entry.group == group).count(); }
+    public long getUpcomingCount(CombinedRunKind kind, Duration horizon)
+    {
+        if (horizon.isNegative() || horizon.isZero()) { return 0; }
+        Instant until = now.plus(horizon);
+        return entries.stream().filter(entry -> entry.runKind == kind && entry.earliest != null
+                && entry.earliest.isAfter(now) && !entry.earliest.isAfter(until)).count();
+    }
+    public Optional<Entry> getNext(CombinedRunKind kind)
+    {
+        return entries.stream().filter(entry -> entry.runKind == kind && entry.earliest != null && entry.earliest.isAfter(now))
+                .min(Comparator.comparing(Entry::getEarliest).thenComparing(Entry::getIdentity));
+    }
     public static Builder at(Instant now) { return new Builder(now); }
     public static final class Builder
     {
@@ -76,67 +99,71 @@ public final class ReadinessDashboard
         private Builder(Instant now) { this.now = Objects.requireNonNull(now); }
         public Builder herbs(List<HerbPatchStatus> statuses, Set<HerbPatchDefinition> selected, Map<HerbPatchDefinition, HerbPatchObservation> observations)
         {
+            CombinedRunKind kind = CombinedRunKind.HERB;
             for (HerbPatchStatus status : statuses)
             {
                 HerbPatchDefinition patch = status.getPatch(); if (!selected.contains(patch)) { continue; }
                 String id = "HERB:" + patch.name();
                 if (!status.isUnlocked()) { exclude(id); continue; }
                 HerbPatchObservation observation = observations.get(patch);
-                if (observation == null || observation.getObservedAt().isAfter(now)) { unknown(id,patch.getDisplayName() + " herb"); continue; }
+                if (observation == null || observation.getObservedAt().isAfter(now)) { unknown(kind,id,patch.getDisplayName() + " herb"); continue; }
                 HerbGrowthEstimate window = new HerbGrowthTimer().estimate(observation,now).orElse(null);
-                add(id,patch.getDisplayName() + " herb",observation.getState().getCrop().getDisplayName(),observation.getState().getCondition().name(),observation.getObservedAt(),
+                add(kind,id,patch.getDisplayName() + " herb",observation.getState().getCrop().getDisplayName(),observation.getState().getCondition().name(),observation.getObservedAt(),
                         window == null ? null : window.getEarliest(),window == null ? null : window.getLatest());
             }
             return this;
         }
         public Builder trees(AccountState account, Set<TreePatchDefinition> selected, Map<TreePatchDefinition, TreePatchObservation> observations)
         {
+            CombinedRunKind kind = CombinedRunKind.TREE;
             for (TreePatchDefinition patch : TreePatchDefinition.values())
             {
                 if (!selected.contains(patch)) { continue; } String id = "TREE:" + patch.name();
                 if (!new TreePatchAccess().missingRequirement(patch,account).isEmpty()) { exclude(id); continue; }
                 String label = patch.getLabel() + " " + patch.getFamily().getPatchLabel(); TreePatchObservation observation = observations.get(patch);
                 if (observation == null || observation.getObservedAt().isAfter(now) || observation.getState().getCrop().getFamily() != null
-                        && observation.getState().getCrop().getFamily() != patch.getFamily()) { unknown(id,label); continue; }
+                        && observation.getState().getCrop().getFamily() != patch.getFamily()) { unknown(kind,id,label); continue; }
                 TreeGrowthWindow window = new TreeGrowthTimer().estimate(observation,now).orElse(null);
-                add(id,label,observation.getState().getCrop().getLabel(),observation.getState().getCondition().name(),observation.getObservedAt(),
+                add(kind,id,label,observation.getState().getCrop().getLabel(),observation.getState().getCondition().name(),observation.getObservedAt(),
                         window == null ? null : window.getEarliest(),window == null ? null : window.getLatest());
             }
             return this;
         }
         public Builder gardens(AccountState account, Set<GardenPatchDefinition> selected, Map<GardenPatchDefinition, GardenPatchObservation> observations)
         {
+            CombinedRunKind kind = CombinedRunKind.GARDEN;
             for (GardenPatchDefinition patch : GardenPatchDefinition.values())
             {
                 if (!selected.contains(patch)) { continue; } String id = "GARDEN:" + patch.name();
                 if (!new GardenPatchAccess().missingRequirement(patch,account).isEmpty()) { exclude(id); continue; }
                 String label = patch.getLabel() + " " + patch.getFamily().getPatchLabel(); GardenPatchObservation observation = observations.get(patch);
                 if (observation == null || observation.getObservedAt().isAfter(now) || observation.getState().getCrop().getFamily() != null
-                        && observation.getState().getCrop().getFamily() != patch.getFamily()) { unknown(id,label); continue; }
+                        && observation.getState().getCrop().getFamily() != patch.getFamily()) { unknown(kind,id,label); continue; }
                 GardenGrowthWindow window = new GardenGrowthTimer().estimate(observation,now).orElse(null);
-                add(id,label,observation.getState().getCrop().getLabel(),observation.getState().getCondition().name(),observation.getObservedAt(),
+                add(kind,id,label,observation.getState().getCrop().getLabel(),observation.getState().getCondition().name(),observation.getObservedAt(),
                         window == null ? null : window.getEarliest(),window == null ? null : window.getLatest());
             }
             return this;
         }
         public Builder fields(AccountState account, Set<FieldPatchDefinition> selected, Map<FieldPatchDefinition, FieldPatchObservation> observations)
         {
+            CombinedRunKind kind = CombinedRunKind.FIELD;
             for (FieldPatchDefinition patch : FieldPatchDefinition.values())
             {
                 if (!selected.contains(patch)) { continue; } String id = "FIELD:" + patch.name();
                 if (!new FieldPatchAccess().missingRequirement(patch,account).isEmpty()) { exclude(id); continue; }
                 String label = patch.getLabel() + " " + patch.getFamily().getLabel(); FieldPatchObservation observation = observations.get(patch);
                 if (observation == null || observation.getObservedAt().isAfter(now) || observation.getState().getCrop().getFamily() != null
-                        && observation.getState().getCrop().getFamily() != patch.getFamily()) { unknown(id,label); continue; }
+                        && observation.getState().getCrop().getFamily() != patch.getFamily()) { unknown(kind,id,label); continue; }
                 FieldGrowthWindow window = new FieldGrowthTimer().estimate(observation,now).orElse(null);
-                add(id,label,observation.getState().getCrop().getLabel(),observation.getState().getCondition().name(),observation.getObservedAt(),
+                add(kind,id,label,observation.getState().getCrop().getLabel(),observation.getState().getCondition().name(),observation.getObservedAt(),
                         window == null ? null : window.getEarliest(),window == null ? null : window.getLatest());
             }
             return this;
         }
         private void exclude(String id) { excluded.add(id); entries.remove(id); }
-        private void unknown(String id,String label) { add(id,label,"","UNKNOWN",null,null,null); }
-        private void add(String id,String label,String crop,String condition,Instant at,Instant earliest,Instant latest)
+        private void unknown(CombinedRunKind kind,String id,String label) { add(kind,id,label,"","UNKNOWN",null,null,null); }
+        private void add(CombinedRunKind kind,String id,String label,String crop,String condition,Instant at,Instant earliest,Instant latest)
         {
             if (excluded.contains(id)) { return; }
             Group group;
@@ -153,7 +180,7 @@ public final class ReadinessDashboard
                 case "SCARECROW": group = Group.SCARECROW; crop = ""; break;
                 default: group = Group.UNKNOWN; crop = ""; break;
             }
-            entries.put(id,new Entry(id,label,crop,group,at,earliest,latest));
+            entries.put(id,new Entry(kind,id,label,crop,group,at,earliest,latest));
         }
         public ReadinessDashboard build() { return new ReadinessDashboard(this); }
     }
