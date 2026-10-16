@@ -24,7 +24,8 @@ public final class GardenObservationsPanel extends JPanel
     {
         Map<GardenPatchDefinition, GardenPatchObservation> valid = new EnumMap<>(GardenPatchDefinition.class);
         observations.forEach((patch, observation) -> {
-            if (!observation.getObservedAt().isAfter(now)) { valid.put(patch, observation); }
+            if (!observation.getObservedAt().isAfter(now) && (observation.getState().getCrop().getFamily() == null
+                    || observation.getState().getCrop().getFamily() == patch.getFamily())) { valid.put(patch, observation); }
         });
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(ColorScheme.DARKER_GRAY_COLOR);

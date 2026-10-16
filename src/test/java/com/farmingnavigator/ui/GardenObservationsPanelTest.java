@@ -67,6 +67,21 @@ public class GardenObservationsPanelTest
             assertFalse(labels(panel).contains("health-check ready: 1"));
         });
     }
+    @Test public void wrongFamilyEvidenceCannotAppearAsObservedReadinessOrProduce() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            GardenObservationsPanel panel=new GardenObservationsPanel(Map.of(
+                    GardenPatchDefinition.RIMMINGTON_BUSH,observation(GardenFamily.CACTUS,32,now),
+                    GardenPatchDefinition.AL_KHARID_CACTUS,observation(GardenFamily.BUSH,250,now),
+                    GardenPatchDefinition.FARMING_GUILD_CACTUS,observation(GardenFamily.CACTUS,58,now.plusSeconds(1)),
+                    GardenPatchDefinition.FARMING_GUILD_BUSH,observation(GardenFamily.BUSH,0,now)),now,true,value -> {});
+            String text=labels(panel); assertTrue(text.contains("Observed patches: 1 / 7"));
+            assertTrue(text.contains("health-check ready: 0; diseased or dead: 0"));
+            assertFalse(text.contains("Health checked; inspect for produce"));
+            assertFalse(text.contains("Estimated health check in"));
+            assertEquals(6,text.split("Data required - visit",-1).length-1);
+        });
+    }
     private String labels(Component component)
     {
         StringBuilder text = new StringBuilder(component instanceof JLabel ? ((JLabel) component).getText() : "");
