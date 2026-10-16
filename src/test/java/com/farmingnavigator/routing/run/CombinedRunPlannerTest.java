@@ -126,4 +126,13 @@ public class CombinedRunPlannerTest
         assertEquals(3,herb.getSupplies().size());
     }
 
+    @Test public void fieldWaterBudgetRemainsVisibleInCombinedPreparation()
+    {
+        RequirementContext context=context(Map.of(),Map.of(),SpellbookType.STANDARD);
+        FieldRunPlan field=new FieldRunPlanner().plan(context.getAccountState(),Set.of(FieldPatchDefinition.FARMING_GUILD_NORTH),FieldRunCrop.POTATO,FieldRunMode.HARVEST_ALL,true,
+                FieldRunCompost.NONE,HerbRunCure.PLANT_CURE,FieldRunWatering.AFTER_PLANTING,Map.of(),context.getStorageSnapshot(),now).withTransports(Map.of(),HerbTransportPreference.CATALOGUE,context);
+        CombinedRunPlan result=new CombinedRunPlanner().plan(selected,null,null,garden(context,GardenRunCompost.NONE),field,context);
+        assertTrue(result.getCareChecks().stream().anyMatch(c -> c.getRequirement().contains("Water for 1") && c.getState()==RequirementState.BLOCKED));
+    }
+
 }

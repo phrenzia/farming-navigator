@@ -340,6 +340,10 @@ public interface FarmingNavigatorConfig
             description = "Select at least two configured run types to share one preparation budget; use individual checklists for guidance", position = 44, section = GENERAL_SECTION)
     default Set<com.farmingnavigator.routing.run.CombinedRunKind> combinedRunTypes() { return java.util.Collections.emptySet(); }
 
+    @ConfigItem(keyName = "fieldRunWatering", name = "Field watering after planting",
+            description = "Optionally reserve standard-can water and a manual watering step for allotments, flowers and hops", position = 45, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.FieldRunWatering fieldRunWatering() { return com.farmingnavigator.routing.run.FieldRunWatering.NONE; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

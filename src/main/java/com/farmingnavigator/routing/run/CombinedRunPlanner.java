@@ -41,7 +41,9 @@ public final class CombinedRunPlanner
                 case FIELD:
                     if (field == null) { assembly.blockers.add("Field preparation is unavailable."); break; }
                     assembly.add(kind, kind + " - " + field.getCrop(), field.getStops(), field.getSupplies(), field.getCareResources(), field.getBlocker(),
-                            field.getTransportResources(), field.getExcluded().size(), field.getWarnings(), field.getCompost().name(), (int) field.getStops().stream().filter(FieldRunStop::isReplant).count()); break;
+                            field.getTransportResources(), field.getExcluded().size(), field.getWarnings(), field.getCompost().name(), (int) field.getStops().stream().filter(FieldRunStop::isReplant).count());
+                    if (field.getWateringApplications() > 0 && field.getWateringBudget() != null) { assembly.careChecks.add(field.getWateringBudget().getCheck()); }
+                    break;
                 default: break;
             }
         }

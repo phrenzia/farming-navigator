@@ -8,6 +8,7 @@ import java.time.Duration;
 public final class FieldRunSnapshot
 {
     private final FieldRunStep step;
+    private final com.farmingnavigator.routing.run.FieldRunWatering watering;
     private final com.farmingnavigator.routing.run.HerbRunCure cure;
     private final FieldRunCrop crop;
     private final FieldRunMode mode;
@@ -31,12 +32,22 @@ public final class FieldRunSnapshot
             int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
             com.farmingnavigator.routing.run.FieldRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure)
     {
+        this(step, crop, mode, stop, total, completed, manual, skipped, protectionConfirmed, elapsed, compost, cure,
+                com.farmingnavigator.routing.run.FieldRunWatering.NONE);
+    }
+    FieldRunSnapshot(FieldRunStep step, FieldRunCrop crop, FieldRunMode mode, FieldRunStop stop,
+            int total, int completed, int manual, int skipped, int protectionConfirmed, Duration elapsed,
+            com.farmingnavigator.routing.run.FieldRunCompost compost, com.farmingnavigator.routing.run.HerbRunCure cure,
+            com.farmingnavigator.routing.run.FieldRunWatering watering)
+    {
+        this.watering = watering;
         this.cure = cure;
         this.compost = compost;
         this.step = step; this.crop = crop; this.mode = mode; this.stop = stop; this.total = total;
         this.completed = completed; this.manual = manual; this.skipped = skipped; this.protectionConfirmed = protectionConfirmed; this.elapsed = elapsed;
     }
     public com.farmingnavigator.routing.run.HerbRunCure getCure() { return cure; }
+    public com.farmingnavigator.routing.run.FieldRunWatering getWatering() { return watering; }
     public FieldRunStep getStep() { return step; }
     public FieldRunCrop getCrop() { return crop; }
     public FieldRunMode getMode() { return mode; }
@@ -53,7 +64,7 @@ public final class FieldRunSnapshot
     {
         switch (step)
         {
-            case PREPARE: return "Review seeds, tools, protection and shared travel supplies, then confirm readiness.";
+            case PREPARE: return "Review seeds, tools, compost, watering, protection and shared travel supplies, then confirm readiness.";
             case TRAVEL: return (stop.isLocalWalk() ? "Walk within the farming area to " : "Travel to ") + stop.getPatch().getLabel() + " and approach the labelled plot."
                     + (crop == FieldRunCrop.SEAWEED ? " Check your diving equipment, air supply and underwater item restrictions manually." : "");
             case INSPECT: return "Inspect the labelled plot. A fresh nearby observation is required before choosing an action.";
@@ -68,7 +79,9 @@ public final class FieldRunSnapshot
                                 ? " The ash-covered tome and two volcanic ash per cast are required." : " Without ash, the spell applies supercompost; carried ash may upgrade it if the tome is read."); }
                 if (compost.isBottomless()) { return "Check your selected bottomless bucket's compost type and remaining uses, apply it to this plot, then confirm manually. Contents and application are not automatically verified; farmer payments are separate."; }
                 return "Apply one unnoted bucket of " + compost + " to this plot, then confirm manually. Current compost state and application are not automatically verified; farmer payments are separate.";
-            case PLANT: return "Use a seed dibber to plant " + crop.getSeedsPerPatch() + " " + crop + " seed/spore(s). Seed saving and Barbarian Training are not assumed. Watering is not guided yet.";
+            case PLANT: return "Use a seed dibber to plant " + crop.getSeedsPerPatch() + " " + crop + " seed/spore(s). Seed saving and Barbarian Training are not assumed.";
+            case WATER: return "Water the planted crop once using a filled standard can, then confirm manually. Watering is not automatically observed and only covers this growth cycle; later cycles need watering again.";
+            case REPREPARE: return "A planting was already observed at this stop, but the plot is empty again. No second seed or care application is reserved. Prepare a new plan before replanting.";
             case PROTECT: return "Pay the gardener for protection, then confirm manually. The checklist does not verify the payment.";
             case CURE: return (cure == com.farmingnavigator.routing.run.HerbRunCure.CURE_PLANT ? "Cast Lunar Cure Plant" : "Use plant cure")
                     + " on this diseased crop. Wait for healthy growth or harvestable state of the same crop.";

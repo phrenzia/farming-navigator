@@ -340,6 +340,11 @@ public final class GuidedRunTargets
                     });
                     plan.getStops().forEach(stop -> addTransport(inventory, bank, stop.getRecommended(), travel, houseEntryMode));
                     if (plan.getTransportResources() != null) { bank.addAll(plan.getTransportResources().getBankItems()); }
+                    if (plan.getWateringApplications() > 0)
+                    {
+                        inventory.addAll(com.farmingnavigator.routing.run.WateringCanBudget.getFilledCanIds());
+                        if (plan.getWateringBudget() != null) { bank.addAll(plan.getWateringBudget().getBankItems()); }
+                    }
                     if (plan.getCareResources() != null) { addRunes(inventory, plan.getCareResources().getRunes(), travel); }
                 }
                 break;
@@ -374,6 +379,7 @@ public final class GuidedRunTargets
                     session.getCrop().protectionPayment(1).ifPresent(payment -> inventory.addAll(payment.getAcceptedItemIds()));
                 }
                 break;
+            case WATER: inventory.addAll(com.farmingnavigator.routing.run.WateringCanBudget.getFilledCanIds()); break;
             case CURE:
                 if (session.getCure() == HerbRunCure.CURE_PLANT)
                 {
@@ -400,7 +406,8 @@ public final class GuidedRunTargets
         }
         boolean scene = session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.PREPARE
                 && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.WAIT
-                && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.SCARECROW;
+                && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.SCARECROW
+                && session.getStep() != com.farmingnavigator.guided.field.FieldRunStep.REPREPARE;
         return new GuidedRunTargets(inventory, bank, destination, name, null, false, null, false, null, false,
                 scene ? session.getStop().getPatch() : null, session.getStep() == com.farmingnavigator.guided.field.FieldRunStep.PROTECT);
     }

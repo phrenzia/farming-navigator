@@ -38,6 +38,7 @@ public final class FieldRunPlanPanel extends JPanel
         add(text(plan.getMode().toString(), MUTED));
         add(text("Compost: " + plan.getCompost(), MUTED));
         add(text("Disease treatment: " + plan.getCure(), MUTED));
+        add(text("Watering: " + plan.getWatering(), MUTED));
         add(text("Choose field crop, patches, mature flower mode, compost and protection in plugin settings.", MUTED));
         if (!plan.getBlocker().isEmpty()) { add(text(plan.getBlocker(), WARNING)); return; }
         JPanel details = new JPanel();
@@ -82,6 +83,12 @@ public final class FieldRunPlanPanel extends JPanel
                         + " - " + stop.getFallback().getState().getDisplayName(), MUTED));
             }
             details.add(text(stop.getAction(), MUTED));
+        }
+        if (plan.getWateringApplications() > 0 && plan.getWateringBudget() != null)
+        {
+            details.add(Box.createVerticalStrut(7)); details.add(text("Watering supplies", Color.WHITE));
+            details.add(text(plan.getWateringBudget().getCheck().getRequirement() + ": " + plan.getWateringBudget().getCheck().getDetail(),
+                    plan.getWateringBudget().getCheck().isReadyNow() ? MUTED : WARNING));
         }
         if (plan.getCareResources() != null)
         {

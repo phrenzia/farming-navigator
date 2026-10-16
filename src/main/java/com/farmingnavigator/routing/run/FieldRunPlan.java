@@ -15,6 +15,8 @@ public final class FieldRunPlan
     private final FieldRunCrop crop;
     private final FieldRunMode mode;
     private final FieldRunCompost compost;
+    private final FieldRunWatering watering;
+    private final WateringCanBudget wateringBudget;
     private final HerbRunCure cure;
     private final HerbRunCareResources careResources;
     private final List<SupplyCheck> plannedSupplies;
@@ -37,13 +39,18 @@ public final class FieldRunPlan
     FieldRunPlan(FieldRunCrop crop, FieldRunMode mode, List<FieldRunStop> stops, List<SupplyCheck> supplies,
             Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost, HerbRunCure cure)
     {
-        this(crop, mode, stops, supplies, excluded, warnings, blocker, compost, cure, null, null);
+        this(crop, mode, stops, supplies, excluded, warnings, blocker, compost, cure, FieldRunWatering.NONE);
+    }
+    FieldRunPlan(FieldRunCrop crop, FieldRunMode mode, List<FieldRunStop> stops, List<SupplyCheck> supplies,
+            Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost, HerbRunCure cure, FieldRunWatering watering)
+    {
+        this(crop, mode, stops, supplies, excluded, warnings, blocker, compost, cure, watering, null, null, null);
     }
     private FieldRunPlan(FieldRunCrop crop, FieldRunMode mode, List<FieldRunStop> stops, List<SupplyCheck> supplies,
-            Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost, HerbRunCure cure, RunTransportResources resources, HerbRunCareResources careResources)
+            Map<FieldPatchDefinition, String> excluded, List<String> warnings, String blocker, FieldRunCompost compost, HerbRunCure cure, FieldRunWatering watering, RunTransportResources resources, HerbRunCareResources careResources, WateringCanBudget wateringBudget)
     {
         this.crop = crop; this.mode = mode; this.compost = compost; this.stops = List.copyOf(stops); this.plannedSupplies = List.copyOf(supplies);
-        this.cure = cure; this.careResources = careResources;
+        this.cure = cure; this.careResources = careResources; this.watering = watering; this.wateringBudget = wateringBudget;
         this.supplies = List.copyOf(supplies.stream().filter(check -> cure != HerbRunCure.CURE_PLANT
                 || check.getRequirement().getItemId() != net.runelite.api.gameval.ItemID.PLANT_CURE).collect(java.util.stream.Collectors.toList()));
         EnumMap<FieldPatchDefinition, String> copy = new EnumMap<>(FieldPatchDefinition.class); copy.putAll(excluded);
@@ -52,6 +59,9 @@ public final class FieldRunPlan
     public FieldRunCrop getCrop() { return crop; }
     public FieldRunMode getMode() { return mode; }
     public FieldRunCompost getCompost() { return compost; }
+    public FieldRunWatering getWatering() { return watering; }
+    public int getWateringApplications() { return watering.appliesTo(crop.getCrop().getFamily()) ? (int) stops.stream().filter(FieldRunStop::isReplant).count() : 0; }
+    public WateringCanBudget getWateringBudget() { return wateringBudget; }
     public HerbRunCure getCure() { return cure; }
     public HerbRunCareResources getCareResources() { return careResources; }
     public List<FieldRunStop> getStops() { return stops; }
@@ -78,7 +88,8 @@ public final class FieldRunPlan
         HerbRunCareResources care = HerbRunCareResources.evaluateCounts(stops.stream().filter(FieldRunStop::isReplant).count(),
                 diseaseCount, cure, HerbRunCompost.valueOf(compost.name()),
                 context != null && context.getConfig() != null && context.getConfig().fieldAshTomeRead(), context);
-        return new FieldRunPlan(crop, mode, routed, plannedSupplies, excluded, warnings, blocker, compost, cure,
-                new RunTransportResourcePlanner().evaluate(routed, context, care.getRunes()), care);
+        return new FieldRunPlan(crop, mode, routed, plannedSupplies, excluded, warnings, blocker, compost, cure, watering,
+                new RunTransportResourcePlanner().evaluate(routed, context, care.getRunes()), care,
+                WateringCanBudget.evaluate(getWateringApplications(), context == null ? null : context.getStorageSnapshot()));
     }
 }

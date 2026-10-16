@@ -30,11 +30,16 @@ public final class FieldRunPlanner
     public FieldRunPlan plan(AccountState account, Set<FieldPatchDefinition> selected, FieldRunCrop crop, FieldRunMode mode,
             boolean protect, FieldRunCompost compost, HerbRunCure cure, Map<FieldPatchDefinition, FieldPatchObservation> observations, StorageSnapshot storage, Instant now)
     {
+        return plan(account, selected, crop, mode, protect, compost, cure, FieldRunWatering.NONE, observations, storage, now);
+    }
+    public FieldRunPlan plan(AccountState account, Set<FieldPatchDefinition> selected, FieldRunCrop crop, FieldRunMode mode,
+            boolean protect, FieldRunCompost compost, HerbRunCure cure, FieldRunWatering watering, Map<FieldPatchDefinition, FieldPatchObservation> observations, StorageSnapshot storage, Instant now)
+    {
         List<FieldRunStop> stops = new ArrayList<>(); List<SupplyRequirement> supplies = new ArrayList<>();
         Map<FieldPatchDefinition, String> excluded = new EnumMap<>(FieldPatchDefinition.class); List<String> warnings = new ArrayList<>();
         String blocker = account == null || !account.isLoggedIn() ? "Log in to plan a field run."
                 : account.getBoostedFarmingLevel() < crop.getRequiredLevel() ? crop + " requires " + crop.getRequiredLevel() + " Farming (boostable)." : "";
-        if (!blocker.isEmpty()) { return new FieldRunPlan(crop, mode, stops, List.of(), excluded, warnings, blocker, compost, cure); }
+        if (!blocker.isEmpty()) { return new FieldRunPlan(crop, mode, stops, List.of(), excluded, warnings, blocker, compost, cure, watering); }
         int replants = 0, payments = 0, disease = 0;
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
@@ -72,11 +77,19 @@ public final class FieldRunPlanner
         if (crop.getCrop().getFamily() == FieldFamily.SEAWEED && (compost.isSpell() && replants > 0 || cure == HerbRunCure.CURE_PLANT && disease > 0))
         {
             return new FieldRunPlan(crop, mode, List.of(), List.of(), excluded, warnings,
-                    "Underwater spell care is unverified. Choose bucket compost and plant cure for this seaweed plan.", compost, cure);
+                    "Underwater spell care is unverified. Choose bucket compost and plant cure for this seaweed plan.", compost, cure, watering);
         }
         if (!stops.isEmpty())
         {
             warnings.add("Order follows the patch catalogue. Travel is manual until a verified transport is selected.");
+            if (watering.appliesTo(crop.getCrop().getFamily()) && replants > 0)
+            {
+                warnings.add("Reserve one water application after each possible planting. Confirm watering manually; it only covers the current growth cycle. Refills, Gricoller charges and later-cycle watering visits are not assumed.");
+            }
+            else if (watering != FieldRunWatering.NONE && !watering.appliesTo(crop.getCrop().getFamily()))
+            {
+                warnings.add("Watering is not applicable to this crop family. No water supplies or watering step are reserved.");
+            }
             warnings.add("Inspect old observations. Yield, current compost state, watering, flower/scarecrow protection and leprechaun storage are not checked.");
             if (mode == FieldRunMode.KEEP_MATURE_FLOWERS && crop.getCrop().getFamily() == FieldFamily.FLOWER)
             {
@@ -120,7 +133,7 @@ public final class FieldRunPlanner
             }
             if (disease > 0) { supplies.add(new SupplyRequirement(ItemID.PLANT_CURE, "Plant cure", disease, false, "Cure diseased field crops; no replacement seed/payment is reserved for those stops.")); }
         }
-        return new FieldRunPlan(crop, mode, stops, new LoadoutService().evaluateInOrder(supplies, storage), excluded, warnings, "", compost, cure);
+        return new FieldRunPlan(crop, mode, stops, new LoadoutService().evaluateInOrder(supplies, storage), excluded, warnings, "", compost, cure, watering);
     }
     private String action(FieldPatchCondition condition, boolean keep)
     {

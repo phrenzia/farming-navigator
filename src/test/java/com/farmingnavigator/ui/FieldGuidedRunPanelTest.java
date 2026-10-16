@@ -99,6 +99,27 @@ public class FieldGuidedRunPanelTest
             try { ImageIO.write(image,"png",new File(directory,"guided-field-compost.png")); } catch(Exception ex) { throw new AssertionError(ex); }
         });
     }
+    @Test public void wateringConfirmationExplainsTheSingleCycleLimit() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            Instant now = Instant.parse("2026-10-15T12:00:00Z"); FieldPatchDefinition patch = FieldPatchDefinition.FALADOR_NORTH;
+            FieldRunPlan plan = new FieldRunPlanner().plan(new AccountState(true,99,99,EnumSet.noneOf(net.runelite.api.Quest.class),false), EnumSet.of(patch),
+                    FieldRunCrop.POTATO, FieldRunMode.HARVEST_ALL, true, FieldRunCompost.NONE, HerbRunCure.PLANT_CURE, FieldRunWatering.AFTER_PLANTING, Map.of(), null, now);
+            FieldRunSession session = new FieldRunSession(); session.start(plan,true,now); session.command(FieldRunCommand.CONFIRM,now.plusSeconds(1));
+            session.observe(patch.getLocation(),Map.of(patch,new FieldPatchObservation(new FieldPatchStateDecoder().decode(FieldFamily.ALLOTMENT,0),now.plusSeconds(2),FarmingGrowthRate.NORMAL)),now.plusSeconds(2));
+            session.observe(patch.getLocation(), Map.of(patch, new FieldPatchObservation(new FieldPatchStateDecoder().decode(FieldFamily.ALLOTMENT, 6),
+                    now.plusSeconds(3), FarmingGrowthRate.NORMAL)), now.plusSeconds(3));
+            AtomicReference<FieldRunCommand> command = new AtomicReference<>();
+            FieldGuidedRunPanel panel = new FieldGuidedRunPanel(session.snapshot(now.plusSeconds(4)),false,command::set);
+            assertTrue(labels(panel).contains("only covers this growth cycle"));
+            JButton button = (JButton) Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton && ((JButton)c).getText().equals("Watered (manual)")).findFirst().get();
+            button.doClick(); assertEquals(FieldRunCommand.CONFIRM_WATERING,command.get()); assertEquals(FieldRunStep.WATER,session.snapshot(now).getStep());
+            panel.setSize(225,800); layout(panel); BufferedImage image = new BufferedImage(225,800,BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics=image.createGraphics(); panel.printAll(graphics); graphics.dispose();
+            File directory=new File("build/verification"); directory.mkdirs();
+            try { ImageIO.write(image,"png",new File(directory,"guided-field-watering.png")); } catch(Exception ex) { throw new AssertionError(ex); }
+        });
+    }
     @Test public void fertileSoilConfirmationExplainsTomeAndAsh() throws Exception
     {
         SwingUtilities.invokeAndWait(() -> {

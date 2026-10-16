@@ -17,7 +17,7 @@ public final class FieldRunSession
     private FieldRunStep step = FieldRunStep.INACTIVE;
     private Instant enteredAt = Instant.EPOCH, startedAt, finishedAt;
     private FieldCrop curingCrop = FieldCrop.UNKNOWN;
-    private boolean protect, compostConfirmed;
+    private boolean protect, compostConfirmed, plantedConfirmed, wateringConfirmed;
     private int index, completed, manual, skipped, protectionConfirmed;
     public boolean start(FieldRunPlan plan, boolean protect, Instant now)
     {
@@ -29,9 +29,15 @@ public final class FieldRunSession
     {
         if (command == FieldRunCommand.CANCEL) { cancel(); return true; }
         if (!active()) { return false; }
+        if (command == FieldRunCommand.CONFIRM_WATERING)
+        {
+            if (step != FieldRunStep.WATER) { return false; }
+            command = FieldRunCommand.CONFIRM;
+        }
         if (command == FieldRunCommand.CONFIRM)
         {
             if (step == FieldRunStep.PREPARE) { enter(FieldRunStep.TRAVEL, now); return true; }
+            if (step == FieldRunStep.WATER) { wateringConfirmed = true; completePlanting(now); return true; }
             if (step == FieldRunStep.COMPOST) { compostConfirmed = true; enter(FieldRunStep.PLANT, now); return true; }
             if (step == FieldRunStep.PROTECT) { protectionConfirmed++; finish(false, false, now); return true; }
             if (step == FieldRunStep.KEEP_FLOWER) { finish(true, false, now); return true; }
@@ -42,7 +48,7 @@ public final class FieldRunSession
     }
     public boolean observe(WorldPoint player, Map<FieldPatchDefinition, FieldPatchObservation> observations, Instant now)
     {
-        if (!active() || step == FieldRunStep.PREPARE || step == FieldRunStep.PROTECT) { return false; }
+        if (!active() || step == FieldRunStep.PREPARE || step == FieldRunStep.PROTECT || step == FieldRunStep.REPREPARE) { return false; }
         FieldRunStop stop = plan.getStops().get(index);
         if (!stop.getPatch().isNear(player)) { return false; }
         FieldPatchObservation observation = observations.get(stop.getPatch());
@@ -74,13 +80,22 @@ public final class FieldRunSession
             case PLANT:
                 if (condition == FieldPatchCondition.GROWING && state.getCrop() == plan.getCrop().getCrop())
                 {
-                    if (protect && stop.getPatch() != FieldPatchDefinition.HARMONY_ISLAND_ALLOTMENT) { enter(FieldRunStep.PROTECT, now); }
-                    else { finish(false, false, now); }
+                    plantedConfirmed = true;
+                    if (plan.getWatering().appliesTo(stop.getPatch().getFamily()) && !wateringConfirmed) { enter(FieldRunStep.WATER, now); }
+                    else { completePlanting(now); }
                 }
+                break;
+            case WATER:
+                if (condition != FieldPatchCondition.GROWING || state.getCrop() != plan.getCrop().getCrop()) { inspect(state, now); }
                 break;
             case CURE:
                 if ((condition == FieldPatchCondition.GROWING || condition == FieldPatchCondition.HARVESTABLE)
-                        && state.getCrop() == curingCrop && curingCrop != FieldCrop.UNKNOWN) { finish(false, false, now); }
+                        && state.getCrop() == curingCrop && curingCrop != FieldCrop.UNKNOWN)
+                {
+                    if (plantedConfirmed && plan.getWatering().appliesTo(stop.getPatch().getFamily()) && !wateringConfirmed) { enter(FieldRunStep.WATER, now); }
+                    else if (plantedConfirmed) { completePlanting(now); }
+                    else { finish(false, false, now); }
+                }
                 break;
             default: break;
         }
@@ -92,6 +107,7 @@ public final class FieldRunSession
         switch (step)
         {
             case COMPOST: return condition == FieldPatchCondition.EMPTY || condition == FieldPatchCondition.GROWING;
+            case WATER: return condition == FieldPatchCondition.GROWING;
             case PLANT: return condition == FieldPatchCondition.EMPTY;
             case HARVEST:
             case KEEP_FLOWER: return condition == FieldPatchCondition.HARVESTABLE;
@@ -113,13 +129,26 @@ public final class FieldRunSession
             case DEAD: enter(FieldRunStep.CLEAR, now); break;
             case DISEASED: curingCrop = state.getCrop(); enter(FieldRunStep.CURE, now); break;
             case SCARECROW: if (step != FieldRunStep.SCARECROW) { enter(FieldRunStep.SCARECROW, now); } break;
-            case GROWING: if (step != FieldRunStep.WAIT) { enter(FieldRunStep.WAIT, now); } break;
+            case GROWING:
+                if (plantedConfirmed && state.getCrop() == plan.getCrop().getCrop())
+                {
+                    if (plan.getWatering().appliesTo(plan.getCrop().getCrop().getFamily()) && !wateringConfirmed) { enter(FieldRunStep.WATER, now); }
+                    else { completePlanting(now); }
+                }
+                else if (step != FieldRunStep.WAIT) { enter(FieldRunStep.WAIT, now); }
+                break;
             default: break;
         }
     }
     private void preparePlanting(Instant now)
     {
+        if (plantedConfirmed) { enter(FieldRunStep.REPREPARE, now); return; }
         enter(plan.getCompost() == FieldRunCompost.NONE || compostConfirmed ? FieldRunStep.PLANT : FieldRunStep.COMPOST, now);
+    }
+    private void completePlanting(Instant now)
+    {
+        if (protect && plan.getStops().get(index).getPatch() != FieldPatchDefinition.HARMONY_ISLAND_ALLOTMENT) { enter(FieldRunStep.PROTECT, now); }
+        else { finish(false, false, now); }
     }
     public void refreshTransports(Map<FieldPatchDefinition, List<VerifiedTransportResult>> routes, HerbTransportPreference preference, RequirementContext context)
     {
@@ -128,7 +157,7 @@ public final class FieldRunSession
     private void finish(boolean manually, boolean skip, Instant now)
     {
         if (skip) { skipped++; } else { completed++; if (manually) { manual++; } }
-        curingCrop = FieldCrop.UNKNOWN; compostConfirmed = false; index++;
+        curingCrop = FieldCrop.UNKNOWN; compostConfirmed = plantedConfirmed = wateringConfirmed = false; index++;
         if (index >= plan.getStops().size()) { finishedAt = now; enter(FieldRunStep.COMPLETE, now); } else { enter(FieldRunStep.TRAVEL, now); }
     }
     private void enter(FieldRunStep next, Instant now) { step = next; enteredAt = now; }
@@ -138,11 +167,11 @@ public final class FieldRunSession
         Instant end = finishedAt == null ? now : finishedAt;
         Duration elapsed = startedAt == null || end.isBefore(startedAt) ? Duration.ZERO : Duration.between(startedAt, end);
         return new FieldRunSnapshot(step, plan == null ? null : plan.getCrop(), plan == null ? null : plan.getMode(),
-                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? FieldRunCompost.NONE : plan.getCompost(), plan == null ? HerbRunCure.PLANT_CURE : plan.getCure());
+                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? FieldRunCompost.NONE : plan.getCompost(), plan == null ? HerbRunCure.PLANT_CURE : plan.getCure(), plan == null ? FieldRunWatering.NONE : plan.getWatering());
     }
     public void cancel()
     {
         plan = null; step = FieldRunStep.INACTIVE; enteredAt = Instant.EPOCH; startedAt = null; finishedAt = null;
-        curingCrop = FieldCrop.UNKNOWN; compostConfirmed = false; index = completed = manual = skipped = protectionConfirmed = 0;
+        curingCrop = FieldCrop.UNKNOWN; compostConfirmed = plantedConfirmed = wateringConfirmed = false; index = completed = manual = skipped = protectionConfirmed = 0;
     }
 }
