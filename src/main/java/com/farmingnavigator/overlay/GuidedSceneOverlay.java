@@ -26,10 +26,11 @@ public final class GuidedSceneOverlay extends Overlay
     private final HerbSceneTracker scene;
     private final TreeSceneTracker treeScene;
     private final GardenSceneTracker gardenScene;
+    private final FieldSceneTracker fieldScene;
 
     @Inject
     public GuidedSceneOverlay(Client client, FarmingNavigatorConfig config,
-            GuidedRunOverlayController controller, HerbSceneTracker scene, TreeSceneTracker treeScene, GardenSceneTracker gardenScene)
+            GuidedRunOverlayController controller, HerbSceneTracker scene, TreeSceneTracker treeScene, GardenSceneTracker gardenScene, FieldSceneTracker fieldScene)
     {
         this.client = client;
         this.config = config;
@@ -37,6 +38,7 @@ public final class GuidedSceneOverlay extends Overlay
         this.scene = scene;
         this.treeScene = treeScene;
         this.gardenScene = gardenScene;
+        this.fieldScene = fieldScene;
         setPosition(OverlayPosition.DYNAMIC);
         setLayer(OverlayLayer.ABOVE_SCENE);
     }
@@ -47,8 +49,26 @@ public final class GuidedSceneOverlay extends Overlay
         GuidedRunTargets targets = controller.getTargets();
         WorldView view = client.getTopLevelWorldView();
         if (!config.guidedRunOverlays() || view == null || view.isInstance()
-                || targets.getScenePatch() == null && targets.getTreeScenePatch() == null && targets.getGardenScenePatch() == null)
+                || targets.getScenePatch() == null && targets.getTreeScenePatch() == null && targets.getGardenScenePatch() == null && targets.getFieldScenePatch() == null)
         {
+            return null;
+        }
+        if (targets.getFieldScenePatch() != null)
+        {
+            if (targets.isFieldFarmer())
+            {
+                for (NPC npc : fieldScene.getFarmers())
+                {
+                    if (FieldSceneTargetPolicy.isFarmerFor(targets.getFieldScenePatch(), npc.getId(), npc.getWorldLocation())) { draw(graphics, npc.getCanvasTilePoly()); }
+                }
+            }
+            else
+            {
+                for (java.util.Map.Entry<GameObject, com.farmingnavigator.farming.field.FieldPatchDefinition> entry : fieldScene.getPlants().entrySet())
+                {
+                    if (entry.getValue() == targets.getFieldScenePatch()) { draw(graphics, entry.getKey().getCanvasTilePoly()); }
+                }
+            }
             return null;
         }
         if (targets.getGardenScenePatch() != null)

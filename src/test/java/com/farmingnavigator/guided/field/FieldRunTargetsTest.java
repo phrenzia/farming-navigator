@@ -125,6 +125,18 @@ public class FieldRunTargetsTest
         GuidedRunTargets targets = GuidedRunTargets.fromField(snapshot, plan, null);
         assertNotNull(targets.getDestination()); assertTrue(targets.getInventoryItems().isEmpty()); assertTrue(targets.getBankItems().isEmpty());
     }
+    @Test public void sceneTargetsAreExclusiveAndSuppressWaitingAndScarecrowActions()
+    {
+        GuidedRunTargets protect = targets(FieldRunStep.PROTECT, FieldRunCrop.TOMATO);
+        assertEquals(FieldPatchDefinition.FALADOR_NORTH, protect.getFieldScenePatch()); assertTrue(protect.isFieldFarmer());
+        assertNull(protect.getGardenScenePatch()); assertNull(protect.getTreeScenePatch()); assertNull(protect.getScenePatch());
+        GuidedRunTargets harvest = targets(FieldRunStep.HARVEST, FieldRunCrop.TOMATO);
+        assertEquals(FieldPatchDefinition.FALADOR_NORTH, harvest.getFieldScenePatch()); assertFalse(harvest.isFieldFarmer());
+        for (FieldRunStep step : List.of(FieldRunStep.PREPARE, FieldRunStep.WAIT, FieldRunStep.SCARECROW))
+        {
+            assertNull(targets(step, FieldRunCrop.MARIGOLD).getFieldScenePatch());
+        }
+    }
     private static final class RecordingManager extends WorldMapPointManager
     {
         private final List<WorldMapPoint> points = new ArrayList<>();
