@@ -744,7 +744,8 @@ public class FarmingNavigatorPanel
                     guidedRun != null && guidedRun.isActive() || treeGuidedRun != null && treeGuidedRun.isActive()
                             || gardenGuidedRun != null && gardenGuidedRun.isActive()
                             || fieldGuidedRun != null && fieldGuidedRun.isActive(), contractPreparation, config.gardenRunCrop(),
-                    com.farmingnavigator.contracts.ContractRunPreparation.isGuildSelected(config.gardenRunCrop(), config.gardenRunPatches())));
+                    com.farmingnavigator.contracts.ContractRunPreparation.isGuildSelected(config.gardenRunCrop(), config.gardenRunPatches()), config.fieldRunCrop(),
+                    com.farmingnavigator.contracts.ContractRunPreparation.isGuildSelected(config.fieldRunCrop(), config.fieldRunPatches())));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
         if (runMetrics != null)

@@ -69,6 +69,10 @@ public enum ContractCrop
     public String getLabel() { return label; }
     public Family getFamily() { return family; }
     public HerbRunCrop getHerbRunCrop() { return family == Family.HERB ? HerbRunCrop.valueOf(name()) : null; }
+    public com.farmingnavigator.routing.run.FieldRunCrop getFieldRunCrop()
+    {
+        return family == Family.ALLOTMENT || family == Family.FLOWER ? com.farmingnavigator.routing.run.FieldRunCrop.valueOf(name()) : null;
+    }
     public GardenRunCrop getGardenRunCrop() { return family == Family.BUSH || family == Family.CACTUS ? GardenRunCrop.valueOf(name()) : null; }
     public TreeRunCrop getTreeRunCrop()
     {

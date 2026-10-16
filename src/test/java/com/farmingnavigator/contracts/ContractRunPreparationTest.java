@@ -30,7 +30,7 @@ public class ContractRunPreparationTest
         });
         assertFalse(ContractRunPreparation.isGuildSelected(TreeRunCrop.REDWOOD, EnumSet.of(TreePatchDefinition.FARMING_GUILD_FRUIT)));
     }
-    @Test public void staleCompleteLoggedOutUnknownAndUnsupportedRequestsNeverProduceSettings()
+    @Test public void staleCompleteLoggedOutUnknownAndMismatchedRequestsNeverProduceSettings()
     {
         for (FarmingContractSnapshot snapshot : new FarmingContractSnapshot[]{null, FarmingContractSnapshot.decode(false, 24, 0),
                 FarmingContractSnapshot.decode(true, 0, 0), FarmingContractSnapshot.decode(true, 24, 1),
@@ -38,7 +38,6 @@ public class ContractRunPreparationTest
         {
             assertTrue(ContractRunPreparation.settings(snapshot, ContractCrop.RANARR, false).isEmpty());
         }
-        assertTrue(ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, 40, 0), ContractCrop.POTATO, false).isEmpty());
         assertTrue(ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, 24, 0), null, false).isEmpty());
     }
     @Test public void activeChecklistCannotBeReconfiguredEvenWithMatchingAssignment()
@@ -60,4 +59,34 @@ public class ContractRunPreparationTest
             assertTrue(ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, crop.getId(), 0), crop, true).isEmpty());
         }
     }
+    @Test public void allFieldContractsSelectOneMatchingPlotAndExplicitHarvestMode()
+    {
+        int count = 0;
+        for (ContractCrop crop : ContractCrop.values())
+        {
+            if (crop.getFieldRunCrop() == null) { continue; }
+            com.farmingnavigator.farming.field.FieldPatchDefinition patch = crop.getFamily() == ContractCrop.Family.ALLOTMENT
+                    ? com.farmingnavigator.farming.field.FieldPatchDefinition.FARMING_GUILD_NORTH
+                    : com.farmingnavigator.farming.field.FieldPatchDefinition.FARMING_GUILD_FLOWER;
+            Map<String, Object> settings = ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, crop.getId(), 0), crop, false);
+            assertEquals(Map.of("fieldRunCrop", crop.getFieldRunCrop(), "fieldRunPatches", EnumSet.of(patch),
+                    "fieldRunMode", com.farmingnavigator.routing.run.FieldRunMode.HARVEST_ALL), settings);
+            assertTrue(ContractRunPreparation.isGuildSelected(crop.getFieldRunCrop(), EnumSet.of(patch)));
+            assertTrue(ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, crop.getId(), 0), crop, true).isEmpty()); count++;
+        }
+        assertEquals(14, count);
+        assertTrue(ContractRunPreparation.isGuildSelected(com.farmingnavigator.routing.run.FieldRunCrop.POTATO,
+                EnumSet.of(com.farmingnavigator.farming.field.FieldPatchDefinition.FARMING_GUILD_SOUTH)));
+        assertFalse(ContractRunPreparation.isGuildSelected(com.farmingnavigator.routing.run.FieldRunCrop.POTATO,
+                EnumSet.of(com.farmingnavigator.farming.field.FieldPatchDefinition.FARMING_GUILD_FLOWER)));
+    }
+    @Test public void allFiftyOneRecognizedAssignmentsHaveSupportedPreparation()
+    {
+        for (ContractCrop crop : ContractCrop.values())
+        {
+            assertFalse(crop.name(), ContractRunPreparation.settings(FarmingContractSnapshot.decode(true, crop.getId(), 0), crop, false).isEmpty());
+        }
+        assertEquals(51, ContractCrop.values().length);
+    }
+
 }

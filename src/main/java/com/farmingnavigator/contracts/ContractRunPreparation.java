@@ -46,6 +46,18 @@ public final class ContractRunPreparation
                 }
             }
         }
+        com.farmingnavigator.routing.run.FieldRunCrop field = requested.getFieldRunCrop();
+        if (field != null)
+        {
+            for (com.farmingnavigator.farming.field.FieldPatchDefinition patch : com.farmingnavigator.farming.field.FieldPatchRegion.FARMING_GUILD.getPatches())
+            {
+                if (patch.getFamily() == field.getCrop().getFamily())
+                {
+                    return Map.of("fieldRunCrop", field, "fieldRunPatches", EnumSet.of(patch),
+                            "fieldRunMode", com.farmingnavigator.routing.run.FieldRunMode.HARVEST_ALL);
+                }
+            }
+        }
         return Map.of();
     }
     public static boolean isGuildSelected(TreeRunCrop crop, Set<TreePatchDefinition> selected)
@@ -58,4 +70,11 @@ public final class ContractRunPreparation
         return GardenPatchRegion.FARMING_GUILD.getPatches().stream().anyMatch(patch -> selected.contains(patch)
                 && patch.getFamily() == crop.getCrop().getFamily());
     }
+    public static boolean isGuildSelected(com.farmingnavigator.routing.run.FieldRunCrop crop,
+            Set<com.farmingnavigator.farming.field.FieldPatchDefinition> selected)
+    {
+        return com.farmingnavigator.farming.field.FieldPatchRegion.FARMING_GUILD.getPatches().stream().anyMatch(patch -> selected.contains(patch)
+                && patch.getFamily() == crop.getCrop().getFamily());
+    }
+
 }

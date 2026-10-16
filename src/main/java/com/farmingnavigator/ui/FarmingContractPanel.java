@@ -30,6 +30,13 @@ public final class FarmingContractPanel extends JPanel
             boolean herbGuildSelected, boolean treeGuildSelected, boolean runActive, Consumer<ContractCrop> prepare,
             com.farmingnavigator.routing.run.GardenRunCrop garden, boolean gardenGuildSelected)
     {
+        this(contract, herb, tree, herbGuildSelected, treeGuildSelected, runActive, prepare, garden, gardenGuildSelected, null, false);
+    }
+    public FarmingContractPanel(FarmingContractSnapshot contract, HerbRunCrop herb, TreeRunCrop tree,
+            boolean herbGuildSelected, boolean treeGuildSelected, boolean runActive, Consumer<ContractCrop> prepare,
+            com.farmingnavigator.routing.run.GardenRunCrop garden, boolean gardenGuildSelected,
+            com.farmingnavigator.routing.run.FieldRunCrop field, boolean fieldGuildSelected)
+    {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); setBackground(ColorScheme.DARKER_GRAY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(9, 8, 12, 8)); setAlignmentX(Component.LEFT_ALIGNMENT);
         setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
@@ -45,11 +52,13 @@ public final class FarmingContractPanel extends JPanel
                         && crop.getTreeRunCrop().getCrop().getFamily() == tree.getCrop().getFamily() && crop.getTreeRunCrop() != tree;
                 boolean gardenConflict = gardenGuildSelected && garden != null && crop.getGardenRunCrop() != null
                         && crop.getGardenRunCrop().getCrop().getFamily() == garden.getCrop().getFamily() && crop.getGardenRunCrop() != garden;
-                if (herbConflict || treeConflict || gardenConflict)
+                boolean fieldConflict = fieldGuildSelected && field != null && crop.getFieldRunCrop() != null
+                        && crop.getFieldRunCrop().getCrop().getFamily() == field.getCrop().getFamily() && crop.getFieldRunCrop() != field;
+                if (herbConflict || treeConflict || gardenConflict || fieldConflict)
                 {
                     add(text("Your selected guild run crop differs from this contract. Check before clearing or replanting the guild patch.", new Color(255, 190, 80)));
                 }
-                if (crop.getHerbRunCrop() == null && crop.getTreeRunCrop() == null && crop.getGardenRunCrop() == null)
+                if (crop.getHerbRunCrop() == null && crop.getTreeRunCrop() == null && crop.getGardenRunCrop() == null && crop.getFieldRunCrop() == null)
                 {
                     add(text("Dedicated run planning for this contract family is not available yet.", ColorScheme.LIGHT_GRAY_COLOR));
                 }
@@ -59,6 +68,14 @@ public final class FarmingContractPanel extends JPanel
                     if (crop.getGardenRunCrop() != null)
                     {
                         add(text("Bush/cactus contract preparation selects replacement mode. Check health first when available; clearing a mature plant remains your choice.", ColorScheme.LIGHT_GRAY_COLOR));
+                    }
+                    if (crop.getFieldRunCrop() != null)
+                    {
+                        add(text("Allotment preparation selects only the north Guild plot; flower preparation selects the Guild flower plot. Review before harvesting.", ColorScheme.LIGHT_GRAY_COLOR));
+                        if (crop.getFamily() == ContractCrop.Family.FLOWER)
+                        {
+                            add(text("Flower contract setup enables harvesting and replanting mature flowers. Harvesting may remove nearby allotment protection.", ColorScheme.LIGHT_GRAY_COLOR));
+                        }
                     }
                     JButton button = new JButton("Prepare contract run");
                     button.setAlignmentX(Component.LEFT_ALIGNMENT); button.setEnabled(!runActive);

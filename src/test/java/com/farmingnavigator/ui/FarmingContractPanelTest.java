@@ -46,14 +46,14 @@ public class FarmingContractPanelTest
                     HerbRunCrop.RANARR, TreeRunCrop.OAK, true, false)).contains("differs from this contract"));
         });
     }
-    @Test public void completedUnknownAndUnsupportedFamilyStayExplicit() throws Exception
+    @Test public void completedUnknownAndNewlySupportedFamilyStayExplicit() throws Exception
     {
         SwingUtilities.invokeAndWait(() -> {
             assertTrue(labels(new FarmingContractPanel(FarmingContractSnapshot.decode(true, 11, 1),
                     HerbRunCrop.RANARR, TreeRunCrop.OAK, true, true)).contains("Seed-pack ownership is not checked"));
             assertTrue(labels(new FarmingContractPanel(FarmingContractSnapshot.decode(true, 1000, 0),
                     HerbRunCrop.RANARR, TreeRunCrop.OAK, true, true)).contains("assignment not recognized"));
-            assertTrue(labels(new FarmingContractPanel(FarmingContractSnapshot.decode(true, 40, 0),
+            assertFalse(labels(new FarmingContractPanel(FarmingContractSnapshot.decode(true, 40, 0),
                     HerbRunCrop.RANARR, TreeRunCrop.OAK, true, true)).contains("Dedicated run planning"));
         });
     }
@@ -71,7 +71,7 @@ public class FarmingContractPanelTest
                     HerbRunCrop.RANARR, TreeRunCrop.REDWOOD, false, true, true, crop -> fail("Busy callback"));
             JButton disabled = (JButton) Arrays.stream(busy.getComponents()).filter(c -> c instanceof JButton).findFirst().get();
             assertFalse(disabled.isEnabled()); disabled.doClick();
-            FarmingContractPanel unsupported = new FarmingContractPanel(FarmingContractSnapshot.decode(true, 40, 0),
+            FarmingContractPanel unsupported = new FarmingContractPanel(FarmingContractSnapshot.decode(true, 1000, 0),
                     HerbRunCrop.RANARR, TreeRunCrop.OAK, false, true, false, crop -> fail("Unsupported callback"));
             assertTrue(Arrays.stream(unsupported.getComponents()).noneMatch(c -> c instanceof JButton));
         });
@@ -97,4 +97,25 @@ public class FarmingContractPanelTest
             assertFalse(labels(otherFamily).contains("differs from this contract"));
         });
     }
+    @Test public void fieldConflictAndFlowerHarvestModeAreExplicitBeforePreparation() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            AtomicReference<ContractCrop> requested = new AtomicReference<>();
+            FarmingContractPanel flower = new FarmingContractPanel(FarmingContractSnapshot.decode(true, 39, 0), HerbRunCrop.RANARR,
+                    TreeRunCrop.OAK, false, false, false, requested::set, null, false, com.farmingnavigator.routing.run.FieldRunCrop.LIMPWURT, true);
+            assertTrue(labels(flower).contains("differs from this contract"));
+            assertTrue(labels(flower).contains("enables harvesting and replanting mature flowers"));
+            assertTrue(labels(flower).contains("may remove nearby allotment protection"));
+            JButton button = (JButton) Arrays.stream(flower.getComponents()).filter(c -> c instanceof JButton).findFirst().get();
+            button.doClick(); assertEquals(ContractCrop.WHITE_LILY, requested.get());
+            FarmingContractPanel otherFamily = new FarmingContractPanel(FarmingContractSnapshot.decode(true, 39, 0), HerbRunCrop.RANARR,
+                    TreeRunCrop.OAK, false, false, false, requested::set, null, false, com.farmingnavigator.routing.run.FieldRunCrop.POTATO, true);
+            assertFalse(labels(otherFamily).contains("differs from this contract"));
+            FarmingContractPanel allotment = new FarmingContractPanel(FarmingContractSnapshot.decode(true, 47, 0), HerbRunCrop.RANARR,
+                    TreeRunCrop.OAK, false, false, false, requested::set, null, false, com.farmingnavigator.routing.run.FieldRunCrop.POTATO, true);
+            assertTrue(labels(allotment).contains("north Guild plot"));
+            assertTrue(labels(allotment).contains("differs from this contract"));
+        });
+    }
+
 }
