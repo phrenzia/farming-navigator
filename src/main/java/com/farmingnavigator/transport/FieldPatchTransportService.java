@@ -40,8 +40,17 @@ public final class FieldPatchTransportService
                     arrivals = List.of(spell(TeleportSpellDefinition.LUMBRIDGE_TELEPORT,
                             "Teleport to Lumbridge Castle, then run north to the hops plot north of the farm.")); break;
                 case SEAWEED:
+                    arrivals = List.of(new TransportOption(1, "Digsite pendant, barge and northern rowboat",
+                            "Choose the base Digsite pendant destination, quick-travel with the barge guard to Fossil Island, then walk to the northern rowboat. Row to the small island and choose Dive. After visiting once, check the Museum Camp rowboat for the unlocked shortcut yourself. Check diving equipment, air supply and underwater item restrictions manually.",
+                            TransportCategory.ITEM, TransportVerificationKind.DIGSITE_BARGE)); break;
                 case MORYTANIA_MUSHROOM:
+                    arrivals = List.of(new TransportOption(1, "Fairy ring CKS to mushroom patch",
+                            "Travel to an accessible fairy ring, use CKS, then approach the mushroom patch beside the ring.",
+                            TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_ACCESS),
+                            spell(TeleportSpellDefinition.KHARYRLL_TELEPORT, "Teleport to Canifis, then travel west to the mushroom patch beside fairy ring CKS.")); break;
                 case DRAYNOR_MANOR:
+                    arrivals = List.of(spell(TeleportSpellDefinition.DRAYNOR_MANOR_TELEPORT,
+                            "Teleport to Draynor Manor, then approach the belladonna patch in the manor grounds. Equip suitable gloves before harvesting.")); break;
                 case AUBURNVALE:
                 case ENTRANA:
                 case ALDARIN: arrivals = List.of(); break;
