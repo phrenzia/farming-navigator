@@ -10,6 +10,8 @@ public final class TreePatchAccess
     public String missingRequirement(TreePatchDefinition patch, AccountState account)
     {
         if (account == null || !account.isLoggedIn()) { return "Log in to check patch access."; }
+        if (patch.getFamily()==com.farmingnavigator.farming.tree.TreeFamily.SPIRIT_TREE)
+        { return "Data required: spirit-tree entry, planting limits and protection have not been verified; observations remain available."; }
         switch (patch)
         {
             case FARMING_GUILD_TREE:

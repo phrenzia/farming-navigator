@@ -16,7 +16,9 @@ public final class TreeObservationText
         TreePatchState state = observation.getState();
         String crop = state.getCrop() == TreeCrop.UNKNOWN ? "" : state.getCrop().getLabel() + " - ";
         String time = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(zone).format(observation.getObservedAt());
-        return "Last observed " + time + ": " + crop + state.getCondition().getLabel() + ".";
+        String condition=state.getCrop()==TreeCrop.SPIRIT_TREE && state.getCondition()==TreePatchCondition.HEALTH_CHECKED
+                ? "Mature travel-enabled stage; current teleport access is unverified" : state.getCondition().getLabel();
+        return "Last observed " + time + ": " + crop + condition + ".";
     }
 
     public static String timer(TreePatchObservation observation, Instant now)

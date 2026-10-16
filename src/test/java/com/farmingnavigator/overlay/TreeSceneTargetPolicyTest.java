@@ -16,6 +16,11 @@ public class TreeSceneTargetPolicyTest
         for (TreePatchDefinition patch : TreePatchDefinition.values())
         {
             int id;
+            if(patch.getFamily()==TreeFamily.SPIRIT_TREE)
+            {
+                assertNull(TreeSceneTargetPolicy.treePatch(ObjectID.FARMING_TREE_PATCH_1,patch.getVarbit(),"Spirit Tree",TreePatchDestination.valueOf(patch.name()).getLocation()));
+                continue; // Observation-only spirit trees have no guided scene target.
+            }
             switch (patch.getFamily())
             {
                 case TREE: id = ObjectID.FARMING_TREE_PATCH_1; break;

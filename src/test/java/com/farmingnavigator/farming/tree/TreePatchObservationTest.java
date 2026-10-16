@@ -28,7 +28,7 @@ public class TreePatchObservationTest
                 assertTrue(channels.add(patch.getVarbit()));
             }
         }
-        assertEquals(25, found.size());
+        assertEquals(30, found.size());
         assertEquals(EnumSet.allOf(TreePatchDefinition.class), found);
     }
 
@@ -96,7 +96,7 @@ public class TreePatchObservationTest
         assertEquals(TreeCrop.ROSEWOOD, store.snapshot().get(TreePatchDefinition.FOSSIL_ISLAND_WEST).getState().getCrop());
     }
 
-    @Test public void guildSeparatesFourTreeChannelsFromNearbyHerbE()
+    @Test public void guildSeparatesFiveTreeChannelsFromNearbyHerbE()
     {
         for (int tick = 1; tick <= 3; tick++)
         {
@@ -107,13 +107,15 @@ public class TreePatchObservationTest
                     case VarbitID.FARMING_TRANSMIT_K: return 226;
                     case VarbitID.FARMING_TRANSMIT_L: return 14;
                     case VarbitID.FARMING_TRANSMIT_I: return 37;
+                    case VarbitID.FARMING_TRANSMIT_A: return 44;
                     default: throw new AssertionError("Unexpected Guild channel: " + id);
                 }
             }, now.plusSeconds(tick), FarmingGrowthRate.NORMAL);
         }
         assertEquals(TreeCrop.OAK, store.snapshot().get(TreePatchDefinition.FARMING_GUILD_TREE).getState().getCrop());
         assertEquals(TreeCrop.PALM, store.snapshot().get(TreePatchDefinition.FARMING_GUILD_FRUIT).getState().getCrop());
-        assertEquals(4, store.snapshot().size());
+        assertEquals(5, store.snapshot().size());
+        assertEquals(TreeCrop.SPIRIT_TREE,store.snapshot().get(TreePatchDefinition.FARMING_GUILD_SPIRIT).getState().getCrop());
         assertEquals(TreePatchCondition.HARVESTABLE, store.snapshot().get(TreePatchDefinition.FARMING_GUILD_CELASTRUS).getState().getCondition());
         assertEquals(TreePatchCondition.CHECK_HEALTH, store.snapshot().get(TreePatchDefinition.FARMING_GUILD_REDWOOD).getState().getCondition());
     }

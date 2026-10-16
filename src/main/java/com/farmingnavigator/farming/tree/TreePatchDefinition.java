@@ -54,7 +54,12 @@ public enum TreePatchDefinition
     GREAT_CONCH_CALQUAT("Great Conch", TreeFamily.CALQUAT, VarbitID.FARMING_TRANSMIT_C),
     FARMING_GUILD_CELASTRUS("Farming Guild", TreeFamily.CELASTRUS, VarbitID.FARMING_TRANSMIT_L),
     FARMING_GUILD_REDWOOD("Farming Guild", TreeFamily.REDWOOD, VarbitID.FARMING_TRANSMIT_I),
-    PRIFDDINAS_CRYSTAL("Prifddinas", TreeFamily.CRYSTAL_TREE, VarbitID.FARMING_TRANSMIT_E);
+    PRIFDDINAS_CRYSTAL("Prifddinas", TreeFamily.CRYSTAL_TREE, VarbitID.FARMING_TRANSMIT_E),
+    PORT_SARIM_SPIRIT("Port Sarim", TreeFamily.SPIRIT_TREE, VarbitID.FARMING_TRANSMIT_A),
+    HOSIDIUS_SPIRIT("Hosidius", TreeFamily.SPIRIT_TREE, VarbitID.FARMING_TRANSMIT_F),
+    ETCETERIA_SPIRIT("Etceteria", TreeFamily.SPIRIT_TREE, VarbitID.FARMING_TRANSMIT_B),
+    BRIMHAVEN_SPIRIT("Brimhaven", TreeFamily.SPIRIT_TREE, VarbitID.FARMING_TRANSMIT_B),
+    FARMING_GUILD_SPIRIT("Farming Guild", TreeFamily.SPIRIT_TREE, VarbitID.FARMING_TRANSMIT_A);
 
     private final String label;
     private final TreeFamily family;

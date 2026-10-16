@@ -39,9 +39,9 @@ public enum TreePatchRegion
     LUMBRIDGE(new int[]{12594, 12850}, TreePatchDefinition.LUMBRIDGE_TREE),
     GNOME_STRONGHOLD(new int[]{9781, 9782, 9526, 9525}, TreePatchDefinition.GNOME_STRONGHOLD_TREE, TreePatchDefinition.GNOME_STRONGHOLD_FRUIT),
     FARMING_GUILD(new int[]{4922, 5177, 5178, 5179, 4921, 4923, 4665, 4666, 4667}, TreePatchDefinition.FARMING_GUILD_TREE, TreePatchDefinition.FARMING_GUILD_FRUIT,
-            TreePatchDefinition.FARMING_GUILD_CELASTRUS, TreePatchDefinition.FARMING_GUILD_REDWOOD),
+            TreePatchDefinition.FARMING_GUILD_CELASTRUS, TreePatchDefinition.FARMING_GUILD_REDWOOD, TreePatchDefinition.FARMING_GUILD_SPIRIT),
     AUBURNVALE(new int[]{5427, 5428, 5684}, TreePatchDefinition.AUBURNVALE_TREE),
-    BRIMHAVEN(new int[]{11058, 11057}, TreePatchDefinition.BRIMHAVEN_FRUIT),
+    BRIMHAVEN(new int[]{11058, 11057}, TreePatchDefinition.BRIMHAVEN_FRUIT, TreePatchDefinition.BRIMHAVEN_SPIRIT),
     CATHERBY(new int[]{11317}, TreePatchDefinition.CATHERBY_FRUIT),
     TREE_GNOME_VILLAGE(new int[]{9777, 10033}, TreePatchDefinition.TREE_GNOME_VILLAGE_FRUIT),
     LLETYA(new int[]{9265, 11103}, TreePatchDefinition.LLETYA_FRUIT),
@@ -54,7 +54,10 @@ public enum TreePatchRegion
     GREAT_CONCH(new int[]{12581, 12325, 12326, 12327, 12580, 12582, 12583, 12836, 12837, 12838, 12839, 13092, 13093, 13194},
             TreePatchDefinition.GREAT_CONCH_CALQUAT),
     PRIFDDINAS(new int[]{13151, 12895, 12894, 13150, 12994, 12993, 12737, 12738, 12126, 12127, 13250},
-            TreePatchDefinition.PRIFDDINAS_CRYSTAL);
+            TreePatchDefinition.PRIFDDINAS_CRYSTAL),
+    PORT_SARIM(new int[]{12082,12083},TreePatchDefinition.PORT_SARIM_SPIRIT),
+    HOSIDIUS(new int[]{6967,6711},TreePatchDefinition.HOSIDIUS_SPIRIT),
+    ETCETERIA(new int[]{10300},TreePatchDefinition.ETCETERIA_SPIRIT);
 
     private final int[] regions;
     private final List<TreePatchDefinition> patches;
@@ -80,6 +83,7 @@ public enum TreePatchRegion
 
     private boolean inBounds(WorldPoint location)
     {
+        if (this == PORT_SARIM) { return location.getY() < 3272; }
         if (this == CATHERBY) { return location.getX() >= 2840 || location.getY() < 3440; }
         if (this == FOSSIL_ISLAND)
         {

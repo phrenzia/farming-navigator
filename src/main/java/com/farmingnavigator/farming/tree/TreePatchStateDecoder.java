@@ -56,6 +56,7 @@ public final class TreePatchStateDecoder
             case CELASTRUS: return celastrus(raw);
             case REDWOOD: return redwood(raw);
             case CRYSTAL_TREE: return crystal(raw);
+            case SPIRIT_TREE: return spirit(raw);
             default: return state(raw, TreeCrop.UNKNOWN, TreePatchCondition.UNKNOWN, -1);
         }
     }
@@ -166,6 +167,17 @@ public final class TreePatchStateDecoder
         if (raw >= 8 && raw <= 13) { return state(raw, TreeCrop.CRYSTAL_TREE, TreePatchCondition.GROWING, raw - 8); }
         if (raw == 14) { return state(raw, TreeCrop.CRYSTAL_TREE, TreePatchCondition.CHECK_HEALTH, 6); }
         if (raw == 15) { return state(raw, TreeCrop.CRYSTAL_TREE, TreePatchCondition.HEALTH_CHECKED, 0); }
+        return unknown(raw);
+    }
+
+    private TreePatchState spirit(int raw)
+    {
+        if (raw<=7 || raw>=45 && raw<=63) { return empty(raw); }
+        if (raw<=19) { return state(raw,TreeCrop.SPIRIT_TREE,TreePatchCondition.GROWING,raw-8); }
+        if (raw==20) { return state(raw,TreeCrop.SPIRIT_TREE,TreePatchCondition.HEALTH_CHECKED,12); }
+        if (raw<=31) { return state(raw,TreeCrop.SPIRIT_TREE,TreePatchCondition.DISEASED,raw-20); }
+        if (raw<=43) { return state(raw,TreeCrop.SPIRIT_TREE,TreePatchCondition.DEAD,raw-31); }
+        if (raw==44) { return state(raw,TreeCrop.SPIRIT_TREE,TreePatchCondition.CHECK_HEALTH,12); }
         return unknown(raw);
     }
 

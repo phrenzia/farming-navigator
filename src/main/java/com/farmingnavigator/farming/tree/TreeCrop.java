@@ -50,7 +50,8 @@ public enum TreeCrop
     CALQUAT("Calquat", TreeFamily.CALQUAT, 160, 9),
     CELASTRUS("Celastrus", TreeFamily.CELASTRUS, 160, 6),
     REDWOOD("Redwood", TreeFamily.REDWOOD, 640, 11),
-    CRYSTAL_TREE("Crystal tree", TreeFamily.CRYSTAL_TREE, 80, 7);
+    CRYSTAL_TREE("Crystal tree", TreeFamily.CRYSTAL_TREE, 80, 7),
+    SPIRIT_TREE("Spirit tree", TreeFamily.SPIRIT_TREE, 320, 13);
 
     private final String label;
     private final TreeFamily family;
