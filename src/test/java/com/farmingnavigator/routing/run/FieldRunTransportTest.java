@@ -24,8 +24,12 @@ public class FieldRunTransportTest
 {
     private RequirementContext context(Map<Integer, Long> inventory, Map<Integer, Long> bank)
     {
+        return context(inventory, bank, false);
+    }
+    private RequirementContext context(Map<Integer, Long> inventory, Map<Integer, Long> bank, boolean rings)
+    {
         AccountState account = new AccountState(true, 99, 99, 99, 99, 99, 99, 99, 99,
-                Map.of(Quest.SONG_OF_THE_ELVES, QuestState.FINISHED, Quest.PLAGUE_CITY, QuestState.FINISHED), Map.of(), Map.of());
+                Map.of(Quest.SONG_OF_THE_ELVES, QuestState.FINISHED, Quest.PLAGUE_CITY, QuestState.FINISHED), Map.of(), Map.of(), false, rings, false);
         return new RequirementContext(account, new FarmingNavigatorConfig() {}, new TravelCapabilitySnapshot(true, SpellbookType.STANDARD, null,
                 inventory.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().intValue())), Map.of(), Map.of()),
                 new StorageSnapshot(inventory, Map.of(), bank, true, Instant.now()));
@@ -98,6 +102,32 @@ public class FieldRunTransportTest
         FieldRunPlan plan = new FieldRunPlanner().plan(context.getAccountState(), EnumSet.of(FieldPatchDefinition.FALADOR_NORTH), FieldRunCrop.POTATO,
                 FieldRunMode.HARVEST_ALL, true, FieldRunCompost.SUPERCOMPOST, Map.of(), null, Instant.now()).withTransports(routes(context), HerbTransportPreference.CATALOGUE, context);
         assertEquals(FieldRunCompost.SUPERCOMPOST, plan.getCompost());
+    }
+
+    private FieldRunPlan hops(RequirementContext context, FieldPatchDefinition... patches)
+    {
+        return new FieldRunPlanner().plan(context.getAccountState(),EnumSet.copyOf(List.of(patches)),FieldRunCrop.BARLEY,FieldRunMode.HARVEST_ALL,
+                true,Map.of(),context.getStorageSnapshot(),Instant.now()).withTransports(routes(context),HerbTransportPreference.CATALOGUE,context);
+    }
+    @Test public void hopsInDifferentAreasCannotShareOneLawRune()
+    {
+        RequirementContext context=context(Map.of(ItemID.AIRRUNE,8L,ItemID.EARTHRUNE,1L,ItemID.LAWRUNE,1L),Map.of());
+        FieldRunPlan plan=hops(context,FieldPatchDefinition.LUMBRIDGE_HOPS,FieldPatchDefinition.SEERS_VILLAGE_HOPS);
+        assertTrue(plan.getStops().stream().allMatch(s -> s.getRecommended()!=null));
+        assertTrue(plan.getStops().stream().noneMatch(FieldRunStop::isLocalWalk));
+        assertEquals(RequirementState.BLOCKED,plan.getTransportResources().getChecks().get(0).getState());
+        assertTrue(plan.getTransportResources().getChecks().get(0).getDetail().contains("Law rune x2"));
+    }
+    @Test public void yanilleAndSeersOrdinaryRingsUseExistingAccessAndStaffChecks()
+    {
+        RequirementContext context=context(Map.of(ItemID.DRAMEN_STAFF,1L),Map.of(),true);
+        FieldRunPlan plan=hops(context,FieldPatchDefinition.YANILLE_HOPS,FieldPatchDefinition.SEERS_VILLAGE_HOPS);
+        assertEquals(2,plan.getStops().size());
+        assertTrue(plan.getStops().stream().allMatch(s -> s.getRecommended().getOption().getVerificationKind()==TransportVerificationKind.FAIRY_RING_ACCESS));
+        assertTrue(plan.getStops().get(0).getRecommended().getOption().getDisplayName().contains("CIQ"));
+        assertTrue(plan.getStops().get(1).getRecommended().getOption().getDisplayName().contains("ALS"));
+        assertTrue(plan.getTransportResources().getConsumables().isEmpty());
+        assertNull(hops(context(Map.of(ItemID.DRAMEN_STAFF,1L),Map.of(),false),FieldPatchDefinition.YANILLE_HOPS).getStops().get(0).getRecommended());
     }
 
 }
