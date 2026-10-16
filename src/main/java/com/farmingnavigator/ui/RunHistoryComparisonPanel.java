@@ -36,6 +36,25 @@ public final class RunHistoryComparisonPanel extends JPanel
             }
             else { details.add(text("Completed time: data required (no positive-duration completed checklists).",ColorScheme.LIGHT_GRAY_COLOR)); }
         }
+        JPanel cropDetails=new JPanel();cropDetails.setLayout(new BoxLayout(cropDetails,BoxLayout.Y_AXIS));cropDetails.setOpaque(false);
+        cropDetails.setAlignmentX(Component.LEFT_ALIGNMENT);cropDetails.setVisible(false);
+        JButton cropToggle=new JButton("Compare recorded crops");cropToggle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        cropToggle.addActionListener(event -> {boolean show=!cropDetails.isVisible();cropDetails.setVisible(show);
+            cropToggle.setText(show?"Hide crop comparison":"Compare recorded crops");revalidate();repaint();});
+        details.add(Box.createVerticalStrut(7));details.add(cropToggle);details.add(cropDetails);
+        cropDetails.add(text("Recorded crop groups use the same filters. Setup labels describe intended crops; planned stop counts and routes can differ.",ColorScheme.LIGHT_GRAY_COLOR));
+        for(RunHistoryComparison.Row row:comparison.getRows())
+        {
+            for(RunHistoryComparison.CropRow crop:row.getCrops())
+            {
+                RunHistoryComparison.Row statistics=crop.getStatistics();RunHistorySummary summary=statistics.getSummary();
+                cropDetails.add(Box.createVerticalStrut(6));cropDetails.add(text(row.getKind()+" - "+crop.getCropLabel(),Color.WHITE));
+                cropDetails.add(text(summary.getCompletedCount()+" completed; "+summary.getStoppedCount()+" stopped; XP known for "+summary.getKnownXpCount()+" / "+summary.getEntries().size()+".",ColorScheme.LIGHT_GRAY_COLOR));
+                cropDetails.add(text("Recorded XP/hour: "+(summary.getXpPerHour().isPresent()?numbers.format(Math.round(summary.getXpPerHour().getAsDouble())):"data required")+".",ColorScheme.LIGHT_GRAY_COLOR));
+                cropDetails.add(text(statistics.getMeanCompletedTime().isPresent()?"Mean completed time: "+duration(statistics.getMeanCompletedTime().get())+" ("+statistics.getTimedCompletedCount()+" timed).":"Completed time: data required.",ColorScheme.LIGHT_GRAY_COLOR));
+                cropDetails.add(text(!crop.isKnown()?"Planned stops unavailable.":crop.getMinimumPlannedStops()==crop.getMaximumPlannedStops()?"Planned stops: "+crop.getMinimumPlannedStops()+".":"Planned stop counts varied: "+crop.getMinimumPlannedStops()+" to "+crop.getMaximumPlannedStops()+".",ColorScheme.LIGHT_GRAY_COLOR));
+            }
+        }
         details.add(text("Completion times exclude stopped and zero-duration checklists; unknown XP does not exclude a valid completion time. Includes preparation, waiting and unrelated Farming XP.",ColorScheme.LIGHT_GRAY_COLOR));
     }
     private static String duration(Duration elapsed)
