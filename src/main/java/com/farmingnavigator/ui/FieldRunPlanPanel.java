@@ -60,7 +60,11 @@ public final class FieldRunPlanPanel extends JPanel
         {
             details.add(Box.createVerticalStrut(7));
             details.add(text(index++ + ". " + stop.getPatch().getLabel(), Color.WHITE));
-            if (stop.getRecommended() == null)
+            if (stop.isLocalWalk())
+            {
+                details.add(text("Walk to this labelled plot in the same farming area. No additional teleport is reserved.", MUTED));
+            }
+            else if (stop.getRecommended() == null)
             {
                 details.add(text("No verified transport selected. Travel manually and check your route.", WARNING));
             }

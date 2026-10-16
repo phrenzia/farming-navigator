@@ -286,6 +286,10 @@ public interface FarmingNavigatorConfig
             description = "Reserve exact farmer payments for possible new allotments; flowers and Harmony have no farmer payment", position = 31, section = GENERAL_SECTION)
     default boolean fieldRunProtection() { return true; }
 
+    @ConfigItem(keyName = "fieldTransportPreference", name = "Allotment/flower transport preference",
+            description = "Rank verified arrival suggestions; adjacent plots share one arrival teleport", position = 32, section = GENERAL_SECTION)
+    default HerbTransportPreference fieldTransportPreference() { return HerbTransportPreference.CATALOGUE; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

@@ -44,10 +44,14 @@ public final class FieldRunPlan
             HerbTransportPreference preference, RequirementContext context)
     {
         List<FieldRunStop> routed = new ArrayList<>();
+        com.farmingnavigator.farming.field.FieldPatchRegion previousRegion = null;
         for (FieldRunStop stop : stops)
         {
             List<VerifiedTransportResult> usable = HerbTransportSelector.select(transports.getOrDefault(stop.getPatch(), List.of()), preference);
-            routed.add(stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
+            com.farmingnavigator.farming.field.FieldPatchRegion region = com.farmingnavigator.farming.field.FieldPatchRegion.forLocation(stop.getPatch().getLocation());
+            routed.add(region != null && region == previousRegion ? stop.withLocalWalk()
+                    : stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
+            previousRegion = region;
         }
         return new FieldRunPlan(crop, mode, routed, supplies, excluded, warnings, blocker, new RunTransportResourcePlanner().evaluate(routed, context));
     }
