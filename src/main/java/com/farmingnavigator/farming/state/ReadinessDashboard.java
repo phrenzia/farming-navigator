@@ -16,6 +16,7 @@ public final class ReadinessDashboard
     public enum Group
     {
         DISEASED("Last observed diseased"), DEAD("Last observed dead"), HARVESTABLE("Last observed harvestable; quantity unknown"),
+        COLLECTABLE("Last observed collect option; quantity unknown"),
         CHECK_HEALTH("Last observed ready for health check"), POSSIBLY_READY("Possibly ready if healthy (estimate)"),
         PLANTING("Last observed empty or weedy"), CLEARING("Last observed stump"),
         MATURE("Last observed health checked / bark harvested; yield unknown"), GROWING("Last observed growing"),
@@ -172,6 +173,7 @@ public final class ReadinessDashboard
                 case "DISEASED": group = Group.DISEASED; break;
                 case "DEAD": group = Group.DEAD; break;
                 case "HARVESTABLE": group = Group.HARVESTABLE; break;
+                case "COLLECTABLE": group = Group.COLLECTABLE; break;
                 case "CHECK_HEALTH": group = Group.CHECK_HEALTH; break;
                 case "EMPTY": case "WEEDS": group = Group.PLANTING; break;
                 case "STUMP": group = Group.CLEARING; break;

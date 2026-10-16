@@ -52,7 +52,8 @@ public enum FieldPatchRegion
     MORYTANIA_MUSHROOM(new int[]{13622, 13878}, FieldPatchDefinition.MORYTANIA_MUSHROOM),
     DRAYNOR_MANOR(new int[]{12340}, FieldPatchDefinition.DRAYNOR_MANOR_BELLADONNA),
     AUBURNVALE(new int[]{5427, 5428, 5684}, FieldPatchDefinition.AUBURNVALE_BELLADONNA),
-    VINERY(new int[]{7223}, FieldPatchDefinition.VINERY_EAST_1, FieldPatchDefinition.VINERY_EAST_2, FieldPatchDefinition.VINERY_EAST_3, FieldPatchDefinition.VINERY_EAST_4, FieldPatchDefinition.VINERY_EAST_5, FieldPatchDefinition.VINERY_EAST_6, FieldPatchDefinition.VINERY_WEST_1, FieldPatchDefinition.VINERY_WEST_2, FieldPatchDefinition.VINERY_WEST_3, FieldPatchDefinition.VINERY_WEST_4, FieldPatchDefinition.VINERY_WEST_5, FieldPatchDefinition.VINERY_WEST_6);
+    VINERY(new int[]{7223}, FieldPatchDefinition.VINERY_EAST_1, FieldPatchDefinition.VINERY_EAST_2, FieldPatchDefinition.VINERY_EAST_3, FieldPatchDefinition.VINERY_EAST_4, FieldPatchDefinition.VINERY_EAST_5, FieldPatchDefinition.VINERY_EAST_6, FieldPatchDefinition.VINERY_WEST_1, FieldPatchDefinition.VINERY_WEST_2, FieldPatchDefinition.VINERY_WEST_3, FieldPatchDefinition.VINERY_WEST_4, FieldPatchDefinition.VINERY_WEST_5, FieldPatchDefinition.VINERY_WEST_6),
+    GREAT_CONCH(new int[]{12581,12325,12326,12327,12580,12582,12583,12836,12837,12838,12839,13092,13093,13194}, FieldPatchDefinition.GREAT_CONCH_CORAL_EAST,FieldPatchDefinition.GREAT_CONCH_CORAL_WEST);
     private final int[] regions;
     private final List<FieldPatchDefinition> patches;
     FieldPatchRegion(int[] regions, FieldPatchDefinition... patches)

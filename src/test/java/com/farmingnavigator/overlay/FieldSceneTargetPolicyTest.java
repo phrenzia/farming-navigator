@@ -14,7 +14,7 @@ public class FieldSceneTargetPolicyTest
     {
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
-            if (patch.getFamily() == FieldFamily.GRAPES)
+            if ((patch.getFamily() == FieldFamily.GRAPES || patch.getFamily() == FieldFamily.CORAL))
             {
                 assertNull(FieldSceneTargetPolicy.fieldPatch(ObjectID.FARMING_BELLADONNA_PATCH,patch.getVarbit(),patch.getLocation()));
                 continue; // Vineyard guidance/object bases are not implemented.

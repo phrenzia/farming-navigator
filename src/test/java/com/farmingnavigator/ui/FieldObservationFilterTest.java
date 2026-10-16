@@ -36,12 +36,30 @@ public class FieldObservationFilterTest
             assertTrue(labels(panel).contains("Last observed harvestable: 1")); assertFalse(labels(panel).contains("Falador - North west"));
             assertTrue(labels(panel).contains("No grape planting checklist"));
             JComboBox<?> filter=filter(panel); assertNotNull(filter); filter.setSelectedIndex(0); assertNull(changed.get());
-            assertTrue(labels(panel).contains("Observed patches: 3 / 48")); assertTrue(labels(panel).contains("Falador - North west"));
+            assertTrue(labels(panel).contains("Observed patches: 3 / 50")); assertTrue(labels(panel).contains("Falador - North west"));
             filter.setSelectedItem(FieldFamily.GRAPES.getLabel()); assertEquals(FieldFamily.GRAPES,changed.get());
             panel.setSize(225,panel.getPreferredSize().height); layout(panel);
             BufferedImage image=new BufferedImage(225,panel.getHeight(),BufferedImage.TYPE_INT_RGB); Graphics2D graphics=image.createGraphics(); panel.printAll(graphics); graphics.dispose();
             File dir=new File("build/verification"); dir.mkdirs();
             try { ImageIO.write(image,"png",new File(dir,"grape-observations.png")); } catch(Exception ex) { throw new AssertionError(ex); }
+        });
+    }
+    @Test public void coralCollectionIsSeparateFromHarvestCountsAndHasNoNewGrowthTimer() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            Instant now=Instant.parse("2026-10-16T12:00:00Z");
+            FieldObservationsPanel panel=new FieldObservationsPanel(Map.of(
+                    FieldPatchDefinition.GREAT_CONCH_CORAL_EAST,observation(FieldFamily.CORAL,8,now),
+                    FieldPatchDefinition.GREAT_CONCH_CORAL_WEST,observation(FieldFamily.CORAL,20,now)),now,true,value -> {},FieldFamily.CORAL,value -> {});
+            assertTrue(labels(panel).contains("Observed patches: 2 / 2"));
+            assertTrue(labels(panel).contains("Last observed harvestable: 0; diseased or dead: 1"));
+            assertTrue(labels(panel).contains("Last observed collect option: 1; quantity unknown"));
+            assertFalse(labels(panel).contains("Estimated harvest in"));
+            assertTrue(labels(panel).contains("no planting checklist"));
+            panel.setSize(225,Math.max(600,panel.getPreferredSize().height)); layout(panel);
+            BufferedImage image=new BufferedImage(225,panel.getHeight(),BufferedImage.TYPE_INT_RGB); Graphics2D graphics=image.createGraphics(); panel.printAll(graphics); graphics.dispose();
+            File dir=new File("build/verification"); dir.mkdirs();
+            try { ImageIO.write(image,"png",new File(dir,"coral-observations.png")); } catch(Exception ex) { throw new AssertionError(ex); }
         });
     }
     @Test public void rootSidebarRetainsFamilyFilterWhenObservationsRefresh() throws Exception

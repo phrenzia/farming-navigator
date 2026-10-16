@@ -79,7 +79,9 @@ public enum FieldPatchDefinition
     VINERY_WEST_3("Hosidius vinery - West 3", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_E1, 1807, 3555),
     VINERY_WEST_4("Hosidius vinery - West 4", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_E2, 1807, 3555),
     VINERY_WEST_5("Hosidius vinery - West 5", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_F1, 1807, 3555),
-    VINERY_WEST_6("Hosidius vinery - West 6", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_F2, 1807, 3555);
+    VINERY_WEST_6("Hosidius vinery - West 6", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_F2, 1807, 3555),
+    GREAT_CONCH_CORAL_EAST("Great Conch - East coral", FieldFamily.CORAL, VarbitID.FARMING_TRANSMIT_A, 3296, 8861),
+    GREAT_CONCH_CORAL_WEST("Great Conch - West coral", FieldFamily.CORAL, VarbitID.FARMING_TRANSMIT_B, 3296, 8861);
     private final String label;
     private final FieldFamily family;
     private final int varbit;

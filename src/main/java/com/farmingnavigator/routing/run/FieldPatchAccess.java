@@ -28,6 +28,8 @@ public final class FieldPatchAccess
             case SEAWEED:
                 return account.hasCompletedQuest(Quest.BONE_VOYAGE) ? ""
                         : "Complete Bone Voyage for Fossil Island underwater access. Diving equipment and air supply must be checked manually.";
+            case GREAT_CONCH:
+                return "Data required: Great Conch entry and coral preparation have not been verified; observations remain available.";
             case VINERY:
                 return "Data required: vineyard entry and planting requirements are not verified; observations remain available.";
             case AUBURNVALE:

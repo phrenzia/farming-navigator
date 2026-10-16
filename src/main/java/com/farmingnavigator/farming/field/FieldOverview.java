@@ -16,7 +16,7 @@ public final class FieldOverview
 {
     public enum Group
     {
-        DISEASED("Last observed diseased"), DEAD("Last observed dead"), HARVESTABLE("Last observed harvestable; quantity unknown"),
+        DISEASED("Last observed diseased"), DEAD("Last observed dead"), HARVESTABLE("Last observed harvestable; quantity unknown"), COLLECTABLE("Last observed collect option; quantity unknown"),
         POSSIBLY_READY("Possibly harvestable if healthy (estimate)"), PLANTING("Last observed empty or weedy"),
         GROWING("Last observed growing"), SCARECROW("Scarecrow present; not a crop"), UNKNOWN("Unobserved or unknown");
         private final String label;
@@ -67,6 +67,7 @@ public final class FieldOverview
             case DISEASED:return Group.DISEASED;
             case DEAD:return Group.DEAD;
             case HARVESTABLE:return Group.HARVESTABLE;
+            case COLLECTABLE:return Group.COLLECTABLE;
             case EMPTY:
             case WEEDS:return Group.PLANTING;
             case SCARECROW:return Group.SCARECROW;

@@ -58,6 +58,9 @@ public final class FieldObservationsPanel extends JPanel
                 .filter(entry -> entry.getValue().getState().getCondition()==FieldPatchCondition.DISEASED || entry.getValue().getState().getCondition()==FieldPatchCondition.DEAD).count();
         summary.add(text("Observed patches: " + observed + " / " + total,ColorScheme.LIGHT_GRAY_COLOR));
         summary.add(text("Last observed harvestable: " + ready + "; diseased or dead: " + problem,ColorScheme.LIGHT_GRAY_COLOR));
+        long collectable=valid.entrySet().stream().filter(entry -> selected==null || entry.getKey().getFamily()==selected)
+                .filter(entry -> entry.getValue().getState().getCondition()==FieldPatchCondition.COLLECTABLE).count();
+        if(collectable>0) { summary.add(text("Last observed collect option: " + collectable + "; quantity unknown.",ColorScheme.LIGHT_GRAY_COLOR)); }
         for(FieldFamily family:FieldFamily.values())
         {
             if(selected!=null && selected!=family) { continue; }
@@ -67,6 +70,8 @@ public final class FieldObservationsPanel extends JPanel
                 plots.add(text("Vineyard soil preparation, watering, entry and travel are unverified. No grape planting checklist is offered.",ColorScheme.LIGHT_GRAY_COLOR));
                 plots.add(text("Fully grown vines may need a health check before harvesting. Growing codes remain separate from observed harvestability.",ColorScheme.LIGHT_GRAY_COLOR));
             }
+            if(family==FieldFamily.CORAL)
+            { plots.add(text("Coral nursery observations only. Entry, planting, pruning, protection and travel are unverified; no planting checklist is offered.",ColorScheme.LIGHT_GRAY_COLOR)); }
             for(FieldPatchDefinition patch:FieldPatchDefinition.values())
             {
                 if(patch.getFamily()!=family) { continue; }

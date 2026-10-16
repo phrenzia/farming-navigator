@@ -61,6 +61,10 @@ public final class FieldPatchStateDecoder
     private static final Row[] MUSHROOM = {new Row(FieldCrop.MUSHROOM, 4, -1000, 10, 16, 5, 21, 5)};
     private static final Row[] BELLADONNA = {new Row(FieldCrop.BELLADONNA, 4, -1000, 8, 9, 3, 12, 3)};
 
+    private static final Row[] CORALS = {
+        new Row(FieldCrop.ELKHORN_CORAL,4,-100,8,9,3,12,3),
+        new Row(FieldCrop.PILLAR_CORAL,15,-100,19,20,3,23,3),
+        new Row(FieldCrop.UMBRAL_CORAL,26,-100,30,31,3,34,3)};
     public FieldPatchState decode(FieldFamily family, int raw)
     {
         if (family == null || raw < 0 || raw > 255) { return state(raw, FieldCrop.UNKNOWN, FieldPatchCondition.UNKNOWN, -1); }
@@ -72,6 +76,9 @@ public final class FieldPatchStateDecoder
             if (raw <= 15) { return state(raw,FieldCrop.GRAPE,FieldPatchCondition.HARVESTABLE,raw-11); }
             return state(raw,FieldCrop.UNKNOWN,FieldPatchCondition.UNKNOWN,-1);
         }
+        // All nursery-only codes point to the same Inspect/Guide base, not weed/rake stages.
+        if (family == FieldFamily.CORAL && (raw<=3 || raw>=37))
+        { return state(raw,FieldCrop.UNKNOWN,FieldPatchCondition.EMPTY,raw<=3?3:0); }
         if (raw <= 3) { return state(raw, FieldCrop.UNKNOWN, raw == 0 ? FieldPatchCondition.EMPTY : FieldPatchCondition.WEEDS, 3 - raw); }
         if (family == FieldFamily.FLOWER && raw >= 33 && raw <= 36)
         {
@@ -91,6 +98,7 @@ public final class FieldPatchStateDecoder
             case SEAWEED: rows = SEAWEED; break;
             case MUSHROOM: rows = MUSHROOM; break;
             case BELLADONNA: rows = BELLADONNA; break;
+            case CORAL: rows = CORALS; break;
             default: return state(raw, FieldCrop.UNKNOWN, FieldPatchCondition.UNKNOWN, -1);
         }
         for (Row row : rows)
@@ -98,7 +106,11 @@ public final class FieldPatchStateDecoder
             if (in(raw, row.growing, row.crop.getStages() - 1)) { return new FieldPatchState(raw, row.crop, FieldPatchCondition.GROWING, raw - row.growing, !row.alternateWatered); }
             // Most alternate rows map to *_WATERED gamevals; snape grass reverses the two ranges.
             if (in(raw, row.alternate, row.crop.getStages() - 1)) { return new FieldPatchState(raw, row.crop, FieldPatchCondition.GROWING, raw - row.alternate, row.alternateWatered); }
-            if (in(raw, row.harvest, family == FieldFamily.MUSHROOM ? 6 : family == FieldFamily.FLOWER || family == FieldFamily.BELLADONNA ? 1 : 3)) { return state(raw, row.crop, FieldPatchCondition.HARVESTABLE, family == FieldFamily.HOPS ? row.harvest + 2 - raw : raw - row.harvest); }
+            if (in(raw, row.harvest, family == FieldFamily.MUSHROOM ? 6 : family == FieldFamily.FLOWER || family == FieldFamily.BELLADONNA || family == FieldFamily.CORAL ? 1 : 3))
+            {
+                return state(raw,row.crop,family==FieldFamily.CORAL?FieldPatchCondition.COLLECTABLE:FieldPatchCondition.HARVESTABLE,
+                        family==FieldFamily.CORAL?row.crop.getStages()-1:family==FieldFamily.HOPS?row.harvest+2-raw:raw-row.harvest);
+            }
             if (in(raw, row.disease, row.diseaseCount)) { return state(raw, row.crop, FieldPatchCondition.DISEASED, raw - row.disease + 1); }
             if (in(raw, row.dead, row.deadCount)) { return state(raw, row.crop, FieldPatchCondition.DEAD, raw - row.dead + 1); }
         }
