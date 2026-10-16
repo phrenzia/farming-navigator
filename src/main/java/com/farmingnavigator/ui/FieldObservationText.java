@@ -24,6 +24,13 @@ public final class FieldObservationText
     {
         Optional<FieldGrowthWindow> estimate = new FieldGrowthTimer().estimate(observation, now);
         if (!estimate.isPresent()) { return ""; }
+        if (observation.getState().getCrop()==FieldCrop.HESPORI)
+        {
+            if (!now.isBefore(estimate.get().getLatest())) { return "Expected mature farming patch - inspect to confirm."; }
+            if (!now.isBefore(estimate.get().getEarliest())) { return "Farming patch may be mature - inspect to confirm."; }
+            return "Estimated patch maturity in " + minutes(now,estimate.get().getEarliest()) + "-"
+                    + minutes(now,estimate.get().getLatest()) + " min. Inspect to confirm; no combat state is inferred.";
+        }
         if (!now.isBefore(estimate.get().getLatest()))
         {
             return "Expected to be harvestable if healthy - visit to confirm.";

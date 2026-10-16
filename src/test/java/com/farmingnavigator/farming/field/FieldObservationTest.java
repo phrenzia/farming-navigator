@@ -16,7 +16,7 @@ public class FieldObservationTest
     private final Instant now = Instant.parse("2026-10-15T12:00:00Z");
     private final FieldPatchObservationStore store = new FieldPatchObservationStore();
     private final FieldPatchObservationSampler sampler = new FieldPatchObservationSampler(store);
-    @Test public void allFiftyOnePatchAnchorsBelongToOneRegionAndGuildChannelsAreDistinct()
+    @Test public void allFiftyTwoPatchAnchorsBelongToOneRegionAndGuildChannelsAreDistinct()
     {
         Set<FieldPatchDefinition> found = EnumSet.noneOf(FieldPatchDefinition.class);
         for (FieldPatchRegion region : FieldPatchRegion.values())
@@ -29,7 +29,7 @@ public class FieldObservationTest
                 assertNull(FieldPatchRegion.forLocation(new WorldPoint(patch.getLocation().getX(), patch.getLocation().getY(), 1)));
             }
         }
-        assertEquals(51, found.size()); assertEquals(EnumSet.allOf(FieldPatchDefinition.class), found);
+        assertEquals(52, found.size()); assertEquals(EnumSet.allOf(FieldPatchDefinition.class), found);
         assertNull(FieldPatchRegion.forLocation(null)); assertNull(FieldPatchRegion.forLocation(new WorldPoint(0, 0, 0)));
     }
     @Test public void threeDistinctTicksReadOnlyTheCurrentRegionChannels()

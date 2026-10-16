@@ -82,7 +82,9 @@ public enum FieldPatchDefinition
     VINERY_WEST_6("Hosidius vinery - West 6", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_F2, 1807, 3555),
     GREAT_CONCH_CORAL_EAST("Great Conch - East coral", FieldFamily.CORAL, VarbitID.FARMING_TRANSMIT_A, 3296, 8861),
     GREAT_CONCH_CORAL_WEST("Great Conch - West coral", FieldFamily.CORAL, VarbitID.FARMING_TRANSMIT_B, 3296, 8861),
-    FARMING_GUILD_ANIMA("Farming Guild - Anima", FieldFamily.ANIMA, VarbitID.FARMING_TRANSMIT_M, 1235, 3724);
+    FARMING_GUILD_ANIMA("Farming Guild - Anima", FieldFamily.ANIMA, VarbitID.FARMING_TRANSMIT_M, 1235, 3724),
+    // Centre of the pinned FarmingWorld observation region 5021, not a boss/plot tile or a travel target.
+    FARMING_GUILD_HESPORI("Farming Guild - Hespori patch", FieldFamily.HESPORI, VarbitID.FARMING_TRANSMIT_J, 1248, 10080);
     private final String label;
     private final FieldFamily family;
     private final int varbit;

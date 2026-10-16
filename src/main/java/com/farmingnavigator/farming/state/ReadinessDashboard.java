@@ -16,6 +16,7 @@ public final class ReadinessDashboard
     public enum Group
     {
         DISEASED("Last observed diseased"), DEAD("Last observed dead"), HARVESTABLE("Last observed harvestable; quantity unknown"),
+        MATURE_HESPORI("Last observed mature Hespori patch; inspect manually"),
         COLLECTABLE("Last observed collect option; quantity unknown"),
         LIVING_ANIMA("Last observed living anima; effects unchecked"), WITHERING_ANIMA("Last observed withering anima"),
         CHECK_HEALTH("Last observed ready for health check"), POSSIBLY_READY("Possibly ready if healthy (estimate)"),
@@ -174,6 +175,7 @@ public final class ReadinessDashboard
                 case "DISEASED": group = Group.DISEASED; break;
                 case "DEAD": group = Group.DEAD; break;
                 case "HARVESTABLE": group = Group.HARVESTABLE; break;
+                case "MATURE_HESPORI": group = Group.MATURE_HESPORI; break;
                 case "COLLECTABLE": group = Group.COLLECTABLE; break;
                 case "LIVING_ANIMA": group = Group.LIVING_ANIMA; break;
                 case "WITHERING_ANIMA": group = Group.WITHERING_ANIMA; break;

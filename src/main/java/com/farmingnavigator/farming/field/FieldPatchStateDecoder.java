@@ -68,6 +68,14 @@ public final class FieldPatchStateDecoder
     public FieldPatchState decode(FieldFamily family, int raw)
     {
         if (family == null || raw < 0 || raw > 255) { return state(raw, FieldCrop.UNKNOWN, FieldPatchCondition.UNKNOWN, -1); }
+        // Farming patch bytes only; the two mature codes do not establish combat or reward state.
+        if (family == FieldFamily.HESPORI)
+        {
+            if (raw<=3 || raw==9) { return state(raw,FieldCrop.UNKNOWN,raw==0 || raw==9?FieldPatchCondition.EMPTY:FieldPatchCondition.WEEDS,raw==9?3:3-raw); }
+            if (raw<=6) { return state(raw,FieldCrop.HESPORI,FieldPatchCondition.GROWING,raw-4); }
+            if (raw<=8) { return state(raw,FieldCrop.HESPORI,FieldPatchCondition.MATURE_HESPORI,raw-7); }
+            return state(raw,FieldCrop.UNKNOWN,FieldPatchCondition.UNKNOWN,-1);
+        }
         // Anima stages describe a lifecycle, not growth toward a harvest. Cache comments identify withering/dead forms.
         if (family == FieldFamily.ANIMA && raw>=4)
         {

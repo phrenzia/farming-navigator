@@ -109,7 +109,7 @@ public class FieldRunPlannerTest
         FieldPatchAccess access = new FieldPatchAccess();
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
-            if ((patch.getFamily() == FieldFamily.GRAPES || patch.getFamily() == FieldFamily.CORAL || patch.getFamily() == FieldFamily.ANIMA) || patch == FieldPatchDefinition.KASTORI_FLOWER || patch == FieldPatchDefinition.ENTRANA_HOPS || patch == FieldPatchDefinition.ALDARIN_HOPS || patch == FieldPatchDefinition.AUBURNVALE_BELLADONNA) { assertTrue(access.missingRequirement(patch, unlocked()).contains("Data required")); continue; }
+            if ((patch.getFamily() == FieldFamily.GRAPES || patch.getFamily() == FieldFamily.CORAL || patch.getFamily() == FieldFamily.ANIMA || patch.getFamily() == FieldFamily.HESPORI) || patch == FieldPatchDefinition.KASTORI_FLOWER || patch == FieldPatchDefinition.ENTRANA_HOPS || patch == FieldPatchDefinition.ALDARIN_HOPS || patch == FieldPatchDefinition.AUBURNVALE_BELLADONNA) { assertTrue(access.missingRequirement(patch, unlocked()).contains("Data required")); continue; }
             assertEquals("", access.missingRequirement(patch, unlocked()));
         }
         assertFalse(access.missingRequirement(FieldPatchDefinition.FARMING_GUILD_NORTH, account(44)).isEmpty());

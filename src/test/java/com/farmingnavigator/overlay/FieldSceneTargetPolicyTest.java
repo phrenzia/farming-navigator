@@ -14,7 +14,7 @@ public class FieldSceneTargetPolicyTest
     {
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
-            if ((patch.getFamily() == FieldFamily.GRAPES || patch.getFamily() == FieldFamily.CORAL || patch.getFamily() == FieldFamily.ANIMA))
+            if ((patch.getFamily() == FieldFamily.GRAPES || patch.getFamily() == FieldFamily.CORAL || patch.getFamily() == FieldFamily.ANIMA || patch.getFamily() == FieldFamily.HESPORI))
             {
                 assertNull(FieldSceneTargetPolicy.fieldPatch(ObjectID.FARMING_BELLADONNA_PATCH,patch.getVarbit(),patch.getLocation()));
                 continue; // Observation-only families have no guided object bases.

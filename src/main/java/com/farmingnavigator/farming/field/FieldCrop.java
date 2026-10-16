@@ -62,7 +62,8 @@ public enum FieldCrop
     UMBRAL_CORAL("Umbral coral", FieldFamily.CORAL, 40, 5),
     ATTAS("Attas", FieldFamily.ANIMA, 640, 9),
     IASOR("Iasor", FieldFamily.ANIMA, 640, 9),
-    KRONOS("Kronos", FieldFamily.ANIMA, 640, 9);
+    KRONOS("Kronos", FieldFamily.ANIMA, 640, 9),
+    HESPORI("Hespori", FieldFamily.HESPORI, 640, 4);
     private final String label;
     private final FieldFamily family;
     private final int growthCycleMinutes;

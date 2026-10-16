@@ -24,6 +24,8 @@ public final class FieldAlertTracker
         for (Map.Entry<FieldPatchDefinition, FieldPatchObservation> entry : observations.entrySet())
         {
             FieldPatchDefinition patch = entry.getKey(); FieldPatchObservation observation = entry.getValue();
+            // Hespori is a passive farming history entry, outside ordinary crop/estimated-harvest alerts.
+            if (patch.getFamily()==FieldFamily.HESPORI) { continue; }
             if (observation.getObservedAt().isAfter(now)) { continue; }
             FieldPatchState state = observation.getState();
             if (state.getCrop().getFamily() != null && state.getCrop().getFamily() != patch.getFamily()) { continue; }

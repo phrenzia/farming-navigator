@@ -66,6 +66,9 @@ public final class FieldObservationsPanel extends JPanel
         long withering=valid.entrySet().stream().filter(entry -> selected==null || entry.getKey().getFamily()==selected)
                 .filter(entry -> entry.getValue().getState().getCondition()==FieldPatchCondition.WITHERING_ANIMA).count();
         if(selected==FieldFamily.ANIMA || living+withering>0) { summary.add(text("Last observed living anima: " + living + "; withering: " + withering + ".",ColorScheme.LIGHT_GRAY_COLOR)); }
+        long hespori=valid.entrySet().stream().filter(entry -> selected==null || entry.getKey().getFamily()==selected)
+                .filter(entry -> entry.getValue().getState().getCondition()==FieldPatchCondition.MATURE_HESPORI).count();
+        if(selected==FieldFamily.HESPORI || hespori>0) { summary.add(text("Last observed mature Hespori patch: " + hespori + "; inspect manually.",ColorScheme.LIGHT_GRAY_COLOR)); }
         for(FieldFamily family:FieldFamily.values())
         {
             if(selected!=null && selected!=family) { continue; }
@@ -77,6 +80,8 @@ public final class FieldObservationsPanel extends JPanel
             }
             if(family==FieldFamily.CORAL)
             { plots.add(text("Coral nursery observations only. Entry, planting, pruning, protection and travel are unverified; no planting checklist is offered.",ColorScheme.LIGHT_GRAY_COLOR)); }
+            if(family==FieldFamily.HESPORI)
+            { plots.add(text("Farming patch history only. Mature bytes do not establish combat, rewards or entry access. No planting checklist, combat guidance, highlights or alerts are offered.",ColorScheme.LIGHT_GRAY_COLOR)); }
             if(family==FieldFamily.ANIMA)
             { plots.add(text("Anima observations only. Effects, Kronos growth skips and expiry times are not calculated. Withering is separate from ordinary crop disease. Entry and planting conditions are unverified; no planting checklist is offered.",ColorScheme.LIGHT_GRAY_COLOR)); }
             for(FieldPatchDefinition patch:FieldPatchDefinition.values())
