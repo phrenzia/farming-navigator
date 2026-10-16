@@ -10,6 +10,8 @@ import com.farmingnavigator.routing.requirement.RuneCost;
 import com.farmingnavigator.routing.requirement.RuneCostRequirement;
 import com.farmingnavigator.routing.requirement.RuneSupply;
 import com.farmingnavigator.routing.requirement.RunePreparation;
+import com.farmingnavigator.routing.requirement.DailyUseRequirement;
+import com.farmingnavigator.routing.capability.DailyTransportUseKind;
 import com.farmingnavigator.transport.TransportOption;
 import com.farmingnavigator.transport.TransportVerificationKind;
 import com.farmingnavigator.routing.spell.TeleportSpellDefinition;
@@ -32,7 +34,7 @@ public final class RunTransportResourcePlanner
         if (stop.getRecommended()==null) { return false; }
         TransportOption option=stop.getRecommended().getOption();
         return HerbTransportSelector.isReusable(option.getVerificationKind()) || consumable(option.getVerificationKind())!=null
-                || jewelleryFamily(option.getVerificationKind())!=null
+                || jewelleryFamily(option.getVerificationKind())!=null || dailyPool(option.getVerificationKind())!=null
                 || option.getVerificationKind()==TransportVerificationKind.TELEPORT_SPELL && option.getTeleportSpellDefinition()!=null
                 || option.getCategory()==com.farmingnavigator.transport.TransportCategory.PLAYER_OWNED_HOUSE;
     }
@@ -54,6 +56,7 @@ public final class RunTransportResourcePlanner
         farmingRunes.getQuantities().forEach(runes::add);
         Map<ChargedTeleportItemDefinition, Integer> jewellery = new EnumMap<>(ChargedTeleportItemDefinition.class);
         Map<Consumable, Integer> consumables = new EnumMap<>(Consumable.class);
+        Map<DailyTransportUseKind,Integer> dailyUses=new EnumMap<>(DailyTransportUseKind.class);
         List<String> notes = new ArrayList<>();
         int houseVisits = 0;
         for (RunTravelStop stop : stops)
@@ -65,6 +68,8 @@ public final class RunTransportResourcePlanner
                 continue;
             }
             TransportOption option = stop.getRecommended().getOption();
+            DailyTransportUseKind daily=dailyPool(option.getVerificationKind());
+            if (daily!=null) { dailyUses.merge(daily,1,Integer::sum); }
             Consumable consumable = consumable(option.getVerificationKind());
             if (consumable != null)
             {
@@ -158,12 +163,24 @@ public final class RunTransportResourcePlanner
                 });
             }
         });
+        dailyUses.forEach((kind,uses) -> checks.add(new DailyUseRequirement(
+                kind.getDisplayName() + " - " + uses + (uses==1 ? " run teleport" : " run teleports"),kind,uses).evaluate(context)));
         List<SupplyRequirement> supplies = new ArrayList<>();
         consumables.forEach((item, quantity) -> supplies.add(new SupplyRequirement(item.itemId, item.name, quantity,
                 false, "One consumed per recommended teleport; fallback routes are excluded.")));
         return new RunTransportResources(checks, notes,
                 new LoadoutService().evaluate(supplies, context == null ? null : context.getStorageSnapshot()), houseEntryMode, bankItems,
                 runePreparation);
+    }
+
+    private DailyTransportUseKind dailyPool(TransportVerificationKind kind)
+    {
+        switch (kind)
+        {
+            case EXPLORER_RING_2_DAILY: return DailyTransportUseKind.EXPLORER_RING_CABBAGE_PORT;
+            case KANDARIN_HEADGEAR_3_DAILY: return DailyTransportUseKind.KANDARIN_SHERLOCK_TELEPORT;
+            default: return null;
+        }
     }
 
     private enum Consumable
