@@ -169,4 +169,19 @@ public class FieldRunPlannerTest
         }
     }
 
+    @Test public void bottomlessVariantsReserveOneFilledBucketAndRequireManualContentsChecks()
+    {
+        for(FieldRunCompost compost: new FieldRunCompost[]{FieldRunCompost.BOTTOMLESS_COMPOST,FieldRunCompost.BOTTOMLESS_SUPERCOMPOST,FieldRunCompost.BOTTOMLESS_ULTRACOMPOST})
+        {
+            FieldRunPlan result=planner.plan(account(99),EnumSet.of(FieldPatchDefinition.FALADOR_NORTH,FieldPatchDefinition.FALADOR_SOUTH),FieldRunCrop.TOMATO,
+                    FieldRunMode.HARVEST_ALL,true,compost,Map.of(),new StorageSnapshot(Map.of(ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,1L),Map.of(),Map.of(),true,now),now);
+            SupplyCheck bucket=supply(result,ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED);
+            assertEquals(1,bucket.getRequirement().getQuantity()); assertEquals(SupplyState.ALREADY_CARRIED,bucket.getState());
+            assertTrue(bucket.getRequirement().getNote().contains("at least 2")); assertTrue(bucket.getRequirement().getNote().contains("does not verify contents"));
+            FieldRunPlan empty=planner.plan(account(99),EnumSet.of(FieldPatchDefinition.FALADOR_NORTH),FieldRunCrop.TOMATO,FieldRunMode.HARVEST_ALL,true,compost,Map.of(),
+                    new StorageSnapshot(Map.of(ItemID.BOTTOMLESS_COMPOST_BUCKET,1L),Map.of(),Map.of(),true,now),now);
+            assertEquals(SupplyState.MISSING,supply(empty,ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED).getState());
+        }
+    }
+
 }

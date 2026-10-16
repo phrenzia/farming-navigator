@@ -301,7 +301,7 @@ public interface FarmingNavigatorConfig
     default boolean fieldEstimatedAlerts() { return false; }
 
     @ConfigItem(keyName = "fieldRunCompost", name = "Field compost",
-            description = "Reserve filled buckets separately from protection payments; application remains manual", position = 35, section = GENERAL_SECTION)
+            description = "Reserve application buckets separately from payments; bottomless contents/uses and all application remain manual", position = 35, section = GENERAL_SECTION)
     default com.farmingnavigator.routing.run.FieldRunCompost fieldRunCompost() { return com.farmingnavigator.routing.run.FieldRunCompost.ULTRACOMPOST; }
 
     @ConfigItem(keyName = "saveRunHistory", name = "Save recent run history",

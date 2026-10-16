@@ -50,7 +50,9 @@ public final class FieldRunSnapshot
             case KEEP_FLOWER: return "Inspect and keep this mature flower. Harvesting it may remove nearby allotment protection. Confirm when finished.";
             case CLEAR: return "Clear the dead crop with a spade. Wait for a fresh empty-patch observation.";
             case RAKE: return "Rake until the plot is empty.";
-            case COMPOST: return "Apply one unnoted bucket of " + compost + " to this plot, then confirm manually. Current compost state and application are not automatically verified; farmer payments are separate.";
+            case COMPOST:
+                if (compost.isBottomless()) { return "Check your selected bottomless bucket's compost type and remaining uses, apply it to this plot, then confirm manually. Contents and application are not automatically verified; farmer payments are separate."; }
+                return "Apply one unnoted bucket of " + compost + " to this plot, then confirm manually. Current compost state and application are not automatically verified; farmer payments are separate.";
             case PLANT: return "Use a seed dibber to plant " + crop.getSeedsPerPatch() + " " + crop + " seed(s). Seed saving and Barbarian Training are not assumed. Watering is not guided yet.";
             case PROTECT: return "Pay the gardener for protection, then confirm manually. The checklist does not verify the payment.";
             case CURE: return "Use plant cure on this diseased crop. Wait for healthy growth or harvestable state of the same crop.";

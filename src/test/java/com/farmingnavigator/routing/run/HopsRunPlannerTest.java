@@ -46,4 +46,12 @@ public class HopsRunPlannerTest
         assertEquals(3,compost.get(0).getRequirement().getQuantity()); assertEquals(SupplyState.ALREADY_CARRIED,compost.get(0).getState());
         assertEquals(9,compost.get(1).getRequirement().getQuantity()); assertEquals(SupplyState.MISSING,compost.get(1).getState()); assertEquals(2,compost.get(1).getMissingQuantity());
     }
+    @Test public void bottomlessBucketCannotPayBarleyFarmer()
+    {
+        FieldRunPlan plan=new FieldRunPlanner().plan(account,EnumSet.of(FieldPatchDefinition.LUMBRIDGE_HOPS),FieldRunCrop.BARLEY,FieldRunMode.HARVEST_ALL,
+                true,FieldRunCompost.BOTTOMLESS_COMPOST,Map.of(),new StorageSnapshot(Map.of(ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,1L),Map.of(),Map.of(),true,now),now);
+        assertEquals(SupplyState.ALREADY_CARRIED,supply(plan,ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED).getState());
+        assertEquals(SupplyState.MISSING,supply(plan,ItemID.BUCKET_COMPOST).getState()); assertEquals(3,supply(plan,ItemID.BUCKET_COMPOST).getMissingQuantity());
+    }
+
 }

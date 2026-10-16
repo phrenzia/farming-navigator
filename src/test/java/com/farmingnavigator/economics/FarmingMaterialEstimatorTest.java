@@ -194,4 +194,13 @@ public class FarmingMaterialEstimatorTest
         assertEquals(3, estimate.getLines().size()); assertEquals(315, estimate.getKnownSubtotal().getAsLong());
     }
 
+    @Test public void bottomlessUseIsExcludedWhileBarleyFarmerPaymentStillHasValue()
+    {
+        FieldRunPlan plan=new FieldRunPlanner().plan(account(),EnumSet.of(com.farmingnavigator.farming.field.FieldPatchDefinition.LUMBRIDGE_HOPS),FieldRunCrop.BARLEY,
+                FieldRunMode.HARVEST_ALL,true,FieldRunCompost.BOTTOMLESS_COMPOST,Map.of(),null,now);
+        FarmingMaterialEstimate estimate=estimator.fields(plan,id -> { assertTrue(id==ItemID.BARLEY_SEED || id==ItemID.BUCKET_COMPOST); return 10; });
+        assertEquals(2,estimate.getLines().size()); assertEquals(70,estimate.getKnownSubtotal().getAsLong());
+        assertTrue(estimate.getNotes().stream().anyMatch(n -> n.contains("Bottomless compost use value is unknown and excluded")));
+    }
+
 }

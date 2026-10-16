@@ -81,8 +81,11 @@ public final class FieldRunPlanner
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true, "For weeds; auto-weed is not checked."));
                 if (compost != FieldRunCompost.NONE)
                 {
-                    supplies.add(new SupplyRequirement(compost.getItemId(), compost + " (apply to plots)", replants, false,
-                            "One unnoted filled bucket per possible new planting, separate from farmer payments. Application is confirmed manually."));
+                    supplies.add(new SupplyRequirement(compost.getItemId(), compost + " (apply to plots)", compost.isBottomless() ? 1 : replants, false,
+                            compost.isBottomless()
+                                    ? "Bring one filled bottomless bucket. Manually check the selected compost type and at least " + replants
+                                            + " uses. Item presence does not verify contents; it cannot replace farmer payments."
+                                    : "One unnoted filled bucket per possible new planting, separate from farmer payments. Application is confirmed manually."));
                 }
                 else { warnings.add("No compost application supplies are reserved."); }
                 if (protect && crop.hasFarmerProtection()) { crop.protectionPayment(payments).ifPresent(supplies::add); }

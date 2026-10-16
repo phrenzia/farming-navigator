@@ -153,4 +153,14 @@ public class FieldRunSessionTest
         assertEquals(0,session.snapshot(now).getCompleted());
     }
 
+    @Test public void bottomlessCareStillWaitsForExplicitApplicationConfirmation()
+    {
+        FieldRunPlan plan=new FieldRunPlanner().plan(new AccountState(true,99,99,EnumSet.noneOf(Quest.class),false),EnumSet.of(patch),FieldRunCrop.POTATO,
+                FieldRunMode.HARVEST_ALL,true,FieldRunCompost.BOTTOMLESS_ULTRACOMPOST,Map.of(),null,now);
+        session.start(plan,true,now); session.command(FieldRunCommand.CONFIRM,now.plusSeconds(1)); observe(0,2);
+        assertEquals(FieldRunStep.COMPOST,step()); assertTrue(session.snapshot(now).getInstruction().contains("remaining uses"));
+        assertTrue(session.snapshot(now).getInstruction().contains("not automatically verified")); observe(0,3); assertEquals(FieldRunStep.COMPOST,step());
+        session.command(FieldRunCommand.CONFIRM,now.plusSeconds(4)); assertEquals(FieldRunStep.PLANT,step());
+    }
+
 }
