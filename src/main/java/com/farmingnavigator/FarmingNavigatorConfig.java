@@ -267,6 +267,25 @@ public interface FarmingNavigatorConfig
             position = 27, section = GENERAL_SECTION)
     default boolean showFieldObservations() { return true; }
 
+    @ConfigItem(keyName = "fieldRunCrop", name = "Allotment/flower run crop",
+            description = "Seed crop for allotment/flower preparation", position = 28, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.FieldRunCrop fieldRunCrop() { return com.farmingnavigator.routing.run.FieldRunCrop.POTATO; }
+
+    @ConfigItem(keyName = "fieldRunPatches", name = "Allotment/flower run patches",
+            description = "Only plots matching the selected crop family are considered", position = 29, section = GENERAL_SECTION)
+    default Set<com.farmingnavigator.farming.field.FieldPatchDefinition> fieldRunPatches()
+    {
+        return Collections.unmodifiableSet(EnumSet.allOf(com.farmingnavigator.farming.field.FieldPatchDefinition.class));
+    }
+
+    @ConfigItem(keyName = "fieldRunMode", name = "Mature flowers",
+            description = "Keep mature flowers by default; harvesting them may remove nearby allotment protection", position = 30, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.FieldRunMode fieldRunMode() { return com.farmingnavigator.routing.run.FieldRunMode.KEEP_MATURE_FLOWERS; }
+
+    @ConfigItem(keyName = "fieldRunProtection", name = "Reserve allotment protection",
+            description = "Reserve exact farmer payments for possible new allotments; flowers and Harmony have no farmer payment", position = 31, section = GENERAL_SECTION)
+    default boolean fieldRunProtection() { return true; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

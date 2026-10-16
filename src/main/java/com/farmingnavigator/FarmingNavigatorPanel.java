@@ -137,6 +137,9 @@ public class FarmingNavigatorPanel
     private boolean treeObservationsOpen;
     private boolean gardenObservationsOpen;
     private boolean fieldObservationsOpen;
+    private boolean fieldRunDetailsOpen;
+    private com.farmingnavigator.routing.run.FieldRunPlan fieldRunPlan;
+    public void setFieldRunPlan(com.farmingnavigator.routing.run.FieldRunPlan plan) { fieldRunPlan = plan; }
     private boolean gardenRunDetailsOpen;
     private com.farmingnavigator.guided.garden.GardenRunSnapshot gardenGuidedRun;
     private Consumer<com.farmingnavigator.guided.garden.GardenRunCommand> gardenCommands = command -> {};
@@ -783,6 +786,12 @@ public class FarmingNavigatorPanel
             patchListPanel.add(Box.createVerticalStrut(8));
         }
 
+        if (accountState.isLoggedIn() && fieldRunPlan != null)
+        {
+            patchListPanel.add(new com.farmingnavigator.ui.FieldRunPlanPanel(fieldRunPlan,
+                    fieldRunDetailsOpen, expanded -> fieldRunDetailsOpen = expanded));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
         if (config.showFieldObservations())
         {
             patchListPanel.add(new com.farmingnavigator.ui.FieldObservationsPanel(fieldObservations, overviewTime,
