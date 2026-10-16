@@ -127,7 +127,8 @@ public final class GardenRunSession
             case DEAD: enter(GardenRunStep.CLEAR, now); break;
             case DISEASED:
                 curingCrop = state.getCrop();
-                enter(state.getCrop().getFamily() == GardenFamily.BUSH ? GardenRunStep.PRUNE : GardenRunStep.CURE, now); break;
+                enter(plan.getCure() == HerbRunCure.CURE_PLANT ? GardenRunStep.CURE
+                        : state.getCrop().getFamily() == GardenFamily.BUSH ? GardenRunStep.PRUNE : GardenRunStep.CURE, now); break;
             case GROWING: if (step != GardenRunStep.WAIT) { enter(GardenRunStep.WAIT, now); } break;
             default: break;
         }
@@ -153,7 +154,7 @@ public final class GardenRunSession
         Instant end = finishedAt == null ? now : finishedAt;
         Duration elapsed = startedAt == null || end.isBefore(startedAt) ? Duration.ZERO : Duration.between(startedAt, end);
         return new GardenRunSnapshot(step, plan == null ? null : plan.getCrop(), plan == null ? null : plan.getMode(),
-                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? GardenRunCompost.NONE : plan.getCompost());
+                active() ? plan.getStops().get(index) : null, plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? GardenRunCompost.NONE : plan.getCompost(), plan == null ? HerbRunCure.PLANT_CURE : plan.getCure());
     }
     public void cancel()
     {

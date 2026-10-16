@@ -72,6 +72,30 @@ public class GardenGuidedRunPanelTest
             catch (Exception ex) { throw new AssertionError(ex); }
         });
     }
+    @Test public void fertileSoilExplainsManualApplicationAndAsh() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            Instant now = Instant.parse("2026-10-15T12:00:00Z"); GardenPatchDefinition patch = GardenPatchDefinition.RIMMINGTON_BUSH;
+            GardenRunPlan plan = new GardenRunPlanner().plan(new AccountState(true, 99, 99, EnumSet.noneOf(net.runelite.api.Quest.class), false),
+                    EnumSet.of(patch), GardenRunCrop.REDBERRIES, GardenRunMode.KEEP_MATURE, true, GardenRunCompost.FERTILE_SOIL_ULTRA, Map.of(), null, now);
+            GardenRunSession session = new GardenRunSession(); session.start(plan, true, now); session.command(GardenRunCommand.CONFIRM, now.plusSeconds(1));
+            session.observe(patch.getLocation(), Map.of(patch, new GardenPatchObservation(new GardenPatchStateDecoder().decode(GardenFamily.BUSH, 0),
+                    now.plusSeconds(2), FarmingGrowthRate.NORMAL)), now.plusSeconds(2));
+            AtomicReference<GardenRunCommand> command = new AtomicReference<>();
+            GardenGuidedRunPanel panel = new GardenGuidedRunPanel(session.snapshot(now.plusSeconds(3)), false, command::set);
+            assertTrue(labels(panel).contains("Cast Fertile Soil"));
+            JButton button = (JButton) Arrays.stream(panel.getComponents()).filter(c -> c instanceof JButton
+                    && ((JButton) c).getText().equals("Compost applied (manual)")).findFirst().get();
+            button.doClick(); assertEquals(GardenRunCommand.CONFIRM, command.get()); assertFalse(button.isEnabled());
+            assertEquals(GardenRunStep.COMPOST, session.snapshot(now).getStep());
+            panel.setSize(225, 800); layout(panel);
+            BufferedImage image = new BufferedImage(225, 800, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = image.createGraphics(); panel.printAll(graphics); graphics.dispose();
+            File directory = new File("build/verification"); directory.mkdirs();
+            try { ImageIO.write(image, "png", new File(directory, "guided-garden-fertile-soil.png")); }
+            catch (Exception ex) { throw new AssertionError(ex); }
+        });
+    }
     @Test public void unavailablePlanDisablesStartButton() throws Exception
     {
         SwingUtilities.invokeAndWait(() -> {

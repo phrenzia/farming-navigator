@@ -20,7 +20,7 @@ public class FarmingNavigatorStateRefreshTest
 
     @Test public void gardenSetupChangesInvalidateOnlyTheGardenChecklist()
     {
-        for (String key : new String[]{"gardenRunCrop", "gardenRunPatches", "gardenRunMode", "gardenRunProtection", "gardenRunCompost", "gardenTransportPreference"})
+        for (String key : new String[]{"gardenRunCrop", "gardenRunPatches", "gardenRunMode", "gardenRunProtection", "gardenRunCompost", "gardenRunCure", "gardenAshTomeRead", "gardenTransportPreference"})
         {
             assertTrue(FarmingNavigatorPlugin.isGardenRunSetupKey(key));
             assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey(key)); assertFalse(FarmingNavigatorPlugin.isRunSetupKey(key));

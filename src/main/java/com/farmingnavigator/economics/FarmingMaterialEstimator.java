@@ -53,7 +53,7 @@ public final class FarmingMaterialEstimator
         for (com.farmingnavigator.loadout.SupplyCheck check : plan.getSupplies())
         {
             SupplyRequirement requirement = check.getRequirement(); int id = requirement.getItemId();
-            if (id == plan.getCrop().getSeedId() || id == ItemID.PLANT_CURE || id == paymentId || !plan.getCompost().isBottomless() && id == plan.getCompost().getItemId()) { lines.add(line(requirement, price)); }
+            if (id == plan.getCrop().getSeedId() || id == ItemID.PLANT_CURE || id == ItemID.FOSSIL_VOLCANIC_ASH || id == paymentId || !plan.getCompost().isBottomless() && id == plan.getCompost().getItemId()) { lines.add(line(requirement, price)); }
         }
         List<String> notes = notes();
         if (plan.getCompost().isBottomless() && plan.getStops().stream().anyMatch(GardenRunStop::isReplant))

@@ -328,6 +328,14 @@ public interface FarmingNavigatorConfig
             description = "Manually declare the tome unlock for field Fertile Soil ultracompost; this is not automatically verified", position = 41, section = GENERAL_SECTION)
     default boolean fieldAshTomeRead() { return false; }
 
+    @ConfigItem(keyName = "gardenRunCure", name = "Bush/cactus disease treatment",
+            description = "Prune bushes / cure cacti with items, or use Lunar Cure Plant with shared travel runes", position = 42, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.HerbRunCure gardenRunCure() { return com.farmingnavigator.routing.run.HerbRunCure.PLANT_CURE; }
+
+    @ConfigItem(keyName = "gardenAshTomeRead", name = "Bush/cactus ash-covered tome read",
+            description = "Manually declare the tome unlock for bush/cactus Fertile Soil ultracompost", position = 43, section = GENERAL_SECTION)
+    default boolean gardenAshTomeRead() { return false; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.
