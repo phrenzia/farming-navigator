@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2018, Torkel Velure <https://github.com/TorkelV>
+ * Copyright (c) 2018, NotFoxtrot <https://github.com/NotFoxtrot>
+ * Copyright (c) 2018 Abex
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ *  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.farmingnavigator.farming.field;
+
+import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.gameval.VarbitID;
+
+/** Transmit assignments from FarmingWorld and shared farming-area anchors (not exact plot tiles) from FarmingPatchLocation. */
+public enum FieldPatchDefinition
+{
+    ARDOUGNE_NORTH("Ardougne - North", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_A, 2663, 3375),
+    ARDOUGNE_SOUTH("Ardougne - South", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_B, 2663, 3375),
+    ARDOUGNE_FLOWER("Ardougne - Flower", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 2663, 3375),
+    CATHERBY_NORTH("Catherby - North", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_A, 2810, 3462),
+    CATHERBY_SOUTH("Catherby - South", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_B, 2810, 3462),
+    CATHERBY_FLOWER("Catherby - Flower", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 2810, 3462),
+    ORTUS_FARM_NORTH("Ortus Farm - North", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_A, 1587, 3101),
+    ORTUS_FARM_SOUTH("Ortus Farm - South", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_B, 1587, 3101),
+    ORTUS_FARM_FLOWER("Ortus Farm - Flower", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 1587, 3101),
+    FALADOR_NORTH("Falador - North west", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_A, 3052, 3309),
+    FALADOR_SOUTH("Falador - South east", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_B, 3052, 3309),
+    FALADOR_FLOWER("Falador - Flower", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 3052, 3309),
+    HOSIDIUS_NORTH("Hosidius - North east", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_A, 1729, 3558),
+    HOSIDIUS_SOUTH("Hosidius - South west", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_B, 1729, 3558),
+    HOSIDIUS_FLOWER("Hosidius - Flower", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 1729, 3558),
+    MORYTANIA_NORTH("Morytania - North west", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_A, 3598, 3524),
+    MORYTANIA_SOUTH("Morytania - South east", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_B, 3598, 3524),
+    MORYTANIA_FLOWER("Morytania - Flower", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 3598, 3524),
+    FARMING_GUILD_NORTH("Farming Guild - North", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_C, 1269, 3730),
+    FARMING_GUILD_SOUTH("Farming Guild - South", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_D, 1269, 3730),
+    FARMING_GUILD_FLOWER("Farming Guild - Flower", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_H, 1259, 3729),
+    PRIFDDINAS_NORTH("Prifddinas - North", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_A, 3289, 6100),
+    PRIFDDINAS_SOUTH("Prifddinas - South", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_B, 3289, 6100),
+    PRIFDDINAS_FLOWER("Prifddinas - Flower", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 3289, 6100),
+    HARMONY_ISLAND_ALLOTMENT("Harmony Island", FieldFamily.ALLOTMENT, VarbitID.FARMING_TRANSMIT_A, 3793, 2836),
+    KASTORI_FLOWER("Kastori", FieldFamily.FLOWER, VarbitID.FARMING_TRANSMIT_C, 1352, 3025);
+    private final String label;
+    private final FieldFamily family;
+    private final int varbit;
+    private final WorldPoint location;
+    FieldPatchDefinition(String label, FieldFamily family, int varbit, int x, int y)
+    {
+        this.label = label; this.family = family; this.varbit = varbit; this.location = new WorldPoint(x, y, 0);
+    }
+    public String getLabel() { return label; }
+    public FieldFamily getFamily() { return family; }
+    public int getVarbit() { return varbit; }
+    public WorldPoint getLocation() { return location; }
+    public boolean isNear(WorldPoint player) { return player != null && player.getPlane() == 0 && location.distanceTo2D(player) <= 12; }
+}

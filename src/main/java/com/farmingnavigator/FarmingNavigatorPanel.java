@@ -136,6 +136,7 @@ public class FarmingNavigatorPanel
     private boolean herbOverviewOpen;
     private boolean treeObservationsOpen;
     private boolean gardenObservationsOpen;
+    private boolean fieldObservationsOpen;
     private boolean gardenRunDetailsOpen;
     private com.farmingnavigator.guided.garden.GardenRunSnapshot gardenGuidedRun;
     private Consumer<com.farmingnavigator.guided.garden.GardenRunCommand> gardenCommands = command -> {};
@@ -149,6 +150,11 @@ public class FarmingNavigatorPanel
     public void setGardenObservations(Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> observations)
     {
         gardenObservations = Map.copyOf(observations);
+    }
+    private Map<com.farmingnavigator.farming.field.FieldPatchDefinition, com.farmingnavigator.farming.field.FieldPatchObservation> fieldObservations = Collections.emptyMap();
+    public void setFieldObservations(Map<com.farmingnavigator.farming.field.FieldPatchDefinition, com.farmingnavigator.farming.field.FieldPatchObservation> observations)
+    {
+        fieldObservations = Map.copyOf(observations);
     }
     private boolean treeRunDetailsOpen;
     private com.farmingnavigator.analytics.RunMetricsSnapshot runMetrics;
@@ -774,6 +780,13 @@ public class FarmingNavigatorPanel
         {
             patchListPanel.add(new com.farmingnavigator.ui.GardenObservationsPanel(gardenObservations, overviewTime,
                     gardenObservationsOpen, expanded -> gardenObservationsOpen = expanded));
+            patchListPanel.add(Box.createVerticalStrut(8));
+        }
+
+        if (config.showFieldObservations())
+        {
+            patchListPanel.add(new com.farmingnavigator.ui.FieldObservationsPanel(fieldObservations, overviewTime,
+                    fieldObservationsOpen, expanded -> fieldObservationsOpen = expanded));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
 

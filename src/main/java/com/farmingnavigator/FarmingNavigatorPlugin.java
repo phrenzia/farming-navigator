@@ -134,6 +134,7 @@ public class FarmingNavigatorPlugin
     private HerbPatchObservationService herbPatchObservationService;
     @Inject private TreePatchObservationService treePatchObservationService;
     @Inject private com.farmingnavigator.farming.garden.GardenPatchObservationService gardenPatchObservationService;
+    @Inject private com.farmingnavigator.farming.field.FieldPatchObservationService fieldPatchObservationService;
 
     private FarmingNavigatorPanel panel;
 
@@ -184,6 +185,7 @@ public class FarmingNavigatorPlugin
         herbPatchObservationService.reset();
         treePatchObservationService.reset();
         gardenPatchObservationService.reset();
+        fieldPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
 
@@ -241,6 +243,7 @@ public class FarmingNavigatorPlugin
         herbPatchObservationService.reset();
         treePatchObservationService.reset();
         gardenPatchObservationService.reset();
+        fieldPatchObservationService.reset();
         storageStateService
                 .invalidateBankSnapshot();
 
@@ -275,6 +278,7 @@ public class FarmingNavigatorPlugin
             herbPatchObservationService.invalidateRegion();
             treePatchObservationService.invalidateRegion();
             gardenPatchObservationService.invalidateRegion();
+            fieldPatchObservationService.invalidateRegion();
         }
         if (state == GameState.LOGGED_IN)
         {
@@ -302,6 +306,7 @@ public class FarmingNavigatorPlugin
             herbPatchObservationService.reset();
             treePatchObservationService.reset();
             gardenPatchObservationService.reset();
+            fieldPatchObservationService.reset();
             herbAlertTracker.reset();
             treeAlertTracker.reset();
             gardenAlertTracker.reset();
@@ -324,6 +329,7 @@ public class FarmingNavigatorPlugin
         herbPatchObservationService.reset();
         treePatchObservationService.reset();
         gardenPatchObservationService.reset();
+        fieldPatchObservationService.reset();
         guidedRunSession.cancel();
         treeSceneTracker.clear();
         gardenSceneTracker.clear();
@@ -367,6 +373,7 @@ public class FarmingNavigatorPlugin
         boolean changed = herbPatchObservationService.sample();
         changed |= treePatchObservationService.sample();
         changed |= gardenPatchObservationService.sample();
+        changed |= fieldPatchObservationService.sample();
         if (gardenRunSession.snapshot(Instant.now()).isActive())
         {
             changed |= gardenRunSession.observe(herbPatchObservationService.currentLocation(), gardenPatchObservationService.snapshot(), Instant.now());
@@ -386,7 +393,7 @@ public class FarmingNavigatorPlugin
         long minute = Instant.now().getEpochSecond() / 60;
         if (changed || (minute != lastPatchTimerRefreshMinute
                 && (herbPatchObservationService.hasObservations() || treePatchObservationService.hasObservations()
-                        || gardenPatchObservationService.hasObservations()
+                        || gardenPatchObservationService.hasObservations() || fieldPatchObservationService.hasObservations()
                         || guidedRunSession.snapshot().isActive() || treeRunSession.snapshot(Instant.now()).isActive()
                         || gardenRunSession.snapshot(Instant.now()).isActive())))
         {
@@ -462,7 +469,8 @@ public class FarmingNavigatorPlugin
     {
         if (event.getKey() != null && (event.getKey().startsWith(HerbObservationPersistence.KEY_PREFIX)
                 || event.getKey().startsWith(TreeObservationPersistence.KEY_PREFIX)
-                || event.getKey().startsWith(com.farmingnavigator.farming.garden.GardenObservationPersistence.KEY_PREFIX)))
+                || event.getKey().startsWith(com.farmingnavigator.farming.garden.GardenObservationPersistence.KEY_PREFIX)
+                || event.getKey().startsWith(com.farmingnavigator.farming.field.FieldObservationPersistence.KEY_PREFIX)))
         {
             return; // Observation sampling already refreshes the panel once per changed snapshot.
         }
@@ -677,6 +685,7 @@ public class FarmingNavigatorPlugin
                 herbPatchObservationService.snapshot();
         Map<TreePatchDefinition, TreePatchObservation> treeObservations = treePatchObservationService.snapshot();
         Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, com.farmingnavigator.farming.garden.GardenPatchObservation> gardenObservations = gardenPatchObservationService.snapshot();
+        Map<com.farmingnavigator.farming.field.FieldPatchDefinition, com.farmingnavigator.farming.field.FieldPatchObservation> fieldObservations = fieldPatchObservationService.snapshot();
 
         HerbRunPlan suggested = new HerbRunPlanner().plan(accountState, patchStatuses,
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
@@ -742,6 +751,7 @@ public class FarmingNavigatorPlugin
                         targetPanel.setGuidedRun(guidedRun);
                         targetPanel.setTreeObservations(treeObservations);
                         targetPanel.setGardenObservations(gardenObservations);
+                        targetPanel.setFieldObservations(fieldObservations);
                         targetPanel.setGardenRunPlan(gardenRunPlan);
                         targetPanel.setGardenMaterials(gardenMaterials);
                         targetPanel.setGardenGuidedRun(gardenGuidedRun);
