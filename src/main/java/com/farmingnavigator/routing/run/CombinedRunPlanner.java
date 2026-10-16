@@ -33,7 +33,7 @@ public final class CombinedRunPlanner
                             herb.getTransportResources(), herb.getExcluded().size(), List.of(), context.getConfig().herbRunCompost().name(), (int) herb.getStops().stream().filter(HerbRunStop::isReplant).count()); break;
                 case TREE:
                     if (tree == null) { assembly.blockers.add("Tree preparation is unavailable."); break; }
-                    assembly.add(kind, kind + " - " + tree.getCrop(), tree.getStops(), tree.getSupplies(), null, tree.getBlocker(), tree.getTransportResources(), tree.getExcluded().size(), tree.getWarnings(), "NONE", 0); break;
+                    assembly.add(kind, kind + " - " + tree.getCrop(), tree.getStops(), tree.getSupplies(), tree.getCareResources(), tree.getBlocker(), tree.getTransportResources(), tree.getExcluded().size(), tree.getWarnings(), tree.getCompost().name(), (int) tree.getStops().stream().filter(TreeRunStop::isReplant).count()); break;
                 case GARDEN:
                     if (garden == null) { assembly.blockers.add("Bush/cactus preparation is unavailable."); break; }
                     assembly.add(kind, kind + " - " + garden.getCrop(), garden.getStops(), garden.getSupplies(), garden.getCareResources(), garden.getBlocker(),

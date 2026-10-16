@@ -13,6 +13,10 @@ import com.farmingnavigator.transport.VerifiedTransportResult;
 public final class TreeRunPlan
 {
     private final TreeRunCrop crop;
+    private final TreeRunCompost compost;
+    private final TreeRunCure cure;
+    private final int potentialCures;
+    private final HerbRunCareResources careResources;
     private final List<TreeRunStop> stops;
     private final List<SupplyCheck> supplies;
     private final Map<TreePatchDefinition, String> excluded;
@@ -22,11 +26,17 @@ public final class TreeRunPlan
     TreeRunPlan(TreeRunCrop crop, List<TreeRunStop> stops, List<SupplyCheck> supplies,
             Map<TreePatchDefinition, String> excluded, List<String> warnings, String blocker)
     {
-        this(crop, stops, supplies, excluded, warnings, blocker, null);
+        this(crop, stops, supplies, excluded, warnings, blocker, TreeRunCompost.NONE, TreeRunCure.PRUNE, 0);
+    }
+    TreeRunPlan(TreeRunCrop crop, List<TreeRunStop> stops, List<SupplyCheck> supplies,
+            Map<TreePatchDefinition, String> excluded, List<String> warnings, String blocker, TreeRunCompost compost, TreeRunCure cure, int potentialCures)
+    {
+        this(crop, stops, supplies, excluded, warnings, blocker, compost, cure, potentialCures, null, null);
     }
     private TreeRunPlan(TreeRunCrop crop, List<TreeRunStop> stops, List<SupplyCheck> supplies,
-            Map<TreePatchDefinition, String> excluded, List<String> warnings, String blocker, RunTransportResources resources)
+            Map<TreePatchDefinition, String> excluded, List<String> warnings, String blocker, TreeRunCompost compost, TreeRunCure cure, int potentialCures, RunTransportResources resources, HerbRunCareResources careResources)
     {
+        this.compost = compost; this.cure = cure; this.potentialCures = potentialCures; this.careResources = careResources;
         this.crop = crop;
         this.stops = List.copyOf(stops);
         this.supplies = List.copyOf(supplies);
@@ -37,6 +47,9 @@ public final class TreeRunPlan
         this.blocker = blocker;
         this.transportResources = resources;
     }
+    public TreeRunCompost getCompost() { return compost; }
+    public TreeRunCure getCure() { return cure; }
+    public HerbRunCareResources getCareResources() { return careResources; }
     public TreeRunCrop getCrop() { return crop; }
     public List<TreeRunStop> getStops() { return stops; }
     public List<SupplyCheck> getSupplies() { return supplies; }
@@ -60,7 +73,10 @@ public final class TreeRunPlan
                     : stop.withTransports(usable.isEmpty() ? null : usable.get(0), usable.size() < 2 ? null : usable.get(1)));
             previousFossil = fossil;
         }
-        return new TreeRunPlan(crop, routed, supplies, excluded, warnings, blocker,
-                new RunTransportResourcePlanner().evaluate(routed, context));
+        HerbRunCareResources care = HerbRunCareResources.evaluateCounts(stops.stream().filter(TreeRunStop::isReplant).count(),
+                potentialCures, cure.asHerbCure(), HerbRunCompost.valueOf(compost.name()),
+                context != null && context.getConfig() != null && context.getConfig().treeAshTomeRead(), context);
+        return new TreeRunPlan(crop, routed, supplies, excluded, warnings, blocker, compost, cure, potentialCures,
+                new RunTransportResourcePlanner().evaluate(routed, context, care.getRunes()), care);
     }
 }

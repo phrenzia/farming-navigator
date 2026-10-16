@@ -35,7 +35,8 @@ public final class TreeRunPlanPanel extends JPanel
         setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         add(text("Tree run preparation", Color.WHITE));
         add(text(plan.getCrop() + " - " + plan.getStops().size() + " stops", Color.WHITE));
-        add(text("Choose tree crop, patches and protection in plugin settings.", MUTED));
+        add(text("Choose tree crop, patches, compost, disease treatment and protection in plugin settings.", MUTED));
+        add(text("Compost: " + plan.getCompost() + "; treatment: " + plan.getCure(), MUTED));
         if (!plan.getBlocker().isEmpty()) { add(text(plan.getBlocker(), WARNING)); return; }
         JPanel details = new JPanel();
         details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
@@ -80,9 +81,14 @@ public final class TreeRunPlanPanel extends JPanel
             }
             details.add(text(stop.getAction(), MUTED));
         }
+        if (plan.getCareResources() != null)
+        {
+            details.add(Box.createVerticalStrut(7)); details.add(text("Tree care access", Color.WHITE));
+            plan.getCareResources().getChecks().forEach(check -> details.add(text(check.getRequirement() + ": " + check.getDetail(), check.isReadyNow() ? MUTED : WARNING)));
+        }
         if (plan.getTransportResources() != null)
         {
-            details.add(Box.createVerticalStrut(7)); details.add(text("Shared tree travel supplies", Color.WHITE));
+            details.add(Box.createVerticalStrut(7)); details.add(text("Shared tree travel and care supplies", Color.WHITE));
             plan.getTransportResources().getChecks().forEach(check -> {
                 details.add(text(check.getRequirement() + ": " + (check.isReadyNow() ? "Ready now"
                         : check.requiresBankWithdrawal() ? "Available from bank"

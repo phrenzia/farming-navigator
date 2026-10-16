@@ -52,6 +52,32 @@ public class TreeGuidedRunPanelTest
             catch (Exception ex) { throw new AssertionError(ex); }
         });
     }
+    @Test public void fertileSoilConfirmationExplainsTheManualTomeAndAshCheck() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            Instant now = Instant.parse("2026-10-15T12:00:00Z");
+            TreePatchDefinition patch = TreePatchDefinition.VARROCK_TREE;
+            TreeRunSession session = new TreeRunSession();
+            TreeRunPlan plan = new TreeRunPlanner().plan(new AccountState(true, 99, 99, EnumSet.noneOf(net.runelite.api.Quest.class), false),
+                    EnumSet.of(patch), TreeRunCrop.OAK, true, TreeRunCompost.FERTILE_SOIL_ULTRA, TreeRunCure.PRUNE, Map.of(), null, now);
+            session.start(plan, true, now); session.command(TreeRunCommand.CONFIRM, now.plusSeconds(1));
+            session.observe(TreePatchDestination.VARROCK_TREE.getLocation(), Map.of(patch, new TreePatchObservation(
+                    new TreePatchStateDecoder().decode(TreeFamily.TREE, 0), now.plusSeconds(2), FarmingGrowthRate.NORMAL)), now.plusSeconds(2));
+            AtomicReference<TreeRunCommand> command = new AtomicReference<>();
+            TreeGuidedRunPanel panel = new TreeGuidedRunPanel(session.snapshot(now.plusSeconds(4)), false, command::set);
+            assertTrue(labels(panel).contains("Cast Fertile Soil"));
+            JButton button = (JButton) Arrays.stream(panel.getComponents()).filter(component -> component instanceof JButton
+                    && ((JButton) component).getText().equals("Compost applied (manual)")).findFirst().get();
+            button.doClick(); assertEquals(TreeRunCommand.CONFIRM, command.get()); assertFalse(button.isEnabled());
+            assertEquals(TreeRunStep.COMPOST, session.snapshot(now.plusSeconds(5)).getStep());
+            panel.setSize(225, 700); layout(panel);
+            BufferedImage image = new BufferedImage(225, 700, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = image.createGraphics(); panel.printAll(graphics); graphics.dispose();
+            File directory = new File("build/verification"); directory.mkdirs();
+            try { ImageIO.write(image, "png", new File(directory, "guided-tree-fertile-soil.png")); }
+            catch (Exception ex) { throw new AssertionError(ex); }
+        });
+    }
     @Test public void unavailablePlanDisablesStartButton() throws Exception
     {
         SwingUtilities.invokeAndWait(() -> {

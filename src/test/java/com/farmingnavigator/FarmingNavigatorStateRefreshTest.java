@@ -34,6 +34,9 @@ public class FarmingNavigatorStateRefreshTest
         assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeRunCrop"));
         assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeRunPatches"));
         assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeRunProtection"));
+        assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeRunCompost"));
+        assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeRunCure"));
+        assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeAshTomeRead"));
         assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("treeTransportPreference"));
         assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey("treeObservedAlerts"));
         assertFalse(FarmingNavigatorPlugin.isTreeRunSetupKey("treeEstimatedAlerts"));

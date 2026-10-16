@@ -52,6 +52,7 @@ public final class TreeGuidedRunPanel extends JPanel
         if (run.getStep() == TreeRunStep.PREPARE) { add(button("Ready for tree travel", TreeRunCommand.CONFIRM, commands)); }
         else
         {
+            if (run.getStep() == TreeRunStep.COMPOST) { add(button("Compost applied (manual)", TreeRunCommand.CONFIRM, commands)); }
             if (run.getStep() == TreeRunStep.PROTECT) { add(button("Protection paid (manual)", TreeRunCommand.CONFIRM, commands)); }
             if (run.getStep() == TreeRunStep.KEEP_OR_REMOVE)
             {

@@ -9,6 +9,8 @@ public final class TreeRunSnapshot
     private final long revision;
     public long getRevision() { return revision; }
     private final TreeRunStep step;
+    private final com.farmingnavigator.routing.run.TreeRunCompost compost;
+    private final com.farmingnavigator.routing.run.TreeRunCure cure;
     private final TreeRunCrop crop;
     private final TreeRunStop stop;
     private final int total;
@@ -25,10 +27,20 @@ public final class TreeRunSnapshot
     TreeRunSnapshot(TreeRunStep step, TreeRunCrop crop, TreeRunStop stop, int total, int completed,
             int manual, int skipped, int protectionConfirmed, Duration elapsed, long revision)
     {
+        this(step, crop, stop, total, completed, manual, skipped, protectionConfirmed, elapsed,
+                com.farmingnavigator.routing.run.TreeRunCompost.NONE, com.farmingnavigator.routing.run.TreeRunCure.PRUNE, revision);
+    }
+    TreeRunSnapshot(TreeRunStep step, TreeRunCrop crop, TreeRunStop stop, int total, int completed,
+            int manual, int skipped, int protectionConfirmed, Duration elapsed,
+            com.farmingnavigator.routing.run.TreeRunCompost compost, com.farmingnavigator.routing.run.TreeRunCure cure, long revision)
+    {
+        this.compost = compost; this.cure = cure;
         this.revision = revision;
         this.step = step; this.crop = crop; this.stop = stop; this.total = total; this.completed = completed;
         this.manual = manual; this.skipped = skipped; this.protectionConfirmed = protectionConfirmed; this.elapsed = elapsed;
     }
+    public com.farmingnavigator.routing.run.TreeRunCompost getCompost() { return compost; }
+    public com.farmingnavigator.routing.run.TreeRunCure getCure() { return cure; }
     public TreeRunStep getStep() { return step; }
     public TreeRunCrop getCrop() { return crop; }
     public TreeRunStop getStop() { return stop; }
@@ -43,7 +55,7 @@ public final class TreeRunSnapshot
     {
         switch (step)
         {
-            case PREPARE: return "Review saplings, tools, protection and shared travel supplies, then confirm readiness.";
+            case PREPARE: return "Review saplings, tools, compost, protection and shared travel supplies, then confirm readiness.";
             case TRAVEL: return "Travel to " + stop.getPatch().getLabel() + " and approach the patch.";
             case INSPECT: return "Inspect the tree patch. A fresh nearby observation is required to choose an action.";
             case CHECK_HEALTH: return "Check the tree's health. The checklist waits for a fresh health-checked state.";
@@ -61,6 +73,12 @@ public final class TreeRunSnapshot
                 return "Remove the healthy tree only if you want to replace it. Use a suitable axe or pay the farmer; removal fees are not budgeted.";
             case CLEAR: return "Inspect, then clear the dead tree or dig up the stump.";
             case RAKE: return "Rake the patch until it is empty.";
+            case COMPOST:
+                if (compost.isSpell()) { return "Cast Fertile Soil on this patch, then confirm manually. Application is not automatically observed."
+                        + (compost == com.farmingnavigator.routing.run.TreeRunCompost.FERTILE_SOIL_ULTRA ? " The ash-covered tome and two volcanic ash per cast are required." : " Without ash the spell applies supercompost; carried ash may upgrade it if the tome is read."); }
+                return "Apply " + compost + " to this patch, then confirm manually. Current compost state and application are not observed."
+                        + (compost.isBottomless() ? " Check the selected contents and remaining uses manually." : "");
+            case CURE: return "Cast Lunar Cure Plant on the diseased tree. Keep the living tree; wait for fresh healthy growth of the same crop.";
             case PLANT: return "Plant an unnoted " + crop + " sapling in the empty patch.";
             case PROTECT: return "Pay the farmer to protect the newly planted tree, then confirm manually. Payment is not automatically verified.";
             case PRUNE: return "Prune the diseased tree using secateurs. Keep the living tree; the checklist waits for healthy growth of the same crop.";

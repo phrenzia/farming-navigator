@@ -21,7 +21,7 @@ public final class TreeRunSession
     private Instant startedAt;
     private Instant finishedAt;
     private TreeCrop pruningCrop = TreeCrop.UNKNOWN;
-    private boolean protect;
+    private boolean protect, compostConfirmed;
     private int index;
     private int completed;
     private int manual;
@@ -42,6 +42,10 @@ public final class TreeRunSession
         if (command == TreeRunCommand.CONFIRM && step == TreeRunStep.PREPARE)
         {
             enter(TreeRunStep.TRAVEL, now); return true;
+        }
+        if (command == TreeRunCommand.CONFIRM && step == TreeRunStep.COMPOST)
+        {
+            compostConfirmed = true; enter(TreeRunStep.PLANT, now); return true;
         }
         if (command == TreeRunCommand.CONFIRM && step == TreeRunStep.PROTECT)
         {
@@ -71,13 +75,13 @@ public final class TreeRunSession
         TreeRunStop stop = plan.getStops().get(index);
         if (!TreePatchDestination.isNear(stop.getPatch(), player)) { return false; }
         TreePatchObservation observation = observations.get(stop.getPatch());
-        if (observation == null || observation.getObservedAt().isBefore(enteredAt) || observation.getObservedAt().isAfter(now)) { return false; }
+        if (observation == null || observation.getObservedAt().isBefore(enteredAt) || observation.getObservedAt().isAfter(now)
+                || Duration.between(observation.getObservedAt(), now).compareTo(Duration.ofSeconds(30)) > 0) { return false; }
         TreePatchState state = observation.getState();
         if (state.getCrop().getFamily() != null && state.getCrop().getFamily() != stop.getPatch().getFamily()) { return false; }
         TreePatchCondition condition = state.getCondition();
         TreeRunStep before = step;
-        if (!stop.isReplant() && stop.getPatch().getFamily() == TreeFamily.REDWOOD
-                && (condition == TreePatchCondition.EMPTY || condition == TreePatchCondition.WEEDS))
+        if (!stop.isReplant() && (condition == TreePatchCondition.EMPTY || condition == TreePatchCondition.WEEDS))
         {
             finish(false, false, now); return true;
         }
@@ -106,10 +110,13 @@ public final class TreeRunSession
                 if (condition == TreePatchCondition.EMPTY)
                 {
                     if (step == TreeRunStep.REMOVE && !stop.isReplant()) { finish(false, false, now); }
-                    else { enter(TreeRunStep.PLANT, now); }
+                    else { preparePlanting(now); }
                 }
                 else if (condition == TreePatchCondition.WEEDS && step != TreeRunStep.RAKE) { enter(TreeRunStep.RAKE, now); }
                 else if (condition == TreePatchCondition.STUMP && step == TreeRunStep.REMOVE) { enter(TreeRunStep.CLEAR, now); }
+                break;
+            case COMPOST:
+                if (condition == TreePatchCondition.GROWING && state.getCrop() != plan.getCrop().getCrop()) { inspect(state, now); }
                 break;
             case PLANT:
                 if (condition == TreePatchCondition.GROWING && state.getCrop() == plan.getCrop().getCrop())
@@ -118,6 +125,7 @@ public final class TreeRunSession
                     else { finish(false, false, now); }
                 }
                 break;
+            case CURE:
             case PRUNE:
                 if ((condition == TreePatchCondition.GROWING || condition == TreePatchCondition.CHECK_HEALTH)
                         && state.getCrop() == pruningCrop && pruningCrop != TreeCrop.UNKNOWN) { finish(false, false, now); }
@@ -131,9 +139,11 @@ public final class TreeRunSession
     {
         switch (step)
         {
+            case COMPOST: return condition == TreePatchCondition.EMPTY || condition == TreePatchCondition.GROWING;
             case PLANT: return condition == TreePatchCondition.EMPTY;
             case CHECK_HEALTH: return condition == TreePatchCondition.CHECK_HEALTH;
             case HARVEST_BARK: return condition == TreePatchCondition.HARVESTABLE;
+            case CURE:
             case PRUNE: return condition == TreePatchCondition.DISEASED;
             case RAKE: return condition == TreePatchCondition.WEEDS;
             case CLEAR: return condition == TreePatchCondition.DEAD || condition == TreePatchCondition.STUMP;
@@ -146,7 +156,7 @@ public final class TreeRunSession
     {
         switch (state.getCondition())
         {
-            case EMPTY: enter(TreeRunStep.PLANT, now); break;
+            case EMPTY: preparePlanting(now); break;
             case WEEDS: enter(TreeRunStep.RAKE, now); break;
             case CHECK_HEALTH: enter(TreeRunStep.CHECK_HEALTH, now); break;
             case HEALTH_CHECKED: enter(TreeRunStep.KEEP_OR_REMOVE, now); break;
@@ -154,11 +164,15 @@ public final class TreeRunSession
             case HARVESTED: enter(TreeRunStep.KEEP_OR_REMOVE, now); break;
             case STUMP:
             case DEAD: enter(TreeRunStep.CLEAR, now); break;
-            case DISEASED: pruningCrop = state.getCrop(); enter(TreeRunStep.PRUNE, now); break;
+            case DISEASED: pruningCrop = state.getCrop(); enter(plan.getCure() == TreeRunCure.CURE_PLANT ? TreeRunStep.CURE : TreeRunStep.PRUNE, now); break;
             case GROWING:
                 if (step != TreeRunStep.WAIT) { enter(TreeRunStep.WAIT, now); } break;
             default: break;
         }
+    }
+    private void preparePlanting(Instant now)
+    {
+        enter(plan.getCompost() == TreeRunCompost.NONE || compostConfirmed ? TreeRunStep.PLANT : TreeRunStep.COMPOST, now);
     }
     public void refreshTransports(Map<TreePatchDefinition, List<VerifiedTransportResult>> transports,
             HerbTransportPreference preference, RequirementContext context)
@@ -170,6 +184,7 @@ public final class TreeRunSession
         revision++;
         if (skip) { skipped++; } else { completed++; if (manually) { manual++; } }
         pruningCrop = TreeCrop.UNKNOWN;
+        compostConfirmed = false;
         index++;
         if (index >= plan.getStops().size()) { finishedAt = now; enter(TreeRunStep.COMPLETE, now); }
         else { enter(TreeRunStep.TRAVEL, now); }
@@ -181,11 +196,12 @@ public final class TreeRunSession
         Instant end = finishedAt == null ? now : finishedAt;
         Duration elapsed = startedAt == null || end.isBefore(startedAt) ? Duration.ZERO : Duration.between(startedAt, end);
         return new TreeRunSnapshot(step, plan == null ? null : plan.getCrop(), active() ? plan.getStops().get(index) : null,
-                plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, revision);
+                plan == null ? 0 : plan.getStops().size(), completed, manual, skipped, protectionConfirmed, elapsed, plan == null ? TreeRunCompost.NONE : plan.getCompost(), plan == null ? TreeRunCure.PRUNE : plan.getCure(), revision);
     }
     public void cancel()
     {
         revision++;
+        compostConfirmed = false;
         plan = null; step = TreeRunStep.INACTIVE; enteredAt = Instant.EPOCH; startedAt = null; finishedAt = null;
         index = completed = manual = skipped = protectionConfirmed = 0; pruningCrop = TreeCrop.UNKNOWN;
     }

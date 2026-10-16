@@ -344,6 +344,18 @@ public interface FarmingNavigatorConfig
             description = "Optionally reserve standard-can water and a manual watering step for allotments, flowers and hops", position = 45, section = GENERAL_SECTION)
     default com.farmingnavigator.routing.run.FieldRunWatering fieldRunWatering() { return com.farmingnavigator.routing.run.FieldRunWatering.NONE; }
 
+    @ConfigItem(keyName = "treeRunCompost", name = "Tree compost",
+            description = "Reserve buckets, a manually checked bottomless bucket or Fertile Soil for possible plantings; crystal composting is unverified", position = 46, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.TreeRunCompost treeRunCompost() { return com.farmingnavigator.routing.run.TreeRunCompost.NONE; }
+
+    @ConfigItem(keyName = "treeRunCure", name = "Tree disease treatment",
+            description = "Prune with secateurs or use Lunar Cure Plant; spell runes share the travel budget", position = 47, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.TreeRunCure treeRunCure() { return com.farmingnavigator.routing.run.TreeRunCure.PRUNE; }
+
+    @ConfigItem(keyName = "treeAshTomeRead", name = "Tree ash-covered tome read",
+            description = "Manually declare the tome unlock for tree Fertile Soil ultracompost", position = 48, section = GENERAL_SECTION)
+    default boolean treeAshTomeRead() { return false; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

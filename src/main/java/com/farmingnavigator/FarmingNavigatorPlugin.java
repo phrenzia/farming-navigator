@@ -639,7 +639,7 @@ public class FarmingNavigatorPlugin
 
     static boolean isTreeRunSetupKey(String key)
     {
-        return "treeRunCrop".equals(key) || "treeRunPatches".equals(key) || "treeRunProtection".equals(key)
+        return "treeRunCrop".equals(key) || "treeRunPatches".equals(key) || "treeRunProtection".equals(key) || "treeRunCompost".equals(key) || "treeRunCure".equals(key) || "treeAshTomeRead".equals(key)
                 || "treeTransportPreference".equals(key);
     }
 
@@ -761,7 +761,7 @@ public class FarmingNavigatorPlugin
         Map<TreePatchDefinition, List<VerifiedTransportResult>> treeTransports = transportVerificationService.evaluateAll(accountState,
                 config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.TreePatchTransportService().getAllOptions());
         com.farmingnavigator.routing.run.TreeRunPlan treeRunPlan = new com.farmingnavigator.routing.run.TreeRunPlanner()
-                .plan(accountState, config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(),
+                .plan(accountState, config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(), config.treeRunCompost(), config.treeRunCure(),
                         treeObservations, storageSnapshot, Instant.now())
                 .withTransports(treeTransports, config.treeTransportPreference(), runContext);
         latestFieldRun = fieldRunPlan;

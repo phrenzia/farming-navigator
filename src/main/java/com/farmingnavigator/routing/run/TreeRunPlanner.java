@@ -21,6 +21,11 @@ public final class TreeRunPlanner
     public TreeRunPlan plan(AccountState account, Set<TreePatchDefinition> selected, TreeRunCrop crop,
             boolean protect, Map<TreePatchDefinition, TreePatchObservation> observations, StorageSnapshot storage, Instant now)
     {
+        return plan(account, selected, crop, protect, TreeRunCompost.NONE, TreeRunCure.PRUNE, observations, storage, now);
+    }
+    public TreeRunPlan plan(AccountState account, Set<TreePatchDefinition> selected, TreeRunCrop crop,
+            boolean protect, TreeRunCompost compost, TreeRunCure cure, Map<TreePatchDefinition, TreePatchObservation> observations, StorageSnapshot storage, Instant now)
+    {
         List<TreeRunStop> stops = new ArrayList<>();
         List<SupplyRequirement> supplies = new ArrayList<>();
         Map<TreePatchDefinition, String> excluded = new EnumMap<>(TreePatchDefinition.class);
@@ -28,7 +33,7 @@ public final class TreeRunPlanner
         String blocker = account == null || !account.isLoggedIn() ? "Log in to plan a tree run."
                 : account.getBoostedFarmingLevel() < crop.getRequiredLevel()
                         ? crop + " requires " + crop.getRequiredLevel() + " Farming; current level is " + account.getBoostedFarmingLevel() + "." : "";
-        if (!blocker.isEmpty()) { return new TreeRunPlan(crop, stops, List.of(), excluded, warnings, blocker); }
+        if (!blocker.isEmpty()) { return new TreeRunPlan(crop, stops, List.of(), excluded, warnings, blocker, compost, cure, 0); }
         int replants = 0;
         int diseased = 0;
         for (TreePatchDefinition patch : TreePatchDefinition.values())
@@ -56,7 +61,13 @@ public final class TreeRunPlanner
                     || condition == TreePatchCondition.CHECK_HEALTH)) { replant = false; }
             if (replant) { replants++; }
             if (condition == TreePatchCondition.DISEASED) { diseased++; }
-            stops.add(new TreeRunStop(patch, action(condition, patch.getFamily()), replant));
+            stops.add(new TreeRunStop(patch, condition == TreePatchCondition.DISEASED && cure == TreeRunCure.CURE_PLANT
+                    ? "Inspect and cast Lunar Cure Plant. Keep the living tree." : action(condition, patch.getFamily()), replant));
+        }
+        if (crop == TreeRunCrop.CRYSTAL && compost != TreeRunCompost.NONE && replants > 0)
+        {
+            return new TreeRunPlan(crop, List.of(), List.of(), excluded, warnings,
+                    "Crystal-tree composting is unverified. Select no compost for this plan.", compost, cure, diseased);
         }
         if (!stops.isEmpty())
         {
@@ -64,7 +75,7 @@ public final class TreeRunPlanner
             warnings.add("Inspect old observations before acting. Removing a healthy tree is a choice; bring a usable axe or check the farmer's removal fee separately.");
             if (crop == TreeRunCrop.CELASTRUS)
             {
-                warnings.add("Bring a usable axe to harvest celastrus bark and cut the depleted tree. Harvest yield and compost are not budgeted.");
+                warnings.add("Bring a usable axe to harvest celastrus bark and cut the depleted tree. Harvest yield is not predicted; selected compost is reserved only for possible new plants.");
             }
             if (crop == TreeRunCrop.REDWOOD)
             {
@@ -76,9 +87,21 @@ public final class TreeRunPlanner
                 supplies.add(new SupplyRequirement(crop.getSaplingId(), crop + " sapling", replants, false,
                         "One unnoted, fully grown sapling per potential replant. Seeds and seedlings do not count."));
                 supplies.add(new SupplyRequirement(ItemID.RAKE, "Rake", 1, true, "For weeds; auto-weed and leprechaun storage are not checked."));
+                if (compost != TreeRunCompost.NONE && !compost.isSpell())
+                {
+                    supplies.add(new SupplyRequirement(compost.getItemId(), compost + " (apply to new tree patches)", compost.isBottomless() ? 1 : replants, false,
+                            compost.isBottomless() ? "Check the declared bucket type and at least " + replants + " remaining uses manually. Contents are not verified."
+                                    : "One unnoted bucket per possible new planting. Existing compost and application are not observed; confirm manually."));
+                }
+                else if (compost == TreeRunCompost.NONE) { warnings.add("No compost application supplies are reserved."); }
+                if (compost == TreeRunCompost.FERTILE_SOIL_ULTRA)
+                {
+                    supplies.add(new SupplyRequirement(ItemID.FOSSIL_VOLCANIC_ASH, "Volcanic ash", 2L * replants, false,
+                            "Two per potential Fertile Soil ultracompost cast; the tome unlock must be confirmed manually."));
+                }
                 if (!crop.hasFarmerProtection())
                 {
-                    warnings.add("Crystal trees have no farmer protection payment. Compost and harvest yield are not budgeted in this plan.");
+                    warnings.add("Crystal trees have no farmer protection payment. Composting is unverified and harvest yield is not predicted.");
                 }
                 else if (protect)
                 {
@@ -86,9 +109,9 @@ public final class TreeRunPlanner
                     if (payment.isPresent()) { supplies.add(payment.get()); }
                     else { warnings.add("Data required: " + crop + " farmer payment is unverified. Confirm and bring protection supplies yourself."); }
                 }
-                else { warnings.add("Farmer protection is disabled. Disease prevention and compost supplies are not budgeted in this plan."); }
+                else { warnings.add("Farmer protection is disabled. No payment is reserved; selected compost is separate."); }
             }
-            if (diseased > 0)
+            if (diseased > 0 && cure == TreeRunCure.PRUNE)
             {
                 supplies.add(new SupplyRequirement(ItemID.SECATEURS, "Secateurs", 1, false,
                         "Prune observed diseased trees; magic secateurs also work.", ItemID.FAIRY_ENCHANTED_SECATEURS));
@@ -99,7 +122,7 @@ public final class TreeRunPlanner
         {
             checks.add(TreeAxePreparation.evaluate(account, storage));
         }
-        return new TreeRunPlan(crop, stops, checks, excluded, warnings, "");
+        return new TreeRunPlan(crop, stops, checks, excluded, warnings, "", compost, cure, diseased);
     }
     private String action(TreePatchCondition condition, TreeFamily family)
     {

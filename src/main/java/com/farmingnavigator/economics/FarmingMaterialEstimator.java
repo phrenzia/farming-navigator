@@ -44,6 +44,15 @@ public final class FarmingMaterialEstimator
                 else { notes.add("Farmer payment is unverified and excluded. This subtotal does not cover protection."); }
             }
         }
+        for (com.farmingnavigator.loadout.SupplyCheck check : plan.getSupplies())
+        {
+            int id = check.getRequirement().getItemId();
+            if (id == ItemID.FOSSIL_VOLCANIC_ASH || !plan.getCompost().isBottomless() && plan.getCompost().getItemId() > 0 && id == plan.getCompost().getItemId())
+            {
+                lines.add(line(check.getRequirement(), price));
+            }
+        }
+        if (plan.getCompost().isBottomless() && replants > 0) { notes.add("Bottomless compost use value is unknown and excluded; the filled bucket is reusable."); }
         return new FarmingMaterialEstimate(lines, notes);
     }
     public FarmingMaterialEstimate gardens(GardenRunPlan plan, IntToLongFunction price)

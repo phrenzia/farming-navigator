@@ -135,4 +135,15 @@ public class CombinedRunPlannerTest
         assertTrue(result.getCareChecks().stream().anyMatch(c -> c.getRequirement().contains("Water for 1") && c.getState()==RequirementState.BLOCKED));
     }
 
+    @Test public void treeSoilCastsJoinTheSameCombinedRuneBudget()
+    {
+        RequirementContext context=context(Map.of(ItemID.EARTHRUNE,45L,ItemID.ASTRALRUNE,8L,ItemID.NATURERUNE,6L),Map.of(),SpellbookType.LUNAR);
+        TreeRunPlan tree=new TreeRunPlanner().plan(context.getAccountState(),Set.of(com.farmingnavigator.farming.tree.TreePatchDefinition.VARROCK_TREE),TreeRunCrop.OAK,true,
+                TreeRunCompost.FERTILE_SOIL_SUPER,TreeRunCure.PRUNE,Map.of(),context.getStorageSnapshot(),now).withTransports(Map.of(),HerbTransportPreference.CATALOGUE,context);
+        CombinedRunPlan result=new CombinedRunPlanner().plan(Set.of(CombinedRunKind.TREE,CombinedRunKind.GARDEN,CombinedRunKind.FIELD),null,tree,
+                garden(context,GardenRunCompost.FERTILE_SOIL_SUPER),field(context,FieldRunCompost.FERTILE_SOIL_SUPER),context);
+        assertTrue(tree.getTransportResources().getChecks().get(0).isReadyNow());
+        assertEquals(RequirementState.BLOCKED,result.getResources().getChecks().get(0).getState());
+    }
+
 }
