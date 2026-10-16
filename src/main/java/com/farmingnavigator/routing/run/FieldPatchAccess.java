@@ -17,6 +17,7 @@ public final class FieldPatchAccess
                 return account.getBoostedFarmingLevel() >= 45 ? "" : "45 Farming required for the beginner guild area (boostable).";
             case PRIFDDINAS:
                 return account.hasCompletedQuest(Quest.SONG_OF_THE_ELVES) ? "" : "Complete Song of the Elves for Prifddinas access.";
+            case MORYTANIA_MUSHROOM:
             case MORYTANIA:
                 return account.hasCompletedQuest(Quest.PRIEST_IN_PERIL) ? "" : "Complete Priest in Peril for Morytania access.";
             case ORTUS_FARM:
@@ -24,6 +25,11 @@ public final class FieldPatchAccess
             case HARMONY_ISLAND:
                 return account.hasCompletedQuest(Quest.THE_GREAT_BRAIN_ROBBERY) ? ""
                         : "Data required: partial Great Brain Robbery access has not been verified; completed quest access is supported.";
+            case SEAWEED:
+                return account.hasCompletedQuest(Quest.BONE_VOYAGE) ? ""
+                        : "Complete Bone Voyage for Fossil Island underwater access. Diving equipment and air supply must be checked manually.";
+            case AUBURNVALE:
+                return "Data required: Auburnvale entry requirements have not been verified.";
             case ENTRANA:
                 return "Data required: Entrana equipment and item restrictions are not checked for this plan.";
             case ALDARIN:

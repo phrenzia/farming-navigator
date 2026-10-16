@@ -10,11 +10,13 @@ import static org.junit.Assert.*;
 
 public class FieldSceneTargetPolicyTest
 {
-    @Test public void allThirtyOnePlotsRequireMatchingFamilyChannelAndArea()
+    @Test public void allThirtySixPlotsRequireMatchingFamilyChannelAndArea()
     {
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
-            int base = patch.getFamily() == FieldFamily.ALLOTMENT ? ObjectID.FARMING_VEG_PATCH_1 : patch.getFamily() == FieldFamily.FLOWER ? ObjectID.FARMING_FLOWER_PATCH_1 : ObjectID.FARMING_HOPS_PATCH_1;
+            int base = patch.getFamily() == FieldFamily.ALLOTMENT ? ObjectID.FARMING_VEG_PATCH_1 : patch.getFamily() == FieldFamily.FLOWER ? ObjectID.FARMING_FLOWER_PATCH_1 : patch.getFamily() == FieldFamily.HOPS ? ObjectID.FARMING_HOPS_PATCH_1
+                    : patch.getFamily() == FieldFamily.SEAWEED ? ObjectID.FARMING_SEAWEED_PATCH_1
+                    : patch.getFamily() == FieldFamily.MUSHROOM ? ObjectID.FARMING_MUSHROOM_PATCH : ObjectID.FARMING_BELLADONNA_PATCH;
             assertEquals(patch, FieldSceneTargetPolicy.fieldPatch(base, patch.getVarbit(), patch.getLocation()));
             assertNull(FieldSceneTargetPolicy.fieldPatch(base, VarbitID.FARMING_TRANSMIT_N, patch.getLocation()));
             assertNull(FieldSceneTargetPolicy.fieldPatch(ObjectID.VEG_PATCH_WEEDED, patch.getVarbit(), patch.getLocation()));

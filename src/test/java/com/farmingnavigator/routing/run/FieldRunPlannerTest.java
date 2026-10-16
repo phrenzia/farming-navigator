@@ -20,7 +20,7 @@ public class FieldRunPlannerTest
     private final Instant now = Instant.parse("2026-10-15T12:00:00Z");
     private final FieldRunPlanner planner = new FieldRunPlanner();
     private AccountState account(int boosted) { return new AccountState(true, 1, boosted, EnumSet.noneOf(Quest.class), false); }
-    private AccountState unlocked() { return new AccountState(true, 1, 99, EnumSet.of(Quest.SONG_OF_THE_ELVES, Quest.PRIEST_IN_PERIL, Quest.CHILDREN_OF_THE_SUN, Quest.THE_GREAT_BRAIN_ROBBERY), false); }
+    private AccountState unlocked() { return new AccountState(true, 1, 99, EnumSet.of(Quest.SONG_OF_THE_ELVES, Quest.PRIEST_IN_PERIL, Quest.CHILDREN_OF_THE_SUN, Quest.THE_GREAT_BRAIN_ROBBERY, Quest.BONE_VOYAGE), false); }
     private FieldPatchObservation observation(FieldFamily family, int raw)
     {
         return new FieldPatchObservation(new FieldPatchStateDecoder().decode(family, raw), now, FarmingGrowthRate.NORMAL);
@@ -107,7 +107,7 @@ public class FieldRunPlannerTest
         FieldPatchAccess access = new FieldPatchAccess();
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
-            if (patch == FieldPatchDefinition.KASTORI_FLOWER || patch == FieldPatchDefinition.ENTRANA_HOPS || patch == FieldPatchDefinition.ALDARIN_HOPS) { assertTrue(access.missingRequirement(patch, unlocked()).contains("Data required")); continue; }
+            if (patch == FieldPatchDefinition.KASTORI_FLOWER || patch == FieldPatchDefinition.ENTRANA_HOPS || patch == FieldPatchDefinition.ALDARIN_HOPS || patch == FieldPatchDefinition.AUBURNVALE_BELLADONNA) { assertTrue(access.missingRequirement(patch, unlocked()).contains("Data required")); continue; }
             assertEquals("", access.missingRequirement(patch, unlocked()));
         }
         assertFalse(access.missingRequirement(FieldPatchDefinition.FARMING_GUILD_NORTH, account(44)).isEmpty());

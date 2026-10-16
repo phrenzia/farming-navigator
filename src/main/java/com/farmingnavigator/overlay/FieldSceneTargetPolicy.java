@@ -32,7 +32,10 @@ public final class FieldSceneTargetPolicy
             if (patch.getVarbit() != varbit || !patch.isNear(location)) { continue; }
             if (patch.getFamily() == FieldFamily.ALLOTMENT && ALLOTMENT.contains(baseId)
                     || patch.getFamily() == FieldFamily.FLOWER && FLOWER.contains(baseId)
-                    || patch.getFamily() == FieldFamily.HOPS && HOPS.contains(baseId)) { return patch; }
+                    || patch.getFamily() == FieldFamily.HOPS && HOPS.contains(baseId)
+                    || patch.getFamily() == FieldFamily.SEAWEED && (baseId == ObjectID.FARMING_SEAWEED_PATCH_1 || baseId == ObjectID.FARMING_SEAWEED_PATCH_2)
+                    || patch.getFamily() == FieldFamily.MUSHROOM && baseId == ObjectID.FARMING_MUSHROOM_PATCH
+                    || patch.getFamily() == FieldFamily.BELLADONNA && (baseId == ObjectID.FARMING_BELLADONNA_PATCH || baseId == ObjectID.FARMING_BELLADONNA_PATCH_2)) { return patch; }
         }
         return null;
     }
@@ -42,7 +45,7 @@ public final class FieldSceneTargetPolicy
                 || id == NpcID.HOSIDIUS_ALLOTMENT_GARDENER || id == NpcID.LYRA
                 || id == NpcID.FARMING_GARDENER_FARMGUILD_T1 || id == NpcID.PRIF_GARDENER
                 || id == NpcID.FARMING_GARDENER_HOPS_1 || id == NpcID.FARMING_GARDENER_HOPS_3
-                || id == NpcID.FARMING_GARDENER_HOPS_4 || id == NpcID.FARMING_GARDENER_HOPS_5 || id == NpcID.FRANCIS;
+                || id == NpcID.FOSSIL_GARDENER_UNDERWATER || id == NpcID.FARMING_GARDENER_HOPS_4 || id == NpcID.FARMING_GARDENER_HOPS_5 || id == NpcID.FRANCIS;
     }
     public static boolean isFarmerFor(FieldPatchDefinition patch, int id, WorldPoint location)
     {
@@ -51,6 +54,7 @@ public final class FieldSceneTargetPolicy
         if (region == null || !region.getPatches().contains(patch) || patch.getLocation().distanceTo2D(location) > 25) { return false; }
         switch (region)
         {
+            case SEAWEED: return id == NpcID.FOSSIL_GARDENER_UNDERWATER;
             case ARDOUGNE: return id == NpcID.KRAGEN;
             case CATHERBY: return id == NpcID.DANTAERA;
             case ORTUS_FARM: return id == NpcID.FORTIS_GARDENER;

@@ -57,6 +57,10 @@ public final class FieldPatchStateDecoder
         new Row(FieldCrop.HEMP, 104, 232, 108, 111, 3, 239, 3),
         new Row(FieldCrop.COTTON, 114, 242, 119, 122, 4, 250, 4)};
 
+    private static final Row[] SEAWEED = {new Row(FieldCrop.SEAWEED, 4, -1000, 8, 11, 3, 14, 3)};
+    private static final Row[] MUSHROOM = {new Row(FieldCrop.MUSHROOM, 4, -1000, 10, 16, 5, 21, 5)};
+    private static final Row[] BELLADONNA = {new Row(FieldCrop.BELLADONNA, 4, -1000, 8, 9, 3, 12, 3)};
+
     public FieldPatchState decode(FieldFamily family, int raw)
     {
         if (family == null || raw < 0 || raw > 255) { return state(raw, FieldCrop.UNKNOWN, FieldPatchCondition.UNKNOWN, -1); }
@@ -70,11 +74,22 @@ public final class FieldPatchStateDecoder
             if (in(raw, 202, 3)) { return state(raw, FieldCrop.SNAPE_GRASS, FieldPatchCondition.DISEASED, raw - 198); }
             if (in(raw, 209, 3)) { return state(raw, FieldCrop.SNAPE_GRASS, FieldPatchCondition.DEAD, raw - 205); }
         }
-        for (Row row : family == FieldFamily.ALLOTMENT ? ALLOTMENTS : family == FieldFamily.FLOWER ? FLOWERS : HOPS)
+        Row[] rows;
+        switch (family)
+        {
+            case ALLOTMENT: rows = ALLOTMENTS; break;
+            case FLOWER: rows = FLOWERS; break;
+            case HOPS: rows = HOPS; break;
+            case SEAWEED: rows = SEAWEED; break;
+            case MUSHROOM: rows = MUSHROOM; break;
+            case BELLADONNA: rows = BELLADONNA; break;
+            default: return state(raw, FieldCrop.UNKNOWN, FieldPatchCondition.UNKNOWN, -1);
+        }
+        for (Row row : rows)
         {
             if (in(raw, row.growing, row.crop.getStages() - 1)) { return state(raw, row.crop, FieldPatchCondition.GROWING, raw - row.growing); }
             if (in(raw, row.alternate, row.crop.getStages() - 1)) { return state(raw, row.crop, FieldPatchCondition.GROWING, raw - row.alternate); }
-            if (in(raw, row.harvest, family == FieldFamily.FLOWER ? 1 : 3)) { return state(raw, row.crop, FieldPatchCondition.HARVESTABLE, family == FieldFamily.HOPS ? row.harvest + 2 - raw : raw - row.harvest); }
+            if (in(raw, row.harvest, family == FieldFamily.MUSHROOM ? 6 : family == FieldFamily.FLOWER || family == FieldFamily.BELLADONNA ? 1 : 3)) { return state(raw, row.crop, FieldPatchCondition.HARVESTABLE, family == FieldFamily.HOPS ? row.harvest + 2 - raw : raw - row.harvest); }
             if (in(raw, row.disease, row.diseaseCount)) { return state(raw, row.crop, FieldPatchCondition.DISEASED, raw - row.disease + 1); }
             if (in(raw, row.dead, row.deadCount)) { return state(raw, row.crop, FieldPatchCondition.DEAD, raw - row.dead + 1); }
         }

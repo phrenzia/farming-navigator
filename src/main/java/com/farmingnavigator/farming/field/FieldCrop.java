@@ -52,7 +52,10 @@ public enum FieldCrop
     WILDBLOOD("Wildblood", FieldFamily.HOPS, 10, 9),
     FLAX("Flax", FieldFamily.HOPS, 20, 4),
     HEMP("Hemp", FieldFamily.HOPS, 20, 5),
-    COTTON("Cotton", FieldFamily.HOPS, 20, 6);
+    COTTON("Cotton", FieldFamily.HOPS, 20, 6),
+    SEAWEED("Seaweed", FieldFamily.SEAWEED, 10, 5),
+    MUSHROOM("Bittercap mushroom", FieldFamily.MUSHROOM, 40, 7),
+    BELLADONNA("Belladonna", FieldFamily.BELLADONNA, 80, 5);
     private final String label;
     private final FieldFamily family;
     private final int growthCycleMinutes;

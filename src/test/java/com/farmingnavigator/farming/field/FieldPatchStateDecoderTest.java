@@ -28,7 +28,7 @@ public class FieldPatchStateDecoderTest
                         fields[2] + "|" + fields[3] + "|" + fields[4]});
             }
         }
-        assertEquals(780, cases.size());
+        assertEquals(1560, cases.size());
         return cases;
     }
 
@@ -42,7 +42,7 @@ public class FieldPatchStateDecoderTest
         this.expected = expected;
     }
 
-    @Test public void matchesPinnedAnnualFieldStates()
+    @Test public void matchesPinnedFieldAndSpecialStates()
     {
         FieldPatchState state = new FieldPatchStateDecoder().decode(family, raw);
         assertEquals(raw, state.getRawValue());

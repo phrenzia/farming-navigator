@@ -62,7 +62,12 @@ public enum FieldPatchDefinition
     SEERS_VILLAGE_HOPS("Seers' Village", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 2661, 3523),
     LUMBRIDGE_HOPS("Lumbridge", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 3224, 3313),
     ENTRANA_HOPS("Entrana", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 2812, 3334),
-    ALDARIN_HOPS("Aldarin", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 1367, 2938);
+    ALDARIN_HOPS("Aldarin", FieldFamily.HOPS, VarbitID.FARMING_TRANSMIT_A, 1367, 2938),
+    FOSSIL_ISLAND_SEAWEED_NORTH("Fossil Island - North seaweed", FieldFamily.SEAWEED, VarbitID.FARMING_TRANSMIT_A, 3730, 10271),
+    FOSSIL_ISLAND_SEAWEED_SOUTH("Fossil Island - South seaweed", FieldFamily.SEAWEED, VarbitID.FARMING_TRANSMIT_B, 3730, 10271),
+    MORYTANIA_MUSHROOM("Morytania mushroom", FieldFamily.MUSHROOM, VarbitID.FARMING_TRANSMIT_A, 3449, 3471),
+    DRAYNOR_MANOR_BELLADONNA("Draynor Manor belladonna", FieldFamily.BELLADONNA, VarbitID.FARMING_TRANSMIT_A, 3084, 3356),
+    AUBURNVALE_BELLADONNA("Auburnvale belladonna", FieldFamily.BELLADONNA, VarbitID.FARMING_TRANSMIT_B, 1449, 3354);
     private final String label;
     private final FieldFamily family;
     private final int varbit;

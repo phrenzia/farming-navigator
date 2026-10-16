@@ -47,7 +47,11 @@ public enum FieldPatchRegion
     SEERS_VILLAGE(new int[]{10551, 10550}, FieldPatchDefinition.SEERS_VILLAGE_HOPS),
     LUMBRIDGE(new int[]{12851}, FieldPatchDefinition.LUMBRIDGE_HOPS),
     ENTRANA(new int[]{11060, 11316}, FieldPatchDefinition.ENTRANA_HOPS),
-    ALDARIN(new int[]{5421, 5165, 5166, 5422, 5677, 5678}, FieldPatchDefinition.ALDARIN_HOPS);
+    ALDARIN(new int[]{5421, 5165, 5166, 5422, 5677, 5678}, FieldPatchDefinition.ALDARIN_HOPS),
+    SEAWEED(new int[]{15008}, FieldPatchDefinition.FOSSIL_ISLAND_SEAWEED_NORTH, FieldPatchDefinition.FOSSIL_ISLAND_SEAWEED_SOUTH),
+    MORYTANIA_MUSHROOM(new int[]{13622, 13878}, FieldPatchDefinition.MORYTANIA_MUSHROOM),
+    DRAYNOR_MANOR(new int[]{12340}, FieldPatchDefinition.DRAYNOR_MANOR_BELLADONNA),
+    AUBURNVALE(new int[]{5427, 5428, 5684}, FieldPatchDefinition.AUBURNVALE_BELLADONNA);
     private final int[] regions;
     private final List<FieldPatchDefinition> patches;
     FieldPatchRegion(int[] regions, FieldPatchDefinition... patches)

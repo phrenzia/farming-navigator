@@ -39,6 +39,10 @@ public final class FieldPatchTransportService
                 case LUMBRIDGE:
                     arrivals = List.of(spell(TeleportSpellDefinition.LUMBRIDGE_TELEPORT,
                             "Teleport to Lumbridge Castle, then run north to the hops plot north of the farm.")); break;
+                case SEAWEED:
+                case MORYTANIA_MUSHROOM:
+                case DRAYNOR_MANOR:
+                case AUBURNVALE:
                 case ENTRANA:
                 case ALDARIN: arrivals = List.of(); break;
                 case FARMING_GUILD: arrivals = guild; break;

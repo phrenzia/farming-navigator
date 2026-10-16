@@ -31,7 +31,7 @@ public final class FieldObservationsPanel extends JPanel
         setBorder(BorderFactory.createEmptyBorder(9, 8, 12, 8));
         setAlignmentX(Component.LEFT_ALIGNMENT);
         setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        add(text("Allotment, flower and hops observations", Color.WHITE));
+        add(text("Field and special patch observations", Color.WHITE));
         add(text("Observed patches: " + valid.size() + " / " + FieldPatchDefinition.values().length, ColorScheme.LIGHT_GRAY_COLOR));
         long ready = valid.values().stream().filter(observation -> observation.getState().getCondition() == FieldPatchCondition.HARVESTABLE).count();
         long problem = valid.values().stream().filter(observation -> observation.getState().getCondition() == FieldPatchCondition.DISEASED

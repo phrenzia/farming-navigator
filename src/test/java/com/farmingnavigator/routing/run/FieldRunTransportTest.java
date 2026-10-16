@@ -82,7 +82,7 @@ public class FieldRunTransportTest
     @Test public void cataloguePreservesPohAndSpellMetadataAndExcludesUnverifiedKastori()
     {
         Map<FieldPatchDefinition, List<TransportOption>> options = new FieldPatchTransportService().getAllOptions();
-        assertEquals(30, options.size()); assertFalse(options.containsKey(FieldPatchDefinition.KASTORI_FLOWER));
+        assertEquals(35, options.size()); assertFalse(options.containsKey(FieldPatchDefinition.KASTORI_FLOWER));
         boolean sawPortal = false, sawSpell = false;
         for (Map.Entry<FieldPatchDefinition, List<TransportOption>> entry : options.entrySet())
         {
