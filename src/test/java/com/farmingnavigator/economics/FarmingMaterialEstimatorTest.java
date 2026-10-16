@@ -159,4 +159,31 @@ public class FarmingMaterialEstimatorTest
         FarmingMaterialEstimate result = estimator.gardens(plan, id -> { assertEquals(ItemID.PLANT_CURE, id); return 100; });
         assertEquals(1, result.getLines().size()); assertEquals(100, result.getKnownSubtotal().getAsLong());
     }
+    @Test public void fieldValuesCountSixAllotmentSeedsAndExactFullPaymentContainers()
+    {
+        FieldRunPlan plan = new FieldRunPlanner().plan(account(), EnumSet.of(com.farmingnavigator.farming.field.FieldPatchDefinition.FALADOR_NORTH,
+                com.farmingnavigator.farming.field.FieldPatchDefinition.FALADOR_SOUTH), FieldRunCrop.TOMATO, FieldRunMode.HARVEST_ALL, true, Map.of(), null, now);
+        FarmingMaterialEstimate result = estimator.fields(plan, id -> {
+            assertTrue(id == ItemID.TOMATO_SEED || id == ItemID.SACK_CABBAGE_10); return id == ItemID.TOMATO_SEED ? 5 : 100;
+        });
+        assertEquals(2, result.getLines().size()); assertEquals(430, result.getKnownSubtotal().getAsLong());
+    }
+    @Test public void keptMatureFlowerHasNoInventedReplacementOrFarmerValue()
+    {
+        com.farmingnavigator.farming.field.FieldPatchDefinition patch = com.farmingnavigator.farming.field.FieldPatchDefinition.FALADOR_FLOWER;
+        FieldRunPlan plan = new FieldRunPlanner().plan(account(), EnumSet.of(patch), FieldRunCrop.WHITE_LILY, FieldRunMode.KEEP_MATURE_FLOWERS, true,
+                Map.of(patch, new com.farmingnavigator.farming.field.FieldPatchObservation(new com.farmingnavigator.farming.field.FieldPatchStateDecoder().decode(
+                        com.farmingnavigator.farming.field.FieldFamily.FLOWER, 41), now, com.farmingnavigator.farming.state.FarmingGrowthRate.NORMAL)), null, now);
+        assertTrue(estimator.fields(plan, id -> { fail("No consumable reserved"); return 0; }).getLines().isEmpty());
+    }
+    @Test public void diseasedFieldValuesCureOnlyAndUnknownQuotesStayUnknown()
+    {
+        com.farmingnavigator.farming.field.FieldPatchDefinition patch = com.farmingnavigator.farming.field.FieldPatchDefinition.FALADOR_NORTH;
+        FieldRunPlan plan = new FieldRunPlanner().plan(account(), EnumSet.of(patch), FieldRunCrop.POTATO, FieldRunMode.HARVEST_ALL, true,
+                Map.of(patch, new com.farmingnavigator.farming.field.FieldPatchObservation(new com.farmingnavigator.farming.field.FieldPatchStateDecoder().decode(
+                        com.farmingnavigator.farming.field.FieldFamily.ALLOTMENT, 135), now, com.farmingnavigator.farming.state.FarmingGrowthRate.NORMAL)), null, now);
+        FarmingMaterialEstimate result = estimator.fields(plan, id -> { assertEquals(ItemID.PLANT_CURE, id); return 0; });
+        assertEquals(1, result.getUnknownPriceCount()); assertEquals(1, result.getLines().size());
+    }
+
 }

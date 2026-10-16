@@ -58,6 +58,18 @@ public final class FarmingMaterialEstimator
         return new FarmingMaterialEstimate(lines, notes());
     }
 
+    public FarmingMaterialEstimate fields(FieldRunPlan plan, IntToLongFunction price)
+    {
+        List<FarmingMaterialEstimate.Line> lines = new ArrayList<>();
+        int paymentId = plan.getCrop().protectionPayment(1).map(SupplyRequirement::getItemId).orElse(0);
+        for (com.farmingnavigator.loadout.SupplyCheck check : plan.getSupplies())
+        {
+            SupplyRequirement requirement = check.getRequirement(); int id = requirement.getItemId();
+            if (id == plan.getCrop().getSeedId() || id == ItemID.PLANT_CURE || id == paymentId) { lines.add(line(requirement, price)); }
+        }
+        return new FarmingMaterialEstimate(lines, notes());
+    }
+
     private FarmingMaterialEstimate.Line line(SupplyRequirement requirement, IntToLongFunction price)
     {
         return new FarmingMaterialEstimate.Line(requirement.getItemId(), requirement.getName(), requirement.getQuantity(),

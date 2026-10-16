@@ -138,6 +138,8 @@ public class FarmingNavigatorPanel
     private boolean gardenObservationsOpen;
     private boolean fieldObservationsOpen;
     private boolean fieldRunDetailsOpen;
+    private com.farmingnavigator.economics.FarmingMaterialEstimate fieldMaterials;
+    public void setFieldMaterials(com.farmingnavigator.economics.FarmingMaterialEstimate materials) { fieldMaterials = materials; }
     private com.farmingnavigator.guided.field.FieldRunSnapshot fieldGuidedRun;
     private Consumer<com.farmingnavigator.guided.field.FieldRunCommand> fieldCommands = command -> {};
     public void setFieldGuidedRun(com.farmingnavigator.guided.field.FieldRunSnapshot snapshot) { fieldGuidedRun = snapshot; }
@@ -798,7 +800,7 @@ public class FarmingNavigatorPanel
                     fieldRunPlan.getBlocker().isEmpty() && !fieldRunPlan.getStops().isEmpty(), fieldCommands));
             patchListPanel.add(Box.createVerticalStrut(8));
             patchListPanel.add(new com.farmingnavigator.ui.FieldRunPlanPanel(fieldRunPlan,
-                    fieldRunDetailsOpen, expanded -> fieldRunDetailsOpen = expanded));
+                    fieldRunDetailsOpen, expanded -> fieldRunDetailsOpen = expanded, fieldMaterials));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
         if (config.showFieldObservations())
