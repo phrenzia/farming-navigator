@@ -308,6 +308,10 @@ public interface FarmingNavigatorConfig
             description = "Keep the last 20 completed or explicitly stopped checklist statistics locally for this character and mode", position = 36, section = GENERAL_SECTION)
     default boolean saveRunHistory() { return true; }
 
+    @ConfigItem(keyName = "showFieldOverview", name = "Show field overview",
+            description = "Summarize selected accessible field plots; historical states and conditional harvest estimates stay separate", position = 37, section = GENERAL_SECTION)
+    default boolean showFieldOverview() { return true; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.
