@@ -91,6 +91,7 @@ public final class RunHistoryPanel extends JPanel
         for(RunMetricsSnapshot entry:displayed)
         {
             results.add(Box.createVerticalStrut(7)); results.add(text(entry.getRunName()+" - "+(entry.isCompleted()?"completed":"stopped"),Color.WHITE));
+            results.add(text(entry.getContext().isKnown()?entry.getContext().getCropLabel()+"; "+entry.getContext().getPlannedStops()+" planned stops.":"Crop / planned stops: unavailable.",ColorScheme.LIGHT_GRAY_COLOR));
             results.add(text("Ended "+time.format(entry.getFinishedAt())+"; "+entry.getElapsed().toMinutes()+" min.",ColorScheme.LIGHT_GRAY_COLOR));
             results.add(text(entry.isXpKnown()?"Recorded Farming XP: "+numbers.format(entry.getXpGained()):"Farming XP: data required.",ColorScheme.LIGHT_GRAY_COLOR));
             if(entry.getXpPerHour().isPresent()) { results.add(text("Recorded XP/hour: "+numbers.format(Math.round(entry.getXpPerHour().getAsDouble())),ColorScheme.LIGHT_GRAY_COLOR)); }

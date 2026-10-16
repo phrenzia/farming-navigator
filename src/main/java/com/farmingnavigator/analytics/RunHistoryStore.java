@@ -40,11 +40,12 @@ public final class RunHistoryStore
         String encoded = backend.read(profile, KEY);
         if (encoded == null || encoded.length() > 8192) { return; }
         String[] lines = encoded.split("\n", -1);
-        if (!"1".equals(lines[0])) { return; }
+        int version="1".equals(lines[0])?1:"2".equals(lines[0])?2:0;
+        if(version==0){return;}
         Set<String> seen = new HashSet<>();
         for (int i = 1; i < lines.length; i++)
         {
-            RunMetricsSnapshot value = decode(lines[i], now);
+            RunMetricsSnapshot value = decode(lines[i], now,version);
             if (value != null && seen.add(identity(value))) { entries.add(value); }
         }
         trim();
@@ -78,31 +79,36 @@ public final class RunHistoryStore
                 && !value.getFinishedAt().isBefore(value.getStartedAt()) && !value.getFinishedAt().isAfter(now)
                 && Duration.between(value.getStartedAt(), value.getFinishedAt()).compareTo(Duration.ofDays(30)) <= 0
                 && value.getXpGained() >= 0 && value.getXpGained() <= Integer.MAX_VALUE
-                && (value.isXpKnown() || value.getXpGained() == 0);
+                && (value.isXpKnown() || value.getXpGained() == 0)
+                && value.getContext().isValidFor(Kind.fromLabel(value.getRunName()));
     }
-    private RunMetricsSnapshot decode(String line, Instant now)
+    private RunMetricsSnapshot decode(String line, Instant now,int version)
     {
         if (line.length() > 256) { return null; }
         try
         {
             String[] fields = line.split("[|]", -1);
-            if (fields.length != 6 || !("0".equals(fields[3]) || "1".equals(fields[3]))
+            if (fields.length != (version==1?6:8) || !("0".equals(fields[3]) || "1".equals(fields[3]))
                     || !("0".equals(fields[4]) || "1".equals(fields[4]))) { return null; }
             Kind kind = Kind.valueOf(fields[0]); Instant start = Instant.parse(fields[1]), end = Instant.parse(fields[2]);
+            RunHistoryContext context=version==1 || "-".equals(fields[6]) && "0".equals(fields[7])?RunHistoryContext.UNKNOWN
+                    :RunHistoryContext.of(kind,fields[6],Integer.parseInt(fields[7]));
             RunMetricsSnapshot value = new RunMetricsSnapshot(kind.label, false, "1".equals(fields[3]), "1".equals(fields[4]),
-                    Long.parseLong(fields[5]), Duration.between(start, end), start, end);
+                    Long.parseLong(fields[5]), Duration.between(start, end), start, end,context);
             return valid(value, now) ? value : null;
         }
         catch (java.time.DateTimeException | IllegalArgumentException ex) { return null; }
     }
     private void save()
     {
-        StringBuilder encoded = new StringBuilder("1");
+        // Keep the existing profile key; version 1 is read conservatively and upgraded on the next write.
+        StringBuilder encoded = new StringBuilder("2");
         for (RunMetricsSnapshot entry : entries)
         {
             encoded.append('\n').append(Kind.fromLabel(entry.getRunName()).name()).append('|').append(entry.getStartedAt())
                     .append('|').append(entry.getFinishedAt()).append('|').append(entry.isCompleted() ? '1' : '0')
-                    .append('|').append(entry.isXpKnown() ? '1' : '0').append('|').append(entry.getXpGained());
+                    .append('|').append(entry.isXpKnown() ? '1' : '0').append('|').append(entry.getXpGained())
+                    .append('|').append(entry.getContext().getCropKey()).append('|').append(entry.getContext().getPlannedStops());
         }
         backend.write(profile, KEY, encoded.toString());
     }

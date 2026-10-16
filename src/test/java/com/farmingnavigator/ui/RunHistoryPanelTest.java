@@ -95,6 +95,19 @@ public class RunHistoryPanelTest
             assertNotNull(selector(root,com.farmingnavigator.analytics.RunHistoryOutcome.COMPLETED));assertTrue(labels(root).contains("Showing 1 saved checklists: 1 completed; 0 stopped"));assertFalse(labels(root).contains("Tree run - stopped"));
         });
     }
+    @Test public void historyShowsCapturedCropAndPlannedStopsWhileLegacyRecordsStayExplicitlyUnknown() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() -> {
+            Instant now=Instant.parse("2026-10-16T12:00:00Z");RunMetricsTracker current=new RunMetricsTracker();
+            current.start("Field run",100,now.minusSeconds(600),com.farmingnavigator.analytics.RunHistoryContext.of(RunHistoryStore.Kind.FIELD,"POTATO",3));current.finish(200,now.minusSeconds(540),true);
+            RunMetricsTracker legacy=new RunMetricsTracker();legacy.start("Herb run",100,now.minusSeconds(300));legacy.finish(150,now.minusSeconds(240),false);
+            RunHistoryPanel panel=new RunHistoryPanel(List.of(current.snapshot(now),legacy.snapshot(now)),true,value -> {},() -> {},now,RunHistoryPeriod.ALL,null,(period,kind) -> {});
+            assertTrue(labels(panel).contains("Potato; 3 planned stops"));assertTrue(labels(panel).contains("Crop / planned stops: unavailable"));assertFalse(labels(panel).contains("0 planned stops"));
+            assertTrue(labels(panel).contains("Field run - completed"));assertTrue(labels(panel).contains("Herb run - stopped"));
+            panel.setSize(225,panel.getPreferredSize().height);layout(panel);BufferedImage image=new BufferedImage(225,panel.getHeight(),BufferedImage.TYPE_INT_RGB);Graphics2D graphics=image.createGraphics();panel.printAll(graphics);graphics.dispose();
+            File dir=new File("build/verification");dir.mkdirs();try{ImageIO.write(image,"png",new File(dir,"history-crop-context.png"));}catch(Exception ex){throw new AssertionError(ex);}
+        });
+    }
     private JComboBox<?> selector(Container parent,Object selected)
     {
         for(Component child:parent.getComponents())

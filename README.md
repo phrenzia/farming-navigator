@@ -128,3 +128,5 @@ Completed Barbarian Planting is read from the exact named state (3), with partia
 Celastrus bark harvesting also pauses on a full inventory. Freeing space resumes the same harvest; fresh depleted-bark evidence is still required before offering tree removal. Paused bark guidance clears action targets and rejects stale checklist controls. Other tree phases are unaffected.
 
 Saved run history can filter all outcomes, completed checklists only, or stopped checklists only, alongside the existing period and run-type filters. Totals and type comparisons use that exact filtered sample. Filtering happens after the global last-20 cap and never restores older hidden records; Clear history still removes all saved entries.
+
+Newly recorded history includes the crop and planned stop count captured when guidance starts. These describe the checklist setup, not harvested quantity or completed actions. The existing profile key is retained: version-1 records load with setup unavailable and upgrade to version 2 on the next history write or clear. Invalid crop/count metadata is rejected, and legacy callers retain unknown setup.

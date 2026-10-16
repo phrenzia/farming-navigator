@@ -900,7 +900,7 @@ public class FarmingNavigatorPlugin
         updateAccountState();
     }
 
-    private void startRunMetrics(String name, Instant now)
+    private void startRunMetrics(String name, Instant now,com.farmingnavigator.analytics.RunHistoryContext context)
     {
         int xp = accountStateService.currentFarmingExperience();
         if (runMetrics.isRecording())
@@ -908,7 +908,7 @@ public class FarmingNavigatorPlugin
             runMetrics.finish(xp, now, false);
             runHistoryService.synchronize(true, config.saveRunHistory(), runMetrics.snapshot(now), now);
         }
-        runMetrics.start(name, xp, now);
+        runMetrics.start(name, xp, now,context);
     }
 
     private void clearRunHistory(String expectedProfile)
@@ -928,7 +928,8 @@ public class FarmingNavigatorPlugin
             case START:
                 if (guidedRunSession.start(latestSuggestedRun, config.herbRunCompost(), now))
                 {
-                    treeRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel(); startRunMetrics("Herb run", now);
+                    treeRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel(); startRunMetrics("Herb run",now,com.farmingnavigator.analytics.RunHistoryContext.of(
+                        com.farmingnavigator.analytics.RunHistoryStore.Kind.HERB,latestSuggestedRun.getCrop().name(),latestSuggestedRun.getStops().size()));
                 }
                 break;
             case CONFIRM: guidedRunSession.confirm(now); break;
@@ -949,7 +950,8 @@ public class FarmingNavigatorPlugin
             if (treeRunSession.start(latestTreeRun, config.treeRunProtection(), now))
             {
                 guidedRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel(); guidedRunOverlayController.clear();
-                startRunMetrics("Tree run", now);
+                startRunMetrics("Tree run",now,com.farmingnavigator.analytics.RunHistoryContext.of(
+                        com.farmingnavigator.analytics.RunHistoryStore.Kind.TREE,latestTreeRun.getCrop().name(),latestTreeRun.getStops().size()));
             }
         }
         else { treeRunSession.command(command, now); }
@@ -976,7 +978,8 @@ public class FarmingNavigatorPlugin
             if (gardenRunSession.start(latestGardenRun, config.gardenRunProtection(), now))
             {
                 guidedRunSession.cancel(); treeRunSession.cancel(); fieldRunSession.cancel(); guidedRunOverlayController.clear();
-                startRunMetrics("Bush/cactus run", now);
+                startRunMetrics("Bush/cactus run",now,com.farmingnavigator.analytics.RunHistoryContext.of(
+                        com.farmingnavigator.analytics.RunHistoryStore.Kind.GARDEN,latestGardenRun.getCrop().name(),latestGardenRun.getStops().size()));
             }
         }
         else { gardenRunSession.command(command, now); }
@@ -992,7 +995,8 @@ public class FarmingNavigatorPlugin
             if (fieldRunSession.start(latestFieldRun, config.fieldRunProtection(), now))
             {
                 guidedRunSession.cancel(); treeRunSession.cancel(); gardenRunSession.cancel(); guidedRunOverlayController.clear();
-                startRunMetrics("Field run", now);
+                startRunMetrics("Field run",now,com.farmingnavigator.analytics.RunHistoryContext.of(
+                        com.farmingnavigator.analytics.RunHistoryStore.Kind.FIELD,latestFieldRun.getCrop().name(),latestFieldRun.getStops().size()));
             }
         }
         else { fieldRunSession.command(command, now); }

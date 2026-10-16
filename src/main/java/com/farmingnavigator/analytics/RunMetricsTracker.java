@@ -8,6 +8,7 @@ import java.util.Objects;
 public final class RunMetricsTracker
 {
     private String runName;
+    private RunHistoryContext context=RunHistoryContext.UNKNOWN;
     private Instant startedAt;
     private Instant lastSampleAt;
     private Instant finishedAt;
@@ -17,8 +18,12 @@ public final class RunMetricsTracker
     private boolean completed;
 
     public void start(String name, int currentXp, Instant now)
+    { start(name,currentXp,now,RunHistoryContext.UNKNOWN); }
+    public void start(String name,int currentXp,Instant now,RunHistoryContext context)
     {
-        clear(); runName = Objects.requireNonNull(name); startedAt = Objects.requireNonNull(now); lastSampleAt = now;
+        RunHistoryContext captured=context==null?RunHistoryContext.UNKNOWN:context;
+        if(!captured.isValidFor(RunHistoryStore.Kind.fromLabel(name))){throw new IllegalArgumentException("Checklist context must match its run kind.");}
+        clear(); this.context=captured; runName = Objects.requireNonNull(name); startedAt = Objects.requireNonNull(now); lastSampleAt = now;
         baselineXp = lastXp = currentXp; xpKnown = currentXp >= 0;
     }
     public void sample(int currentXp, Instant now)
@@ -43,10 +48,11 @@ public final class RunMetricsTracker
         if (finishedAt == null && end.isBefore(lastSampleAt)) { end = lastSampleAt; }
         if (end.isBefore(startedAt)) { end = startedAt; }
         return new RunMetricsSnapshot(runName, isRecording(), completed, xpKnown,
-                xpKnown ? Math.max(0L, (long) lastXp - baselineXp) : 0, Duration.between(startedAt, end), startedAt, finishedAt);
+                xpKnown ? Math.max(0L, (long) lastXp - baselineXp) : 0, Duration.between(startedAt, end), startedAt, finishedAt,context);
     }
     public void clear()
     {
+        context=RunHistoryContext.UNKNOWN;
         runName = null; startedAt = lastSampleAt = finishedAt = null;
         baselineXp = lastXp = -1; xpKnown = completed = false;
     }
