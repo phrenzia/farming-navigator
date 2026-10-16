@@ -152,6 +152,7 @@ public class FarmingNavigatorPlugin
     private final HerbAlertTracker herbAlertTracker = new HerbAlertTracker();
     private final com.farmingnavigator.farming.tree.TreeAlertTracker treeAlertTracker = new com.farmingnavigator.farming.tree.TreeAlertTracker();
     private final com.farmingnavigator.farming.garden.GardenAlertTracker gardenAlertTracker = new com.farmingnavigator.farming.garden.GardenAlertTracker();
+    private final com.farmingnavigator.farming.field.FieldAlertTracker fieldAlertTracker = new com.farmingnavigator.farming.field.FieldAlertTracker();
     @Inject private Notifier notifier;
     @Inject private net.runelite.client.game.ItemManager itemManager;
     @Inject private com.farmingnavigator.contracts.FarmingContractService farmingContractService;
@@ -179,6 +180,7 @@ public class FarmingNavigatorPlugin
         herbAlertTracker.reset();
         treeAlertTracker.reset();
         gardenAlertTracker.reset();
+        fieldAlertTracker.reset();
         guidedRunSession.cancel();
         treeRunSession.cancel();
         gardenRunSession.cancel();
@@ -236,6 +238,7 @@ public class FarmingNavigatorPlugin
         herbAlertTracker.reset();
         treeAlertTracker.reset();
         gardenAlertTracker.reset();
+        fieldAlertTracker.reset();
         overlayManager.remove(guidedInventoryOverlay);
         overlayManager.remove(guidedBankOverlay);
         overlayManager.remove(guidedSceneOverlay);
@@ -323,6 +326,7 @@ public class FarmingNavigatorPlugin
             herbAlertTracker.reset();
             treeAlertTracker.reset();
             gardenAlertTracker.reset();
+            fieldAlertTracker.reset();
             storageStateService
                     .invalidateBankSnapshot();
         }
@@ -338,6 +342,7 @@ public class FarmingNavigatorPlugin
         herbAlertTracker.reset();
         treeAlertTracker.reset();
         gardenAlertTracker.reset();
+        fieldAlertTracker.reset();
         // A mode/account switch must never retain another character's observations or active checklist.
         herbPatchObservationService.reset();
         treePatchObservationService.reset();
@@ -441,6 +446,14 @@ public class FarmingNavigatorPlugin
             }
             gardenAlertTracker.poll(gardenPatchObservationService.snapshot(), gardenAlertPatches, Instant.now(),
                     config.gardenObservedAlerts(), config.gardenEstimatedAlerts()).forEach(notifier::notify);
+            java.util.Set<com.farmingnavigator.farming.field.FieldPatchDefinition> fieldAlertPatches =
+                    java.util.EnumSet.noneOf(com.farmingnavigator.farming.field.FieldPatchDefinition.class);
+            for (com.farmingnavigator.farming.field.FieldPatchDefinition patch : config.fieldRunPatches())
+            {
+                if (patch.getFamily() == config.fieldRunCrop().getCrop().getFamily()) { fieldAlertPatches.add(patch); }
+            }
+            fieldAlertTracker.poll(fieldPatchObservationService.snapshot(), fieldAlertPatches, Instant.now(),
+                    config.fieldObservedAlerts(), config.fieldEstimatedAlerts()).forEach(notifier::notify);
             updateAccountState();
         }
     }

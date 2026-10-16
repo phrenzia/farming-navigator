@@ -290,6 +290,16 @@ public interface FarmingNavigatorConfig
             description = "Rank verified arrival suggestions; adjacent plots share one arrival teleport", position = 32, section = GENERAL_SECTION)
     default HerbTransportPreference fieldTransportPreference() { return HerbTransportPreference.CATALOGUE; }
 
+    @ConfigItem(keyName = "fieldObservedAlerts", name = "Allotment/flower state alerts",
+            description = "Notify on fresh harvestable, diseased or dead states for selected plots matching the crop family; quantity is not predicted",
+            position = 33, section = GENERAL_SECTION)
+    default boolean fieldObservedAlerts() { return false; }
+
+    @ConfigItem(keyName = "fieldEstimatedAlerts", name = "Allotment/flower estimate alerts",
+            description = "Notify once at the end of a selected crop's conditional growth window; visit to confirm health and harvestability",
+            position = 34, section = GENERAL_SECTION)
+    default boolean fieldEstimatedAlerts() { return false; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.
