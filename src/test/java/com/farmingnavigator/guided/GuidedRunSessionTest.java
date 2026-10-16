@@ -188,6 +188,45 @@ public class GuidedRunSessionTest
     }
 
     @Test
+    public void unknownPatchReadingsPreserveInventoryPauseAndOriginalHarvestEvidence()
+    {
+        GuidedRunSession session = start(HerbRunCompost.NONE, false);
+        session.confirm(now.plusSeconds(1));
+        observe(session, 36, 2);
+        session.observeInventory(0, falador, now.plusSeconds(3));
+        long pausedRevision = session.getRevision();
+        assertFalse(observe(session, 220, 4));
+        assertFalse(observe(session, 220, 5));
+        assertEquals(GuidedRunStep.NOTE_PRODUCE, session.snapshot().getStep());
+        assertEquals(pausedRevision, session.getRevision());
+        assertTrue(session.observeInventory(1, falador, now.plusSeconds(6)));
+        assertTrue(session.observe(falador, observation(0, now.plusSeconds(5)), now.plusSeconds(6)));
+        assertEquals(GuidedRunStep.PLANT, session.snapshot().getStep());
+    }
+
+    @Test
+    public void invalidInventoryCountsAndBackwardTimesCannotChangeHarvestPause()
+    {
+        GuidedRunSession session = start(HerbRunCompost.NONE, false);
+        session.confirm(now.plusSeconds(1));
+        observe(session, 36, 2);
+        long harvestRevision = session.getRevision();
+        assertFalse(session.observeInventory(0, falador, now.plusSeconds(1)));
+        assertFalse(session.observeInventory(29, falador, now.plusSeconds(3)));
+        assertEquals(harvestRevision, session.getRevision());
+        assertEquals(GuidedRunStep.HARVEST, session.snapshot().getStep());
+        assertTrue(session.observeInventory(0, falador, now.plusSeconds(3)));
+        long pausedRevision = session.getRevision();
+        assertFalse(session.observeInventory(1, falador, now.plusSeconds(2)));
+        assertFalse(session.observeInventory(29, falador, now.plusSeconds(4)));
+        assertFalse(session.observeInventory(-1, falador, now.plusSeconds(4)));
+        assertEquals(pausedRevision, session.getRevision());
+        assertEquals(GuidedRunStep.NOTE_PRODUCE, session.snapshot().getStep());
+        assertTrue(session.observeInventory(28, falador, now.plusSeconds(4)));
+        assertEquals(GuidedRunStep.HARVEST, session.snapshot().getStep());
+    }
+
+    @Test
     public void cancellationClearsSessionAndEmptyPlanCannotStart()
     {
         GuidedRunSession session = start(HerbRunCompost.NONE, false);

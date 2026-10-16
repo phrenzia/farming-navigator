@@ -105,6 +105,11 @@ public final class GuidedRunSession
         }
         if (!state.isKnown() && step != GuidedRunStep.INSPECT)
         {
+            // An unknown patch reading cannot disprove the known inventory interruption.
+            if (step == GuidedRunStep.NOTE_PRODUCE)
+            {
+                return false;
+            }
             enter(GuidedRunStep.INSPECT, now);
             return true;
         }
@@ -154,7 +159,8 @@ public final class GuidedRunSession
 
     public boolean observeInventory(int freeSlots, WorldPoint player, Instant now)
     {
-        if (!snapshot().isActive() || !HerbPatchDestination.isNear(stops.get(index).getPatch(), player))
+        if (!snapshot().isActive() || freeSlots < 0 || freeSlots > 28 || now.isBefore(enteredAt)
+                || !HerbPatchDestination.isNear(stops.get(index).getPatch(), player))
         {
             return false;
         }
