@@ -166,6 +166,7 @@ public class FarmingNavigatorPanel
         return guarded == null ? legacy : com.farmingnavigator.guided.ChecklistCommandGuard.bind(revision, guarded);
     }
     private boolean combinedPreparationOpen;
+    private boolean combinedArrivalsOpen;
     private com.farmingnavigator.routing.run.CombinedRunPlan combinedRunPlan;
     private com.farmingnavigator.economics.FarmingMaterialEstimate combinedMaterials;
     public void setCombinedMaterials(com.farmingnavigator.economics.FarmingMaterialEstimate materials) { combinedMaterials=materials; }
@@ -785,7 +786,7 @@ public class FarmingNavigatorPanel
         if (accountState.isLoggedIn() && combinedRunPlan != null)
         {
             patchListPanel.add(new com.farmingnavigator.ui.CombinedRunPlanPanel(combinedRunPlan, combinedPreparationOpen,
-                    expanded -> combinedPreparationOpen = expanded,combinedMaterials));
+                    expanded -> combinedPreparationOpen = expanded,combinedMaterials,combinedArrivalsOpen,open -> combinedArrivalsOpen=open));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
 

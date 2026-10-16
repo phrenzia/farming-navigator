@@ -16,6 +16,9 @@ public final class CombinedRunPlanPanel extends JPanel
     { this(plan,expanded,expansionChanged,null); }
     public CombinedRunPlanPanel(CombinedRunPlan plan,boolean expanded,Consumer<Boolean> expansionChanged,
             com.farmingnavigator.economics.FarmingMaterialEstimate materials)
+    { this(plan,expanded,expansionChanged,materials,false,open -> {}); }
+    public CombinedRunPlanPanel(CombinedRunPlan plan,boolean expanded,Consumer<Boolean> expansionChanged,
+            com.farmingnavigator.economics.FarmingMaterialEstimate materials,boolean arrivalsExpanded,Consumer<Boolean> arrivalsExpansionChanged)
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); setBackground(ColorScheme.DARKER_GRAY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(9,8,12,8)); setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -35,6 +38,8 @@ public final class CombinedRunPlanPanel extends JPanel
             expansionChanged.accept(show); revalidate(); repaint();
         });
         add(Box.createVerticalStrut(6)); add(toggle); add(details);
+        details.add(Box.createVerticalStrut(7));
+        details.add(new CombinedRoutePreviewPanel(plan.getStops(),arrivalsExpanded,arrivalsExpansionChanged));
         details.add(Box.createVerticalStrut(7)); details.add(text("Shared farming supplies",Color.WHITE));
         plan.getSupplies().forEach(check -> {
             details.add(text(check.getRequirement().getQuantity() + " x " + check.getRequirement().getName()
