@@ -6,4 +6,5 @@ public enum GardenFamily
     private final String label;
     GardenFamily(String label) { this.label = label; }
     public String getLabel() { return label; }
+    public String getPatchLabel() { return this == BUSH ? "bush" : "cactus"; }
 }

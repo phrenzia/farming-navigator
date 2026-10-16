@@ -252,6 +252,16 @@ public interface FarmingNavigatorConfig
             description = "Rank verified arrival suggestions; this is not measured travel-time optimization", position = 24, section = GENERAL_SECTION)
     default HerbTransportPreference gardenTransportPreference() { return HerbTransportPreference.CATALOGUE; }
 
+    @ConfigItem(keyName = "gardenObservedAlerts", name = "Bush/cactus state alerts",
+            description = "Notify on fresh health-check-ready, diseased or dead states for selected patches matching the bush/cactus run crop family",
+            position = 25, section = GENERAL_SECTION)
+    default boolean gardenObservedAlerts() { return false; }
+
+    @ConfigItem(keyName = "gardenEstimatedAlerts", name = "Bush/cactus estimate alerts",
+            description = "Notify once at the end of a selected plant's conditional first-growth window; produce quantity and regrowth are not predicted",
+            position = 26, section = GENERAL_SECTION)
+    default boolean gardenEstimatedAlerts() { return false; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.
