@@ -137,6 +137,7 @@ public class FarmingNavigatorPanel
     private boolean treeObservationsOpen;
     private boolean gardenObservationsOpen;
     private boolean fieldObservationsOpen;
+    private com.farmingnavigator.farming.field.FieldFamily fieldObservationFamily;
     private boolean fieldRunDetailsOpen;
     private boolean fieldOverviewOpen;
     private boolean readinessDashboardOpen;
@@ -872,7 +873,7 @@ public class FarmingNavigatorPanel
         if (config.showFieldObservations())
         {
             patchListPanel.add(new com.farmingnavigator.ui.FieldObservationsPanel(fieldObservations, overviewTime,
-                    fieldObservationsOpen, expanded -> fieldObservationsOpen = expanded));
+                    fieldObservationsOpen, expanded -> fieldObservationsOpen = expanded,fieldObservationFamily,family -> fieldObservationFamily = family));
             patchListPanel.add(Box.createVerticalStrut(8));
         }
 

@@ -25,7 +25,8 @@ public final class FieldPatchTransportService
             List<TransportOption> arrivals;
             switch (region)
             {
-                case KASTORI: continue;
+                case KASTORI:
+                case VINERY: continue;
                 case YANILLE:
                     arrivals = List.of(new TransportOption(1, "Fairy ring CIQ to Yanille hops",
                             "Travel to an accessible fairy ring, use CIQ north-west of Yanille, then travel east and south to the hops plot.",

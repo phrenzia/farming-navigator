@@ -55,7 +55,8 @@ public enum FieldCrop
     COTTON("Cotton", FieldFamily.HOPS, 20, 6),
     SEAWEED("Seaweed", FieldFamily.SEAWEED, 10, 5),
     MUSHROOM("Bittercap mushroom", FieldFamily.MUSHROOM, 40, 7),
-    BELLADONNA("Belladonna", FieldFamily.BELLADONNA, 80, 5);
+    BELLADONNA("Belladonna", FieldFamily.BELLADONNA, 80, 5),
+    GRAPE("Grape", FieldFamily.GRAPES, 5, 8);
     private final String label;
     private final FieldFamily family;
     private final int growthCycleMinutes;

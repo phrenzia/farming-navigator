@@ -14,7 +14,7 @@ public class FieldGrowthTimerTest
     {
         return new FieldPatchObservation(new FieldPatchStateDecoder().decode(family, raw), now, rate);
     }
-    @Test public void allTwentySevenCropsMatchPublicRuneLiteMetadata()
+    @Test public void allTwentyEightCropsMatchPublicRuneLiteMetadata()
     {
         int count = 0;
         for (FieldCrop crop : FieldCrop.values())
@@ -25,7 +25,7 @@ public class FieldGrowthTimerTest
             assertEquals(source.getStages(), crop.getStages()); assertEquals(source.getTickrate(), crop.getGrowthCycleMinutes());
             count++;
         }
-        assertEquals(27, count);
+        assertEquals(28, count);
     }
     @Test public void cropsUseDifferentWindowsAndLeaguesScaling()
     {

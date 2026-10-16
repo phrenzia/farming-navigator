@@ -64,6 +64,14 @@ public final class FieldPatchStateDecoder
     public FieldPatchState decode(FieldFamily family, int raw)
     {
         if (family == null || raw < 0 || raw > 255) { return state(raw, FieldCrop.UNKNOWN, FieldPatchCondition.UNKNOWN, -1); }
+        // The vineyard uses separate four-bit channels. Raw 1 includes fertiliser, not ordinary compost/watering proof.
+        if (family == FieldFamily.GRAPES)
+        {
+            if (raw <= 1) { return state(raw,FieldCrop.UNKNOWN,FieldPatchCondition.EMPTY,3); }
+            if (raw <= 10) { return state(raw,FieldCrop.GRAPE,FieldPatchCondition.GROWING,Math.min(raw-2,7)); }
+            if (raw <= 15) { return state(raw,FieldCrop.GRAPE,FieldPatchCondition.HARVESTABLE,raw-11); }
+            return state(raw,FieldCrop.UNKNOWN,FieldPatchCondition.UNKNOWN,-1);
+        }
         if (raw <= 3) { return state(raw, FieldCrop.UNKNOWN, raw == 0 ? FieldPatchCondition.EMPTY : FieldPatchCondition.WEEDS, 3 - raw); }
         if (family == FieldFamily.FLOWER && raw >= 33 && raw <= 36)
         {

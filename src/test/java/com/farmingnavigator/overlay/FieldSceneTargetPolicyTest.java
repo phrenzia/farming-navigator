@@ -10,10 +10,15 @@ import static org.junit.Assert.*;
 
 public class FieldSceneTargetPolicyTest
 {
-    @Test public void allThirtySixPlotsRequireMatchingFamilyChannelAndArea()
+    @Test public void allGuidedPlotsRequireMatchingFamilyChannelAndArea()
     {
         for (FieldPatchDefinition patch : FieldPatchDefinition.values())
         {
+            if (patch.getFamily() == FieldFamily.GRAPES)
+            {
+                assertNull(FieldSceneTargetPolicy.fieldPatch(ObjectID.FARMING_BELLADONNA_PATCH,patch.getVarbit(),patch.getLocation()));
+                continue; // Vineyard guidance/object bases are not implemented.
+            }
             int base = patch.getFamily() == FieldFamily.ALLOTMENT ? ObjectID.FARMING_VEG_PATCH_1 : patch.getFamily() == FieldFamily.FLOWER ? ObjectID.FARMING_FLOWER_PATCH_1 : patch.getFamily() == FieldFamily.HOPS ? ObjectID.FARMING_HOPS_PATCH_1
                     : patch.getFamily() == FieldFamily.SEAWEED ? ObjectID.FARMING_SEAWEED_PATCH_1
                     : patch.getFamily() == FieldFamily.MUSHROOM ? ObjectID.FARMING_MUSHROOM_PATCH : ObjectID.FARMING_BELLADONNA_PATCH;

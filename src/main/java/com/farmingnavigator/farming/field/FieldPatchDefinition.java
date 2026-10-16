@@ -67,7 +67,19 @@ public enum FieldPatchDefinition
     FOSSIL_ISLAND_SEAWEED_SOUTH("Fossil Island - South seaweed", FieldFamily.SEAWEED, VarbitID.FARMING_TRANSMIT_B, 3730, 10271),
     MORYTANIA_MUSHROOM("Morytania mushroom", FieldFamily.MUSHROOM, VarbitID.FARMING_TRANSMIT_A, 3449, 3471),
     DRAYNOR_MANOR_BELLADONNA("Draynor Manor belladonna", FieldFamily.BELLADONNA, VarbitID.FARMING_TRANSMIT_A, 3084, 3356),
-    AUBURNVALE_BELLADONNA("Auburnvale belladonna", FieldFamily.BELLADONNA, VarbitID.FARMING_TRANSMIT_B, 1449, 3354);
+    AUBURNVALE_BELLADONNA("Auburnvale belladonna", FieldFamily.BELLADONNA, VarbitID.FARMING_TRANSMIT_B, 1449, 3354),
+    VINERY_EAST_1("Hosidius vinery - East 1", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_A1, 1807, 3555),
+    VINERY_EAST_2("Hosidius vinery - East 2", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_A2, 1807, 3555),
+    VINERY_EAST_3("Hosidius vinery - East 3", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_B1, 1807, 3555),
+    VINERY_EAST_4("Hosidius vinery - East 4", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_B2, 1807, 3555),
+    VINERY_EAST_5("Hosidius vinery - East 5", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_C1, 1807, 3555),
+    VINERY_EAST_6("Hosidius vinery - East 6", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_C2, 1807, 3555),
+    VINERY_WEST_1("Hosidius vinery - West 1", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_D1, 1807, 3555),
+    VINERY_WEST_2("Hosidius vinery - West 2", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_D2, 1807, 3555),
+    VINERY_WEST_3("Hosidius vinery - West 3", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_E1, 1807, 3555),
+    VINERY_WEST_4("Hosidius vinery - West 4", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_E2, 1807, 3555),
+    VINERY_WEST_5("Hosidius vinery - West 5", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_F1, 1807, 3555),
+    VINERY_WEST_6("Hosidius vinery - West 6", FieldFamily.GRAPES, VarbitID.FARMING_TRANSMIT_F2, 1807, 3555);
     private final String label;
     private final FieldFamily family;
     private final int varbit;
