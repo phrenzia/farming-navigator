@@ -1,11 +1,11 @@
 # Farming Navigator: resume checkpoint
 
-Updated 2026-10-16. Current repository and Git history win over documents.
+Updated 2026-10-17. Current repository and Git history win over documents.
 
 ## Safety and workflow
 
 - Repository: `C:\Users\Admin\IdeaProjects\farming-navigator`; branch `master`; origin `https://github.com/phrenzia/farming-navigator`.
-- Latest validated source checkpoint: `0879877`. This handoff is a following documentation-only commit. Check `git status`, `git log`, and `git rev-parse HEAD origin/master` on resume.
+- Latest validated source checkpoint: `0a9c117`. This handoff is a following documentation-only commit. Check `git status`, `git log`, and `git rev-parse HEAD origin/master` on resume.
 - User authorized direct edits, automated validation, normal commits and pushes. Never force-push, rewrite history or discard unfamiliar changes.
 - **Never launch RuneLite, execute the Gradle run task, log into RuneScape or interact with the game.** This overrides AGENTS.md's live-test launch procedure. Everything remains **UNVERIFIED IN GAME**.
 - Stop when the five-hour allowance falls below **10% remaining OR the weekly allowance falls below 5% remaining**. Check the account usage tool between milestones. No paid usage, upgrades or reset credits were consumed.
@@ -15,7 +15,7 @@ Updated 2026-10-16. Current repository and Git history win over documents.
 
 ## Validation
 
-- Latest source: **6,762 tests, zero failures/errors**. Clean build and test pass.
+- Latest source: **6,781 tests, zero failures/errors**. Clean build and test pass.
 - Latest field overview offscreen Swing render inspected at `build/verification/field-overview.png`. Historical disease/harvest states and conditional estimated readiness remain visibly distinct.
 - Offline Swing renders inspected for tree, celastrus bark, bush/cactus observations, preparation and manual produce confirmation. Long garden button labels were shortened to fit the narrow sidebar.
 - Existing build notices: unchecked test-harness operations and Gradle 9 deprecations. Automated checks do not prove live correctness.
@@ -122,6 +122,14 @@ Updated 2026-10-16. Current repository and Git history win over documents.
 - Latest source: **6,762 tests, zero failures/errors**, clean build and full test. Every source milestone was reviewed, committed and pushed. No reset credits/paid overage, client launches or game interactions. All live state semantics/routes/callbacks/overlays remain **UNVERIFIED IN GAME**.
 - `0879877` final herb pause guard: unknown patch readings retain NOTE_PRODUCE without revision churn; impossible slot counts and backward timestamps cannot pause/resume harvesting. Valid free space restores the original harvest evidence cutoff; a fresh empty patch can still progress to planting while paused. Two focused regression tests cover these transitions.
 - Later scratch: bark_inventory_pause*, history_outcome_filter*, history_context*, history_crop_comparison*, ardougne_monastery_transport*. Development generators are scratch only and may not be safely rerunnable; repository/Git history is authoritative.
+
+## 2026-10-17 continuation
+
+- User resumed with a five-hour cutoff of **5% remaining**. Fresh usage showed both windows reset organically (0% used each). Work is active. The earlier weekly cutoff below5% is retained. Check fresh usage between milestones; no reset credit or paid usage is authorized for this continuation.
+- `b44b63a`: gilded and nine non-crystal felling axes now use existing boosted Woodcutting tiers (1/1/6/11/21/31/41/61/61) in TreeAxePreparation. Inventory use does not require wielding Attack. Carried/equipped/verified-bank checks and skill-filtered preparation/bark/removal highlights are covered. Notes remain excluded. Infernal (Firemaking), crystal (quest/charge), ornamental and unknown variants remain unchecked; no rations/yield/XP effects inferred. Sources: https://oldschool.runescape.wiki/w/Woodcutting_quest and https://oldschool.runescape.wiki/w/F2p_axes. Clean build/test:6,765 passing.
+- `218f6f7`: optional session-only combined guided sequencing through the existing default-empty combinedRunTypes key. HERB/TREE/GARDEN/FIELD order; Begin starts PREPARE. Finished components wait BETWEEN for an explicit Prepare next component click. NEXT refreshes account/observations/supplies and starts the next PREPARE; blocked/empty plans cannot start. Failed starts retain the queue. Ending the sequence leaves the current individual checklist available. Direct individual START replaces it. Cancelled component, lifecycle/profile/logout/hop, run-setup changes and changed spirit declarations clear it; ordinary LOADING preserves it. Profile/revision-bound old sidebar callbacks reject stale commands; invokeLater uses void blocks. Metrics/history stay per component. It does not freeze supplies, optimize/interleave routes or infer farming actions. Tests cover all11 multi-kind subsets, actual four-session lifecycle, skip/cancel, failed starts, immutable snapshots and old-widget callback retention. Offscreen combined-guidance-next.png inspected; README/config help updated. Clean build/test:6,775 passing.
+- `0a9c117`: rank90 ring-of-dueling Castle Wars alternative for Yanille hops, with CIQ retained first. Existing exact1..8 charged variants now wire into verification, shared charge budgets/known-pool repair and item/bank guidance. Tests cover carried/equipped/bank/missing/unknown-bank/notes, exact capacity at all8 tiers, local walks spending none, shortages/withdrawals and last-charge exhaustion removing active arrivals. Pinned shortest-path99735452c7c257d3fe5ae79970429cdce907d571 teleportation_items.tsv row52 lands2440,3090,0 and lists2566..2552. Longer manual eastward walk to Yanille is explicit. No Colosseum/Ferox state or speed claim. Offscreen dueling-yanille-arrival.png inspected. Clean build/test:6,781 passing.
+- Everything is committed/pushed and remains UNVERIFIED IN GAME. README has pre-existing mixed UTF-8/cp1252 bytes; use byte-preserving ASCII insertion for small edits rather than re-encoding the entire document. Combined guidance is implemented as above; global/interleaved routing remains planned.
 
 ## Next work and known gaps
 
