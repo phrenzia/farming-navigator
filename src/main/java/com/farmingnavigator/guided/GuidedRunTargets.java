@@ -501,6 +501,13 @@ public final class GuidedRunTargets
                 items.addAll(com.farmingnavigator.routing.item.ArdougneMonasteryItems.getItemIds()); break;
             case ARDOUGNE_CLOAK_UNLIMITED:
                 Collections.addAll(items, ItemID.ARDY_CAPE_ELITE, ItemID.SKILLCAPE_MAX_ARDY); break;
+            case CONSTRUCTION_CAPE_RIMMINGTON:
+            case CONSTRUCTION_CAPE_TAVERLEY:
+            case CONSTRUCTION_CAPE_BRIMHAVEN:
+            case CONSTRUCTION_CAPE_YANILLE:
+            case CONSTRUCTION_CAPE_HOSIDIUS:
+            case CONSTRUCTION_CAPE_PRIFDDINAS:
+                items.addAll(com.farmingnavigator.routing.item.ConstructionCapeItems.getItemIds()); break;
             case KANDARIN_HEADGEAR_UNLIMITED: items.add(ItemID.SEERS_HEADBAND_ELITE); break;
             case KANDARIN_HEADGEAR_3_DAILY: items.add(ItemID.SEERS_HEADBAND_HARD); break;
             case SKILLS_NECKLACE: addJewellery(items, ChargedTeleportItemDefinition.SKILLS_NECKLACE); break;

@@ -216,6 +216,7 @@ public class AccountStateService
                 varlamoreVisited,
                 client.getRealSkillLevel(Skill.ATTACK)
         ).withBoostedWoodcuttingLevel(client.getBoostedSkillLevel(Skill.WOODCUTTING))
+                .withRealConstructionLevel(client.getRealSkillLevel(Skill.CONSTRUCTION))
                 .withBarbarianPlanting(BarbarianPlantingState.decode(client.getVarbitValue(VarbitID.BRUT_FARMING_PLANTING)));
     }
 

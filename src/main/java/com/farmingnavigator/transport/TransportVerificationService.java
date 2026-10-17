@@ -492,6 +492,26 @@ public class TransportVerificationService
                         option
                 );
 
+            case CONSTRUCTION_CAPE_RIMMINGTON:
+            case CONSTRUCTION_CAPE_TAVERLEY:
+            case CONSTRUCTION_CAPE_BRIMHAVEN:
+            case CONSTRUCTION_CAPE_YANILLE:
+            case CONSTRUCTION_CAPE_HOSIDIUS:
+            case CONSTRUCTION_CAPE_PRIFDDINAS:
+                if (accountState.getRealConstructionLevel() < 1)
+                { return new VerifiedTransportResult(option, VerifiedTransportState.DATA_REQUIRED, "Base Construction level is unavailable; verify the cape requirement."); }
+                if (accountState.getRealConstructionLevel() < 99)
+                { return new VerifiedTransportResult(option, VerifiedTransportState.LOCKED, "Requires 99 base Construction and a supported cape."); }
+                if (option.getVerificationKind() == TransportVerificationKind.CONSTRUCTION_CAPE_PRIFDDINAS && !accountState.hasCompletedQuest(Quest.SONG_OF_THE_ELVES))
+                { return new VerifiedTransportResult(option, VerifiedTransportState.LOCKED, "Complete Song of the Elves for the Prifddinas portal destination."); }
+                RequirementResult constructionCape=com.farmingnavigator.routing.item.ConstructionCapeItems.evaluate(
+                        new RequirementContext(accountState,config,travelCapabilitySnapshot,storageSnapshot));
+                VerifiedTransportState constructionState=constructionCape.isReadyNow()?VerifiedTransportState.READY_NOW
+                        :constructionCape.requiresBankWithdrawal()?VerifiedTransportState.AVAILABLE_FROM_BANK
+                        :constructionCape.getState()==RequirementState.DATA_REQUIRED?VerifiedTransportState.DATA_REQUIRED:VerifiedTransportState.MISSING;
+                return new VerifiedTransportResult(option,constructionState,constructionCape.getDetail()
+                        + " Use the named POH Portals destination. Unlimited uses; the configured house and entry supplies are not required.");
+
             case TELEPORT_SPELL:
                 return evaluateTeleportSpell(
                         accountState,

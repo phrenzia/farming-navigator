@@ -42,6 +42,7 @@ public final class GardenPatchTransportService
                         TransportCategory.ITEM,TransportVerificationKind.ARDOUGNE_CLOAK_MONASTERY)));
         for(GardenPatchDefinition patch:List.of(GardenPatchDefinition.FARMING_GUILD_BUSH,GardenPatchDefinition.FARMING_GUILD_CACTUS))
         { PlantedSpiritTransportOptions.append(options,patch,com.farmingnavigator.routing.spirit.PlantedSpiritTree.FARMING_GUILD,"Approach the selected Guild patch; its entry tier is checked separately."); }
+        ConstructionCapeTransportOptions.append(options,GardenPatchDefinition.RIMMINGTON_BUSH,TransportVerificationKind.CONSTRUCTION_CAPE_RIMMINGTON,"Rimmington","walk to the bush beside the house portal.");
         return Collections.unmodifiableMap(options);
     }
     private TransportOption spell(int rank, TeleportSpellDefinition spell, String instructions)

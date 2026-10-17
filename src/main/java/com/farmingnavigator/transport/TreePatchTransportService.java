@@ -80,6 +80,10 @@ public final class TreePatchTransportService
         PlantedSpiritTransportOptions.append(options,TreePatchDefinition.BRIMHAVEN_FRUIT,com.farmingnavigator.routing.spirit.PlantedSpiritTree.BRIMHAVEN,"Travel west to the Brimhaven fruit-tree patch.");
         for(TreePatchDefinition patch:List.of(TreePatchDefinition.FARMING_GUILD_TREE,TreePatchDefinition.FARMING_GUILD_FRUIT,TreePatchDefinition.FARMING_GUILD_CELASTRUS,TreePatchDefinition.FARMING_GUILD_REDWOOD))
         { PlantedSpiritTransportOptions.append(options,patch,com.farmingnavigator.routing.spirit.PlantedSpiritTree.FARMING_GUILD,"Approach the selected Guild patch; its entry tier is checked separately."); }
+        ConstructionCapeTransportOptions.append(options,TreePatchDefinition.TAVERLEY_TREE,TransportVerificationKind.CONSTRUCTION_CAPE_TAVERLEY,"Taverley","walk south-east to the tree patch beside Alain.");
+        ConstructionCapeTransportOptions.append(options,TreePatchDefinition.BRIMHAVEN_FRUIT,TransportVerificationKind.CONSTRUCTION_CAPE_BRIMHAVEN,"Brimhaven","walk north to the fruit-tree patch.");
+        ConstructionCapeTransportOptions.append(options,TreePatchDefinition.TAI_BWO_WANNAI_CALQUAT,TransportVerificationKind.CONSTRUCTION_CAPE_BRIMHAVEN,"Brimhaven","follow the road south-east to the calquat patch north of Tai Bwo Wannai.");
+        ConstructionCapeTransportOptions.append(options,TreePatchDefinition.PRIFDDINAS_CRYSTAL,TransportVerificationKind.CONSTRUCTION_CAPE_PRIFDDINAS,"Prifddinas","walk north-east to the crystal-tree patch.");
         return Collections.unmodifiableMap(options);
     }
     private TransportOption spell(int rank, TeleportSpellDefinition spell, String instructions)

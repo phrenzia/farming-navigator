@@ -98,6 +98,9 @@ public final class FieldPatchTransportService
             }
             options.put(patch, List.copyOf(rewritten));
         }
+        ConstructionCapeTransportOptions.append(options,FieldPatchDefinition.YANILLE_HOPS,TransportVerificationKind.CONSTRUCTION_CAPE_YANILLE,"Yanille","walk east to the hops plot east of town.");
+        for (FieldPatchDefinition patch : List.of(FieldPatchDefinition.PRIFDDINAS_NORTH,FieldPatchDefinition.PRIFDDINAS_SOUTH,FieldPatchDefinition.PRIFDDINAS_FLOWER))
+        { ConstructionCapeTransportOptions.append(options,patch,TransportVerificationKind.CONSTRUCTION_CAPE_PRIFDDINAS,"Prifddinas","walk north-east to the allotment/flower area and approach the labelled plot: " + patch.getLabel() + "."); }
         return Collections.unmodifiableMap(options);
     }
     private TransportOption spell(TeleportSpellDefinition spell, String instructions)

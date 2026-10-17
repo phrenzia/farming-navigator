@@ -503,6 +503,7 @@ public class FarmingNavigatorPlugin
                 skill == Skill.FARMING
                         || skill == Skill.ATTACK
                         || skill == Skill.WOODCUTTING
+                        || skill == Skill.CONSTRUCTION
                         || skill == Skill.MAGIC
                         || skill == Skill.AGILITY
                         || skill == Skill.HUNTER

@@ -486,6 +486,7 @@ public class HerbPatchTransportService
         PlantedSpiritTransportOptions.append(options,HerbPatchDefinition.FALADOR,com.farmingnavigator.routing.spirit.PlantedSpiritTree.PORT_SARIM,"Travel north to the Falador farming area.");
         PlantedSpiritTransportOptions.append(options,HerbPatchDefinition.HOSIDIUS,com.farmingnavigator.routing.spirit.PlantedSpiritTree.HOSIDIUS,"Travel east to the Hosidius farming area.");
         PlantedSpiritTransportOptions.append(options,HerbPatchDefinition.FARMING_GUILD,com.farmingnavigator.routing.spirit.PlantedSpiritTree.FARMING_GUILD,"Approach the selected Guild patch; its entry tier is checked separately.");
+        ConstructionCapeTransportOptions.append(options,HerbPatchDefinition.HOSIDIUS,TransportVerificationKind.CONSTRUCTION_CAPE_HOSIDIUS,"Hosidius","travel north-west to the farming patch.");
         optionsByPatch =
                 Collections.unmodifiableMap(
                         options
