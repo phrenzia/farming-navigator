@@ -36,8 +36,8 @@ public class RunHistoryComparisonPanelTest
     @Test public void recordedCropComparisonExplainsDifferentPlannedStopCountsAndLegacySetup() throws Exception
     {
         Instant now=Instant.parse("2026-10-16T12:00:00Z");RunMetricsTracker first=new RunMetricsTracker(),second=new RunMetricsTracker(),legacy=new RunMetricsTracker();
-        first.start("Herb run",100,now.minusSeconds(600),RunHistoryContext.of(RunHistoryStore.Kind.HERB,"RANARR",2));first.finish(200,now.minusSeconds(540),true);
-        second.start("Herb run",200,now.minusSeconds(400),RunHistoryContext.of(RunHistoryStore.Kind.HERB,"RANARR",4));second.finish(500,now.minusSeconds(280),false);
+        first.start("Herb run",100,now.minusSeconds(600),RunHistoryContext.of(RunHistoryStore.Kind.HERB,"RANARR",2));first.sampleStops(1,1,1);first.finish(200,now.minusSeconds(540),true);
+        second.start("Herb run",200,now.minusSeconds(400),RunHistoryContext.of(RunHistoryStore.Kind.HERB,"RANARR",4));second.sampleStops(2,0,1);second.finish(500,now.minusSeconds(280),false);
         legacy.start("Herb run",-1,now.minusSeconds(200));legacy.finish(-1,now.minusSeconds(100),true);
         RunHistoryComparison comparison=RunHistoryComparison.create(List.of(first.snapshot(now),second.snapshot(now),legacy.snapshot(now)),RunHistoryPeriod.ALL,now);
         SwingUtilities.invokeAndWait(() -> {
@@ -46,6 +46,10 @@ public class RunHistoryComparisonPanelTest
             assertTrue(labels(panel).contains("Herb run - Ranarr"));assertTrue(labels(panel).contains("Herb run - Setup unavailable"));
             assertTrue(labels(panel).contains("Planned stop counts varied: 2 to 4"));assertTrue(labels(panel).contains("Planned stops unavailable"));assertFalse(labels(panel).contains("Planned stops: 0"));
             assertTrue(labels(panel).contains("Setup labels describe intended crops"));
+            assertTrue(labels(panel).contains("Checklist stop subtotals: 3 completed (1 completed manually), 2 skipped, 1 unfinished"));
+            assertTrue(labels(panel).contains("Stop counts known for 2 / 3 saved checklists"));
+            assertTrue(labels(panel).contains("Stop counts known for 2 / 2 saved checklists"));
+            assertTrue(labels(panel).contains("no saved stop counts"));
             panel.setSize(225,panel.getPreferredSize().height);layout(panel);BufferedImage image=new BufferedImage(225,panel.getHeight(),BufferedImage.TYPE_INT_RGB);Graphics2D graphics=image.createGraphics();panel.printAll(graphics);graphics.dispose();
             File dir=new File("build/verification");dir.mkdirs();try{ImageIO.write(image,"png",new File(dir,"history-crop-comparison.png"));}catch(Exception ex){throw new AssertionError(ex);}
             toggle.doClick();assertEquals("Compare recorded crops",toggle.getText());

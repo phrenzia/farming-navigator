@@ -42,6 +42,8 @@ public class RunStopOutcomesPanelTest
             assertTrue(saved.contains("0 completed (0 completed manually), 3 skipped, 0 unfinished"));
             assertTrue(saved.contains("Checklist stop outcomes: unavailable"));
             assertTrue(saved.contains("3 planned stops"));
+            assertTrue(saved.contains("Checklist stop subtotals: 1 completed (1 completed manually), 4 skipped, 1 unfinished"));
+            assertTrue(saved.contains("Stop counts known for 2 / 3 saved checklists"));
             render(history, "history-stop-outcomes.png"); render(panel, "live-stop-outcomes.png");
         });
     }

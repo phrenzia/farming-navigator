@@ -28,6 +28,8 @@ public final class RunHistoryComparisonPanel extends JPanel
         {
             RunHistorySummary summary=row.getSummary(); details.add(Box.createVerticalStrut(6)); details.add(text(row.getKind().toString(),Color.WHITE));
             details.add(text(summary.getCompletedCount()+" completed; "+summary.getStoppedCount()+" stopped.",ColorScheme.LIGHT_GRAY_COLOR));
+            details.add(text(summary.getStopOutcomes().describe(),ColorScheme.LIGHT_GRAY_COLOR));
+            details.add(text(summary.getStopOutcomes().describeCoverage(),ColorScheme.LIGHT_GRAY_COLOR));
             details.add(text("XP known for "+summary.getKnownXpCount()+" / "+summary.getEntries().size()+"; subtotal "+(summary.getKnownXpCount()>0?numbers.format(summary.getKnownXp()):"data required")+".",ColorScheme.LIGHT_GRAY_COLOR));
             details.add(text("Recorded XP/hour: "+(summary.getXpPerHour().isPresent()?numbers.format(Math.round(summary.getXpPerHour().getAsDouble())):"data required")+" (timed known entries in this filtered sample).",ColorScheme.LIGHT_GRAY_COLOR));
             if(row.getMeanCompletedTime().isPresent())
@@ -50,12 +52,15 @@ public final class RunHistoryComparisonPanel extends JPanel
                 RunHistoryComparison.Row statistics=crop.getStatistics();RunHistorySummary summary=statistics.getSummary();
                 cropDetails.add(Box.createVerticalStrut(6));cropDetails.add(text(row.getKind()+" - "+crop.getCropLabel(),Color.WHITE));
                 cropDetails.add(text(summary.getCompletedCount()+" completed; "+summary.getStoppedCount()+" stopped; XP known for "+summary.getKnownXpCount()+" / "+summary.getEntries().size()+".",ColorScheme.LIGHT_GRAY_COLOR));
+                cropDetails.add(text(summary.getStopOutcomes().describe(),ColorScheme.LIGHT_GRAY_COLOR));
+                cropDetails.add(text(summary.getStopOutcomes().describeCoverage(),ColorScheme.LIGHT_GRAY_COLOR));
                 cropDetails.add(text("Recorded XP/hour: "+(summary.getXpPerHour().isPresent()?numbers.format(Math.round(summary.getXpPerHour().getAsDouble())):"data required")+".",ColorScheme.LIGHT_GRAY_COLOR));
                 cropDetails.add(text(statistics.getMeanCompletedTime().isPresent()?"Mean completed time: "+duration(statistics.getMeanCompletedTime().get())+" ("+statistics.getTimedCompletedCount()+" timed).":"Completed time: data required.",ColorScheme.LIGHT_GRAY_COLOR));
                 cropDetails.add(text(!crop.isKnown()?"Planned stops unavailable.":crop.getMinimumPlannedStops()==crop.getMaximumPlannedStops()?"Planned stops: "+crop.getMinimumPlannedStops()+".":"Planned stop counts varied: "+crop.getMinimumPlannedStops()+" to "+crop.getMaximumPlannedStops()+".",ColorScheme.LIGHT_GRAY_COLOR));
             }
         }
         details.add(text("Completion times exclude stopped and zero-duration checklists; unknown XP does not exclude a valid completion time. Includes preparation, waiting and unrelated Farming XP.",ColorScheme.LIGHT_GRAY_COLOR));
+        details.add(text("Stop subtotals describe checklist decisions, not harvested crops or verified farming actions. Manual completions are included in completed stops.",ColorScheme.LIGHT_GRAY_COLOR));
     }
     private static String duration(Duration elapsed)
     {

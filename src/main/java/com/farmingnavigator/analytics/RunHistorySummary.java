@@ -12,6 +12,7 @@ public final class RunHistorySummary
     private final long knownXp;
     private final Duration elapsed;
     private final OptionalDouble xpPerHour;
+    private final RunStopOutcomeSummary stopOutcomes;
     private RunHistorySummary(List<RunMetricsSnapshot> selected)
     {
         entries = List.copyOf(selected); int complete=0,known=0; long xp=0,timedXp=0; Duration total=Duration.ZERO,timed=Duration.ZERO;
@@ -25,6 +26,7 @@ public final class RunHistorySummary
             }
         }
         completed=complete; knownXpCount=known; knownXp=xp; elapsed=total;
+        stopOutcomes = new RunStopOutcomeSummary(entries);
         double seconds=timed.getSeconds()+timed.getNano()/1_000_000_000d;
         xpPerHour=seconds>0?OptionalDouble.of(timedXp*3600d/seconds):OptionalDouble.empty();
     }
@@ -47,6 +49,7 @@ public final class RunHistorySummary
         return new RunHistorySummary(bounded);
     }
     public List<RunMetricsSnapshot> getEntries() { return entries; }
+    public RunStopOutcomeSummary getStopOutcomes() { return stopOutcomes; }
     public int getCompletedCount() { return completed; }
     public int getStoppedCount() { return entries.size()-completed; }
     public int getKnownXpCount() { return knownXpCount; }

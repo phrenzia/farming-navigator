@@ -82,6 +82,8 @@ public final class RunHistoryPanel extends JPanel
             if(summary.getXpPerHour().isPresent()) { results.add(text("Recorded XP/hour (timed known entries): "+numbers.format(Math.round(summary.getXpPerHour().getAsDouble())),ColorScheme.LIGHT_GRAY_COLOR)); }
             results.add(text("Unknown XP and zero-duration entries are excluded from the rate.",ColorScheme.LIGHT_GRAY_COLOR));
             results.add(text("Stop counts describe checklist decisions, not harvest quantity or verified farming actions.",ColorScheme.LIGHT_GRAY_COLOR));
+            results.add(text(summary.getStopOutcomes().describe(),ColorScheme.LIGHT_GRAY_COLOR));
+            results.add(text(summary.getStopOutcomes().describeCoverage(),ColorScheme.LIGHT_GRAY_COLOR));
         }
         if(!displayed.isEmpty())
         {
