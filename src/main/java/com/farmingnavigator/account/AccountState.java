@@ -20,6 +20,7 @@ public class AccountState
     private final int boostedWoodcuttingLevel;
     private final int realConstructionLevel;
     private final int realCraftingLevel;
+    private final int realFishingLevel;
 
     private final int realAgilityLevel;
     private final int boostedAgilityLevel;
@@ -116,6 +117,17 @@ public class AccountState
             boolean fairyRingAccessUnlocked,boolean varlamoreVisited,int realAttackLevel,int boostedWoodcuttingLevel,
             BarbarianPlantingState barbarianPlanting, int realConstructionLevel, int realCraftingLevel)
     {
+        this(loggedIn,realFarmingLevel,boostedFarmingLevel,realMagicLevel,boostedMagicLevel,realAgilityLevel,boostedAgilityLevel,
+                realHunterLevel,boostedHunterLevel,questStates,completedDiaryTiers,claimedDiaryTiers,fireOfNourishmentBuilt,
+                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,barbarianPlanting,realConstructionLevel,realCraftingLevel,-1);
+    }
+    private AccountState(boolean loggedIn,int realFarmingLevel,int boostedFarmingLevel,int realMagicLevel,int boostedMagicLevel,
+            int realAgilityLevel,int boostedAgilityLevel,int realHunterLevel,int boostedHunterLevel,Map<Quest,QuestState> questStates,
+            Map<DiaryArea,DiaryTier> completedDiaryTiers,Map<DiaryArea,DiaryTier> claimedDiaryTiers,boolean fireOfNourishmentBuilt,
+            boolean fairyRingAccessUnlocked,boolean varlamoreVisited,int realAttackLevel,int boostedWoodcuttingLevel,
+            BarbarianPlantingState barbarianPlanting, int realConstructionLevel, int realCraftingLevel, int realFishingLevel)
+    {
+        this.realFishingLevel=loggedIn && realFishingLevel>=1 && realFishingLevel<=99?realFishingLevel:-1;
         this.realCraftingLevel=loggedIn && realCraftingLevel>=1 && realCraftingLevel<=99?realCraftingLevel:-1;
         this.realConstructionLevel=loggedIn && realConstructionLevel>=1 && realConstructionLevel<=99?realConstructionLevel:-1;
         this.barbarianPlanting=loggedIn && barbarianPlanting!=null?barbarianPlanting:BarbarianPlantingState.UNKNOWN;
@@ -395,7 +407,7 @@ public class AccountState
     {
         return new AccountState(loggedIn, realFarmingLevel, boostedFarmingLevel, realMagicLevel, boostedMagicLevel,
                 realAgilityLevel, boostedAgilityLevel, realHunterLevel, boostedHunterLevel, questStates,
-                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, level, boostedWoodcuttingLevel,barbarianPlanting,realConstructionLevel,realCraftingLevel);
+                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, level, boostedWoodcuttingLevel,barbarianPlanting,realConstructionLevel,realCraftingLevel,realFishingLevel);
     }
 
     /** -1 means an older/synthetic caller has not supplied this skill. Zero is a known drained level. */
@@ -404,7 +416,7 @@ public class AccountState
     {
         return new AccountState(loggedIn, realFarmingLevel, boostedFarmingLevel, realMagicLevel, boostedMagicLevel,
                 realAgilityLevel, boostedAgilityLevel, realHunterLevel, boostedHunterLevel, questStates,
-                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, realAttackLevel, level,barbarianPlanting,realConstructionLevel,realCraftingLevel);
+                completedDiaryTiers, claimedDiaryTiers, fireOfNourishmentBuilt, fairyRingAccessUnlocked, varlamoreVisited, realAttackLevel, level,barbarianPlanting,realConstructionLevel,realCraftingLevel,realFishingLevel);
     }
 
     /** Base skill only. Legacy, logged-out and out-of-range samples are unknown (-1). */
@@ -413,7 +425,7 @@ public class AccountState
     {
         return new AccountState(loggedIn,realFarmingLevel,boostedFarmingLevel,realMagicLevel,boostedMagicLevel,realAgilityLevel,boostedAgilityLevel,
                 realHunterLevel,boostedHunterLevel,questStates,completedDiaryTiers,claimedDiaryTiers,fireOfNourishmentBuilt,
-                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,barbarianPlanting,level,realCraftingLevel);
+                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,barbarianPlanting,level,realCraftingLevel,realFishingLevel);
     }
 
     /** Base skill only. Legacy, logged-out and out-of-range samples are unknown (-1). */
@@ -422,7 +434,16 @@ public class AccountState
     {
         return new AccountState(loggedIn,realFarmingLevel,boostedFarmingLevel,realMagicLevel,boostedMagicLevel,realAgilityLevel,boostedAgilityLevel,
                 realHunterLevel,boostedHunterLevel,questStates,completedDiaryTiers,claimedDiaryTiers,fireOfNourishmentBuilt,
-                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,barbarianPlanting,realConstructionLevel,level);
+                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,barbarianPlanting,realConstructionLevel,level,realFishingLevel);
+    }
+
+    /** Base skill only. Legacy, logged-out and out-of-range samples are unknown (-1). */
+    public int getRealFishingLevel() { return realFishingLevel; }
+    public AccountState withRealFishingLevel(int level)
+    {
+        return new AccountState(loggedIn,realFarmingLevel,boostedFarmingLevel,realMagicLevel,boostedMagicLevel,realAgilityLevel,boostedAgilityLevel,
+                realHunterLevel,boostedHunterLevel,questStates,completedDiaryTiers,claimedDiaryTiers,fireOfNourishmentBuilt,
+                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,barbarianPlanting,realConstructionLevel,realCraftingLevel,level);
     }
 
     public BarbarianPlantingState getBarbarianPlanting() { return barbarianPlanting; }
@@ -431,7 +452,7 @@ public class AccountState
     {
         return new AccountState(loggedIn,realFarmingLevel,boostedFarmingLevel,realMagicLevel,boostedMagicLevel,realAgilityLevel,boostedAgilityLevel,
                 realHunterLevel,boostedHunterLevel,questStates,completedDiaryTiers,claimedDiaryTiers,fireOfNourishmentBuilt,
-                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,state,realConstructionLevel,realCraftingLevel);
+                fairyRingAccessUnlocked,varlamoreVisited,realAttackLevel,boostedWoodcuttingLevel,state,realConstructionLevel,realCraftingLevel,realFishingLevel);
     }
 
     public int getBoostedMagicLevel()

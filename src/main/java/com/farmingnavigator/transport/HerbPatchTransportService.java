@@ -483,6 +483,11 @@ public class HerbPatchTransportService
                 "Choose Monastery on an Ardougne cloak, then travel north through the East Ardougne area to the northern herb patch.",
                 TransportCategory.ITEM,TransportVerificationKind.ARDOUGNE_CLOAK_MONASTERY));
         options.put(HerbPatchDefinition.ARDOUGNE,java.util.List.copyOf(ardougneArrivals));
+        java.util.List<TransportOption> fishingArrivals=new java.util.ArrayList<>(options.get(HerbPatchDefinition.ARDOUGNE));
+        fishingArrivals.add(new TransportOption(97,"Fishing cape to Guild, then Ardougne farm",
+                "Choose Fishing Guild on a Fishing cape or ordinary max cape, leave the guild, then travel south-east to the herb patch north of Ardougne.",
+                TransportCategory.ITEM,TransportVerificationKind.FISHING_CAPE_GUILD));
+        options.put(HerbPatchDefinition.ARDOUGNE,java.util.List.copyOf(fishingArrivals));
         PlantedSpiritTransportOptions.append(options,HerbPatchDefinition.FALADOR,com.farmingnavigator.routing.spirit.PlantedSpiritTree.PORT_SARIM,"Travel north to the Falador farming area.");
         PlantedSpiritTransportOptions.append(options,HerbPatchDefinition.HOSIDIUS,com.farmingnavigator.routing.spirit.PlantedSpiritTree.HOSIDIUS,"Travel east to the Hosidius farming area.");
         PlantedSpiritTransportOptions.append(options,HerbPatchDefinition.FARMING_GUILD,com.farmingnavigator.routing.spirit.PlantedSpiritTree.FARMING_GUILD,"Approach the selected Guild patch; its entry tier is checked separately.");

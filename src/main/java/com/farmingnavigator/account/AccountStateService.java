@@ -218,6 +218,7 @@ public class AccountStateService
         ).withBoostedWoodcuttingLevel(client.getBoostedSkillLevel(Skill.WOODCUTTING))
                 .withRealConstructionLevel(client.getRealSkillLevel(Skill.CONSTRUCTION))
                 .withRealCraftingLevel(client.getRealSkillLevel(Skill.CRAFTING))
+                .withRealFishingLevel(client.getRealSkillLevel(Skill.FISHING))
                 .withBarbarianPlanting(BarbarianPlantingState.decode(client.getVarbitValue(VarbitID.BRUT_FARMING_PLANTING)));
     }
 

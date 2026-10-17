@@ -501,6 +501,8 @@ public final class GuidedRunTargets
                 items.addAll(com.farmingnavigator.routing.item.ArdougneMonasteryItems.getItemIds()); break;
             case ARDOUGNE_CLOAK_UNLIMITED:
                 Collections.addAll(items, ItemID.ARDY_CAPE_ELITE, ItemID.SKILLCAPE_MAX_ARDY); break;
+            case FISHING_CAPE_GUILD:
+                items.addAll(com.farmingnavigator.routing.item.FishingCapeItems.getItemIds()); break;
             case CRAFTING_CAPE:
                 items.addAll(com.farmingnavigator.routing.item.CraftingCapeItems.getItemIds()); break;
             case CONSTRUCTION_CAPE_RIMMINGTON:
@@ -533,7 +535,7 @@ public final class GuidedRunTargets
             case RING_OF_ELEMENTS: items.add(ItemID.RING_OF_ELEMENTS_CHARGED); break;
             case QUETZAL_WHISTLE: items.add(ItemID.HG_QUETZALWHISTLE_PERFECTED_INFINITE); break;
             case FARMING_CAPE:
-                Collections.addAll(items, ItemID.SKILLCAPE_FARMING, ItemID.SKILLCAPE_FARMING_TRIMMED, ItemID.SKILLCAPE_MAX_WORN); break;
+                Collections.addAll(items, ItemID.SKILLCAPE_FARMING, ItemID.SKILLCAPE_FARMING_TRIMMED, ItemID.SKILLCAPE_MAX, ItemID.SKILLCAPE_MAX_WORN); break;
             case FAIRY_RING_ACCESS:
             case FAIRY_RING_AJP:
             case POH_FAIRY_RING:

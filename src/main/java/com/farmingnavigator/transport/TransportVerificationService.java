@@ -58,6 +58,7 @@ public class TransportVerificationService
     private static final int[] FARMING_CAPE_IDS = {
             ItemID.SKILLCAPE_FARMING,
             ItemID.SKILLCAPE_FARMING_TRIMMED,
+            ItemID.SKILLCAPE_MAX,
             ItemID.SKILLCAPE_MAX_WORN
     };
 
@@ -491,6 +492,19 @@ public class TransportVerificationService
                         storageSnapshot,
                         option
                 );
+
+            case FISHING_CAPE_GUILD:
+                if (accountState.getRealFishingLevel() < 1)
+                { return new VerifiedTransportResult(option, VerifiedTransportState.DATA_REQUIRED, "Base Fishing level is unavailable; verify the cape requirement."); }
+                if (accountState.getRealFishingLevel() < 99)
+                { return new VerifiedTransportResult(option, VerifiedTransportState.LOCKED, "Requires 99 base Fishing and a supported cape."); }
+                RequirementResult fishingCape=com.farmingnavigator.routing.item.FishingCapeItems.evaluate(
+                        new RequirementContext(accountState,config,travelCapabilitySnapshot,storageSnapshot));
+                VerifiedTransportState fishingState=fishingCape.isReadyNow()?VerifiedTransportState.READY_NOW
+                        :fishingCape.requiresBankWithdrawal()?VerifiedTransportState.AVAILABLE_FROM_BANK
+                        :fishingCape.getState()==RequirementState.DATA_REQUIRED?VerifiedTransportState.DATA_REQUIRED:VerifiedTransportState.MISSING;
+                return new VerifiedTransportResult(option,fishingState,fishingCape.getDetail()
+                        + " Choose Fishing Guild, leave the guild and walk south-east. Unlimited teleports.");
 
             case CRAFTING_CAPE:
                 if (accountState.getRealCraftingLevel() < 1)
@@ -3057,6 +3071,7 @@ public class TransportVerificationService
                         new String[] {
                                 "Farming cape",
                                 "Farming cape(t)",
+                                "Max cape",
                                 "Max cape"
                         }
                 );
@@ -3078,6 +3093,7 @@ public class TransportVerificationService
                         new String[] {
                                 "Farming cape",
                                 "Farming cape(t)",
+                                "Max cape",
                                 "Max cape"
                         }
                 );
