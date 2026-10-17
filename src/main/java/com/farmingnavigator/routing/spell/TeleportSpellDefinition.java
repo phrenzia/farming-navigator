@@ -331,7 +331,11 @@ public enum TeleportSpellDefinition
                     .build(),
             Quest.LUNAR_DIPLOMACY,
             false
-    );
+    ),
+    // Pinned shortest-path99735452c7c257d3fe5ae79970429cdce907d571 teleportation_spells.tsv rows62/64.
+    WATCHTOWER_TELEPORT("Watchtower Teleport", "Top of Watchtower (or configured Yanille diary redirect)", 58,
+            SpellbookType.STANDARD, RuneCost.builder().add(RuneKind.EARTH, 2).add(RuneKind.LAW, 2).build(),
+            Quest.WATCHTOWER, false);
 
     private final String displayName;
 

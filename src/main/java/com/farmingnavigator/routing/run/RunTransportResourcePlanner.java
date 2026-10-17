@@ -187,6 +187,7 @@ public final class RunTransportResourcePlanner
     {
         HOUSE_TABLET(ItemID.POH_TABLET_TELEPORTTOHOUSE, "Teleport to house tablet"),
         ARDOUGNE_TABLET(ItemID.POH_TABLET_ARDOUGNETELEPORT, "Ardougne teleport tablet"),
+        WATCHTOWER_TABLET(ItemID.POH_TABLET_WATCHTOWERTELEPORT, "Watchtower teleport tablet"),
         STONY_BASALT(ItemID.STRONGHOLD_TELEPORT_BASALT, "Stony basalt"),
         ICY_BASALT(ItemID.WEISS_TELEPORT_BASALT, "Icy basalt"),
         MOS_LE_HARMLESS_SCROLL(ItemID.TELEPORTSCROLL_MOSLES, "Mos le'harmless teleport scroll"),
@@ -207,6 +208,7 @@ public final class RunTransportResourcePlanner
         switch (kind)
         {
             case ARDOUGNE_TELEPORT_TABLET: return Consumable.ARDOUGNE_TABLET;
+            case WATCHTOWER_TELEPORT_TABLET: return Consumable.WATCHTOWER_TABLET;
             case STONY_BASALT: return Consumable.STONY_BASALT;
             case ICY_BASALT: return Consumable.ICY_BASALT;
             case MOS_LE_HARMLESS_HARMONY: return Consumable.MOS_LE_HARMLESS_SCROLL;

@@ -37,7 +37,12 @@ public final class FieldPatchTransportService
                             TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_ACCESS),
                             new TransportOption(90, "Ring of dueling to Castle Wars, then Yanille",
                                     "Choose Castle Wars on a charged ring of dueling, then make the longer manual walk east to Yanille and the hops plot east of town.",
-                                    TransportCategory.JEWELLERY, TransportVerificationKind.RING_OF_DUELING)); break;
+                                    TransportCategory.JEWELLERY, TransportVerificationKind.RING_OF_DUELING),
+                            new TransportOption(91, "Watchtower Teleport to Yanille hops",
+                                    watchtowerApproach(), TransportCategory.SPELL, TransportVerificationKind.TELEPORT_SPELL,
+                                    TeleportSpellDefinition.WATCHTOWER_TELEPORT),
+                            new TransportOption(92, "Watchtower teleport tablet to Yanille hops",
+                                    watchtowerApproach(), TransportCategory.ITEM, TransportVerificationKind.WATCHTOWER_TELEPORT_TABLET)); break;
                 case SEERS_VILLAGE:
                     arrivals = List.of(spell(TeleportSpellDefinition.CAMELOT_TELEPORT,
                             "Use Camelot Teleport and travel north-west to the hops plot north of McGrubor's Wood. If your diary redirect sends you to Seers' Village, travel north from there."),
@@ -90,6 +95,11 @@ public final class FieldPatchTransportService
     {
         return new TransportOption(1, spell.getDisplayName(), instructions, TransportCategory.SPELL,
                 TransportVerificationKind.TELEPORT_SPELL, spell);
+    }
+
+    private String watchtowerApproach()
+    {
+        return "Use the Watchtower destination, descend the tower, then walk east to the hops plot east of Yanille. If your diary redirect sends you to Yanille instead, walk east from that landing to the same plot.";
     }
 
 }

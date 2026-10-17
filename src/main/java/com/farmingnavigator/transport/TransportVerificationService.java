@@ -219,6 +219,10 @@ public class TransportVerificationService
                             "Complete Tai Bwo Wannai Trio to use this teleport scroll. The calquat patch itself does not require the quest.");
                 }
                 return evaluateStackItem(storageSnapshot, option, ItemID.TELEPORTSCROLL_TAIBWO, "Tai bwo wannai teleport scroll");
+            case WATCHTOWER_TELEPORT_TABLET:
+                if (!accountState.hasCompletedQuest(Quest.WATCHTOWER))
+                { return new VerifiedTransportResult(option, VerifiedTransportState.LOCKED, "Complete Watchtower to use its teleport tablet."); }
+                return evaluateStackItem(storageSnapshot, option, ItemID.POH_TABLET_WATCHTOWERTELEPORT, "Watchtower teleport tablet");
             case EXPLORER_RING_UNLIMITED:
                 return evaluateExplorerRingUnlimited(
                         storageSnapshot,
