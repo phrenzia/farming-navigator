@@ -860,8 +860,8 @@ public class FarmingNavigatorPlugin
             }
             int xp = accountStateService.currentFarmingExperience();
             Instant metricsTime = Instant.now();
-            runMetrics.sample(xp, metricsTime);
-            if (!guidedRun.isActive() && !treeGuidedRun.isActive() && !gardenGuidedRun.isActive() && !fieldGuidedRun.isActive())
+            runMetrics.sample(accountState.isLoggedIn(), xp, metricsTime);
+            if (accountState.isLoggedIn() && !guidedRun.isActive() && !treeGuidedRun.isActive() && !gardenGuidedRun.isActive() && !fieldGuidedRun.isActive())
             {
                 runMetrics.finish(xp, metricsTime, guidedRun.getStep() == com.farmingnavigator.guided.GuidedRunStep.COMPLETE
                         || treeGuidedRun.getStep() == com.farmingnavigator.guided.tree.TreeRunStep.COMPLETE

@@ -28,8 +28,11 @@ public final class RunMetricsTracker
         baselineXp = lastXp = currentXp; xpKnown = currentXp >= 0;
     }
     public void sample(int currentXp, Instant now)
+    { sample(true,currentXp,now); }
+    /** Transient loading provides no account sample; genuine missing XP while logged in remains unknown. */
+    public void sample(boolean accountLoggedIn, int currentXp, Instant now)
     {
-        if (!isRecording() || now.isBefore(lastSampleAt)) { return; }
+        if (!accountLoggedIn || !isRecording() || now.isBefore(lastSampleAt)) { return; }
         lastSampleAt = now;
         if (currentXp < 0 || currentXp < lastXp) { xpKnown = false; }
         lastXp = currentXp;
