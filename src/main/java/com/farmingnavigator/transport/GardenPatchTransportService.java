@@ -27,7 +27,10 @@ public final class GardenPatchTransportService
                 TransportCategory.JEWELLERY, TransportVerificationKind.COMBAT_BRACELET),
                 spell(2, TeleportSpellDefinition.VARROCK_TELEPORT, "Choose the Varrock town-square destination, then run south-west to the bush outside the Champions' Guild. If redirected to the Exchange, choose Varrock explicitly or walk from there.")));
         options.put(GardenPatchDefinition.RIMMINGTON_BUSH, List.of(spell(1, TeleportSpellDefinition.FALADOR_TELEPORT,
-                "Teleport to Falador, leave by the south gate and follow the roads south-west to the Rimmington bush patch.")));
+                "Teleport to Falador, leave by the south gate and follow the roads south-west to the Rimmington bush patch."),
+                new TransportOption(90, "Skills necklace to Crafting Guild, then Rimmington",
+                        "Choose Crafting Guild on a charged skills necklace. Stay outside the guild, then walk south-east to Rimmington and the bush beside the house portal.",
+                        TransportCategory.JEWELLERY, TransportVerificationKind.SKILLS_NECKLACE)));
         options.put(GardenPatchDefinition.ARDOUGNE_BUSH, List.of(spell(1, TeleportSpellDefinition.ARDOUGNE_TELEPORT,
                 "Teleport to Ardougne, then travel south-west to the bush north of the monastery."),
                 new TransportOption(2, "Fairy ring DJP to Ardougne bush", "Travel to an accessible fairy ring, use DJP, then run west to the bush near Ardougne Monastery.",

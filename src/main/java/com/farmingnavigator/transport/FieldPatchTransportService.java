@@ -63,7 +63,10 @@ public final class FieldPatchTransportService
                             spell(TeleportSpellDefinition.KHARYRLL_TELEPORT, "Teleport to Canifis, then travel west to the mushroom patch beside fairy ring CKS.")); break;
                 case DRAYNOR_MANOR:
                     arrivals = List.of(spell(TeleportSpellDefinition.DRAYNOR_MANOR_TELEPORT,
-                            "Teleport to Draynor Manor, then approach the belladonna patch in the manor grounds. Equip suitable gloves before harvesting.")); break;
+                            "Teleport to Draynor Manor, then approach the belladonna patch in the manor grounds. Equip suitable gloves before harvesting."),
+                            new TransportOption(90, "Amulet of glory to Draynor Village, then manor",
+                                    "Choose Draynor Village on a charged or eternal glory, then follow the road north into Draynor Manor's grounds to the belladonna patch. Equip suitable gloves before harvesting.",
+                                    TransportCategory.JEWELLERY, TransportVerificationKind.AMULET_OF_GLORY)); break;
                 case AUBURNVALE:
                 case ENTRANA:
                 case ALDARIN: arrivals = List.of(); break;

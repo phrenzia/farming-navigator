@@ -305,6 +305,15 @@ public class TransportVerificationService
                 return new VerifiedTransportResult(option, duelingState,
                         dueling.getDetail() + " Choose Castle Wars; one teleport charge is required.");
 
+            case GAMES_NECKLACE:
+                RequirementResult games = ChargedTeleportItemDefinition.GAMES_NECKLACE.createRequirement()
+                        .evaluate(new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot));
+                VerifiedTransportState gamesState = games.isReadyNow() ? VerifiedTransportState.READY_NOW
+                        : games.requiresBankWithdrawal() ? VerifiedTransportState.AVAILABLE_FROM_BANK
+                        : games.getState() == RequirementState.DATA_REQUIRED ? VerifiedTransportState.DATA_REQUIRED : VerifiedTransportState.MISSING;
+                return new VerifiedTransportResult(option, gamesState,
+                        games.getDetail() + " Choose Burthorpe; one teleport charge is required.");
+
             case COMBAT_BRACELET:
                 return evaluateCombatBracelet(
                         accountState,

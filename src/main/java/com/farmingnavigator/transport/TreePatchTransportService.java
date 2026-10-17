@@ -24,7 +24,10 @@ public final class TreePatchTransportService
                 "Teleport to Falador and run north-east into Falador Park to the tree patch."),
                 item(2, "Ring of wealth to Falador Park", "Teleport to Falador Park and walk to the tree patch.", TransportVerificationKind.RING_OF_WEALTH)));
         options.put(TreePatchDefinition.TAVERLEY_TREE, List.of(spell(1, TeleportSpellDefinition.FALADOR_TELEPORT,
-                "Teleport to Falador, leave through the north gate and follow the road north-west to the Taverley tree patch.")));
+                "Teleport to Falador, leave through the north gate and follow the road north-west to the Taverley tree patch."),
+                item(90, "Games necklace to Burthorpe, then Taverley",
+                        "Choose Burthorpe on a charged games necklace, then follow the roads south through Taverley to the tree patch beside Alain.",
+                        TransportVerificationKind.GAMES_NECKLACE)));
         options.put(TreePatchDefinition.CATHERBY_FRUIT, List.of(spell(1, TeleportSpellDefinition.CATHERBY_TELEPORT,
                 "Teleport to Catherby and run east past the fishing spots to the fruit tree patch."),
                 spell(2, TeleportSpellDefinition.CAMELOT_TELEPORT,

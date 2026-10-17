@@ -513,6 +513,7 @@ public final class GuidedRunTargets
             case PRIFDDINAS_CRYSTAL: addJewellery(items, ChargedTeleportItemDefinition.TELEPORT_CRYSTAL); break;
             case COMBAT_BRACELET: addJewellery(items, ChargedTeleportItemDefinition.COMBAT_BRACELET); break;
             case RING_OF_DUELING: addJewellery(items, ChargedTeleportItemDefinition.RING_OF_DUELING); break;
+            case GAMES_NECKLACE: addJewellery(items, ChargedTeleportItemDefinition.GAMES_NECKLACE); break;
             case ARDOUGNE_TELEPORT_TABLET: items.add(ItemID.POH_TABLET_ARDOUGNETELEPORT); break;
             case WATCHTOWER_TELEPORT_TABLET: items.add(ItemID.POH_TABLET_WATCHTOWERTELEPORT); break;
             case STONY_BASALT: items.add(ItemID.STRONGHOLD_TELEPORT_BASALT); break;
