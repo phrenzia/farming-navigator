@@ -59,6 +59,7 @@ public final class HerbTransportSelector
             case EXPLORER_RING_UNLIMITED:
             case ARDOUGNE_CLOAK_UNLIMITED:
             case ARDOUGNE_CLOAK_MONASTERY:
+            case CRAFTING_CAPE:
             case CONSTRUCTION_CAPE_RIMMINGTON:
             case CONSTRUCTION_CAPE_TAVERLEY:
             case CONSTRUCTION_CAPE_BRIMHAVEN:

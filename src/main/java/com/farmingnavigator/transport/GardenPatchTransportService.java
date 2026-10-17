@@ -43,6 +43,11 @@ public final class GardenPatchTransportService
         for(GardenPatchDefinition patch:List.of(GardenPatchDefinition.FARMING_GUILD_BUSH,GardenPatchDefinition.FARMING_GUILD_CACTUS))
         { PlantedSpiritTransportOptions.append(options,patch,com.farmingnavigator.routing.spirit.PlantedSpiritTree.FARMING_GUILD,"Approach the selected Guild patch; its entry tier is checked separately."); }
         ConstructionCapeTransportOptions.append(options,GardenPatchDefinition.RIMMINGTON_BUSH,TransportVerificationKind.CONSTRUCTION_CAPE_RIMMINGTON,"Rimmington","walk to the bush beside the house portal.");
+        List<TransportOption> rimmington=new java.util.ArrayList<>(options.get(GardenPatchDefinition.RIMMINGTON_BUSH));
+        rimmington.add(new TransportOption(97,"Crafting cape to Guild, then Rimmington",
+                "Teleport to the Crafting Guild using a Crafting cape or ordinary max cape, leave the guild, then walk south-east to Rimmington and the bush beside the house portal.",
+                TransportCategory.ITEM,TransportVerificationKind.CRAFTING_CAPE));
+        options.put(GardenPatchDefinition.RIMMINGTON_BUSH,List.copyOf(rimmington));
         return Collections.unmodifiableMap(options);
     }
     private TransportOption spell(int rank, TeleportSpellDefinition spell, String instructions)

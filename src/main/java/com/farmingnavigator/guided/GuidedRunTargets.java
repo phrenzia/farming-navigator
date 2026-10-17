@@ -501,6 +501,8 @@ public final class GuidedRunTargets
                 items.addAll(com.farmingnavigator.routing.item.ArdougneMonasteryItems.getItemIds()); break;
             case ARDOUGNE_CLOAK_UNLIMITED:
                 Collections.addAll(items, ItemID.ARDY_CAPE_ELITE, ItemID.SKILLCAPE_MAX_ARDY); break;
+            case CRAFTING_CAPE:
+                items.addAll(com.farmingnavigator.routing.item.CraftingCapeItems.getItemIds()); break;
             case CONSTRUCTION_CAPE_RIMMINGTON:
             case CONSTRUCTION_CAPE_TAVERLEY:
             case CONSTRUCTION_CAPE_BRIMHAVEN:

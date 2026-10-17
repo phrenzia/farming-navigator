@@ -492,6 +492,19 @@ public class TransportVerificationService
                         option
                 );
 
+            case CRAFTING_CAPE:
+                if (accountState.getRealCraftingLevel() < 1)
+                { return new VerifiedTransportResult(option, VerifiedTransportState.DATA_REQUIRED, "Base Crafting level is unavailable; verify the cape requirement."); }
+                if (accountState.getRealCraftingLevel() < 99)
+                { return new VerifiedTransportResult(option, VerifiedTransportState.LOCKED, "Requires 99 base Crafting and a supported cape."); }
+                RequirementResult craftingCape=com.farmingnavigator.routing.item.CraftingCapeItems.evaluate(
+                        new RequirementContext(accountState,config,travelCapabilitySnapshot,storageSnapshot));
+                VerifiedTransportState craftingState=craftingCape.isReadyNow()?VerifiedTransportState.READY_NOW
+                        :craftingCape.requiresBankWithdrawal()?VerifiedTransportState.AVAILABLE_FROM_BANK
+                        :craftingCape.getState()==RequirementState.DATA_REQUIRED?VerifiedTransportState.DATA_REQUIRED:VerifiedTransportState.MISSING;
+                return new VerifiedTransportResult(option,craftingState,craftingCape.getDetail()
+                        + " Unlimited Crafting Guild teleports; leave the guild before walking to Rimmington.");
+
             case CONSTRUCTION_CAPE_RIMMINGTON:
             case CONSTRUCTION_CAPE_TAVERLEY:
             case CONSTRUCTION_CAPE_BRIMHAVEN:
