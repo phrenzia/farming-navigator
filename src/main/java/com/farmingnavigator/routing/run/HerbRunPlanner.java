@@ -40,6 +40,15 @@ public final class HerbRunPlanner
             Map<HerbPatchDefinition, List<VerifiedTransportResult>> transports,
             StorageSnapshot storage, Instant now, HerbTransportPreference transportPreference)
     {
+        return plan(account, patchStatuses, selected, crop, compost, observations, transports, storage, now, transportPreference, RunVisitSelection.ALL_SELECTED);
+    }
+    public HerbRunPlan plan(AccountState account, List<HerbPatchStatus> patchStatuses,
+            Set<HerbPatchDefinition> selected, HerbRunCrop crop, HerbRunCompost compost,
+            Map<HerbPatchDefinition, HerbPatchObservation> observations,
+            Map<HerbPatchDefinition, List<VerifiedTransportResult>> transports,
+            StorageSnapshot storage, Instant now, HerbTransportPreference transportPreference,
+            RunVisitSelection visitSelection)
+    {
         Map<HerbPatchDefinition, String> excluded = new EnumMap<>(HerbPatchDefinition.class);
         List<HerbRunStop> stops = new ArrayList<>();
         if (account == null || !account.isLoggedIn())
@@ -69,6 +78,8 @@ public final class HerbRunPlanner
             HerbPatchObservation observation = observations.get(patch);
             if (observation != null && observation.getObservedAt().isAfter(now)) { observation = null; }
             PatchCondition condition = observation == null ? PatchCondition.UNKNOWN : observation.getState().getCondition();
+            String visitExclusion = RunVisitSelection.orDefault(visitSelection).exclusion(condition);
+            if (!visitExclusion.isEmpty()) { excluded.put(patch, visitExclusion); continue; }
             if (condition == PatchCondition.GROWING)
             {
                 Optional<HerbGrowthEstimate> estimate = new HerbGrowthTimer().estimate(observation, now);

@@ -360,6 +360,11 @@ public interface FarmingNavigatorConfig
             description = "Manually declare the tome unlock for tree Fertile Soil ultracompost", position = 48, section = GENERAL_SECTION)
     default boolean treeAshTomeRead() { return false; }
 
+    @ConfigItem(keyName = "runVisitSelection", name = "Run visit selection",
+            description = "Optionally plan only patches last observed mature or diseased/dead; timers never qualify. Inspect fresh before acting.", position = 50, section = GENERAL_SECTION)
+    default com.farmingnavigator.routing.run.RunVisitSelection runVisitSelection()
+    { return com.farmingnavigator.routing.run.RunVisitSelection.ALL_SELECTED; }
+
     /*
      * POH values are intentionally hidden from RuneLite's generic
      * configuration panel.

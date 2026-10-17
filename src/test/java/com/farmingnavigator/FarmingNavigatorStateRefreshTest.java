@@ -8,6 +8,13 @@ import static org.junit.Assert.assertTrue;
 
 public class FarmingNavigatorStateRefreshTest
 {
+    @Test public void visitSelectionInvalidatesEveryChecklistThroughTheExistingSetupHandlers()
+    {
+        assertTrue(FarmingNavigatorPlugin.isRunSetupKey("runVisitSelection"));
+        assertTrue(FarmingNavigatorPlugin.isTreeRunSetupKey("runVisitSelection"));
+        assertTrue(FarmingNavigatorPlugin.isGardenRunSetupKey("runVisitSelection"));
+        assertTrue(FarmingNavigatorPlugin.isFieldRunSetupKey("runVisitSelection"));
+    }
     @Test public void fieldSetupOnlyCancelsFieldGuidance()
     {
         for (String key : new String[]{"fieldRunCrop", "fieldRunPatches", "fieldRunMode", "fieldRunProtection", "fieldTransportPreference", "fieldRunCompost", "fieldRunCure", "fieldRunWatering", "fieldAshTomeRead"})

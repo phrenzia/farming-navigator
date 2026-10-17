@@ -30,6 +30,12 @@ public final class GardenRunPlanner
     public GardenRunPlan plan(AccountState account, Set<GardenPatchDefinition> selected, GardenRunCrop crop, GardenRunMode mode,
             boolean protect, GardenRunCompost compost, HerbRunCure cure, Map<GardenPatchDefinition, GardenPatchObservation> observations, StorageSnapshot storage, Instant now)
     {
+        return plan(account, selected, crop, mode, protect, compost, cure, observations, storage, now, RunVisitSelection.ALL_SELECTED);
+    }
+    public GardenRunPlan plan(AccountState account, Set<GardenPatchDefinition> selected, GardenRunCrop crop, GardenRunMode mode,
+            boolean protect, GardenRunCompost compost, HerbRunCure cure, Map<GardenPatchDefinition, GardenPatchObservation> observations, StorageSnapshot storage, Instant now,
+            RunVisitSelection visitSelection)
+    {
         List<GardenRunStop> stops = new ArrayList<>(); List<SupplyRequirement> supplies = new ArrayList<>();
         Map<GardenPatchDefinition, String> excluded = new EnumMap<>(GardenPatchDefinition.class); List<String> warnings = new ArrayList<>();
         String blocker = account == null || !account.isLoggedIn() ? "Log in to plan a bush/cactus run."
@@ -45,6 +51,8 @@ public final class GardenRunPlanner
             if (observation != null && (observation.getObservedAt().isAfter(now)
                     || observation.getState().getCrop().getFamily() != null && observation.getState().getCrop().getFamily() != patch.getFamily())) { observation = null; }
             GardenPatchCondition condition = observation == null ? GardenPatchCondition.UNKNOWN : observation.getState().getCondition();
+            String visitExclusion = RunVisitSelection.orDefault(visitSelection).exclusion(condition);
+            if (!visitExclusion.isEmpty()) { excluded.put(patch, visitExclusion); continue; }
             if (condition == GardenPatchCondition.GROWING)
             {
                 Optional<GardenGrowthWindow> window = new GardenGrowthTimer().estimate(observation, now);

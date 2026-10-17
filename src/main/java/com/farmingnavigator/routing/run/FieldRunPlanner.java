@@ -35,6 +35,12 @@ public final class FieldRunPlanner
     public FieldRunPlan plan(AccountState account, Set<FieldPatchDefinition> selected, FieldRunCrop crop, FieldRunMode mode,
             boolean protect, FieldRunCompost compost, HerbRunCure cure, FieldRunWatering watering, Map<FieldPatchDefinition, FieldPatchObservation> observations, StorageSnapshot storage, Instant now)
     {
+        return plan(account, selected, crop, mode, protect, compost, cure, watering, observations, storage, now, RunVisitSelection.ALL_SELECTED);
+    }
+    public FieldRunPlan plan(AccountState account, Set<FieldPatchDefinition> selected, FieldRunCrop crop, FieldRunMode mode,
+            boolean protect, FieldRunCompost compost, HerbRunCure cure, FieldRunWatering watering, Map<FieldPatchDefinition, FieldPatchObservation> observations, StorageSnapshot storage, Instant now,
+            RunVisitSelection visitSelection)
+    {
         List<FieldRunStop> stops = new ArrayList<>(); List<SupplyRequirement> supplies = new ArrayList<>();
         Map<FieldPatchDefinition, String> excluded = new EnumMap<>(FieldPatchDefinition.class); List<String> warnings = new ArrayList<>();
         String blocker = account == null || !account.isLoggedIn() ? "Log in to plan a field run."
@@ -50,6 +56,8 @@ public final class FieldRunPlanner
             if (observation != null && (observation.getObservedAt().isAfter(now)
                     || observation.getState().getCrop().getFamily() != null && observation.getState().getCrop().getFamily() != patch.getFamily())) { observation = null; }
             FieldPatchCondition condition = observation == null ? FieldPatchCondition.UNKNOWN : observation.getState().getCondition();
+            String visitExclusion = RunVisitSelection.orDefault(visitSelection).exclusion(condition);
+            if (!visitExclusion.isEmpty()) { excluded.put(patch, visitExclusion); continue; }
             if (condition == FieldPatchCondition.SCARECROW)
             {
                 excluded.put(patch, "Scarecrow observed. Keep it, or remove it manually and prepare a new plan; flower planting is not assumed."); continue;

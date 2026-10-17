@@ -26,6 +26,12 @@ public final class TreeRunPlanner
     public TreeRunPlan plan(AccountState account, Set<TreePatchDefinition> selected, TreeRunCrop crop,
             boolean protect, TreeRunCompost compost, TreeRunCure cure, Map<TreePatchDefinition, TreePatchObservation> observations, StorageSnapshot storage, Instant now)
     {
+        return plan(account, selected, crop, protect, compost, cure, observations, storage, now, RunVisitSelection.ALL_SELECTED);
+    }
+    public TreeRunPlan plan(AccountState account, Set<TreePatchDefinition> selected, TreeRunCrop crop,
+            boolean protect, TreeRunCompost compost, TreeRunCure cure, Map<TreePatchDefinition, TreePatchObservation> observations, StorageSnapshot storage, Instant now,
+            RunVisitSelection visitSelection)
+    {
         List<TreeRunStop> stops = new ArrayList<>();
         List<SupplyRequirement> supplies = new ArrayList<>();
         Map<TreePatchDefinition, String> excluded = new EnumMap<>(TreePatchDefinition.class);
@@ -46,6 +52,8 @@ public final class TreeRunPlanner
                     || observation.getState().getCrop().getFamily() != null
                     && observation.getState().getCrop().getFamily() != patch.getFamily())) { observation = null; }
             TreePatchCondition condition = observation == null ? TreePatchCondition.UNKNOWN : observation.getState().getCondition();
+            String visitExclusion = RunVisitSelection.orDefault(visitSelection).exclusion(condition);
+            if (!visitExclusion.isEmpty()) { excluded.put(patch, visitExclusion); continue; }
             if (condition == TreePatchCondition.GROWING)
             {
                 Optional<TreeGrowthWindow> window = new TreeGrowthTimer().estimate(observation, now);

@@ -778,6 +778,16 @@ public class FarmingNavigatorPanel
         );
 
         java.time.Instant overviewTime = java.time.Instant.now();
+        com.farmingnavigator.routing.run.RunVisitSelection visitSelection = com.farmingnavigator.routing.run.RunVisitSelection.orDefault(config.runVisitSelection());
+        if (visitSelection != com.farmingnavigator.routing.run.RunVisitSelection.ALL_SELECTED)
+        {
+            JPanel visitCard = createCardPanel();
+            visitCard.add(createCardHeading("Run visit selection"));
+            visitCard.add(createWrappedText(visitSelection.toString(), Color.WHITE));
+            visitCard.add(createWrappedText("Uses historical observations, not current-state proof. Growing, empty and unobserved patches do not qualify; timer estimates never qualify. Mature plants may have no produce. Inspect fresh before acting.", ColorScheme.LIGHT_GRAY_COLOR));
+            patchListPanel.add(visitCard); patchListPanel.add(Box.createVerticalStrut(8));
+        }
+
         if (accountState.isLoggedIn() && config.showReadinessDashboard())
         {
             com.farmingnavigator.farming.state.ReadinessDashboard readiness = com.farmingnavigator.farming.state.ReadinessDashboard.at(overviewTime)
@@ -860,8 +870,8 @@ public class FarmingNavigatorPanel
         }
         patchListPanel.add(new com.farmingnavigator.ui.TreeRunPlanPanel(
                 treeRunPlan != null ? treeRunPlan : new com.farmingnavigator.routing.run.TreeRunPlanner().plan(accountState,
-                        config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(),
-                        treeObservations, storageSnapshot, overviewTime), treeRunDetailsOpen,
+                        config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(), config.treeRunCompost(), config.treeRunCure(),
+                        treeObservations, storageSnapshot, overviewTime, config.runVisitSelection()), treeRunDetailsOpen,
                 expanded -> treeRunDetailsOpen = expanded, treeMaterials));
         patchListPanel.add(Box.createVerticalStrut(8));
         patchListPanel.add(new HerbOverviewPanel(HerbOverview.create(patchStatuses, config.herbRunPatches(),

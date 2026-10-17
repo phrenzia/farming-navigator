@@ -658,13 +658,13 @@ public class FarmingNavigatorPlugin
 
     static boolean isTreeRunSetupKey(String key)
     {
-        return "treeRunCrop".equals(key) || "treeRunPatches".equals(key) || "treeRunProtection".equals(key) || "treeRunCompost".equals(key) || "treeRunCure".equals(key) || "treeAshTomeRead".equals(key)
+        return "runVisitSelection".equals(key) || "treeRunCrop".equals(key) || "treeRunPatches".equals(key) || "treeRunProtection".equals(key) || "treeRunCompost".equals(key) || "treeRunCure".equals(key) || "treeAshTomeRead".equals(key)
                 || "treeTransportPreference".equals(key);
     }
 
     static boolean isRunSetupKey(String key)
     {
-        return "herbRunCrop".equals(key) || "herbRunPatches".equals(key) || "herbRunCompost".equals(key)
+        return "runVisitSelection".equals(key) || "herbRunCrop".equals(key) || "herbRunPatches".equals(key) || "herbRunCompost".equals(key)
                 || "herbTransportPreference".equals(key) || "herbHouseEntryMode".equals(key) || "herbRunCure".equals(key)
                 || "herbAshTomeRead".equals(key);
     }
@@ -772,23 +772,23 @@ public class FarmingNavigatorPlugin
 
         HerbRunPlan suggested = new HerbRunPlanner().plan(accountState, patchStatuses,
                 config.herbRunPatches(), config.herbRunCrop(), config.herbRunCompost(),
-                observations, verifiedTransportResults, storageSnapshot, Instant.now(), config.herbTransportPreference());
+                observations, verifiedTransportResults, storageSnapshot, Instant.now(), config.herbTransportPreference(), config.runVisitSelection());
         RequirementContext runContext = new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot);
         Map<com.farmingnavigator.farming.field.FieldPatchDefinition, List<VerifiedTransportResult>> fieldTransports = transportVerificationService.evaluateAll(accountState,
                 config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.FieldPatchTransportService().getAllOptions(),spiritAccessSnapshot.getTrees());
         com.farmingnavigator.routing.run.FieldRunPlan fieldRunPlan = new com.farmingnavigator.routing.run.FieldRunPlanner().plan(accountState,
-                config.fieldRunPatches(), config.fieldRunCrop(), config.fieldRunMode(), config.fieldRunProtection(), config.fieldRunCompost(), config.fieldRunCure(), config.fieldRunWatering(), fieldObservations, storageSnapshot, Instant.now())
+                config.fieldRunPatches(), config.fieldRunCrop(), config.fieldRunMode(), config.fieldRunProtection(), config.fieldRunCompost(), config.fieldRunCure(), config.fieldRunWatering(), fieldObservations, storageSnapshot, Instant.now(), config.runVisitSelection())
                 .withTransports(fieldTransports, config.fieldTransportPreference(), runContext);
         Map<com.farmingnavigator.farming.garden.GardenPatchDefinition, List<VerifiedTransportResult>> gardenTransports = transportVerificationService.evaluateAll(accountState,
                 config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.GardenPatchTransportService().getAllOptions(),spiritAccessSnapshot.getTrees());
         com.farmingnavigator.routing.run.GardenRunPlan gardenRunPlan = new com.farmingnavigator.routing.run.GardenRunPlanner().plan(accountState,
-                config.gardenRunPatches(), config.gardenRunCrop(), config.gardenRunMode(), config.gardenRunProtection(), config.gardenRunCompost(), config.gardenRunCure(), gardenObservations, storageSnapshot, Instant.now())
+                config.gardenRunPatches(), config.gardenRunCrop(), config.gardenRunMode(), config.gardenRunProtection(), config.gardenRunCompost(), config.gardenRunCure(), gardenObservations, storageSnapshot, Instant.now(), config.runVisitSelection())
                 .withTransports(gardenTransports, config.gardenTransportPreference(), runContext);
         Map<TreePatchDefinition, List<VerifiedTransportResult>> treeTransports = transportVerificationService.evaluateAll(accountState,
                 config, travelCapabilitySnapshot, storageSnapshot, new com.farmingnavigator.transport.TreePatchTransportService().getAllOptions(),spiritAccessSnapshot.getTrees());
         com.farmingnavigator.routing.run.TreeRunPlan treeRunPlan = new com.farmingnavigator.routing.run.TreeRunPlanner()
                 .plan(accountState, config.treeRunPatches(), config.treeRunCrop(), config.treeRunProtection(), config.treeRunCompost(), config.treeRunCure(),
-                        treeObservations, storageSnapshot, Instant.now())
+                        treeObservations, storageSnapshot, Instant.now(), config.runVisitSelection())
                 .withTransports(treeTransports, config.treeTransportPreference(), runContext);
         latestFieldRun = fieldRunPlan;
         fieldRunSession.refreshTransports(fieldTransports, config.fieldTransportPreference(), runContext);
@@ -1109,13 +1109,13 @@ public class FarmingNavigatorPlugin
 
     static boolean isFieldRunSetupKey(String key)
     {
-        return "fieldRunCrop".equals(key) || "fieldRunPatches".equals(key) || "fieldRunMode".equals(key)
+        return "runVisitSelection".equals(key) || "fieldRunCrop".equals(key) || "fieldRunPatches".equals(key) || "fieldRunMode".equals(key)
                 || "fieldRunProtection".equals(key) || "fieldTransportPreference".equals(key) || "fieldRunCompost".equals(key) || "fieldRunCure".equals(key) || "fieldRunWatering".equals(key) || "fieldAshTomeRead".equals(key);
     }
 
     static boolean isGardenRunSetupKey(String key)
     {
-        return "gardenRunCrop".equals(key) || "gardenRunPatches".equals(key) || "gardenRunMode".equals(key)
+        return "runVisitSelection".equals(key) || "gardenRunCrop".equals(key) || "gardenRunPatches".equals(key) || "gardenRunMode".equals(key)
                 || "gardenRunProtection".equals(key) || "gardenRunCompost".equals(key) || "gardenRunCure".equals(key) || "gardenAshTomeRead".equals(key) || "gardenTransportPreference".equals(key);
     }
 
