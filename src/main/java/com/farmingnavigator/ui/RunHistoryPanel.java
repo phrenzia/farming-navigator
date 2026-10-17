@@ -36,13 +36,13 @@ public final class RunHistoryPanel extends JPanel
             Instant now,RunHistoryPeriod initialPeriod,RunHistoryStore.Kind initialKind,BiConsumer<RunHistoryPeriod,RunHistoryStore.Kind> filterChanged,
             RunHistoryOutcome initialOutcome,Consumer<RunHistoryOutcome> outcomeChanged)
     {
-        this.entries=List.copyOf(entries); this.now=now;
+        this.entries=RunHistorySummary.create(entries,RunHistoryPeriod.ALL,null,now).getEntries(); this.now=now;
         setLayout(new BoxLayout(this,BoxLayout.Y_AXIS)); setBackground(ColorScheme.DARKER_GRAY_COLOR);
         setBorder(BorderFactory.createEmptyBorder(9,8,12,8)); setAlignmentX(Component.LEFT_ALIGNMENT);
         setMaximumSize(new Dimension(Integer.MAX_VALUE,Integer.MAX_VALUE));
         add(text("Recent run history",Color.WHITE));
-        add(text(entries.size()+" saved checklists for this character and mode (last 20).",ColorScheme.LIGHT_GRAY_COLOR));
-        if(entries.isEmpty()) { add(text("Complete or stop guidance to save its statistics. Logout, hopping and shutdown interruptions are not saved.",ColorScheme.LIGHT_GRAY_COLOR)); return; }
+        add(text(this.entries.size()+" saved checklists for this character and mode (last 20).",ColorScheme.LIGHT_GRAY_COLOR));
+        if(this.entries.isEmpty()) { add(text("Complete or stop guidance to save its statistics. Logout, hopping and shutdown interruptions are not saved.",ColorScheme.LIGHT_GRAY_COLOR)); return; }
         JPanel details=new JPanel(); details.setLayout(new BoxLayout(details,BoxLayout.Y_AXIS)); details.setOpaque(false);
         details.setAlignmentX(Component.LEFT_ALIGNMENT); details.setVisible(expanded);
         JButton toggle=new JButton(expanded?"Hide recent runs":"Show recent runs"); toggle.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -81,6 +81,7 @@ public final class RunHistoryPanel extends JPanel
             results.add(text("XP known for "+summary.getKnownXpCount()+" / "+displayed.size()+"; total elapsed "+summary.getElapsed().toMinutes()+" min.",ColorScheme.LIGHT_GRAY_COLOR));
             if(summary.getXpPerHour().isPresent()) { results.add(text("Recorded XP/hour (timed known entries): "+numbers.format(Math.round(summary.getXpPerHour().getAsDouble())),ColorScheme.LIGHT_GRAY_COLOR)); }
             results.add(text("Unknown XP and zero-duration entries are excluded from the rate.",ColorScheme.LIGHT_GRAY_COLOR));
+            results.add(text("Stop counts describe checklist decisions, not harvest quantity or verified farming actions.",ColorScheme.LIGHT_GRAY_COLOR));
         }
         if(!displayed.isEmpty())
         {
@@ -92,6 +93,7 @@ public final class RunHistoryPanel extends JPanel
         {
             results.add(Box.createVerticalStrut(7)); results.add(text(entry.getRunName()+" - "+(entry.isCompleted()?"completed":"stopped"),Color.WHITE));
             results.add(text(entry.getContext().isKnown()?entry.getContext().getCropLabel()+"; "+entry.getContext().getPlannedStops()+" planned stops.":"Crop / planned stops: unavailable.",ColorScheme.LIGHT_GRAY_COLOR));
+            results.add(text(entry.getStopOutcomes().describe(entry.getContext()),ColorScheme.LIGHT_GRAY_COLOR));
             results.add(text("Ended "+time.format(entry.getFinishedAt())+"; "+entry.getElapsed().toMinutes()+" min.",ColorScheme.LIGHT_GRAY_COLOR));
             results.add(text(entry.isXpKnown()?"Recorded Farming XP: "+numbers.format(entry.getXpGained()):"Farming XP: data required.",ColorScheme.LIGHT_GRAY_COLOR));
             if(entry.getXpPerHour().isPresent()) { results.add(text("Recorded XP/hour: "+numbers.format(Math.round(entry.getXpPerHour().getAsDouble())),ColorScheme.LIGHT_GRAY_COLOR)); }

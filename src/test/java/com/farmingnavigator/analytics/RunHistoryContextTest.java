@@ -38,7 +38,7 @@ public class RunHistoryContextTest
         RunHistoryStore store=new RunHistoryStore(backend);store.loadProfile("A",now);
         RunHistoryStore.Kind[] kinds=RunHistoryStore.Kind.values();String[] crops={"RANARR","OAK","REDBERRIES","POTATO"};
         for(int i=0;i<kinds.length;i++){assertTrue(store.observe(entry(kinds[i],crops[i],i+1,300-i*60),true,now));}
-        assertTrue(records.get("A").startsWith("2\n"));store.detach();store.loadProfile("A",now);assertEquals(4,store.snapshot().size());
+        assertTrue(records.get("A").startsWith("3\n"));store.detach();store.loadProfile("A",now);assertEquals(4,store.snapshot().size());
         for(RunMetricsSnapshot saved:store.snapshot())
         {
             int index=RunHistoryStore.Kind.fromLabel(saved.getRunName()).ordinal();assertTrue(saved.getContext().isKnown());assertEquals(crops[index],saved.getContext().getCropKey());
@@ -49,9 +49,9 @@ public class RunHistoryContextTest
     {
         String legacy="1\nHERB|"+now.minusSeconds(300)+"|"+now.minusSeconds(240)+"|1|1|150";records.put("A",legacy);
         RunHistoryStore store=new RunHistoryStore(backend);store.loadProfile("A",now);assertEquals(1,store.snapshot().size());assertFalse(store.snapshot().get(0).getContext().isKnown());assertEquals(0,writes);assertEquals(legacy,records.get("A"));
-        assertTrue(store.observe(entry(RunHistoryStore.Kind.FIELD,"POTATO",2,120),true,now));assertEquals(1,writes);assertTrue(records.get("A").startsWith("2\n"));
+        assertTrue(store.observe(entry(RunHistoryStore.Kind.FIELD,"POTATO",2,120),true,now));assertEquals(1,writes);assertTrue(records.get("A").startsWith("3\n"));
         store.detach();store.loadProfile("A",now);assertEquals(2,store.snapshot().size());assertTrue(store.snapshot().get(0).getContext().isKnown());assertFalse(store.snapshot().get(1).getContext().isKnown());assertEquals(300,store.snapshot().stream().mapToLong(RunMetricsSnapshot::getXpGained).sum());
-        store.clear();assertEquals("2",records.get("A"));store.detach();store.loadProfile("A",now);assertTrue(store.snapshot().isEmpty());
+        store.clear();assertEquals("3",records.get("A"));store.detach();store.loadProfile("A",now);assertTrue(store.snapshot().isEmpty());
     }
     @Test public void malformedVersionTwoContextsCannotCorruptOtherRecordsOrCrossProfiles()
     {

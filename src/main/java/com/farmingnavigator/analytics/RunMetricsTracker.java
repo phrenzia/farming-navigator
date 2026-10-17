@@ -9,6 +9,7 @@ public final class RunMetricsTracker
 {
     private String runName;
     private RunHistoryContext context=RunHistoryContext.UNKNOWN;
+    private RunStopOutcomes stopOutcomes=RunStopOutcomes.UNKNOWN;
     private Instant startedAt;
     private Instant lastSampleAt;
     private Instant finishedAt;
@@ -41,6 +42,17 @@ public final class RunMetricsTracker
         this.completed = completed;
     }
     public boolean isRecording() { return startedAt != null && finishedAt == null; }
+    public RunHistoryStore.Kind getRunKind() { return RunHistoryStore.Kind.fromLabel(runName); }
+    public boolean sampleStops(int completed, int manual, int skipped)
+    {
+        if (!isRecording() || !context.isKnown()) { return false; }
+        RunStopOutcomes next;
+        try { next=RunStopOutcomes.of(completed,manual,skipped); }
+        catch (IllegalArgumentException ex) { return false; }
+        if (!next.isValidFor(context,false) || stopOutcomes.isKnown() && (completed<stopOutcomes.getCompleted()
+                || manual<stopOutcomes.getManual() || skipped<stopOutcomes.getSkipped())) { return false; }
+        stopOutcomes=next; return true;
+    }
     public RunMetricsSnapshot snapshot(Instant now)
     {
         if (startedAt == null) { return null; }
@@ -48,11 +60,12 @@ public final class RunMetricsTracker
         if (finishedAt == null && end.isBefore(lastSampleAt)) { end = lastSampleAt; }
         if (end.isBefore(startedAt)) { end = startedAt; }
         return new RunMetricsSnapshot(runName, isRecording(), completed, xpKnown,
-                xpKnown ? Math.max(0L, (long) lastXp - baselineXp) : 0, Duration.between(startedAt, end), startedAt, finishedAt,context);
+                xpKnown ? Math.max(0L, (long) lastXp - baselineXp) : 0, Duration.between(startedAt, end), startedAt, finishedAt,context,stopOutcomes);
     }
     public void clear()
     {
         context=RunHistoryContext.UNKNOWN;
+        stopOutcomes=RunStopOutcomes.UNKNOWN;
         runName = null; startedAt = lastSampleAt = finishedAt = null;
         baselineXp = lastXp = -1; xpKnown = completed = false;
     }

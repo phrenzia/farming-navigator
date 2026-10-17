@@ -9,6 +9,7 @@ public final class RunMetricsSnapshot
 {
     private final String runName;
     private final RunHistoryContext context;
+    private final RunStopOutcomes stopOutcomes;
     private final boolean recording;
     private final boolean completed;
     private final boolean xpKnown;
@@ -24,13 +25,18 @@ public final class RunMetricsSnapshot
     { this(runName,recording,completed,xpKnown,xpGained,elapsed,startedAt,finishedAt,RunHistoryContext.UNKNOWN); }
     RunMetricsSnapshot(String runName,boolean recording,boolean completed,boolean xpKnown,long xpGained,Duration elapsed,
             Instant startedAt,Instant finishedAt,RunHistoryContext context)
+    { this(runName,recording,completed,xpKnown,xpGained,elapsed,startedAt,finishedAt,context,RunStopOutcomes.UNKNOWN); }
+    RunMetricsSnapshot(String runName,boolean recording,boolean completed,boolean xpKnown,long xpGained,Duration elapsed,
+            Instant startedAt,Instant finishedAt,RunHistoryContext context,RunStopOutcomes stopOutcomes)
     {
+        this.stopOutcomes=stopOutcomes==null?RunStopOutcomes.UNKNOWN:stopOutcomes;
         this.context=context==null?RunHistoryContext.UNKNOWN:context;
         this.startedAt = startedAt; this.finishedAt = finishedAt;
         this.runName = runName; this.recording = recording; this.completed = completed;
         this.xpKnown = xpKnown; this.xpGained = xpGained; this.elapsed = elapsed;
     }
     public RunHistoryContext getContext(){return context;}
+    public RunStopOutcomes getStopOutcomes(){return stopOutcomes;}
     public String getRunName() { return runName; }
     public boolean isRecording() { return recording; }
     public boolean isCompleted() { return completed; }

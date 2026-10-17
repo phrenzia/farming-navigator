@@ -838,6 +838,26 @@ public class FarmingNavigatorPlugin
                 ? componentStartBlocker(combinedSnapshot.getNext()) : combinedStartBlocker();
         if (runMetrics.isRecording())
         {
+            com.farmingnavigator.analytics.RunHistoryStore.Kind metricsKind = runMetrics.getRunKind();
+            if (metricsKind != null)
+            {
+                switch (metricsKind)
+                {
+                    case HERB:
+                        if (guidedRun.getTotal() > 0) { runMetrics.sampleStops(guidedRun.getCompleted(), guidedRun.getManuallyCompleted(), guidedRun.getSkipped()); }
+                        break;
+                    case TREE:
+                        if (treeGuidedRun.getTotal() > 0) { runMetrics.sampleStops(treeGuidedRun.getCompleted(), treeGuidedRun.getManual(), treeGuidedRun.getSkipped()); }
+                        break;
+                    case GARDEN:
+                        if (gardenGuidedRun.getTotal() > 0) { runMetrics.sampleStops(gardenGuidedRun.getCompleted(), gardenGuidedRun.getManual(), gardenGuidedRun.getSkipped()); }
+                        break;
+                    case FIELD:
+                        if (fieldGuidedRun.getTotal() > 0) { runMetrics.sampleStops(fieldGuidedRun.getCompleted(), fieldGuidedRun.getManual(), fieldGuidedRun.getSkipped()); }
+                        break;
+                    default: break;
+                }
+            }
             int xp = accountStateService.currentFarmingExperience();
             Instant metricsTime = Instant.now();
             runMetrics.sample(xp, metricsTime);

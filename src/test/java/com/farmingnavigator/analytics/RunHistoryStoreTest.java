@@ -77,7 +77,7 @@ public class RunHistoryStoreTest
     {
         store.loadProfile("A",now); RunMetricsSnapshot entry=ended("Herb run",now.minusSeconds(120),true,true);
         store.observe(entry,true,now); store.clear(); assertTrue(store.snapshot().isEmpty());
-        assertFalse(store.observe(entry,true,now)); assertEquals("2",records.get("A"));
+        assertFalse(store.observe(entry,true,now)); assertEquals("3",records.get("A"));
         store.detach(); store.loadProfile("A",now); assertTrue(store.snapshot().isEmpty());
     }
     @Test public void invalidCorruptFutureUnknownAndNegativeRecordsAreIgnored()

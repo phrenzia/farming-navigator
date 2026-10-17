@@ -23,6 +23,11 @@ public final class RunMetricsPanel extends JPanel
         add(text("Run statistics", Color.WHITE));
         add(text(metrics.getRunName() + " - " + (metrics.isRecording() ? "recording" : metrics.isCompleted() ? "completed" : "stopped"), Color.WHITE));
         add(text("Elapsed: " + metrics.getElapsed().toMinutes() + " min (includes preparation and waiting).", ColorScheme.LIGHT_GRAY_COLOR));
+        if (metrics.getContext().isKnown())
+        {
+            add(text(metrics.getStopOutcomes().describe(metrics.getContext()), ColorScheme.LIGHT_GRAY_COLOR));
+            add(text("Stop counts describe checklist decisions, not harvest quantity or verified farming actions.", ColorScheme.LIGHT_GRAY_COLOR));
+        }
         add(text(metrics.isXpKnown() ? "Recorded Farming XP: " + numbers.format(metrics.getXpGained())
                 : "Farming XP: data required; the XP baseline was missing or changed unexpectedly.", ColorScheme.LIGHT_GRAY_COLOR));
         add(text(metrics.getXpPerHour().isPresent() ? "Recorded XP/hour: " + numbers.format(Math.round(metrics.getXpPerHour().getAsDouble()))
