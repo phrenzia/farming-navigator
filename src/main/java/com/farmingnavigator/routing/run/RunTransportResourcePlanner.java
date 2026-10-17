@@ -228,6 +228,7 @@ public final class RunTransportResourcePlanner
             case LLETYA_CRYSTAL: return ChargedTeleportItemDefinition.TELEPORT_CRYSTAL;
             case PRIFDDINAS_CRYSTAL: return ChargedTeleportItemDefinition.TELEPORT_CRYSTAL;
             case COMBAT_BRACELET: return ChargedTeleportItemDefinition.COMBAT_BRACELET;
+            case RING_OF_DUELING: return ChargedTeleportItemDefinition.RING_OF_DUELING;
             default: return null;
         }
     }

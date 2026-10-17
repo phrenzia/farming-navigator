@@ -292,6 +292,15 @@ public class TransportVerificationService
                         option
                 );
 
+            case RING_OF_DUELING:
+                RequirementResult dueling = ChargedTeleportItemDefinition.RING_OF_DUELING.createRequirement()
+                        .evaluate(new RequirementContext(accountState, config, travelCapabilitySnapshot, storageSnapshot));
+                VerifiedTransportState duelingState = dueling.isReadyNow() ? VerifiedTransportState.READY_NOW
+                        : dueling.requiresBankWithdrawal() ? VerifiedTransportState.AVAILABLE_FROM_BANK
+                        : dueling.getState() == RequirementState.DATA_REQUIRED ? VerifiedTransportState.DATA_REQUIRED : VerifiedTransportState.MISSING;
+                return new VerifiedTransportResult(option, duelingState,
+                        dueling.getDetail() + " Choose Castle Wars; one teleport charge is required.");
+
             case COMBAT_BRACELET:
                 return evaluateCombatBracelet(
                         accountState,

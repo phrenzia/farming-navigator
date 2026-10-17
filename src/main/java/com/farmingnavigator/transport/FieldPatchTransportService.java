@@ -30,9 +30,14 @@ public final class FieldPatchTransportService
                 case VINERY:
                 case GREAT_CONCH: continue;
                 case YANILLE:
+                    // Castle Wars: pinned shortest-path 99735452c7c257d3fe5ae79970429cdce907d571,
+                    // teleportation_items.tsv (2440,3090), existing charged-item IDs; manual eastward approach.
                     arrivals = List.of(new TransportOption(1, "Fairy ring CIQ to Yanille hops",
                             "Travel to an accessible fairy ring, use CIQ north-west of Yanille, then travel east and south to the hops plot.",
-                            TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_ACCESS)); break;
+                            TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_ACCESS),
+                            new TransportOption(90, "Ring of dueling to Castle Wars, then Yanille",
+                                    "Choose Castle Wars on a charged ring of dueling, then make the longer manual walk east to Yanille and the hops plot east of town.",
+                                    TransportCategory.JEWELLERY, TransportVerificationKind.RING_OF_DUELING)); break;
                 case SEERS_VILLAGE:
                     arrivals = List.of(spell(TeleportSpellDefinition.CAMELOT_TELEPORT,
                             "Use Camelot Teleport and travel north-west to the hops plot north of McGrubor's Wood. If your diary redirect sends you to Seers' Village, travel north from there."),
