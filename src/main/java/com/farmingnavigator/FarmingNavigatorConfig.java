@@ -337,7 +337,7 @@ public interface FarmingNavigatorConfig
     default boolean gardenAshTomeRead() { return false; }
 
     @ConfigItem(keyName = "combinedRunTypes", name = "Combined preparation run types",
-            description = "Select at least two configured run types to share one preparation budget; use individual checklists for guidance", position = 44, section = GENERAL_SECTION)
+            description = "Select at least two configured run types for shared preparation and an optional guided sequence; confirm each next component manually", position = 44, section = GENERAL_SECTION)
     default Set<com.farmingnavigator.routing.run.CombinedRunKind> combinedRunTypes() { return java.util.Collections.emptySet(); }
 
     @ConfigItem(keyName = "fieldRunWatering", name = "Field watering after planting",

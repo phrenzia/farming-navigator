@@ -165,6 +165,12 @@ public class FarmingNavigatorPanel
     {
         return guarded == null ? legacy : com.farmingnavigator.guided.ChecklistCommandGuard.bind(revision, guarded);
     }
+    private com.farmingnavigator.guided.combined.CombinedGuidanceSession.Snapshot combinedGuidance;
+    private String combinedGuidanceBlocker = "";
+    private Consumer<com.farmingnavigator.guided.combined.CombinedGuidanceSession.Command> combinedCommands = command -> {};
+    public void setCombinedGuidance(com.farmingnavigator.guided.combined.CombinedGuidanceSession.Snapshot snapshot, String blocker,
+            Consumer<com.farmingnavigator.guided.combined.CombinedGuidanceSession.Command> commands)
+    { combinedGuidance = snapshot; combinedGuidanceBlocker = blocker; combinedCommands = commands; }
     private boolean combinedPreparationOpen;
     private boolean combinedArrivalsOpen;
     private com.farmingnavigator.routing.run.CombinedRunPlan combinedRunPlan;
@@ -786,6 +792,11 @@ public class FarmingNavigatorPanel
 
         if (accountState.isLoggedIn() && combinedRunPlan != null)
         {
+            if (combinedGuidance != null)
+            {
+                patchListPanel.add(new com.farmingnavigator.ui.CombinedGuidancePanel(combinedGuidance,
+                        combinedGuidanceBlocker.isEmpty(), combinedGuidanceBlocker, combinedCommands));
+            }
             patchListPanel.add(new com.farmingnavigator.ui.CombinedRunPlanPanel(combinedRunPlan, combinedPreparationOpen,
                     expanded -> combinedPreparationOpen = expanded,combinedMaterials,combinedArrivalsOpen,open -> combinedArrivalsOpen=open));
             patchListPanel.add(Box.createVerticalStrut(8));

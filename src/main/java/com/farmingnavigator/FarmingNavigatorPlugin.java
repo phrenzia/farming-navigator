@@ -148,6 +148,8 @@ public class FarmingNavigatorPlugin
     private com.farmingnavigator.routing.run.GardenRunPlan latestGardenRun;
     private final com.farmingnavigator.guided.field.FieldRunSession fieldRunSession = new com.farmingnavigator.guided.field.FieldRunSession();
     private com.farmingnavigator.routing.run.FieldRunPlan latestFieldRun;
+    private final com.farmingnavigator.guided.combined.CombinedGuidanceSession combinedGuidance = new com.farmingnavigator.guided.combined.CombinedGuidanceSession();
+    private com.farmingnavigator.routing.run.CombinedRunPlan latestCombinedRun;
     private final com.farmingnavigator.analytics.RunMetricsTracker runMetrics = new com.farmingnavigator.analytics.RunMetricsTracker();
     @Inject private com.farmingnavigator.analytics.RunHistoryService runHistoryService;
     private final HerbAlertTracker herbAlertTracker = new HerbAlertTracker();
@@ -172,12 +174,13 @@ public class FarmingNavigatorPlugin
     @Override
     protected void startUp()
     {
-        sessionSpiritAccess.clear();
+        sessionSpiritAccess.clear(); combinedGuidance.clear();
         lastPatchTimerRefreshMinute = -1;
         latestSuggestedRun = null;
         latestTreeRun = null;
         latestGardenRun = null;
         latestFieldRun = null;
+        latestCombinedRun = null;
         runMetrics.clear();
         runHistoryService.reset();
         herbAlertTracker.reset();
@@ -250,7 +253,7 @@ public class FarmingNavigatorPlugin
     @Override
     protected void shutDown()
     {
-        sessionSpiritAccess.clear();
+        sessionSpiritAccess.clear(); combinedGuidance.clear();
         herbAlertTracker.reset();
         treeAlertTracker.reset();
         gardenAlertTracker.reset();
@@ -289,6 +292,7 @@ public class FarmingNavigatorPlugin
         latestTreeRun = null;
         latestGardenRun = null;
         latestFieldRun = null;
+        latestCombinedRun = null;
     }
 
     @Subscribe
@@ -322,7 +326,7 @@ public class FarmingNavigatorPlugin
                         || state == GameState.CONNECTION_LOST
         )
         {
-            sessionSpiritAccess.clear();
+            sessionSpiritAccess.clear(); combinedGuidance.clear();
             guidedRunSession.cancel();
             treeRunSession.cancel();
             gardenRunSession.cancel();
@@ -331,6 +335,7 @@ public class FarmingNavigatorPlugin
             latestTreeRun = null;
             latestGardenRun = null;
             latestFieldRun = null;
+            latestCombinedRun = null;
             runMetrics.clear();
             runHistoryService.reset();
             guidedRunOverlayController.clear();
@@ -358,7 +363,7 @@ public class FarmingNavigatorPlugin
     @Subscribe
     public void onRuneScapeProfileChanged(RuneScapeProfileChanged event)
     {
-        sessionSpiritAccess.clear();
+        sessionSpiritAccess.clear(); combinedGuidance.clear();
         herbAlertTracker.reset();
         treeAlertTracker.reset();
         gardenAlertTracker.reset();
@@ -383,6 +388,7 @@ public class FarmingNavigatorPlugin
         latestTreeRun = null;
         latestGardenRun = null;
         latestFieldRun = null;
+        latestCombinedRun = null;
         clientThread.invokeLater(this::updateAccountState);
     }
 
@@ -551,7 +557,9 @@ public class FarmingNavigatorPlugin
         }
 
         clientThread.invokeLater(() -> {
-            if ("allowDeclaredSpiritAccess".equals(event.getKey())) { sessionSpiritAccess.clear(); cancelGuidanceForSpiritAccess(); }
+            if ("allowDeclaredSpiritAccess".equals(event.getKey())) { sessionSpiritAccess.clear(); combinedGuidance.clear(); cancelGuidanceForSpiritAccess(); }
+            if ("combinedRunTypes".equals(event.getKey()) || isRunSetupKey(event.getKey()) || isTreeRunSetupKey(event.getKey())
+                    || isGardenRunSetupKey(event.getKey()) || isFieldRunSetupKey(event.getKey())) { combinedGuidance.clear(); }
             if (isTreeRunSetupKey(event.getKey())) { treeRunSession.cancel(); }
             if (isGardenRunSetupKey(event.getKey())) { gardenRunSession.cancel(); }
             if (isFieldRunSetupKey(event.getKey())) { fieldRunSession.cancel(); }
@@ -797,6 +805,7 @@ public class FarmingNavigatorPlugin
 
         com.farmingnavigator.routing.run.CombinedRunPlan combinedRunPlan = accountState.isLoggedIn() && !config.combinedRunTypes().isEmpty()
                 ? new com.farmingnavigator.routing.run.CombinedRunPlanner().plan(config.combinedRunTypes(), runPlan, treeRunPlan, gardenRunPlan, fieldRunPlan, runContext) : null;
+        latestCombinedRun = combinedRunPlan;
         latestSuggestedRun = runPlan;
         com.farmingnavigator.economics.FarmingMaterialEstimator materialEstimator = new com.farmingnavigator.economics.FarmingMaterialEstimator();
         com.farmingnavigator.economics.FarmingMaterialEstimate herbMaterials = config.showFarmingMaterialValues() && accountState.isLoggedIn()
@@ -815,6 +824,18 @@ public class FarmingNavigatorPlugin
                         com.farmingnavigator.routing.run.CombinedRunKind.FIELD,fieldMaterials)).orElse(null) : null;
         guidedRunSession.refreshTransports(verifiedTransportResults, config.herbTransportPreference());
         GuidedRunSnapshot guidedRun = guidedRunSession.snapshot();
+        if (accountState.isLoggedIn())
+        {
+            combinedGuidance.observe(configManager.getRSProfileKey(), java.util.Map.of(
+                    com.farmingnavigator.routing.run.CombinedRunKind.HERB, componentProgress(guidedRun.isActive(), guidedRun.getStep() == com.farmingnavigator.guided.GuidedRunStep.COMPLETE),
+                    com.farmingnavigator.routing.run.CombinedRunKind.TREE, componentProgress(treeGuidedRun.isActive(), treeGuidedRun.getStep() == com.farmingnavigator.guided.tree.TreeRunStep.COMPLETE),
+                    com.farmingnavigator.routing.run.CombinedRunKind.GARDEN, componentProgress(gardenGuidedRun.isActive(), gardenGuidedRun.getStep() == com.farmingnavigator.guided.garden.GardenRunStep.COMPLETE),
+                    com.farmingnavigator.routing.run.CombinedRunKind.FIELD, componentProgress(fieldGuidedRun.isActive(), fieldGuidedRun.getStep() == com.farmingnavigator.guided.field.FieldRunStep.COMPLETE)));
+        }
+        com.farmingnavigator.guided.combined.CombinedGuidanceSession.Snapshot combinedSnapshot = combinedGuidance.snapshot();
+        String combinedProfile = accountState.isLoggedIn() ? configManager.getRSProfileKey() : null;
+        String combinedBlocker = combinedSnapshot.getState() == com.farmingnavigator.guided.combined.CombinedGuidanceSession.State.BETWEEN
+                ? componentStartBlocker(combinedSnapshot.getNext()) : combinedStartBlocker();
         if (runMetrics.isRecording())
         {
             int xp = accountStateService.currentFarmingExperience();
@@ -859,6 +880,9 @@ public class FarmingNavigatorPlugin
                         targetPanel.setFieldRunPlan(fieldRunPlan);
                         targetPanel.setFieldMaterials(fieldMaterials);
                         targetPanel.setFieldGuidedRun(fieldGuidedRun);
+                        targetPanel.setCombinedGuidance(combinedSnapshot, combinedBlocker, command -> clientThread.invokeLater(() -> {
+                            handleCombinedGuidanceCommand(command, combinedProfile, combinedSnapshot.getRevision());
+                        }));
                         targetPanel.setCombinedRunPlan(combinedRunPlan);
                         targetPanel.setCombinedMaterials(combinedMaterials);
                         targetPanel.setGardenRunPlan(gardenRunPlan);
@@ -885,6 +909,7 @@ public class FarmingNavigatorPlugin
 
     private void cancelGuidanceForSpiritAccess()
     {
+        combinedGuidance.clear();
         guidedRunSession.cancel(); treeRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel();
         guidedRunOverlayController.clear();
     }
@@ -916,6 +941,104 @@ public class FarmingNavigatorPlugin
         if (panel != null && accountStateService.createSnapshot().isLoggedIn() && runHistoryService.clear(expectedProfile)) { updateAccountState(); }
     }
 
+    private com.farmingnavigator.guided.combined.CombinedGuidanceSession.Progress componentProgress(boolean active, boolean complete)
+    {
+        return active ? com.farmingnavigator.guided.combined.CombinedGuidanceSession.Progress.ACTIVE
+                : complete ? com.farmingnavigator.guided.combined.CombinedGuidanceSession.Progress.COMPLETE
+                : com.farmingnavigator.guided.combined.CombinedGuidanceSession.Progress.INACTIVE;
+    }
+
+    private boolean anyChecklistActive()
+    {
+        Instant now = Instant.now();
+        return guidedRunSession.snapshot().isActive() || treeRunSession.snapshot(now).isActive()
+                || gardenRunSession.snapshot(now).isActive() || fieldRunSession.snapshot(now).isActive();
+    }
+
+    private String combinedStartBlocker()
+    {
+        if (anyChecklistActive()) { return "Finish or cancel the active individual checklist first."; }
+        if (latestCombinedRun == null || !latestCombinedRun.getBlockers().isEmpty()) { return "Review the combined preparation blockers first."; }
+        if (config.combinedRunTypes().size() < 2) { return "Select at least two component run types."; }
+        for (com.farmingnavigator.routing.run.CombinedRunKind kind : config.combinedRunTypes())
+        {
+            String blocker = componentStartBlocker(kind);
+            if (!blocker.isEmpty()) { return blocker; }
+        }
+        return "";
+    }
+
+    private String componentStartBlocker(com.farmingnavigator.routing.run.CombinedRunKind kind)
+    {
+        if (kind == null) { return "Select a component checklist."; }
+        switch (kind)
+        {
+            case HERB: return latestSuggestedRun != null && latestSuggestedRun.getBlocker().isEmpty() && !latestSuggestedRun.getStops().isEmpty() ? "" : "Herb preparation has no available stops; review its plan.";
+            case TREE: return latestTreeRun != null && latestTreeRun.getBlocker().isEmpty() && !latestTreeRun.getStops().isEmpty() ? "" : "Tree preparation has no available stops; review its plan.";
+            case GARDEN: return latestGardenRun != null && latestGardenRun.getBlocker().isEmpty() && !latestGardenRun.getStops().isEmpty() ? "" : "Bush/cactus preparation has no available stops; review its plan.";
+            case FIELD: return latestFieldRun != null && latestFieldRun.getBlocker().isEmpty() && !latestFieldRun.getStops().isEmpty() ? "" : "Field preparation has no available stops; review its plan.";
+            default: return "Component unavailable.";
+        }
+    }
+
+    private void handleCombinedGuidanceCommand(com.farmingnavigator.guided.combined.CombinedGuidanceSession.Command command,
+            String expectedProfile, long expectedRevision)
+    {
+        if (panel == null || !accountStateService.createSnapshot().isLoggedIn() || expectedProfile == null
+                || !java.util.Objects.equals(expectedProfile, configManager.getRSProfileKey())
+                || expectedRevision != combinedGuidance.snapshot().getRevision()) { return; }
+        // Refresh observations, account and resource plans before starting a component. A changed queue rejects old buttons.
+        updateAccountState();
+        if (expectedRevision != combinedGuidance.snapshot().getRevision()) { return; }
+        switch (command)
+        {
+            case BEGIN:
+                if (combinedStartBlocker().isEmpty())
+                { combinedGuidance.begin(expectedProfile, config.combinedRunTypes(), kind -> startComponentChecklist(kind, Instant.now())); }
+                break;
+            case NEXT:
+                if (!anyChecklistActive() && componentStartBlocker(combinedGuidance.snapshot().getNext()).isEmpty())
+                { combinedGuidance.next(expectedProfile, kind -> startComponentChecklist(kind, Instant.now())); }
+                break;
+            case END: combinedGuidance.clear(); break;
+            default: break;
+        }
+        updateAccountState();
+    }
+
+    private boolean startComponentChecklist(com.farmingnavigator.routing.run.CombinedRunKind kind, Instant now)
+    {
+        switch (kind)
+        {
+            case HERB:
+                if (!guidedRunSession.start(latestSuggestedRun, config.herbRunCompost(), now)) { return false; }
+                treeRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel();
+                startRunMetrics("Herb run", now, com.farmingnavigator.analytics.RunHistoryContext.of(
+                        com.farmingnavigator.analytics.RunHistoryStore.Kind.HERB, latestSuggestedRun.getCrop().name(), latestSuggestedRun.getStops().size()));
+                break;
+            case TREE:
+                if (!treeRunSession.start(latestTreeRun, config.treeRunProtection(), now)) { return false; }
+                guidedRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel();
+                startRunMetrics("Tree run", now, com.farmingnavigator.analytics.RunHistoryContext.of(
+                        com.farmingnavigator.analytics.RunHistoryStore.Kind.TREE, latestTreeRun.getCrop().name(), latestTreeRun.getStops().size()));
+                break;
+            case GARDEN:
+                if (!gardenRunSession.start(latestGardenRun, config.gardenRunProtection(), now)) { return false; }
+                guidedRunSession.cancel(); treeRunSession.cancel(); fieldRunSession.cancel();
+                startRunMetrics("Bush/cactus run", now, com.farmingnavigator.analytics.RunHistoryContext.of(
+                        com.farmingnavigator.analytics.RunHistoryStore.Kind.GARDEN, latestGardenRun.getCrop().name(), latestGardenRun.getStops().size()));
+                break;
+            case FIELD:
+                if (!fieldRunSession.start(latestFieldRun, config.fieldRunProtection(), now)) { return false; }
+                guidedRunSession.cancel(); treeRunSession.cancel(); gardenRunSession.cancel();
+                startRunMetrics("Field run", now, com.farmingnavigator.analytics.RunHistoryContext.of(
+                        com.farmingnavigator.analytics.RunHistoryStore.Kind.FIELD, latestFieldRun.getCrop().name(), latestFieldRun.getStops().size()));
+                break;
+            default: return false;
+        }
+        guidedRunOverlayController.clear(); return true;
+    }
+
     private void handleGuidedRunCommand(GuidedRunCommand command)
     {
         if (panel == null || !accountStateService.createSnapshot().isLoggedIn())
@@ -926,11 +1049,7 @@ public class FarmingNavigatorPlugin
         switch (command)
         {
             case START:
-                if (guidedRunSession.start(latestSuggestedRun, config.herbRunCompost(), now))
-                {
-                    treeRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel(); startRunMetrics("Herb run",now,com.farmingnavigator.analytics.RunHistoryContext.of(
-                        com.farmingnavigator.analytics.RunHistoryStore.Kind.HERB,latestSuggestedRun.getCrop().name(),latestSuggestedRun.getStops().size()));
-                }
+                if (startComponentChecklist(com.farmingnavigator.routing.run.CombinedRunKind.HERB, now)) { combinedGuidance.clear(); }
                 break;
             case CONFIRM: guidedRunSession.confirm(now); break;
             case SKIP: guidedRunSession.skip(now); break;
@@ -947,12 +1066,7 @@ public class FarmingNavigatorPlugin
         Instant now = Instant.now();
         if (command == com.farmingnavigator.guided.tree.TreeRunCommand.START)
         {
-            if (treeRunSession.start(latestTreeRun, config.treeRunProtection(), now))
-            {
-                guidedRunSession.cancel(); gardenRunSession.cancel(); fieldRunSession.cancel(); guidedRunOverlayController.clear();
-                startRunMetrics("Tree run",now,com.farmingnavigator.analytics.RunHistoryContext.of(
-                        com.farmingnavigator.analytics.RunHistoryStore.Kind.TREE,latestTreeRun.getCrop().name(),latestTreeRun.getStops().size()));
-            }
+            if (startComponentChecklist(com.farmingnavigator.routing.run.CombinedRunKind.TREE, now)) { combinedGuidance.clear(); }
         }
         else { treeRunSession.command(command, now); }
         updateAccountState();
@@ -975,12 +1089,7 @@ public class FarmingNavigatorPlugin
         Instant now = Instant.now();
         if (command == com.farmingnavigator.guided.garden.GardenRunCommand.START)
         {
-            if (gardenRunSession.start(latestGardenRun, config.gardenRunProtection(), now))
-            {
-                guidedRunSession.cancel(); treeRunSession.cancel(); fieldRunSession.cancel(); guidedRunOverlayController.clear();
-                startRunMetrics("Bush/cactus run",now,com.farmingnavigator.analytics.RunHistoryContext.of(
-                        com.farmingnavigator.analytics.RunHistoryStore.Kind.GARDEN,latestGardenRun.getCrop().name(),latestGardenRun.getStops().size()));
-            }
+            if (startComponentChecklist(com.farmingnavigator.routing.run.CombinedRunKind.GARDEN, now)) { combinedGuidance.clear(); }
         }
         else { gardenRunSession.command(command, now); }
         updateAccountState();
@@ -992,12 +1101,7 @@ public class FarmingNavigatorPlugin
         Instant now = Instant.now();
         if (command == com.farmingnavigator.guided.field.FieldRunCommand.START)
         {
-            if (fieldRunSession.start(latestFieldRun, config.fieldRunProtection(), now))
-            {
-                guidedRunSession.cancel(); treeRunSession.cancel(); gardenRunSession.cancel(); guidedRunOverlayController.clear();
-                startRunMetrics("Field run",now,com.farmingnavigator.analytics.RunHistoryContext.of(
-                        com.farmingnavigator.analytics.RunHistoryStore.Kind.FIELD,latestFieldRun.getCrop().name(),latestFieldRun.getStops().size()));
-            }
+            if (startComponentChecklist(com.farmingnavigator.routing.run.CombinedRunKind.FIELD, now)) { combinedGuidance.clear(); }
         }
         else { fieldRunSession.command(command, now); }
         updateAccountState();
