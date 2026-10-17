@@ -65,6 +65,8 @@ public class AccountStateService
              * Ardougne.
              */
             Quest.PLAGUE_CITY,
+            Quest.WATCHTOWER,
+            Quest.DESERT_TREASURE_I,
 
             /*
              * Kourend and Hosidius transportation.
@@ -225,6 +227,11 @@ public class AccountStateService
     private EnumMap<Quest, QuestState>
     readQuestStates()
     {
+        return readQuestStates(quest -> quest.getState(client));
+    }
+
+    static EnumMap<Quest, QuestState> readQuestStates(java.util.function.Function<Quest, QuestState> reader)
+    {
         EnumMap<Quest, QuestState> questStates =
                 new EnumMap<>(
                         Quest.class
@@ -237,9 +244,7 @@ public class AccountStateService
         {
             questStates.put(
                     quest,
-                    quest.getState(
-                            client
-                    )
+                    reader.apply(quest)
             );
         }
 
