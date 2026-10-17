@@ -30,7 +30,10 @@ public final class GardenPatchTransportService
                 "Teleport to Falador, leave by the south gate and follow the roads south-west to the Rimmington bush patch."),
                 new TransportOption(90, "Skills necklace to Crafting Guild, then Rimmington",
                         "Choose Crafting Guild on a charged skills necklace. Stay outside the guild, then walk south-east to Rimmington and the bush beside the house portal.",
-                        TransportCategory.JEWELLERY, TransportVerificationKind.SKILLS_NECKLACE)));
+                        TransportCategory.JEWELLERY, TransportVerificationKind.SKILLS_NECKLACE),
+                new TransportOption(95, "Configured Rimmington house, then bush",
+                        "Teleport to your configured Rimmington house, choose the outside arrival or leave through its portal, then walk to the bush beside the house portal.",
+                        TransportCategory.PLAYER_OWNED_HOUSE, TransportVerificationKind.POH_RIMMINGTON_HOUSE_LOCATION)));
         options.put(GardenPatchDefinition.ARDOUGNE_BUSH, List.of(spell(1, TeleportSpellDefinition.ARDOUGNE_TELEPORT,
                 "Teleport to Ardougne, then travel south-west to the bush north of the monastery."),
                 new TransportOption(2, "Fairy ring DJP to Ardougne bush", "Travel to an accessible fairy ring, use DJP, then run west to the bush near Ardougne Monastery.",

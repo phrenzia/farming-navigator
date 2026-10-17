@@ -27,7 +27,10 @@ public final class TreePatchTransportService
                 "Teleport to Falador, leave through the north gate and follow the road north-west to the Taverley tree patch."),
                 item(90, "Games necklace to Burthorpe, then Taverley",
                         "Choose Burthorpe on a charged games necklace, then follow the roads south through Taverley to the tree patch beside Alain.",
-                        TransportVerificationKind.GAMES_NECKLACE)));
+                        TransportVerificationKind.GAMES_NECKLACE),
+                house(95, "Configured Taverley house, then tree patch",
+                        "Teleport to your configured Taverley house, choose the outside arrival or leave through its portal, then walk south-east to the tree patch beside Alain.",
+                        TransportVerificationKind.POH_TAVERLEY_HOUSE_LOCATION)));
         options.put(TreePatchDefinition.CATHERBY_FRUIT, List.of(spell(1, TeleportSpellDefinition.CATHERBY_TELEPORT,
                 "Teleport to Catherby and run east past the fishing spots to the fruit tree patch."),
                 spell(2, TeleportSpellDefinition.CAMELOT_TELEPORT,
@@ -39,7 +42,10 @@ public final class TreePatchTransportService
         options.put(TreePatchDefinition.FARMING_GUILD_CELASTRUS, guild);
         options.put(TreePatchDefinition.FARMING_GUILD_REDWOOD, guild);
         options.put(TreePatchDefinition.BRIMHAVEN_FRUIT, List.of(item(1, "Amulet of glory to Karamja",
-                "Teleport to Musa Point on Karamja and travel west to the fruit tree patch north of Brimhaven.", TransportVerificationKind.AMULET_OF_GLORY)));
+                "Teleport to Musa Point on Karamja and travel west to the fruit tree patch north of Brimhaven.", TransportVerificationKind.AMULET_OF_GLORY),
+                house(95, "Configured Brimhaven house, then fruit tree",
+                        "Teleport to your configured Brimhaven house, choose the outside arrival or leave through its portal, then walk north to the fruit tree patch.",
+                        TransportVerificationKind.POH_BRIMHAVEN_HOUSE_LOCATION)));
         options.put(TreePatchDefinition.GNOME_STRONGHOLD_TREE, List.of(item(1, "Wealth to Exchange, then spirit tree",
                 "Teleport to the Grand Exchange, walk to its spirit tree, travel to Gnome Stronghold, then walk south-west to the regular tree patch.", TransportVerificationKind.WEALTH_SPIRIT_TREE)));
         options.put(TreePatchDefinition.GNOME_STRONGHOLD_FRUIT, List.of(item(1, "Wealth to Exchange, then spirit tree",
@@ -49,14 +55,20 @@ public final class TreePatchTransportService
         options.put(TreePatchDefinition.LLETYA_FRUIT, List.of(item(1, "Teleport crystal to Lletya",
                 "Choose Lletya on a charged or eternal teleport crystal, then walk south to the fruit tree patch.", TransportVerificationKind.LLETYA_CRYSTAL)));
         options.put(TreePatchDefinition.PRIFDDINAS_CRYSTAL, List.of(item(1, "Teleport crystal to Prifddinas",
-                "Choose Prifddinas on a charged or eternal teleport crystal, then walk north-east to the crystal tree patch.", TransportVerificationKind.PRIFDDINAS_CRYSTAL)));
+                "Choose Prifddinas on a charged or eternal teleport crystal, then walk north-east to the crystal tree patch.", TransportVerificationKind.PRIFDDINAS_CRYSTAL),
+                house(95, "Configured Prifddinas house, then crystal tree",
+                        "Teleport to your configured Prifddinas house, choose the outside arrival or leave through its portal, then walk north-east to the crystal tree patch.",
+                        TransportVerificationKind.POH_PRIFDDINAS_HOUSE_LOCATION)));
         options.put(TreePatchDefinition.TAI_BWO_WANNAI_CALQUAT, List.of(
                 new TransportOption(1, "Tai bwo wannai teleport scroll",
                         "Use a loose Tai bwo wannai teleport scroll, then run north to the calquat patch. Master scroll book contents are not checked.",
                         TransportCategory.ITEM, TransportVerificationKind.TAI_BWO_WANNAI_SCROLL),
                 new TransportOption(2, "Fairy ring CKR to Tai Bwo Wannai",
                         "Travel to an accessible fairy ring, use CKR, then run north through Tai Bwo Wannai to the calquat patch.",
-                        TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_ACCESS)));
+                        TransportCategory.FAIRY_RING, TransportVerificationKind.FAIRY_RING_ACCESS),
+                house(95, "Configured Brimhaven house, then calquat patch",
+                        "Teleport to your configured Brimhaven house, choose the outside arrival or leave through its portal, then follow the road south-east to the calquat patch north of Tai Bwo Wannai.",
+                        TransportVerificationKind.POH_BRIMHAVEN_HOUSE_LOCATION)));
         List<TransportOption> fossil = List.of(item(1, "Digsite pendant, then barge",
                 "Choose the base Digsite destination, quick-travel with the barge guard to Fossil Island, then walk north to the hardwood patches. This route does not require the separate pendant machine destination or mushtrees.", TransportVerificationKind.DIGSITE_BARGE));
         options.put(TreePatchDefinition.FOSSIL_ISLAND_EAST, fossil);
@@ -78,5 +90,9 @@ public final class TreePatchTransportService
     private TransportOption item(int rank, String label, String instructions, TransportVerificationKind kind)
     {
         return new TransportOption(rank, label, instructions, TransportCategory.JEWELLERY, kind);
+    }
+    private TransportOption house(int rank, String label, String instructions, TransportVerificationKind kind)
+    {
+        return new TransportOption(rank, label, instructions, TransportCategory.PLAYER_OWNED_HOUSE, kind);
     }
 }

@@ -42,7 +42,10 @@ public final class FieldPatchTransportService
                                     watchtowerApproach(), TransportCategory.SPELL, TransportVerificationKind.TELEPORT_SPELL,
                                     TeleportSpellDefinition.WATCHTOWER_TELEPORT),
                             new TransportOption(92, "Watchtower teleport tablet to Yanille hops",
-                                    watchtowerApproach(), TransportCategory.ITEM, TransportVerificationKind.WATCHTOWER_TELEPORT_TABLET)); break;
+                                    watchtowerApproach(), TransportCategory.ITEM, TransportVerificationKind.WATCHTOWER_TELEPORT_TABLET),
+                            new TransportOption(95, "Configured Yanille house, then hops",
+                                    "Teleport to your configured Yanille house, choose the outside arrival or leave through its portal, then walk east to the hops plot east of town.",
+                                    TransportCategory.PLAYER_OWNED_HOUSE, TransportVerificationKind.POH_YANILLE_HOUSE_LOCATION)); break;
                 case SEERS_VILLAGE:
                     arrivals = List.of(spell(TeleportSpellDefinition.CAMELOT_TELEPORT,
                             "Use Camelot Teleport and travel north-west to the hops plot north of McGrubor's Wood. If your diary redirect sends you to Seers' Village, travel north from there."),
@@ -74,7 +77,10 @@ public final class FieldPatchTransportService
                 case PRIFDDINAS:
                     arrivals = List.of(new TransportOption(1, "Teleport crystal to Prifddinas",
                             "Choose Prifddinas on a charged or eternal teleport crystal, then walk north-east to the allotment/flower area.",
-                            TransportCategory.ITEM, TransportVerificationKind.PRIFDDINAS_CRYSTAL)); break;
+                            TransportCategory.ITEM, TransportVerificationKind.PRIFDDINAS_CRYSTAL),
+                            new TransportOption(95, "Configured Prifddinas house, then field plots",
+                                    "Teleport to your configured Prifddinas house, choose the outside arrival or leave through its portal, then walk north-east to the allotment/flower area.",
+                                    TransportCategory.PLAYER_OWNED_HOUSE, TransportVerificationKind.POH_PRIFDDINAS_HOUSE_LOCATION)); break;
                 default: arrivals = herbs.getOrDefault(HerbPatchDefinition.valueOf(region.name()), List.of()); break;
             }
             List<TransportOption> rewritten = new ArrayList<>();

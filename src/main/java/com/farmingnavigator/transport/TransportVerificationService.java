@@ -470,6 +470,19 @@ public class TransportVerificationService
                         PohHouseLocation.HOSIDIUS
                 );
 
+            case POH_RIMMINGTON_HOUSE_LOCATION:
+                return evaluatePohHouseLocation(accountState, config, travelCapabilitySnapshot, storageSnapshot, option, PohHouseLocation.RIMMINGTON);
+            case POH_TAVERLEY_HOUSE_LOCATION:
+                return evaluatePohHouseLocation(accountState, config, travelCapabilitySnapshot, storageSnapshot, option, PohHouseLocation.TAVERLEY);
+            case POH_BRIMHAVEN_HOUSE_LOCATION:
+                return evaluatePohHouseLocation(accountState, config, travelCapabilitySnapshot, storageSnapshot, option, PohHouseLocation.BRIMHAVEN);
+            case POH_YANILLE_HOUSE_LOCATION:
+                return evaluatePohHouseLocation(accountState, config, travelCapabilitySnapshot, storageSnapshot, option, PohHouseLocation.YANILLE);
+            case POH_PRIFDDINAS_HOUSE_LOCATION:
+                if (!accountState.hasCompletedQuest(Quest.SONG_OF_THE_ELVES))
+                { return new VerifiedTransportResult(option, VerifiedTransportState.LOCKED, "Complete Song of the Elves for Prifddinas house-portal access."); }
+                return evaluatePohHouseLocation(accountState, config, travelCapabilitySnapshot, storageSnapshot, option, PohHouseLocation.PRIFDDINAS);
+
             case POH_PORTAL:
                 return evaluatePohPortal(
                         accountState,
