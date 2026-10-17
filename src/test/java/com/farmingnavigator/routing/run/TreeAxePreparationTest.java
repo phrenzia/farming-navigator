@@ -84,4 +84,40 @@ public class TreeAxePreparationTest
         assertTrue(result.getRequirement().getNote().contains("undead trees"));
     }
 
+    @Test public void gildedAndNonCrystalFellingAxesRespectSkillAndStorageEvidence()
+    {
+        int[][] cases = {{ItemID.TRAIL_GILDED_AXE, 41}, {ItemID.BRONZE_AXE_2H, 1},
+                {ItemID.IRON_AXE_2H, 1}, {ItemID.STEEL_AXE_2H, 6}, {ItemID.BLACK_AXE_2H, 11},
+                {ItemID.MITHRIL_AXE_2H, 21}, {ItemID.ADAMANT_AXE_2H, 31}, {ItemID.RUNE_AXE_2H, 41},
+                {ItemID.DRAGON_AXE_2H, 61}, {ItemID._3A_AXE_2H, 61}};
+        for (int[] row : cases)
+        {
+            AccountState usable = account(row[1]).withRealAttackLevel(1);
+            assertEquals(SupplyState.ALREADY_CARRIED, TreeAxePreparation.evaluate(usable,
+                    storage(Map.of(row[0], 1L), Map.of(), Map.of(), true)).getState());
+            assertEquals(SupplyState.ALREADY_EQUIPPED, TreeAxePreparation.evaluate(usable,
+                    storage(Map.of(), Map.of(row[0], 1L), Map.of(), true)).getState());
+            SupplyCheck banked = TreeAxePreparation.evaluate(usable,
+                    storage(Map.of(), Map.of(), Map.of(row[0], 1L), true));
+            assertEquals(SupplyState.AVAILABLE_FROM_BANK, banked.getState());
+            assertEquals(1, banked.getWithdrawQuantity());
+            assertEquals(SupplyState.DATA_REQUIRED, TreeAxePreparation.evaluate(usable,
+                    storage(Map.of(), Map.of(), Map.of(row[0], 1L), false)).getState());
+            assertNotEquals(SupplyState.ALREADY_CARRIED, TreeAxePreparation.evaluate(account(row[1] - 1),
+                    storage(Map.of(row[0], 1L), Map.of(), Map.of(), true)).getState());
+        }
+    }
+
+    @Test public void newVariantsRemainUnusableAsNotesAndDoNotEnableCrystalOrInfernalAxes()
+    {
+        for (int item : new int[]{ItemID.Cert.TRAIL_GILDED_AXE, ItemID.Cert.BRONZE_AXE_2H,
+                ItemID.Cert.DRAGON_AXE_2H, ItemID.Cert._3A_AXE_2H, ItemID.CRYSTAL_AXE,
+                ItemID.CRYSTAL_AXE_INACTIVE, ItemID.CRYSTAL_AXE_2H, ItemID.CRYSTAL_AXE_2H_INACTIVE,
+                ItemID.INFERNAL_AXE, ItemID.INFERNAL_AXE_EMPTY})
+        {
+            assertEquals(SupplyState.MISSING, TreeAxePreparation.evaluate(account(99),
+                    storage(Map.of(item, 1L), Map.of(), Map.of(), true)).getState());
+        }
+    }
+
 }

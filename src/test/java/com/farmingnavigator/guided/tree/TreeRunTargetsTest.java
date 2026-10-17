@@ -125,6 +125,32 @@ public class TreeRunTargetsTest
         assertTrue(preparation.getBankItems().contains(ItemID.RUNE_AXE));
         assertFalse(preparation.getBankItems().contains(ItemID.Cert.RUNE_AXE));
     }
+    @Test public void verifiedFellingAndGildedToolsReachPreparationAndBarkHighlights()
+    {
+        for (int level : new int[]{40, 41, 60, 61})
+        {
+            AccountState account = new AccountState(true, 99, 99, EnumSet.noneOf(net.runelite.api.Quest.class), false)
+                    .withBoostedWoodcuttingLevel(level);
+            StorageSnapshot storage = new StorageSnapshot(Map.of(), Map.of(),
+                    Map.of(ItemID.TRAIL_GILDED_AXE, 1L, ItemID.DRAGON_AXE_2H, 1L), true, Instant.now());
+            TreeRunPlan plan = new TreeRunPlanner().plan(account, EnumSet.of(TreePatchDefinition.FARMING_GUILD_CELASTRUS),
+                    TreeRunCrop.CELASTRUS, true, Map.of(), storage, Instant.now());
+            for (TreeRunStep step : List.of(TreeRunStep.PREPARE, TreeRunStep.HARVEST_BARK, TreeRunStep.REMOVE))
+            {
+                GuidedRunTargets targets = GuidedRunTargets.fromTree(snapshot(step, plan), plan, null);
+                assertEquals(level >= 41, targets.getInventoryItems().contains(ItemID.TRAIL_GILDED_AXE));
+                assertEquals(level >= 61, targets.getInventoryItems().contains(ItemID.DRAGON_AXE_2H));
+                assertTrue(targets.getInventoryItems().contains(ItemID.BRONZE_AXE_2H));
+                assertFalse(targets.getInventoryItems().contains(ItemID.Cert.TRAIL_GILDED_AXE));
+                assertFalse(targets.getInventoryItems().contains(ItemID.CRYSTAL_AXE_2H));
+                if (step == TreeRunStep.PREPARE)
+                {
+                    assertEquals(level >= 41, targets.getBankItems().contains(ItemID.TRAIL_GILDED_AXE));
+                    assertEquals(level >= 61, targets.getBankItems().contains(ItemID.DRAGON_AXE_2H));
+                }
+            }
+        }
+    }
     @Test public void sceneTargetsSeparateFarmerStepsFromPatchSteps()
     {
         GuidedRunTargets protection = targets(TreeRunStep.PROTECT, TreeRunCrop.OAK);
